@@ -1,0 +1,23 @@
+[project]
+name = "codepoet-backend"
+version = "0.1.0"
+description = "CodePoet core-demo API"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.162.0,<0.163",
+    "pydantic>=2.14.2,<2.15",
+    "pydantic-settings>=2.16.2,<2.17",
+    "sqlalchemy>=2.1.8,<2.2",
+    "uvicorn>=0.54.0,<0.55",
+]
+
+[dependency-groups]
+dev = ["httpx>=0.28.1,<0.29"]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
