@@ -5,16 +5,32 @@ from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 
+from app.api.auth import router as auth_router
 from app.db import create_database, create_session_factory
+from app.errors import ApiError
 from app.schemas.health import Health
 from app.settings import Settings
 
 logger = logging.getLogger(__name__)
+
+# 契约 2：普通 JSON 请求上限 256KiB，导入包 5MiB（由各接口自行校验）
+MAX_REQUEST_BYTES = 256 * 1024
+
+
+def _content_too_large(request: Request) -> bool:
+    raw = request.headers.get("content-length")
+    if not raw:
+        return False
+    try:
+        return int(raw) > MAX_REQUEST_BYTES
+    except ValueError:
+        return False
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -36,6 +52,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="代码诗 API", version="1.1.0", lifespan=lifespan,
         docs_url="/api/docs", redoc_url=None, openapi_url="/api/openapi.json",
     )
+    # 让依赖（如 Cookie Secure 标志）能读到配置
+    application.state.settings = config
 
     def error_response(request: Request, status: int, code: str, message: str):
         return JSONResponse(status_code=status, content={"error": {
@@ -46,6 +64,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @application.middleware("http")
     async def response_metadata(request: Request, call_next):
         request.state.request_id = f"req-{uuid4().hex}"
+        if _content_too_large(request):
+            response = error_response(
+                request, 413, "REQUEST_TOO_LARGE", "请求体超过 256KiB 限制"
+            )
+            response.headers["X-Request-Id"] = request.state.request_id
+            response.headers["Cache-Control"] = "no-store"
+            return response
         try:
             response = await call_next(request)
         except Exception:
@@ -60,6 +85,50 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         code = "RESOURCE_NOT_FOUND" if exc.status_code == 404 else "HTTP_ERROR"
         return error_response(request, exc.status_code, code, str(exc.detail))
 
+    @application.exception_handler(ApiError)
+    async def api_error(request: Request, exc: ApiError):
+        """业务错误：code 按契约表格，客户端只看到 message，看不到堆栈。"""
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fieldErrors": exc.field_errors,
+                    "requestId": getattr(request.state, "request_id", None),
+                    "details": exc.details,
+                }
+            },
+        )
+
+    @application.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, exc: RequestValidationError):
+        """把 FastAPI 默认的 {"detail":[...]} 转成契约的 VALIDATION_ERROR。
+
+        不转的话前端拿不到 fieldErrors，也没法按 code 统一处理。
+        """
+        field_errors = []
+        for item in exc.errors():
+            location = [str(part) for part in item.get("loc", ())][1:]
+            field_errors.append(
+                {
+                    "path": ".".join(location) or "body",
+                    "message": item.get("msg", "不合法"),
+                }
+            )
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "请求参数不合法",
+                    "fieldErrors": field_errors,
+                    "requestId": getattr(request.state, "request_id", None),
+                    "details": None,
+                }
+            },
+        )
+
     @application.get("/api/v1/health", response_model=Health, tags=["系统"])
     def health(request: Request):
         try:
@@ -68,6 +137,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except SQLAlchemyError:
             return error_response(request, 503, "DATABASE_UNAVAILABLE", "数据库连接不可用")
         return Health()
+
+    application.include_router(auth_router, prefix="/api/v1")
 
     return application
 
