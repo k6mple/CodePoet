@@ -20,6 +20,10 @@ htmlcov/
 node_modules/
 .tools/
 dist/
+.next/
+out/
+next-env.d.ts
+.playwright-mcp/
 coverage/
 *.tsbuildinfo
 
