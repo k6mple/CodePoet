@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0",
+  "seed": 7,
+  "canvas": { "width": 800, "height": 600, "background": "#F7F6F0" },
+  "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+  "durationMs": 2000,
+  "nodes": [
+    {
+      "id": "flower",
+      "parentId": null,
+      "type": "group",
+      "transform": { "x": 400, "y": 300 },
+      "style": { "opacity": 1 }
+    },
+    {
+      "id": "flower-core",
+      "parentId": "flower",
+      "type": "circle",
+      "geometry": { "cx": 0, "cy": 0, "r": 70 },
+      "style": {
+        "fill": "#EF9F27",
+        "stroke": "#854F0B",
+        "strokeWidth": 3,
+        "opacity": 1
+      },
+      "material": { "shaderRef": "flat" }
+    },
+    {
+      "id": "flower-petal",
+      "parentId": "flower",
+      "type": "circle",
+      "transform": { "x": 140, "y": 0, "rotation": 0 },
+      "geometry": { "cx": 0, "cy": 0, "r": 55 },
+      "style": {
+        "fill": "#D4537E",
+        "stroke": "#993556",
+        "strokeWidth": 2,
+        "opacity": 0.85
+      },
+      "material": { "shaderRef": "flat" }
+    },
+    {
+      "id": "hex-leaf",
+      "parentId": null,
+      "type": "polygon",
+      "geometry": {
+        "points": [
+          [200, 390],
+          [260, 420],
+          [260, 480],
+          [200, 510],
+          [140, 480],
+          [140, 420]
+        ]
+      },
+      "style": {
+        "fill": "#639922",
+        "stroke": "#3B6D11",
+        "strokeWidth": 2,
+        "opacity": 1
+      },
+      "material": { "shaderRef": "flat" }
+    },
+    {
+      "id": "branch",
+      "parentId": null,
+      "type": "polyline",
+      "geometry": {
+        "points": [[600, 520], [640, 460], [620, 400], [660, 340], [640, 280]]
+      },
+      "style": {
+        "fill": null,
+        "stroke": "#0F6E56",
+        "strokeWidth": 6,
+        "opacity": 1
+      },
+      "material": { "shaderRef": "flat" }
+    }
+  ],
+  "animations": [
+    {
+      "nodeId": "flower",
+      "property": "opacity",
+      "from": 0,
+      "to": 1,
+      "startMs": 0,
+      "endMs": 1200,
+      "easing": "linear"
+    }
+  ],
+  "narrative": []
+}

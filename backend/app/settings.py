@@ -18,6 +18,10 @@ class Settings(BaseSettings):
 
     data_dir: Path = PROJECT_ROOT / "data"
 
+    # 生产环境走 HTTPS 时必须设为 true（CODEPOET_COOKIE_SECURE=true），
+    # 否则会话 Cookie 会在明文连接上传输；本地 http 开发保持 false。
+    cookie_secure: bool = False
+
     @field_validator("data_dir", mode="after")
     @classmethod
     def resolve_data_dir(cls, value: Path) -> Path:
