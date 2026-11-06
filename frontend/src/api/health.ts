@@ -3,11 +3,11 @@ export interface Health {
   apiVersion: '1.1.0'
 }
 
-export async function getHealth(): Promise<Health> {
+export async function getHealth(signal?: AbortSignal): Promise<Health> {
   const response = await fetch('/api/v1/health', {
     credentials: 'include',
     cache: 'no-store',
-    signal: AbortSignal.timeout(5000),
+    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(5000)]) : AbortSignal.timeout(5000),
   })
   if (!response.ok) throw new Error(`健康检查失败（HTTP ${response.status}）`)
   const data = await response.json()
