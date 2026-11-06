@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0",
+  "seed": 20261106,
+  "canvas": { "width": 800, "height": 600, "background": "#FFFDF7" },
+  "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+  "durationMs": 0,
+  "nodes": [
+    {
+      "id": "corner-tl",
+      "parentId": null,
+      "type": "polygon",
+      "geometry": { "points": [[0, 0], [72, 0], [0, 72]] },
+      "style": {
+        "fill": "#378ADD",
+        "stroke": "#0C447C",
+        "strokeWidth": 2,
+        "opacity": 1
+      }
+    },
+    {
+      "id": "corner-br",
+      "parentId": null,
+      "type": "circle",
+      "geometry": { "cx": 760, "cy": 560, "r": 40 },
+      "style": {
+        "fill": "#D85A30",
+        "stroke": "#712B13",
+        "strokeWidth": 2,
+        "opacity": 1
+      }
+    },
+    {
+      "id": "center-square",
+      "parentId": null,
+      "type": "polygon",
+      "geometry": { "points": [[360, 260], [440, 260], [440, 340], [360, 340]] },
+      "style": {
+        "fill": "#1D9E75",
+        "stroke": "#0F6E56",
+        "strokeWidth": 0,
+        "opacity": 1
+      }
+    },
+    {
+      "id": "axis-line",
+      "parentId": null,
+      "type": "polyline",
+      "geometry": { "points": [[0, 300], [400, 300], [400, 0]] },
+      "style": {
+        "fill": null,
+        "stroke": "#888780",
+        "strokeWidth": 1,
+        "opacity": 0.6
+      }
+    }
+  ],
+  "animations": [],
+  "narrative": []
+}
