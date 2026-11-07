@@ -101,4 +101,4 @@ $env:NODE_PATH="C:\Users\hp\AppData\Local\npm-cache\_npx\e41f203b7505f1fb\node_m
   2. 用真实数据验证收藏切换、会话保存/恢复、搜索组合结果、知识详情、导出包、导入预校验/事务执行和审计筛选。
   3. 重新运行本脚本并补充成功状态截图。
   4. 更新 P1-A 任务验收状态；再决定 P1-B 或后端补缺。
-- Git 提交/推送情况：本次改动尚未提交；将按用户要求提交到 `feat/frontend`，提交后以 docs 提交记录实际 hash；未推送、未合并，不修改 `backend/`、`shared/`、`scripts/`、`docs/` 或 `main`。
+- Git 提交/推送情况：功能代码、工作日志与浏览器证据已提交到 `feat/frontend` 的 `13211a9`；本次日志状态更新随后以 docs 提交记录。未推送、未合并，未修改 `backend/`、`shared/`、`scripts/`、`docs/` 或 `main`。

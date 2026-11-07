@@ -94,4 +94,4 @@ $env:NODE_PATH="C:\Users\hp\AppData\Local\npm-cache\_npx\e41f203b7505f1fb\node_m
   2. 用真实模板和审核数据验证公开库、版本生命周期、对比、自审拦截、退回修订和发布后公开展示。
   3. 重新运行本脚本并补充成功状态截图。
   4. 继续 P1A-05/06/07 或 P1-B。
-- Git 提交/推送情况：本次改动尚未提交、未推送、未合并。当前工作区包含本次新增/修改的前端文件和工作日志；上一里程碑提交为 `fbd0e68`、`e4bf170`。未修改 `main`、`backend/`、`shared/`、`scripts/`、`docs/` 或本地运行数据库（Git 忽略）。
+- Git 提交/推送情况：功能代码、工作日志与浏览器证据已提交到 `feat/frontend` 的 `13211a9`；本次日志状态更新随后以 docs 提交记录。未推送、未合并，未修改 `main`、`backend/`、`shared/`、`scripts/`、`docs/` 或本地运行数据库（Git 忽略）。上一里程碑提交为 `fbd0e68`、`e4bf170`。
