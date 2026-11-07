@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getHealth, type Health } from '@/api/health'
+import { errorMessage } from '@/api/client'
 
 export default function StartupStatus() {
   const [loading, setLoading] = useState(true)
@@ -20,7 +21,7 @@ export default function StartupStatus() {
       .then((result) => { if (!controller.signal.aborted) setHealth(result) })
       .catch((cause: unknown) => {
         if (!controller.signal.aborted) {
-          setError(cause instanceof Error ? cause.message : '无法连接后端')
+          setError(errorMessage(cause))
         }
       })
       .finally(() => {

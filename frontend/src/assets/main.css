@@ -7,7 +7,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
-main { max-width: 800px; margin: 12vh auto; padding: 32px; }
+main { max-width: 1080px; margin: 24px auto; padding: 24px; }
 .eyebrow { font-size: 12px; letter-spacing: 0.18em; color: #5c7064; }
 h1 { font-size: clamp(40px, 7vw, 64px); margin: 16px 0 0; }
 .intro { margin: 8px 0 40px; color: #5c7064; }
@@ -19,3 +19,23 @@ button:focus-visible { outline: 3px solid #bd8934; outline-offset: 3px; }
 .success { color: #245b48; }
 .error { color: #a1382d; overflow-wrap: anywhere; }
 .note { color: #637367; font-size: 14px; margin-top: 24px; }
+.site-header, .account { max-width: 1032px; margin: 16px auto; padding: 16px 24px; }
+.site-header, nav { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+a { color: #245b48; }
+section + section { margin-top: 24px; }
+form { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; }
+label { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+input, select { font: inherit; padding: 8px; border: 1px solid #85988b; border-radius: 6px; max-width: 100%; }
+input[type=checkbox] { width: 24px; height: 24px; }
+input[type=color] { width: 80px; height: 44px; }
+input[type=range] { padding: 0; }
+fieldset { border: 0; padding: 0; margin: 12px 0; min-width: 0; }
+button { margin: 4px 8px 4px 0; }
+.canvas-wrap { background: #e5e8e3; padding: 8px; margin: 16px 0; }
+canvas, figure img { display: block; width: 100%; height: auto; }
+small { color: #637367; }
+.error { white-space: pre-wrap; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 500px; overflow: auto; }
+figure { margin: 16px 0; }
+.note { overflow-wrap: anywhere; }
+@media (max-width: 600px) { main { padding: 12px; } section { padding: 16px; } .site-header, .account { margin: 12px; } }
