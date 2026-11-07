@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { errorMessage, request } from '@/api/client'
 import type {
-  Capabilities, Generation, Page, Parameter, Params, RenderJob, Template, TemplateVersion, Work, WorkVersion,
+  Capabilities, CreationSession, EditorState, Generation, Page, Parameter, Params, RenderJob, Template, TemplateVersion, Work, WorkVersion,
 } from '@/types/core'
 import { exportFrame, RENDERER_VERSION, sampleTimes } from '@/renderers/canvas/renderScene'
 import { parameterValueLabel, shortId, symbolLabel } from '@/utils/format'
@@ -44,6 +44,13 @@ export default function Creator() {
   const saveLock = useRef(false)
   const checkpoint = useRef<{ generationId: string; jobId: string } | null>(null)
   const [jobId, setJobId] = useState('')
+  const [sessionId, setSessionId] = useState('')
+  const [sessionRevision, setSessionRevision] = useState(0)
+  const [sessionBusy, setSessionBusy] = useState(false)
+  const [sessionNotice, setSessionNotice] = useState('')
+  const [sessionError, setSessionError] = useState('')
+  const sessionRequested = useRef(false)
+  const pendingSessionParams = useRef<Params | null>(null)
 
   const selectedTemplate = templates.find((item) => item.id === selected) ?? null
   const status = loading ? '正在载入模板'
@@ -73,7 +80,14 @@ export default function Creator() {
       if (!available) setLoadError('后端尚未启用 core-demo Canvas / browser_upload。生成与保存暂不可用。')
       const items = page.items.filter((item) => item.publishedVersionId && item.supportedBackends.includes('canvas2d'))
       setTemplates(items)
-      setSelected((old) => items.some((item) => item.id === old) ? old : items[0]?.id ?? '')
+      const requestedTemplate = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('template')
+        : null
+      setSelected((old) => items.some((item) => item.id === old)
+        ? old
+        : requestedTemplate && items.some((item) => item.id === requestedTemplate)
+          ? requestedTemplate
+          : items[0]?.id ?? '')
     }).catch((cause) => {
       if (!controller.signal.aborted) setLoadError(errorMessage(cause))
     }).finally(() => {
@@ -100,7 +114,9 @@ export default function Creator() {
       .then((result) => {
         if (controller.signal.aborted) return
         if (result.status !== 'published') throw new Error('该模板版本尚未发布，请重新加载模板。')
-        setParams(Object.fromEntries(result.parameterSchema.map((param) => [param.name, param.default])))
+        const restoredParams = pendingSessionParams.current
+        setParams(restoredParams ?? Object.fromEntries(result.parameterSchema.map((param) => [param.name, param.default])))
+        pendingSessionParams.current = null
         setVersion(result)
       }).catch((cause) => {
         if (!controller.signal.aborted) setVersionError(errorMessage(cause))
@@ -162,6 +178,82 @@ export default function Creator() {
       controller.abort()
     }
   }, [version, params, user, capability])
+
+  useEffect(() => {
+    if (!user || loading || templates.length === 0 || sessionRequested.current) return
+    const requested = new URLSearchParams(window.location.search).get('session')
+    if (!requested) return
+    sessionRequested.current = true
+    const controller = new AbortController()
+    request<CreationSession>(`/sessions/${encodeURIComponent(requested)}`, { signal: controller.signal })
+      .then((session) => {
+        if (controller.signal.aborted) return
+        setSessionId(session.id)
+        setSessionRevision(session.revision)
+        if (session.name) setTitle(session.name)
+        if (session.state.mode !== 'template' || !session.state.templateVersionId) {
+          setGenerateError('当前仅支持打开模板模式的创作会话；语义或 IR 会话属于后续任务。')
+          return
+        }
+        const target = templates.find((item) => item.publishedVersionId === session.state.templateVersionId)
+        if (!target) {
+          setGenerateError('该会话引用的模板版本已不可用，无法恢复参数。')
+          return
+        }
+        pendingSessionParams.current = session.state.params
+        setSelected(target.id)
+        if (version?.id === session.state.templateVersionId) setParams(session.state.params)
+        setSessionNotice('已恢复创作会话；可以继续调整参数并重新生成。')
+      })
+      .catch((cause) => {
+        if (!controller.signal.aborted) setGenerateError(errorMessage(cause))
+      })
+    return () => controller.abort()
+  }, [user, loading, templates, version?.id])
+
+  async function saveProgress() {
+    if (!user || !version || sessionBusy) return
+    const state: EditorState = {
+      mode: 'template',
+      templateVersionId: version.id,
+      params,
+      semanticInput: { text: '', entityIds: [] },
+      draftIR: null,
+      fragmentSource: '',
+      backend: 'canvas2d',
+      seed: 42,
+      timelineTimeMs: 0,
+      selectedNodeId: null,
+      generationId: generation && !dirty ? generation.id : null,
+    }
+    const name = title.trim() || '未命名创作现场'
+    setSessionBusy(true)
+    setSessionError('')
+    setSessionNotice('')
+    try {
+      if (sessionId) {
+        const updated = await request<CreationSession>(`/sessions/${encodeURIComponent(sessionId)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ expectedRevision: sessionRevision, name, state }),
+        })
+        setSessionId(updated.id)
+        setSessionRevision(updated.revision)
+        setSessionNotice('进度已保存，服务器已追加快照。')
+      } else {
+        const created = await request<CreationSession>('/sessions', {
+          method: 'POST',
+          body: JSON.stringify({ name, state }),
+        })
+        setSessionId(created.id)
+        setSessionRevision(created.revision)
+        setSessionNotice('进度已保存，已创建创作会话。')
+      }
+    } catch (cause) {
+      setSessionError(errorMessage(cause))
+    } finally {
+      setSessionBusy(false)
+    }
+  }
 
   async function save() {
     if (saveLock.current || !generation || dirty || pending || !user || generation.ownerId !== user.id || !title.trim()) return
@@ -471,6 +563,21 @@ export default function Creator() {
           <summary>上传任务编号</summary>
           <p className="mono archive-job">{jobId}</p>
         </details>}
+        <div className="archive-session">
+          <div className="archive-session__head">
+            <h3>保存创作进度</h3>
+            <span className="mono">{sessionId ? `会话 ${shortId(sessionId)} · rev ${sessionRevision}` : '未创建会话'}</span>
+          </div>
+          <p className="archive-note">保存进度记录当前模板、参数和生成编号，不会创建作品；每次保存由服务器追加快照。恢复入口在个人空间。</p>
+          <div className="archive-actions">
+            <button type="button" className="button button--secondary" disabled={sessionBusy || pending || !version || !user} onClick={() => void saveProgress()}>
+              {sessionBusy ? '保存进度中…' : sessionId ? '保存进度并追加快照' : '保存创作进度'}
+            </button>
+            <Link href="/space?tab=sessions" className="button button--link button--small">打开个人空间会话</Link>
+          </div>
+          {sessionNotice && <p className="archive-status" role="status">{sessionNotice}</p>}
+          {sessionError && <InlineNotice tone="error" title="进度保存失败">{sessionError}</InlineNotice>}
+        </div>
       </section>
     </div>
   </section>

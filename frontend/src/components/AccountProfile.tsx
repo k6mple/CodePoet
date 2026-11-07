@@ -68,7 +68,12 @@ export default function AccountProfile() {
 
   const canManageKnowledge = Boolean(user?.permissions.some((permission) =>
     permission === 'knowledge.write' || permission === 'ontology.write' || permission === 'tags.write'))
+  const canManageTemplates = Boolean(user?.permissions.some((permission) =>
+    permission === 'templates.create' || permission === 'templates.editOwn' || permission === 'templates.editAny'))
+  const canReview = Boolean(user?.permissions.includes('reviews.decide'))
   const canApproveUsers = Boolean(user?.permissions.includes('users.approveRole'))
+  const canOps = Boolean(user?.permissions.some((permission) =>
+    permission === 'exports.create' || permission === 'imports.apply' || permission === 'audit.read'))
   const application = user?.roleApplication
 
   return <section className="account-page" aria-labelledby="account-heading">
@@ -179,8 +184,12 @@ export default function AccountProfile() {
                 </ul>
               </details>
               <div className="account-links">
+                <Link href="/space" className="button button--secondary button--small">个人空间</Link>
                 {canManageKnowledge && <Link href="/manage" className="button button--secondary button--small">进入知识管理</Link>}
+                {canManageTemplates && <Link href="/manage/templates" className="button button--secondary button--small">模板管理</Link>}
+                {canReview && <Link href="/reviews" className="button button--secondary button--small">审核台</Link>}
                 {canApproveUsers && <Link href="/admin/users" className="button button--secondary button--small">用户与角色审批</Link>}
+                {canOps && <Link href="/admin/ops" className="button button--secondary button--small">运维与审计</Link>}
               </div>
             </section>
           </aside>

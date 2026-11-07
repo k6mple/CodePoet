@@ -123,12 +123,23 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
 
   const creatorActive = pathname === '/'
   const worksActive = pathname === '/works' || pathname.startsWith('/works/')
+  const spaceActive = pathname === '/space' || pathname.startsWith('/space/')
+  const templatesActive = pathname === '/templates' || pathname.startsWith('/templates/')
+  const searchActive = pathname.startsWith('/search') || pathname.startsWith('/knowledge/')
   const manageActive = pathname === '/manage' || pathname.startsWith('/manage/')
-  const adminActive = pathname === '/admin' || pathname.startsWith('/admin/')
+  const templateManageActive = pathname.startsWith('/manage/templates')
+  const reviewsActive = pathname === '/reviews' || pathname.startsWith('/reviews/')
+  const adminUsersActive = pathname.startsWith('/admin/users')
+  const adminOpsActive = pathname.startsWith('/admin/ops')
   const accountActive = pathname === '/account'
   const canManageKnowledge = Boolean(user?.permissions.some((permission) =>
     permission === 'knowledge.write' || permission === 'ontology.write' || permission === 'tags.write'))
+  const canManageTemplates = Boolean(user?.permissions.some((permission) =>
+    permission === 'templates.create' || permission === 'templates.editOwn' || permission === 'templates.editAny'))
+  const canReview = Boolean(user?.permissions.includes('reviews.decide'))
   const canApproveUsers = Boolean(user?.permissions.includes('users.approveRole'))
+  const canOps = Boolean(user?.permissions.some((permission) =>
+    permission === 'exports.create' || permission === 'imports.apply' || permission === 'audit.read'))
   const personName = user ? (user.nickname || user.username) : ''
 
   return <SessionContext.Provider value={{ user, loading, openLogin, updateUser, refreshUser }}>
@@ -142,8 +153,14 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
         <nav className="site-nav" aria-label="主导航">
           <Link href="/" className={`nav-link${creatorActive ? ' is-active' : ''}`} aria-current={creatorActive ? 'page' : undefined}>创作台</Link>
           <Link href="/works" className={`nav-link${worksActive ? ' is-active' : ''}`} aria-current={worksActive ? 'page' : undefined}>我的作品</Link>
-          {canManageKnowledge && <Link href="/manage" className={`nav-link${manageActive ? ' is-active' : ''}`} aria-current={manageActive ? 'page' : undefined}>知识管理</Link>}
-          {canApproveUsers && <Link href="/admin/users" className={`nav-link${adminActive ? ' is-active' : ''}`} aria-current={adminActive ? 'page' : undefined}>用户管理</Link>}
+          {user && <Link href="/space" className={`nav-link${spaceActive ? ' is-active' : ''}`} aria-current={spaceActive ? 'page' : undefined}>个人空间</Link>}
+          <Link href="/templates" className={`nav-link${templatesActive ? ' is-active' : ''}`} aria-current={templatesActive ? 'page' : undefined}>模板库</Link>
+          <Link href="/search" className={`nav-link${searchActive ? ' is-active' : ''}`} aria-current={searchActive ? 'page' : undefined}>检索</Link>
+          {canManageKnowledge && <Link href="/manage" className={`nav-link${manageActive && !templateManageActive ? ' is-active' : ''}`} aria-current={manageActive && !templateManageActive ? 'page' : undefined}>知识管理</Link>}
+          {canManageTemplates && <Link href="/manage/templates" className={`nav-link${templateManageActive ? ' is-active' : ''}`} aria-current={templateManageActive ? 'page' : undefined}>模板管理</Link>}
+          {canReview && <Link href="/reviews" className={`nav-link${reviewsActive ? ' is-active' : ''}`} aria-current={reviewsActive ? 'page' : undefined}>审核台</Link>}
+          {canApproveUsers && <Link href="/admin/users" className={`nav-link${adminUsersActive ? ' is-active' : ''}`} aria-current={adminUsersActive ? 'page' : undefined}>用户管理</Link>}
+          {canOps && <Link href="/admin/ops" className={`nav-link${adminOpsActive ? ' is-active' : ''}`} aria-current={adminOpsActive ? 'page' : undefined}>运维</Link>}
         </nav>
         <div className="site-account" aria-label="账号">
           {loading ? <span className="account-loading">正在恢复登录…</span>

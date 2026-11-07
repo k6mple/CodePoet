@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ApiError, errorMessage, request } from '@/api/client'
-import type { Page, Work, WorkDetail } from '@/types/core'
+import type { Page, Work, WorkDetail, WorkVersion } from '@/types/core'
 import { formatDateTime, paddedIndex, workStatusLabel } from '@/utils/format'
+import { reviewDecisionLabel } from '@/utils/template'
 import CanvasPreview from './CanvasPreview'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
@@ -183,6 +184,9 @@ export function WorkViewer({ id }: { id: string }) {
   const [attempt, setAttempt] = useState(0)
   const [frames, setFrames] = useState<{ url: string; time: number }[]>([])
   const [selected, setSelected] = useState(0)
+  const [submitBusy, setSubmitBusy] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitNotice, setSubmitNotice] = useState('')
 
   useEffect(() => {
     if (loading) return
@@ -238,6 +242,27 @@ export function WorkViewer({ id }: { id: string }) {
   }, [id, user, loading, attempt])
 
   const activeFrame = data?.renderJob.manifest?.frames[selected]
+  const canSubmit = Boolean(data && user && user.id === data.workVersion.createdBy
+    && (data.workVersion.status === 'private' || data.workVersion.status === 'rejected'))
+
+  async function submitForReview() {
+    if (!data || !user || submitBusy) return
+    setSubmitBusy(true)
+    setSubmitError('')
+    setSubmitNotice('')
+    try {
+      await request<WorkVersion>(`/work-versions/${encodeURIComponent(data.workVersion.id)}/submit`, {
+        method: 'POST',
+        body: JSON.stringify({ expectedRevision: data.workVersion.revision }),
+      })
+      setSubmitNotice('已提交审核。')
+      setAttempt((value) => value + 1)
+    } catch (cause) {
+      setSubmitError(errorMessage(cause))
+    } finally {
+      setSubmitBusy(false)
+    }
+  }
 
   return <section className="work-viewer" aria-labelledby="work-heading">
     <nav className="back-link" aria-label="返回">
@@ -306,8 +331,20 @@ export function WorkViewer({ id }: { id: string }) {
                 <div><dt>保存时间</dt><dd className="mono">{formatDateTime(data.workVersion.createdAt)}</dd></div>
                 <div><dt>画布</dt><dd className="mono">{data.generation.ir.viewport.width} × {data.generation.ir.viewport.height}</dd></div>
                 <div><dt>采样</dt><dd className="mono">{data.renderJob.timesMs.map((time) => `${time}ms`).join(' / ') || '—'}</dd></div>
+                {data.workVersion.lastReview && <div>
+                  <dt>最近审核</dt>
+                  <dd>{reviewDecisionLabel(data.workVersion.lastReview.decision)}：{data.workVersion.lastReview.reason || '未填写理由'}</dd>
+                </div>}
               </dl>
               <p className="work-label__note">服务器保存的 PNG 来自浏览器 Canvas 的真实绘制与上传；服务端验证了帧、尺寸和生成记录的一致性。</p>
+              {canSubmit && <div className="work-submit">
+                {submitNotice && <InlineNotice tone="success">{submitNotice}</InlineNotice>}
+                {submitError && <InlineNotice tone="error" title="提交失败">{submitError}</InlineNotice>}
+                <button type="button" className="button button--primary button--small" disabled={submitBusy} onClick={() => void submitForReview()}>
+                  {submitBusy ? '提交中…' : '提交作品审核'}
+                </button>
+                <p className="work-label__note">提交后由领域专家/管理员审核；审核期间不能继续修改该版本。</p>
+              </div>}
             </aside>
           </div>
 

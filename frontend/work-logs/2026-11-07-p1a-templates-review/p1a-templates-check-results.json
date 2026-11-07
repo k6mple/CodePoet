@@ -1,0 +1,209 @@
+{
+  "steps": [
+    {
+      "name": "developer nav",
+      "templateLibrary": 1,
+      "templateManage": 1,
+      "knowledgeManage": 1,
+      "reviews": 0,
+      "users": 0
+    },
+    {
+      "name": "public template library",
+      "realApiError": true
+    },
+    {
+      "name": "template create form",
+      "realApiError": true,
+      "errorShown": true
+    },
+    {
+      "name": "developer review gate",
+      "forbidden": true
+    },
+    {
+      "name": "developer account links",
+      "templateManage": 1,
+      "reviews": 0,
+      "users": 0
+    },
+    {
+      "name": "expert nav",
+      "templateLibrary": 1,
+      "templateManage": 1,
+      "knowledgeManage": 1,
+      "reviews": 1,
+      "users": 0
+    },
+    {
+      "name": "review desk",
+      "realApiError": true,
+      "tabs": [
+        "待审核 —",
+        "已处理 —"
+      ]
+    },
+    {
+      "name": "expert account links",
+      "templateManage": 1,
+      "reviews": 1,
+      "users": 0
+    }
+  ],
+  "console": [
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/templates",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage/templates",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage/templates",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage/templates/test-template",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/templates/test-template",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/templates",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage/templates",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage/templates/test-template",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "nav-developer-1440.png",
+    "templates-library-error-1440.png",
+    "template-manager-create-error-1440.png",
+    "template-editor-error-1440.png",
+    "template-detail-error-1440.png",
+    "reviews-forbidden-developer-1440.png",
+    "account-developer-1440.png",
+    "reviews-error-1440.png",
+    "reviews-error-1024.png",
+    "reviews-error-390.png",
+    "account-expert-390.png",
+    "templates-library-error-expert-1440.png",
+    "template-manager-create-390.png",
+    "template-editor-error-expert-1440.png"
+  ],
+  "overflow": [
+    {
+      "label": "templates-library-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "template-manager-create-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "template-editor-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "template-detail-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "reviews-forbidden-developer-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "reviews-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "reviews-error-1024",
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "overflow": false
+    },
+    {
+      "label": "reviews-error-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "account-expert-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "templates-library-error-expert-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "template-manager-create-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    }
+  ],
+  "consoleErrorCount": 17
+}
