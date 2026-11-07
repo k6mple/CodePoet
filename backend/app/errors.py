@@ -72,3 +72,13 @@ def revision_conflict(expected: int, actual: int) -> ApiError:
 
 def validation_error(message: str, field_errors: list[dict[str, str]] | None = None) -> ApiError:
     return ApiError(422, "VALIDATION_ERROR", message, field_errors)
+
+
+def ir_invalid(message: str, details: Any = None) -> ApiError:
+    """IR 结构不合法。details 里带 ValidationReport，前端可直接标注节点。"""
+    return ApiError(422, "IR_INVALID", message, details=details)
+
+
+def unsupported_capability(message: str) -> ApiError:
+    """请求的能力还没实现。契约要求明确拒绝，不许假装成功。"""
+    return ApiError(422, "UNSUPPORTED_CAPABILITY", message)
