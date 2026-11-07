@@ -105,4 +105,4 @@ $env:NODE_PATH="C:\Users\hp\AppData\Local\npm-cache\_npx\e41f203b7505f1fb\node_m
   2. 用真实数据验证角色审批、知识/概念/标签 CRUD、继承/互斥/防环和分页筛选。
   3. 更新 `shared/demo` 的知识/概念/标签示例，按核心契约由 A 校验导入。
   4. 重新运行同一 Playwright 脚本并补充有数据成功状态截图。
-- Git 提交/推送情况：未提交、未推送、未合并。工作区包含 P0 视觉重设计的既有改动、本次 P1-A 前端修改与新增文件，以及未跟踪的 `frontend/work-logs/`（含本日志、截图和检查脚本）。`frontend/AGENTS.md` 与根 `AGENTS.md` 的既有改动保留。未在本次操作中创建提交号。
+- Git 提交/推送情况：功能代码、前端工作日志与浏览器证据已提交到 `feat/frontend` 的 `fbd0e68`；本日志的提交状态更新随后以 docs 提交记录。未推送、未合并，未修改 backend/、shared/、scripts/、docs/ 或 main 分支。
