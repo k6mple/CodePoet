@@ -54,8 +54,8 @@ export function errorMessage(cause: unknown) {
   if (!(cause instanceof ApiError)) return cause instanceof Error ? cause.message : '操作失败，请重试'
   const advice: Record<number, string> = {
     401: '请重新登录，当前编辑内容已保留。', 403: '没有权限，或认证令牌失效，请重新登录。',
-    404: '资源不存在或不可访问；如果是模板列表，请确认后端已实现此接口。',
-    409: '状态冲突，请重新加载模板或新建上传任务后重试。',
+    404: '资源不存在或不可访问；请确认后端已实现对应接口。',
+    409: '数据已被修改，请刷新后重试。',
     422: '请修正以下参数。', 429: '未完成上传任务过多，请重试原任务或等待过期。',
   }
   return [`HTTP ${cause.status} · ${cause.code}：${cause.message}`, advice[cause.status],

@@ -19,11 +19,7 @@ export default function StartupStatus() {
     setError('')
     getHealth(controller.signal)
       .then((result) => { if (!controller.signal.aborted) setHealth(result) })
-      .catch((cause: unknown) => {
-        if (!controller.signal.aborted) {
-          setError(errorMessage(cause))
-        }
-      })
+      .catch((cause: unknown) => { if (!controller.signal.aborted) setError(errorMessage(cause)) })
       .finally(() => {
         if (!controller.signal.aborted) {
           pending.current = false
@@ -33,20 +29,24 @@ export default function StartupStatus() {
     return () => controller.abort()
   }, [attempt])
 
-  return (
-    <section aria-labelledby="status-heading">
-      <h2 id="status-heading">开发环境连接检查</h2>
-      <div aria-live="polite">
-        {loading ? <p>正在连接后端…</p> : health
-          ? <p className="success">后端与数据库已连接 · API {health.apiVersion}</p>
-          : <p className="error">{error}。请确认后端已启动，再重试。</p>}
-      </div>
-      <button disabled={loading} onClick={() => {
-        if (!pending.current) {
-          pending.current = true
-          setAttempt((value) => value + 1)
-        }
-      }}>{loading ? '检查中…' : '重新检查'}</button>
-    </section>
-  )
+  const tone = loading ? 'is-pending' : health ? 'is-ok' : 'is-error'
+
+  return <div className="system-status" aria-live="polite">
+    <span className={`status-dot ${tone}`} aria-hidden="true" />
+    <span className="system-status__label">
+      {loading ? '正在检查后端…' : health
+        ? <>后端与数据库已连接 <span className="mono">API {health.apiVersion}</span></>
+        : '后端未连接'}
+    </span>
+    {error && <details className="system-status__details">
+      <summary>查看诊断</summary>
+      <p>{error}。请确认后端已启动，再重试。</p>
+    </details>}
+    <button type="button" className="button button--link button--small" disabled={loading} onClick={() => {
+      if (!pending.current) {
+        pending.current = true
+        setAttempt((value) => value + 1)
+      }
+    }}>{loading ? '检查中…' : '重新检查'}</button>
+  </div>
 }
