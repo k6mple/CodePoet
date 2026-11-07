@@ -1,0 +1,272 @@
+{
+  "username": "p1a_mw689z84",
+  "steps": [
+    {
+      "name": "register",
+      "successText": "注册成功：p1a_mw689z84。请登录。角色申请已提交，管理员审批前你仍是普通创作者。",
+      "hasPendingRole": true
+    },
+    {
+      "name": "login test user",
+      "username": "p1a_mw689z84",
+      "headerVisible": true
+    },
+    {
+      "name": "account pending application",
+      "pending": true,
+      "requestedRole": true,
+      "currentRole": true
+    },
+    {
+      "name": "profile save",
+      "savedText": "资料已保存。"
+    },
+    {
+      "name": "profile persisted",
+      "nicknamePersisted": true,
+      "bioPersisted": true,
+      "persistedNickname": "P1A 已验证"
+    },
+    {
+      "name": "creator manage gate",
+      "forbidden": true,
+      "navHasManage": 0
+    },
+    {
+      "name": "creator admin gate",
+      "forbidden": true,
+      "navHasAdmin": 0
+    },
+    {
+      "name": "logout",
+      "anonymous": true
+    },
+    {
+      "name": "register dialog mobile",
+      "registerDialog": {
+        "width": 354,
+        "height": 738.828125,
+        "innerWidth": 390,
+        "scrollWidth": 390
+      }
+    },
+    {
+      "name": "login admin",
+      "adminHeaderVisible": true
+    },
+    {
+      "name": "admin account",
+      "roleAdmin": true,
+      "permissionsVisible": true
+    },
+    {
+      "name": "admin users endpoint",
+      "errorShown": true,
+      "realApiError": true
+    },
+    {
+      "name": "knowledge manager",
+      "tabCount": 3,
+      "errorShown": true,
+      "realApiError": true
+    },
+    {
+      "name": "knowledge tabs",
+      "conceptPanelVisible": true,
+      "tagPanelVisible": true
+    },
+    {
+      "name": "knowledge form validation",
+      "urlRejected": true
+    },
+    {
+      "name": "knowledge form api error",
+      "realApiError": true
+    },
+    {
+      "name": "concept form api error",
+      "realApiError": true
+    },
+    {
+      "name": "tag form api error",
+      "realApiError": true
+    }
+  ],
+  "console": [
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/admin/users",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/admin/users",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/manage",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "register-dialog-1440.png",
+    "register-success-1440.png",
+    "account-pending-1440.png",
+    "account-saved-1440.png",
+    "manage-forbidden-creator-1440.png",
+    "admin-forbidden-creator-1440.png",
+    "account-390.png",
+    "register-dialog-390.png",
+    "account-admin-1440.png",
+    "admin-users-error-1440.png",
+    "admin-users-error-390.png",
+    "manage-knowledge-error-1440.png",
+    "manage-concepts-1440.png",
+    "manage-tags-1440.png",
+    "manage-error-390.png",
+    "knowledge-editor-validation-1440.png",
+    "knowledge-editor-api-error-1440.png",
+    "concept-editor-api-error-1440.png",
+    "tag-editor-api-error-1440.png"
+  ],
+  "overflow": [
+    {
+      "label": "account-pending-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "manage-forbidden-creator-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-forbidden-creator-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "account-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "register-dialog-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "account-admin-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-users-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-users-error-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "manage-knowledge-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "manage-error-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflow": false
+    }
+  ],
+  "consoleErrorCount": 20
+}
