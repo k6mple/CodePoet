@@ -106,4 +106,4 @@ $env:NODE_PATH="C:\Users\hp\AppData\Local\npm-cache\_npx\e41f203b7505f1fb\node_m
   2. 真实 generation 后验证模板参数实例化、作品详情时间轴和知识跳转。
   3. 将 TimelinePlayer 接入创作台 stage（动画模板），并核对保存三帧与播放一致。
   4. 继续 P1B-01/02/04 或处理 A 的导入反馈。
-- Git 提交/推送情况：本次改动尚未提交；将按用户要求提交到 `feat/frontend`，提交后以 docs 提交记录实际 hash；未推送、未合并，未修改 `backend/`、`shared/schemas/`、`scripts/`、`docs/` 或 `main`。本地验证服务已停止。
+- Git 提交/推送情况：功能代码、演示数据、本地校验、工作日志与浏览器证据已提交到 `feat/frontend` 的 `0596f7a`；本次日志状态更新随后以 docs 提交记录。未推送、未合并，未修改 `backend/`、`shared/schemas/`、`scripts/`、`docs/` 或 `main`。本地验证服务已停止。
