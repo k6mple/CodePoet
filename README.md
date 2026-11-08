@@ -4,9 +4,9 @@
 
 ## 当前状态
 
-已补充 FastAPI / SQLite 启动入口、Vue / Vite 启动页、环境配置、开发代理和健康检查。其他业务模块仍为占位。P0-01 的 IR 校验、共享 fixture 和 Canvas 绘制尚未实现，因此不将 P0-01 标为完成。
+已补充 FastAPI / SQLite 启动入口、Next.js / React 启动页、环境配置、API 转发和健康检查。其他业务模块仍为占位。P0-01 的 IR 校验、共享 fixture 和 Canvas 绘制尚未实现，因此不将 P0-01 标为完成。
 
-技术方案：Vue 3 + TypeScript + Vite；FastAPI + Pydantic + 同步 SQLAlchemy + SQLite。UI 组件库和 Pillow 在对应功能任务中添加。
+技术方案：Next.js 16 App Router + React 19 + TypeScript；FastAPI + Pydantic + 同步 SQLAlchemy + SQLite。2026-11-06 按开发者熟悉度迁移到 Next.js，UI 组件库和 Pillow 在对应功能任务中添加。
 
 ## 本地启动
 
@@ -34,7 +34,7 @@ uv sync --project backend --locked
 .\scripts\dev-frontend.ps1
 ```
 
-访问 <http://127.0.0.1:5173>，启动页会实际请求后端；成功时显示“后端与数据库已连接”。健康接口为 <http://127.0.0.1:8000/api/v1/health>，已实现接口的交互文档为 <http://127.0.0.1:8000/api/docs>。按 Ctrl+C 停止对应服务。
+访问 <http://127.0.0.1:3000>，启动页会实际请求后端；成功时显示“后端与数据库已连接”。健康接口为 <http://127.0.0.1:8000/api/v1/health>，已实现接口的交互文档为 <http://127.0.0.1:8000/api/docs>。按 Ctrl+C 停止对应服务。
 
 若终端找不到 uv，可用 Windows 默认安装位置 `& "$env:USERPROFILE/.local/bin/uv.exe"` 代替 `uv`；后端启动脚本已包含此回退。不要使用当前机器 PATH 中缺少 pip 的 MSYS2 Python 建立本项目环境。
 
@@ -51,7 +51,7 @@ uv run --locked python -m unittest discover -s tests -v
 .\scripts\npm.ps1 run build
 ```
 
-构建产物位于 `frontend/dist/`。在仓库根目录运行 `./scripts/npm.ps1 run preview` 用于本地预览，生产部署需自行配置 `/api` 反向代理和前端路由回退。
+构建产物位于 `frontend/.next/`。构建后在仓库根目录运行 `./scripts/npm.ps1 run start` 启动生产模式，地址同为 `http://127.0.0.1:3000`，启动前需停止同端口的开发服务。Next.js 服务通过 rewrites 将 `/api/*` 转发到 FastAPI；修改 `API_PROXY_TARGET` 后需重新构建并重启。此项目使用 Node 服务部署，不使用静态导出。
 
 依赖分别由 `backend/uv.lock` 和 `frontend/package-lock.json` 锁定，应一并提交。环境配置、虚拟环境、依赖目录及运行数据已被 Git 忽略。
 
@@ -75,15 +75,14 @@ CodePoet/
 │   │   └── engine/             # validate、instantiate、infer、subgraph、sample
 │   ├── migrations/            # 少量数据库迁移
 │   └── tests/                 # 后端关键行为测试
-├── frontend/                   # B：Vue 页面与 Canvas
+├── frontend/                   # B：Next.js 页面与 Canvas
 │   ├── public/                # 无需构建处理的公开静态资源
 │   ├── src/
 │   │   ├── api/               # Cookie / CSRF / 错误处理与业务 API
 │   │   ├── assets/            # 构建处理的样式及图片
 │   │   ├── components/        # 通用表单、列表、JSON 编辑等组件
-│   │   ├── composables/       # 可复用交互逻辑
-│   │   ├── router/            # 路由与权限导航
-│   │   ├── views/             # 业务页面，按任务逐步添加
+│   │   ├── hooks/             # 可复用 React Hooks
+│   │   ├── app/               # App Router 页面、布局与路由
 │   │   ├── renderers/canvas/  # Canvas 图元、变换、采样与 PNG 导出
 │   │   ├── types/             # 前端类型
 │   │   └── utils/             # 通用工具

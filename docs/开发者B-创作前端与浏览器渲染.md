@@ -26,7 +26,7 @@ A 负责所有 HTTP API、数据库、权限/审核、规则推理、IR 校验�
 | 模板管理与审核 | 模板版本/JSON/参数、送审/差异、审核台 | P1-A |
 | 管理员 | 角色申请、映射规则、导入导出、日志 tabs | P1-A/P1-B |
 
-Vue 3 + TypeScript + Vite + 一个 UI 组件库。路由/组件按真实需要组织，不开发另一个后台框架。复杂表单先使用 JSON textarea+格式化/错误提示，基本路径稳定后再美化。
+Next.js 16 App Router + React 19 + TypeScript + 一个 UI 组件库（2026-11-06 按开发者熟悉度调整）。路由使用 src/app 文件路由，Canvas/表单/时间轴交互放客户端组件；通过 /api rewrites 调用 FastAPI，不重复实现后端业务。复杂表单先使用 JSON textarea+格式化/错误提示，基本路径稳定后再美化。
 
 ## 3. P0：先让真实作品保存下来
 
