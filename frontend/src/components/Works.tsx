@@ -6,7 +6,7 @@ import { ApiError, errorMessage, request } from '@/api/client'
 import type { Page, Work, WorkDetail, WorkVersion } from '@/types/core'
 import { formatDateTime, paddedIndex, workStatusLabel } from '@/utils/format'
 import { reviewDecisionLabel } from '@/utils/template'
-import CanvasPreview from './CanvasPreview'
+import TimelinePlayer from './TimelinePlayer'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 
@@ -351,10 +351,10 @@ export function WorkViewer({ id }: { id: string }) {
           <section className="ir-preview" aria-labelledby="ir-preview-heading">
             <header>
               <h2 id="ir-preview-heading">按保存 IR 重绘</h2>
-              <p>此预览由当前浏览器按保存的 IR 重新绘制，不是服务器保存的 PNG。</p>
+              <p>此预览由当前浏览器按保存的 IR 重新绘制，可播放和定位采样时刻；不是服务器保存的 PNG。</p>
             </header>
             <div className="ir-preview__frame">
-              <CanvasPreview ir={data.generation.ir} timeMs={data.generation.ir.durationMs} />
+              <TimelinePlayer ir={data.generation.ir} linkEntities />
             </div>
           </section>
 

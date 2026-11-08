@@ -1,0 +1,58 @@
+[
+  {
+    "id": "concept-culture",
+    "name": "廉洁文化",
+    "description": "以清正、廉洁、为民、修身为核心的文化主题。",
+    "parentId": null,
+    "status": "active"
+  },
+  {
+    "id": "concept-integrity",
+    "name": "清正廉洁",
+    "description": "不贪不占、守正自持的价值取向。",
+    "parentId": "concept-culture",
+    "status": "active"
+  },
+  {
+    "id": "concept-people",
+    "name": "人物典范",
+    "description": "以清官、廉吏和历史人物为叙事载体。",
+    "parentId": "concept-culture",
+    "status": "active"
+  },
+  {
+    "id": "concept-stories",
+    "name": "典故故事",
+    "description": "以史书、笔记和民间传诵的廉洁故事为素材。",
+    "parentId": "concept-culture",
+    "status": "active"
+  },
+  {
+    "id": "concept-symbols",
+    "name": "视觉符号",
+    "description": "莲、竹、水、石灰、墨梅等可转化为画面构图的文化意象。",
+    "parentId": "concept-culture",
+    "status": "active"
+  },
+  {
+    "id": "concept-governance",
+    "name": "为民理政",
+    "description": "公共事务中的责任、公正与为民取向。",
+    "parentId": "concept-integrity",
+    "status": "active"
+  },
+  {
+    "id": "concept-family",
+    "name": "家风家训",
+    "description": "家庭教育和代际传承中的廉洁约束。",
+    "parentId": "concept-culture",
+    "status": "active"
+  },
+  {
+    "id": "concept-self",
+    "name": "慎独修身",
+    "description": "在无人监督时仍能自持的个人修养。",
+    "parentId": "concept-integrity",
+    "status": "active"
+  }
+]

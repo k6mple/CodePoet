@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "seed": 20261108,
+  "canvas": { "width": 800, "height": 600, "background": "#FFFDF7" },
+  "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+  "durationMs": 3000,
+  "nodes": [
+    {
+      "id": "track",
+      "parentId": null,
+      "type": "polyline",
+      "geometry": { "points": [[100, 420], [700, 420]] },
+      "style": { "fill": null, "stroke": "#5F6C55", "strokeWidth": 2, "opacity": 0.6 }
+    },
+    {
+      "id": "dot",
+      "parentId": null,
+      "type": "circle",
+      "transform": { "x": 160, "y": 300 },
+      "geometry": { "cx": 0, "cy": 0, "r": 36 },
+      "style": { "fill": "#A83E32", "stroke": "#202421", "strokeWidth": 1, "opacity": 1 }
+    }
+  ],
+  "animations": [
+    {
+      "nodeId": "dot",
+      "property": "x",
+      "from": 160,
+      "to": 640,
+      "startMs": 0,
+      "endMs": 3000,
+      "easing": "linear"
+    },
+    {
+      "nodeId": "dot",
+      "property": "opacity",
+      "from": 0.2,
+      "to": 1,
+      "startMs": 0,
+      "endMs": 1500,
+      "easing": "linear"
+    }
+  ],
+  "narrative": []
+}

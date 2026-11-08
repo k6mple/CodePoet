@@ -1,0 +1,151 @@
+{
+  "steps": [
+    {
+      "name": "probe fixture",
+      "canvas": {
+        "width": 800,
+        "height": 600
+      },
+      "staticProbe": true
+    },
+    {
+      "name": "animation timeline",
+      "canvas": {
+        "width": 800,
+        "height": 600
+      },
+      "playingTime": 514,
+      "middleTime": 1500,
+      "middlePixel": [
+        168,
+        62,
+        50,
+        255
+      ]
+    },
+    {
+      "name": "narrative markers",
+      "markerCount": 4,
+      "initialCaption": "水润万物，清而不争。",
+      "middleCaption": "出淤泥而不染。"
+    },
+    {
+      "name": "narrative export",
+      "downloadInfo": {
+        "size": 31527,
+        "signature": [
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10
+        ],
+        "width": 800,
+        "height": 600
+      }
+    },
+    {
+      "name": "crop fixture",
+      "canvas": {
+        "width": 400,
+        "height": 300
+      },
+      "hasViewport": true
+    },
+    {
+      "name": "lotus template fixture",
+      "canvas": {
+        "width": 800,
+        "height": 600
+      }
+    },
+    {
+      "name": "narrative template fixture",
+      "markerCount": 4,
+      "caption": "出淤泥而不染，濯清涟而不妖。"
+    }
+  ],
+  "console": [
+    {
+      "url": "http://127.0.0.1:3000/fixture",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/fixture",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/fixture",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/fixture",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "fixture-probe-1440.png",
+    "fixture-animation-1440.png",
+    "fixture-narrative-1440.png",
+    "fixture-crop-1440.png",
+    "fixture-lotus-1440.png",
+    "fixture-narrative-template-1440.png",
+    "fixture-390.png",
+    "fixture-animation-390.png"
+  ],
+  "overflow": [
+    {
+      "label": "fixture-probe-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "fixture-animation-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "fixture-narrative-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "fixture-crop-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "fixture-lotus-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "fixture-narrative-template-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "fixture-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "fixture-animation-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    }
+  ],
+  "consoleErrorCount": 4
+}

@@ -1,0 +1,357 @@
+{
+  "template": {
+    "id": "tpl-lotus",
+    "metadata": {
+      "name": "莲·清正",
+      "description": "以八瓣莲花的放射构图、清涟水线和花茎表达“出淤泥而不染”的清正主题。",
+      "entityIds": ["knowledge-lotus", "knowledge-water", "knowledge-integrity"],
+      "tagIds": ["tag-pure", "tag-symbol", "tag-integrity"],
+      "symbols": ["lotus", "water"],
+      "timeTheme": "夏日"
+    },
+    "publishedVersionId": "tv-lotus-1",
+    "latestVersionId": "tv-lotus-2",
+    "supportedBackends": ["canvas2d"]
+  },
+  "versions": [
+    {
+      "id": "tv-lotus-1",
+      "versionNumber": 1,
+      "status": "published",
+      "metadata": {
+        "name": "莲·清正",
+        "description": "以八瓣莲花的放射构图、清涟水线和花茎表达“出淤泥而不染”的清正主题。",
+        "entityIds": ["knowledge-lotus", "knowledge-water", "knowledge-integrity"],
+        "tagIds": ["tag-pure", "tag-symbol", "tag-integrity"],
+        "symbols": ["lotus", "water"],
+        "timeTheme": "夏日"
+      },
+      "irTemplate": {
+        "schemaVersion": "1.0",
+        "seed": 17,
+        "canvas": { "width": 800, "height": 600, "background": "#F7F6F0" },
+        "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "water",
+            "parentId": null,
+            "type": "group",
+            "transform": { "x": 0, "y": 0 },
+            "style": { "opacity": 1 }
+          },
+          {
+            "id": "water-1",
+            "parentId": "water",
+            "type": "polyline",
+            "geometry": { "points": [[100, 500], [260, 488], [420, 502], [580, 490], [700, 500]] },
+            "style": { "fill": null, "stroke": "#5F6C55", "strokeWidth": 2, "opacity": 0.35 }
+          },
+          {
+            "id": "water-2",
+            "parentId": "water",
+            "type": "polyline",
+            "geometry": { "points": [[120, 532], [300, 520], [470, 534], [650, 522], [720, 532]] },
+            "style": { "fill": null, "stroke": "#5F6C55", "strokeWidth": 2, "opacity": 0.35 }
+          },
+          {
+            "id": "water-3",
+            "parentId": "water",
+            "type": "polyline",
+            "geometry": { "points": [[160, 562], [330, 552], [520, 566], [690, 554]] },
+            "style": { "fill": null, "stroke": "#5F6C55", "strokeWidth": 1.5, "opacity": 0.35 }
+          },
+          {
+            "id": "stem",
+            "parentId": null,
+            "type": "polyline",
+            "geometry": { "points": [[400, 520], [396, 460], [404, 400], [400, 330]] },
+            "style": { "fill": null, "stroke": "#3B6D11", "strokeWidth": 7, "opacity": 1 }
+          },
+          {
+            "id": "leaf-left",
+            "parentId": null,
+            "type": "polygon",
+            "geometry": { "points": [[300, 430], [332, 408], [372, 430], [332, 452]] },
+            "style": { "fill": "#639922", "stroke": "#3B6D11", "strokeWidth": 1, "opacity": 0.9 }
+          },
+          {
+            "id": "leaf-right",
+            "parentId": null,
+            "type": "polygon",
+            "geometry": { "points": [[500, 418], [468, 396], [428, 418], [468, 440]] },
+            "style": { "fill": "#639922", "stroke": "#3B6D11", "strokeWidth": 1, "opacity": 0.9 }
+          },
+          {
+            "id": "flower",
+            "parentId": null,
+            "type": "group",
+            "transform": { "x": 400, "y": 270, "rotation": 0 },
+            "style": { "opacity": 1 }
+          },
+          {
+            "id": "petal-0",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": 75, "y": 0 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-1",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": 53, "y": 53 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-2",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": 0, "y": 75 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-3",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": -53, "y": 53 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-4",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": -75, "y": 0 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-5",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": -53, "y": -53 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-6",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": 0, "y": -75 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "petal-7",
+            "parentId": "flower",
+            "type": "circle",
+            "transform": { "x": 53, "y": -53 },
+            "geometry": { "cx": 0, "cy": 0, "r": 45 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1.5, "opacity": 0.92 }
+          },
+          {
+            "id": "center",
+            "parentId": "flower",
+            "type": "circle",
+            "geometry": { "cx": 0, "cy": 0, "r": 55 },
+            "style": { "fill": "#EF9F27", "stroke": "#854F0B", "strokeWidth": 2, "opacity": 1 }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "generatorRef": "ir",
+      "parameterSchema": [
+        {
+          "name": "petalScale",
+          "label": "花瓣尺度",
+          "description": "同时缩放八片花瓣；1.0 为标准大小。",
+          "type": "number",
+          "default": 1,
+          "min": 0.6,
+          "max": 1.4,
+          "step": 0.05
+        },
+        {
+          "name": "petalColor",
+          "label": "花瓣颜色",
+          "description": "八片花瓣的填充颜色。",
+          "type": "color",
+          "default": "#D4537E"
+        },
+        {
+          "name": "centerSize",
+          "label": "花心半径",
+          "description": "中心圆的半径，单位为逻辑像素。",
+          "type": "integer",
+          "default": 55,
+          "min": 30,
+          "max": 85,
+          "step": 1
+        },
+        {
+          "name": "waterOpacity",
+          "label": "水线透明度",
+          "description": "清涟水线的透明度，0 为不可见。",
+          "type": "number",
+          "default": 0.35,
+          "min": 0.1,
+          "max": 0.7,
+          "step": 0.05
+        },
+        {
+          "name": "rotation",
+          "label": "花冠旋转",
+          "description": "整朵莲花的旋转角度，单位为度。",
+          "type": "number",
+          "default": 0,
+          "min": -20,
+          "max": 20,
+          "step": 1
+        }
+      ],
+      "bindings": [
+        { "parameter": "petalScale", "nodeId": "petal-0", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-0", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-1", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-1", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-2", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-2", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-3", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-3", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-4", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-4", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-5", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-5", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-6", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-6", "property": "transform.scaleY" },
+        { "parameter": "petalScale", "nodeId": "petal-7", "property": "transform.scaleX" },
+        { "parameter": "petalScale", "nodeId": "petal-7", "property": "transform.scaleY" },
+        { "parameter": "petalColor", "nodeId": "petal-0", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-1", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-2", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-3", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-4", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-5", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-6", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "petal-7", "property": "style.fill" },
+        { "parameter": "centerSize", "nodeId": "center", "property": "geometry.r" },
+        { "parameter": "waterOpacity", "nodeId": "water-1", "property": "style.opacity" },
+        { "parameter": "waterOpacity", "nodeId": "water-2", "property": "style.opacity" },
+        { "parameter": "waterOpacity", "nodeId": "water-3", "property": "style.opacity" },
+        { "parameter": "rotation", "nodeId": "flower", "property": "transform.rotation" }
+      ],
+      "constraints": [],
+      "supportedBackends": ["canvas2d"],
+      "fragmentSource": null,
+      "ontologyVersion": 1,
+      "changeNote": "初始莲纹构图：八瓣、清涟水线与花茎。"
+    },
+    {
+      "id": "tv-lotus-2",
+      "versionNumber": 2,
+      "status": "archived",
+      "metadata": {
+        "name": "莲·清正",
+        "description": "旧版四瓣莲花构图，保留为归档记录。",
+        "entityIds": ["knowledge-lotus", "knowledge-integrity"],
+        "tagIds": ["tag-pure", "tag-symbol", "tag-integrity"],
+        "symbols": ["lotus"],
+        "timeTheme": "夏日"
+      },
+      "irTemplate": {
+        "schemaVersion": "1.0",
+        "seed": 11,
+        "canvas": { "width": 800, "height": 600, "background": "#F7F6F0" },
+        "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "archive-flower",
+            "parentId": null,
+            "type": "group",
+            "transform": { "x": 400, "y": 300 },
+            "style": { "opacity": 1 }
+          },
+          {
+            "id": "archive-petal-1",
+            "parentId": "archive-flower",
+            "type": "circle",
+            "transform": { "x": 45, "y": 0 },
+            "geometry": { "cx": 0, "cy": 0, "r": 50 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1, "opacity": 0.9 }
+          },
+          {
+            "id": "archive-petal-2",
+            "parentId": "archive-flower",
+            "type": "circle",
+            "transform": { "x": 0, "y": 45 },
+            "geometry": { "cx": 0, "cy": 0, "r": 50 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1, "opacity": 0.9 }
+          },
+          {
+            "id": "archive-petal-3",
+            "parentId": "archive-flower",
+            "type": "circle",
+            "transform": { "x": -45, "y": 0 },
+            "geometry": { "cx": 0, "cy": 0, "r": 50 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1, "opacity": 0.9 }
+          },
+          {
+            "id": "archive-petal-4",
+            "parentId": "archive-flower",
+            "type": "circle",
+            "transform": { "x": 0, "y": -45 },
+            "geometry": { "cx": 0, "cy": 0, "r": 50 },
+            "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 1, "opacity": 0.9 }
+          },
+          {
+            "id": "archive-center",
+            "parentId": "archive-flower",
+            "type": "circle",
+            "geometry": { "cx": 0, "cy": 0, "r": 70 },
+            "style": { "fill": "#EF9F27", "stroke": "#854F0B", "strokeWidth": 2, "opacity": 1 }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "generatorRef": "ir",
+      "parameterSchema": [
+        {
+          "name": "centerSize",
+          "label": "花心半径",
+          "description": "归档版本的中心圆半径。",
+          "type": "integer",
+          "default": 70,
+          "min": 40,
+          "max": 90,
+          "step": 1
+        },
+        {
+          "name": "petalColor",
+          "label": "花瓣颜色",
+          "description": "四片花瓣的填充颜色。",
+          "type": "color",
+          "default": "#D4537E"
+        }
+      ],
+      "bindings": [
+        { "parameter": "centerSize", "nodeId": "archive-center", "property": "geometry.r" },
+        { "parameter": "petalColor", "nodeId": "archive-petal-1", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "archive-petal-2", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "archive-petal-3", "property": "style.fill" },
+        { "parameter": "petalColor", "nodeId": "archive-petal-4", "property": "style.fill" }
+      ],
+      "constraints": [],
+      "supportedBackends": ["canvas2d"],
+      "fragmentSource": null,
+      "ontologyVersion": 1,
+      "changeNote": "旧版四瓣构图；已归档，保留历史记录。"
+    }
+  ]
+}

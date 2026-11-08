@@ -1,0 +1,258 @@
+[
+  {
+    "id": "knowledge-lotus",
+    "type": "symbol",
+    "name": "莲",
+    "aliases": ["莲花", "芙蕖", "水华"],
+    "summary": "莲生于淤泥而花叶清丽，是清正自持、不染尘俗的经典文化意象。",
+    "content": "周敦颐《爱莲说》以“出淤泥而不染，濯清涟而不妖”写莲的品格，后世常以莲比喻在复杂环境中守住本心、不随波逐流的操守。莲的视觉特征是层层花瓣围绕中心，适合用放射构图和清雅色板表达。",
+    "sourceReferences": [
+      {
+        "title": "周敦颐《爱莲说》",
+        "url": null,
+        "note": "通行本名句：予独爱莲之出淤泥而不染，濯清涟而不妖。"
+      }
+    ],
+    "conceptIds": ["concept-symbols", "concept-integrity"],
+    "tagIds": ["tag-pure", "tag-symbol"],
+    "relations": [
+      { "predicate": "symbolizes", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "夏日",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-bamboo",
+    "type": "symbol",
+    "name": "竹",
+    "aliases": ["竹子", "修竹"],
+    "summary": "竹挺直有节，经风雨而不改其形，常被用来表达坚守原则与坚韧自持。",
+    "content": "郑燮《竹石》以“咬定青山不放松，立根原在破岩中”写竹在恶劣环境中扎根生长的姿态。竹的“节”也被引申为气节和分寸，在视觉上适合用竖向构图、层叠竹叶和克制的绿色系表达。",
+    "sourceReferences": [
+      {
+        "title": "郑燮《竹石》",
+        "url": null,
+        "note": "通行本诗句：咬定青山不放松，立根原在破岩中。千磨万击还坚劲，任尔东西南北风。"
+      }
+    ],
+    "conceptIds": ["concept-symbols", "concept-self"],
+    "tagIds": ["tag-steadfast", "tag-pure"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "四季",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-water",
+    "type": "symbol",
+    "name": "水",
+    "aliases": ["上善若水", "清涟"],
+    "summary": "水润泽万物而不争，常被用来表达谦逊、包容和润物无声的品格。",
+    "content": "《道德经》以“上善若水，水善利万物而不争”说明水滋养万物却不与万物争高下。水的形态柔软而变化，视觉上适合用水平线条、低透明度叠色和流动的构图表达；它与莲的清涟意象也常相互呼应。",
+    "sourceReferences": [
+      {
+        "title": "《道德经》第八章",
+        "url": null,
+        "note": "通行本名句：上善若水，水善利万物而不争。"
+      }
+    ],
+    "conceptIds": ["concept-symbols", "concept-self"],
+    "tagIds": ["tag-humility", "tag-symbol"],
+    "relations": [
+      { "predicate": "associated_with", "targetEntityId": "knowledge-lotus" }
+    ],
+    "timeTheme": "四季",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-lime",
+    "type": "symbol",
+    "name": "石灰",
+    "aliases": ["石灰吟", "清白石灰"],
+    "summary": "石灰经过烈火仍保持洁白，于谦借它表达即使粉身碎骨也要留下清白的志向。",
+    "content": "于谦《石灰吟》以石灰的开采、煅烧和粉碎过程起兴，把外在的磨难转化为内在的清白。诗中“要留清白在人间”不是对自然物的写实描述，而是以物喻志的文学表达；视觉上可用白色的块面和克制的暖色对比。",
+    "sourceReferences": [
+      {
+        "title": "于谦《石灰吟》",
+        "url": null,
+        "note": "通行本诗句：千锤万凿出深山，烈火焚烧若等闲。粉骨碎身浑不怕，要留清白在人间。"
+      }
+    ],
+    "conceptIds": ["concept-symbols", "concept-integrity"],
+    "tagIds": ["tag-pure", "tag-symbol"],
+    "relations": [
+      { "predicate": "symbolizes", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "明代",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-plum",
+    "type": "symbol",
+    "name": "墨梅",
+    "aliases": ["梅花", "墨梅图"],
+    "summary": "墨梅不求艳丽，只留清气，常被用来表达不慕浮华、注重内在品格。",
+    "content": "王冕《墨梅》以“不要人夸好颜色，只留清气满乾坤”写墨梅的淡雅。梅花在寒冬开放，墨色又去除了鲜艳色彩，形成以少胜多、以淡见真的审美；这类意象适合低饱和色板与留白构图。",
+    "sourceReferences": [
+      {
+        "title": "王冕《墨梅》",
+        "url": null,
+        "note": "通行本诗句：不要人夸好颜色，只留清气满乾坤。"
+      }
+    ],
+    "conceptIds": ["concept-symbols", "concept-integrity"],
+    "tagIds": ["tag-pure", "tag-symbol"],
+    "relations": [
+      { "predicate": "symbolizes", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "元代",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-bao-zheng",
+    "type": "person",
+    "name": "包拯",
+    "aliases": ["包公", "包青天"],
+    "summary": "北宋名臣，后世以刚正不阿、执法严明的形象流传。",
+    "content": "包拯是北宋官员，后世戏曲和民间叙事把他塑造为不畏权贵、秉公执法的清官代表。关于他的具体案件在民间流传中多有艺术加工，本条目只概述其文化形象，不把戏曲情节当作史实。",
+    "sourceReferences": [
+      {
+        "title": "《宋史·包拯传》",
+        "url": null,
+        "note": "通行本《宋史》卷三百一十六有传；本条目仅作文化概述，未增演史实细节。"
+      }
+    ],
+    "conceptIds": ["concept-people", "concept-governance"],
+    "tagIds": ["tag-public-service", "tag-pure"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "北宋",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-hai-rui",
+    "type": "person",
+    "name": "海瑞",
+    "aliases": ["海青天", "海刚峰"],
+    "summary": "明代官员，以清廉刚直、敢于直言的形象为后世所记。",
+    "content": "海瑞是明代官员，史传与后世叙述常强调其生活俭朴、执法不避权贵。关于他的故事在民间流传中也有夸张成分，本条目保留其清官文化形象，不扩展未经核对的具体细节。",
+    "sourceReferences": [
+      {
+        "title": "《明史·海瑞传》",
+        "url": null,
+        "note": "通行本《明史》卷二百二十六有传；本条目仅作文化概述。"
+      }
+    ],
+    "conceptIds": ["concept-people", "concept-governance"],
+    "tagIds": ["tag-public-service", "tag-pure"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "明代",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-yang-xu",
+    "type": "story",
+    "name": "羊续悬鱼",
+    "aliases": ["悬鱼太守"],
+    "summary": "东汉羊续拒收馈赠，把送来的鱼悬挂在庭中，以表明不接受请托。",
+    "content": "《后汉书》记载羊续任南阳太守时，府丞送给他生鱼，他没有收下食用，而是把鱼悬挂在庭中。后来再有人送鱼，他便以悬鱼示意拒绝。后世用“悬鱼太守”称颂为官清廉、拒绝馈赠的操守。",
+    "sourceReferences": [
+      {
+        "title": "《后汉书·羊续传》",
+        "url": null,
+        "note": "通行本载羊续拒收府丞所送生鱼并悬鱼于庭；本条目为文化概述。"
+      }
+    ],
+    "conceptIds": ["concept-stories", "concept-integrity"],
+    "tagIds": ["tag-self-discipline", "tag-pure"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "东汉",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-yang-zhen",
+    "type": "story",
+    "name": "杨震四知",
+    "aliases": ["四知先生"],
+    "summary": "杨震拒绝夜间赠金，以“天知、神知、我知、子知”表明无人监督时也要自守。",
+    "content": "《后汉书》记载，王密夜间带着金来赠送给杨震，并说夜里无人知道。杨震回答：“天知，神知，我知，子知。何谓无知！”这则故事常被用来解释“慎独”：真正的自律不依赖外部监督。",
+    "sourceReferences": [
+      {
+        "title": "《后汉书·杨震传》",
+        "url": null,
+        "note": "通行本载杨震拒受王密夜赠金，并答以天知、神知、我知、子知。"
+      }
+    ],
+    "conceptIds": ["concept-stories", "concept-self"],
+    "tagIds": ["tag-self-discipline", "tag-pure"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "东汉",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-tao-mu",
+    "type": "story",
+    "name": "陶母退鱼",
+    "aliases": ["陶侃母", "封鲊责子"],
+    "summary": "陶侃把公家腌鱼送给母亲，母亲封还并责备他，体现了家风中的廉洁约束。",
+    "content": "通行本《世说新语·贤媛》载陶侃做管理鱼梁的小吏时，把一坛腌鱼送给母亲。母亲把鱼封还，并写信责备他：拿公家东西送母亲，不但不能让我受益，反而增加我的忧虑。不同版本的题名和文字略有差异，导入前应由内容审核核对版本。",
+    "sourceReferences": [
+      {
+        "title": "《世说新语·贤媛》",
+        "url": null,
+        "note": "通行本载陶母封鲊责子事；不同版本文字略有差异，导入前请内容审核核对。"
+      }
+    ],
+    "conceptIds": ["concept-stories", "concept-family"],
+    "tagIds": ["tag-family", "tag-self-discipline"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "东晋",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-yu-chenglong",
+    "type": "person",
+    "name": "于成龙",
+    "aliases": ["于清端"],
+    "summary": "清代官员，后世以清廉、勤政的形象流传。",
+    "content": "于成龙是清代官员，谥号清端。史传和后世叙述常以“廉”概括其官声，但具体的政绩、案件和评价需要在史料层面逐条核对。本条目只保留其清官文化形象，不扩写未经核对的故事。",
+    "sourceReferences": [
+      {
+        "title": "《清史稿·于成龙传》",
+        "url": null,
+        "note": "通行本有传；本条目仅作文化概述。"
+      }
+    ],
+    "conceptIds": ["concept-people", "concept-governance"],
+    "tagIds": ["tag-public-service", "tag-pure"],
+    "relations": [
+      { "predicate": "embodies", "targetEntityId": "knowledge-integrity" }
+    ],
+    "timeTheme": "清代",
+    "status": "active"
+  },
+  {
+    "id": "knowledge-integrity",
+    "type": "concept",
+    "name": "廉洁",
+    "aliases": ["清正", "清廉"],
+    "summary": "廉洁既指不贪取不应得之物，也包含公正、自持和为民的责任。",
+    "content": "廉洁在传统文化中与“清”“正”“慎独”“为民”等概念相连。它不只是对财物的拒取，也包括在无人监督时守住分寸、在公共事务中不以权谋私。平台把它作为知识、规则和视觉符号之间的核心概念，用于组织模板、标签和叙事。",
+    "sourceReferences": [],
+    "conceptIds": ["concept-integrity"],
+    "tagIds": ["tag-integrity"],
+    "relations": [],
+    "timeTheme": null,
+    "status": "active"
+  }
+]
