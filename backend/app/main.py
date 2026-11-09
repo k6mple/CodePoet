@@ -12,6 +12,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 
 from app.api.auth import router as auth_router
+from app.api.creation import router as creation_router
+from app.api.engine import router as engine_router
+from app.api.render import router as render_router
+from app.api.templates import router as templates_router
+from app.api.works import router as works_router
 from app.db import create_database, create_session_factory
 from app.errors import ApiError
 from app.schemas.health import Health
@@ -139,6 +144,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return Health()
 
     application.include_router(auth_router, prefix="/api/v1")
+    application.include_router(creation_router, prefix="/api/v1")
+    application.include_router(engine_router, prefix="/api/v1")
+    application.include_router(templates_router, prefix="/api/v1")
+    application.include_router(works_router, prefix="/api/v1")
+    application.include_router(render_router, prefix="/api/v1")
 
     return application
 

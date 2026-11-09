@@ -1,0 +1,157 @@
+{
+  "templateId": "tpl-lotus",
+  "versionId": "tv-lotus-001",
+  "versionNumber": 1,
+  "name": "莲",
+  "description": "六瓣莲花，可调花瓣大小与配色。用于演示模板实例化与参数绑定。",
+  "category": "symbol",
+  "status": "published",
+  "changeNote": "首个演示模板：六瓣莲，5 个参数，9 条绑定，1 条参数间约束",
+  "ontologyVersion": 1,
+  "supportedBackends": ["canvas2d"],
+  "irTemplate": {
+    "schemaVersion": "1.0",
+    "seed": 42,
+    "canvas": { "width": 800, "height": 600, "background": "#FBF9F4" },
+    "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+    "durationMs": 0,
+    "nodes": [
+      {
+        "id": "frame",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 400, "cy": 270, "r": 80 },
+        "style": { "fill": null, "stroke": "#C9C2B0", "strokeWidth": 1, "opacity": 0.5 }
+      },
+      {
+        "id": "petal-1",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 445, "cy": 270, "r": 28 },
+        "style": { "fill": "#F2C7C7", "stroke": "#B87373", "strokeWidth": 1.5, "opacity": 0.92 }
+      },
+      {
+        "id": "petal-2",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 422.5, "cy": 308.97, "r": 28 },
+        "style": { "fill": "#F2C7C7", "stroke": "#B87373", "strokeWidth": 1.5, "opacity": 0.92 }
+      },
+      {
+        "id": "petal-3",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 377.5, "cy": 308.97, "r": 28 },
+        "style": { "fill": "#F2C7C7", "stroke": "#B87373", "strokeWidth": 1.5, "opacity": 0.92 }
+      },
+      {
+        "id": "petal-4",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 355, "cy": 270, "r": 28 },
+        "style": { "fill": "#F2C7C7", "stroke": "#B87373", "strokeWidth": 1.5, "opacity": 0.92 }
+      },
+      {
+        "id": "petal-5",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 377.5, "cy": 231.03, "r": 28 },
+        "style": { "fill": "#F2C7C7", "stroke": "#B87373", "strokeWidth": 1.5, "opacity": 0.92 }
+      },
+      {
+        "id": "petal-6",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 422.5, "cy": 231.03, "r": 28 },
+        "style": { "fill": "#F2C7C7", "stroke": "#B87373", "strokeWidth": 1.5, "opacity": 0.92 }
+      },
+      {
+        "id": "core",
+        "parentId": null,
+        "type": "circle",
+        "geometry": { "cx": 400, "cy": 270, "r": 16 },
+        "style": { "fill": "#E8A020", "stroke": "#9A6A10", "strokeWidth": 1, "opacity": 1 }
+      },
+      {
+        "id": "stem",
+        "parentId": null,
+        "type": "polyline",
+        "geometry": { "points": [[400, 350], [400, 430], [385, 480]] },
+        "style": { "fill": null, "stroke": "#6E8B5A", "strokeWidth": 3, "opacity": 1 }
+      }
+    ],
+    "animations": [],
+    "narrative": []
+  },
+  "parameterSchema": [
+    {
+      "name": "petalRadius",
+      "label": "花瓣半径",
+      "description": "单朵花瓣的圆半径，调大花朵更饱满",
+      "type": "integer",
+      "default": 28,
+      "min": 12,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "frameRadius",
+      "label": "外框半径",
+      "description": "最外层虚框的半径，需大于花瓣半径",
+      "type": "integer",
+      "default": 80,
+      "min": 40,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "petalColor",
+      "label": "花瓣颜色",
+      "description": "六片花瓣统一填充色",
+      "type": "color",
+      "default": "#F2C7C7"
+    },
+    {
+      "name": "coreColor",
+      "label": "花心颜色",
+      "description": "中心花蕊的填充色",
+      "type": "color",
+      "default": "#E8A020"
+    },
+    {
+      "name": "petalOpacity",
+      "label": "花瓣透明度",
+      "description": "0 全透明，1 完全不透明",
+      "type": "number",
+      "default": 0.92,
+      "min": 0.3,
+      "max": 1,
+      "step": 0.01
+    }
+  ],
+  "bindings": [
+    { "parameter": "frameRadius", "nodeId": "frame", "property": "geometry.r" },
+    { "parameter": "petalRadius", "nodeId": "petal-1", "property": "geometry.r" },
+    { "parameter": "petalRadius", "nodeId": "petal-2", "property": "geometry.r" },
+    { "parameter": "petalRadius", "nodeId": "petal-3", "property": "geometry.r" },
+    { "parameter": "petalRadius", "nodeId": "petal-4", "property": "geometry.r" },
+    { "parameter": "petalRadius", "nodeId": "petal-5", "property": "geometry.r" },
+    { "parameter": "petalRadius", "nodeId": "petal-6", "property": "geometry.r" },
+    { "parameter": "petalColor", "nodeId": "petal-1", "property": "style.fill" },
+    { "parameter": "petalColor", "nodeId": "petal-2", "property": "style.fill" },
+    { "parameter": "petalColor", "nodeId": "petal-3", "property": "style.fill" },
+    { "parameter": "petalColor", "nodeId": "petal-4", "property": "style.fill" },
+    { "parameter": "petalColor", "nodeId": "petal-5", "property": "style.fill" },
+    { "parameter": "petalColor", "nodeId": "petal-6", "property": "style.fill" },
+    { "parameter": "petalOpacity", "nodeId": "petal-1", "property": "style.opacity" },
+    { "parameter": "petalOpacity", "nodeId": "petal-2", "property": "style.opacity" },
+    { "parameter": "petalOpacity", "nodeId": "petal-3", "property": "style.opacity" },
+    { "parameter": "petalOpacity", "nodeId": "petal-4", "property": "style.opacity" },
+    { "parameter": "petalOpacity", "nodeId": "petal-5", "property": "style.opacity" },
+    { "parameter": "petalOpacity", "nodeId": "petal-6", "property": "style.opacity" },
+    { "parameter": "coreColor", "nodeId": "core", "property": "style.fill" }
+  ],
+  "constraints": [
+    { "type": "lessThan", "left": "petalRadius", "right": "frameRadius" }
+  ]
+}
