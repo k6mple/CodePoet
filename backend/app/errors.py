@@ -82,3 +82,30 @@ def ir_invalid(message: str, details: Any = None) -> ApiError:
 def unsupported_capability(message: str) -> ApiError:
     """请求的能力还没实现。契约要求明确拒绝，不许假装成功。"""
     return ApiError(422, "UNSUPPORTED_CAPABILITY", message)
+
+
+# ---- P1A 分类体系（标签 / 本体）------------------------------------------
+
+
+def dependency_conflict(message: str, details: Any = None) -> ApiError:
+    """还有存活的下级依赖，不能停用。契约 2.2 表里归 409。"""
+    return ApiError(409, "DEPENDENCY_CONFLICT", message, details=details)
+
+
+def tag_conflict(message: str, details: Any = None) -> ApiError:
+    """互斥标签同时出现。契约 2.2 把它归在 422（输入本身合法，组合非法）。"""
+    return ApiError(422, "TAG_CONFLICT", message, details=details)
+
+
+def ontology_cycle(message: str, details: Any = None) -> ApiError:
+    """本体父子关系会成环。改完就查不出根，必须拒掉。"""
+    return ApiError(422, "ONTOLOGY_CYCLE", message, details=details)
+
+
+def invalid_state(message: str) -> ApiError:
+    """当前状态不允许这个操作（例如更新已停用的条目）。"""
+    return ApiError(409, "INVALID_STATE", message)
+
+
+def self_review_forbidden(message: str = "不能审核自己提交的内容") -> ApiError:
+    return ApiError(403, "SELF_REVIEW_FORBIDDEN", message)

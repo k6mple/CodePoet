@@ -41,12 +41,13 @@ def build_user_schema(user: User) -> UserSchema:
     """ORM 对象转对外模型。权限由角色推导，不存库。"""
     application: RoleApplication | None = None
     if user.role_applied_for is not None:
-        # 基础版只记录「申请了什么角色」，审批详情在 P1A-01 扩展
+        # P1A-01 起状态、理由、决定时间都来自真实列；
+        # 历史行由 005 的回填 + 触发器保证一定有 status，缺了才回落 pending
         application = RoleApplication(
             requestedRole=user.role_applied_for,  # type: ignore[arg-type]
-            status="pending",
-            reason="",
-            decidedAt=None,
+            status=user.role_application_status or "pending",  # type: ignore[arg-type]
+            reason=user.role_decision_reason or "",
+            decidedAt=user.role_decided_at,
         )
     return UserSchema(
         id=user.id,
