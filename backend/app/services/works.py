@@ -17,13 +17,19 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.errors import not_found, revision_conflict, validation_error
+from app.errors import (
+    execution_busy,
+    invalid_state,
+    not_found,
+    revision_conflict,
+    validation_error,
+)
 from app.models.creations import Generation as GenerationModel
 from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
@@ -48,6 +54,15 @@ from app.settings import Settings
 
 # 依赖快照占位：P1B-04 要做真实的依赖哈希，现在用固定值避免假装精确
 _DEPENDENCY_SNAPSHOT = hashlib.sha256(b"codepoet-p0-04").hexdigest()
+
+# 契约 7.1：上传任务创建后有效期 5 分钟
+UPLOAD_TTL_SECONDS = 300
+# 契约 7.1：每用户最多两个未完成的上传任务
+MAX_OPEN_UPLOADS = 2
+# 未完成 = 还能往上传帧的状态；timed_out 已经出局，不算占额度
+_OPEN_JOB_STATUSES = ("queued", "running")
+# 过期任务对外暴露的错误码，契约 7.1 点名要求
+UPLOAD_EXPIRED_CODE = "UPLOAD_EXPIRED"
 
 
 # ---------------------------------------------------------------------------
@@ -225,6 +240,45 @@ def build_render_job(row: RenderJob) -> RenderJobSchema:
 # ---------------------------------------------------------------------------
 
 
+def _expire_stale_uploads(db: Session, owner_id: str) -> int:
+    """把该用户已过期但仍挂着可上传状态的任务标成 timed_out。
+
+    契约 7.1 写的是「过期时检查并标 timed_out，不需常驻 worker」，所以
+    清理挂在读写路径上：建新任务前清一批，读单个任务时清一条。不这样做
+    的话，一个两小时前就该过期的任务会永久占着两个额度中的一个，用户
+    再也建不出新任务，而看状态字段又找不出原因。
+    """
+    now = datetime.now(timezone.utc)
+    rows = db.scalars(
+        select(RenderJob).where(
+            RenderJob.owner_id == owner_id,
+            RenderJob.execution_mode == "browser_upload",
+            RenderJob.status.in_(_OPEN_JOB_STATUSES),
+        )
+    ).all()
+    return sum(1 for row in rows if _mark_expired_if_due(row, now))
+
+
+def _mark_expired_if_due(row: RenderJob, now: datetime) -> bool:
+    """单个任务到期就地标记，返回是否真的改过。phase 保留原值。"""
+    deadline = _parse_dt(row.expires_at)
+    if deadline is None or deadline > now:
+        return False
+    stamp = now.isoformat(timespec="seconds")
+    row.status = "timed_out"
+    row.error_json = json.dumps(
+        {
+            "code": UPLOAD_EXPIRED_CODE,
+            "message": "上传任务已过期，请重新创建渲染任务",
+            "details": None,
+        },
+        ensure_ascii=False,
+    )
+    row.finished_at = row.finished_at or stamp
+    row.updated_at = stamp
+    return True
+
+
 def create_render_job(
     db: Session, user: User, payload: RenderCreate
 ) -> RenderJobSchema:
@@ -232,15 +286,38 @@ def create_render_job(
     if payload.backend != generation.backend:
         raise validation_error(f"快照的后端是 {generation.backend}，与请求的 {payload.backend} 不一致")
 
-    now = _now_iso()
+    # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
+    if _expire_stale_uploads(db, user.id):
+        db.commit()
+
+    open_count = db.scalar(
+        select(func.count())
+        .select_from(RenderJob)
+        .where(
+            RenderJob.owner_id == user.id,
+            RenderJob.execution_mode == "browser_upload",
+            RenderJob.status.in_(_OPEN_JOB_STATUSES),
+        )
+    )
+    if (open_count or 0) >= MAX_OPEN_UPLOADS:
+        raise execution_busy(
+            f"未完成的上传任务已达 {MAX_OPEN_UPLOADS} 个上限，请先完成或等待旧任务过期",
+            details={"maxOpenUploads": MAX_OPEN_UPLOADS, "openUploads": open_count},
+        )
+
+    now = datetime.now(timezone.utc)
+    stamp = now.isoformat(timespec="seconds")
+    expires = (now + timedelta(seconds=UPLOAD_TTL_SECONDS)).isoformat(timespec="seconds")
+
     row = RenderJob(
         id=_new_id("job"),
         owner_id=user.id,
         generation_id=payload.generationId,
         backend=payload.backend,
         execution_mode=payload.executionMode,
-        # 客户端还没上传任何一帧，所以先 queued + awaiting_frames
-        status="queued",
+        # 契约 7.1 对 browser_upload 明确规定「状态 running、phase=awaiting_frames」。
+        # 帧齐了才变 succeeded/phase=completed。
+        status="running",
         phase="awaiting_frames",
         times_ms_json=json.dumps(payload.timesMs),
         policy_revision=1,
@@ -249,13 +326,13 @@ def create_render_job(
         original_job_id=None,
         started_at=None,
         finished_at=None,
-        expires_at=None,
+        expires_at=expires,
         manifest_json=None,
         quality_report_json=None,
         error_json=None,
         revision=1,
-        created_at=now,
-        updated_at=now,
+        created_at=stamp,
+        updated_at=stamp,
     )
     db.add(row)
     db.commit()
@@ -264,7 +341,12 @@ def create_render_job(
 
 
 def get_render_job(db: Session, user: User, job_id: str) -> RenderJobSchema:
-    return build_render_job(_require_owned_job(db, user, job_id))
+    row = _require_owned_job(db, user, job_id)
+    # 读路径也判一次：前端会反复 GET 同一任务，等下一次创建时才清理太晚
+    if _mark_expired_if_due(row, datetime.now(timezone.utc)):
+        db.commit()
+        db.refresh(row)
+    return build_render_job(row)
 
 
 def _rebuild_manifest(
@@ -322,6 +404,12 @@ def upload_frame(
 ) -> RenderJobSchema:
     """上传一帧。同一 timeMs 重复上传按替换处理（幂等），不累积脏数据。"""
     row = _require_owned_job(db, user, job_id)
+    # 过期任务不能收帧：收下来以后要么产出「图是旧的」的成品，
+    # 要么得先把状态从 timed_out 拽回 running，两种都不该发生
+    if _mark_expired_if_due(row, datetime.now(timezone.utc)):
+        db.commit()
+        db.refresh(row)
+        raise invalid_state("上传任务已过期，请重新创建渲染任务")
     generation = _require_owned_generation(db, user, row.generation_id)
 
     times: list[int] = _loads(row.times_ms_json, [])

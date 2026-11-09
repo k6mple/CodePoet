@@ -12,6 +12,7 @@ import struct
 import tempfile
 import unittest
 import zlib
+from datetime import datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -252,17 +253,138 @@ class WorkFlowTests(unittest.TestCase):
         self.assertEqual(response.status_code, 202, response.text)
         return response.json()
 
+    def _force_expire(self, job_id: str) -> None:
+        """把到期时间挪到过去，模拟「五分钟真的过去了」。
+
+        直接改库而不是 sleep：等五分钟会让测试慢到没人愿意跑，而这里要
+        验的是到期后的行为，不是时钟本身。
+        """
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE render_jobs SET expires_at = ? WHERE id = ?",
+            ("2020-01-01T00:00:00+00:00", job_id),
+        )
+        connection.commit()
+        connection.close()
+
     # ---- 用例 -----------------------------------------------------------
     def test_render_job_starts_awaiting_frames(self):
+        """创建即 running/awaiting_frames，并带 5 分钟到期时间。
+
+        契约 7.1 对 browser_upload 就是这么写的。早期实现返回 queued 且
+        expiresAt=null，前端据此判定「不可上传」，G0 保存链断在第一跳
+        （问题单 BE-G0-001）。
+        """
         self._new_user("owner1")
         csrf = self._login("owner1")
         self._user_id = self._whoami()
         gen = self._seed_generation(csrf)
         job = self._make_job(csrf, gen["id"], [0])
         self.assertEqual(job["phase"], "awaiting_frames")
-        self.assertEqual(job["status"], "queued")
+        self.assertEqual(job["status"], "running")
         self.assertIsNone(job["manifest"])
         self.assertIsNone(job["finishedAt"])
+        # expiresAt 必须是创建时间 + 5 分钟，不能是 null
+        self.assertIsNotNone(job["expiresAt"])
+        created = datetime.fromisoformat(job["createdAt"].replace("Z", "+00:00"))
+        expires = datetime.fromisoformat(job["expiresAt"].replace("Z", "+00:00"))
+        self.assertEqual(int((expires - created).total_seconds()), 300)
+
+    def test_third_open_job_is_rejected_with_429(self):
+        """契约 7.1：每用户最多两个未完成上传任务。"""
+        self._new_user("owner_cap")
+        csrf = self._login("owner_cap")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        self._make_job(csrf, gen["id"], [0])
+        self._make_job(csrf, gen["id"], [0])
+
+        response = self.client.post(
+            f"{API}/render-jobs",
+            json={
+                "generationId": gen["id"],
+                "backend": "canvas2d",
+                "timesMs": [0],
+                "executionMode": "browser_upload",
+                "rendererVersion": "test-1.0",
+                "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1},
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(response.status_code, 429, response.text)
+        error = response.json()["error"]
+        self.assertEqual(error["code"], "EXECUTION_BUSY")
+        self.assertEqual(error.get("details", {}).get("maxOpenUploads"), 2)
+
+    def test_expired_job_reports_timed_out(self):
+        """过期任务读到时标 timed_out，并带 UPLOAD_EXPIRED。
+
+        契约写明「过期时检查并标 timed_out，不需常驻 worker」，
+        所以这个判断必须发生在读路径上，而不是等某个后台进程。
+        """
+        self._new_user("owner_expire")
+        csrf = self._login("owner_expire")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        job = self._make_job(csrf, gen["id"], [0])
+        self._force_expire(job["id"])
+
+        response = self.client.get(f"{API}/render-jobs/{job['id']}")
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        self.assertEqual(body["status"], "timed_out")
+        self.assertEqual((body.get("error") or {}).get("code"), "UPLOAD_EXPIRED")
+        self.assertIsNotNone(body["finishedAt"])
+
+    def test_expired_job_rejects_frame_upload(self):
+        """过期任务不能再收帧，否则会产出「图是旧的、状态是新的」的成品。"""
+        self._new_user("owner_late")
+        csrf = self._login("owner_late")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        job = self._make_job(csrf, gen["id"], [0])
+        self._force_expire(job["id"])
+
+        response = self.client.post(
+            f"{API}/render-jobs/{job['id']}/frames",
+            files={"file": ("frame.png", make_png(), "image/png")},
+            data={"timeMs": "0", "irHash": gen["irHash"]},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(response.status_code, 409, response.text)
+        self.assertEqual(response.json()["error"]["code"], "INVALID_STATE")
+
+    def test_expired_slot_is_released(self):
+        """过期任务不该继续占额度，否则用户永远建不出新任务。"""
+        self._new_user("owner_release")
+        csrf = self._login("owner_release")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        first = self._make_job(csrf, gen["id"], [0])
+        second = self._make_job(csrf, gen["id"], [0])
+        self._force_expire(first["id"])
+        self._force_expire(second["id"])
+
+        # 两个都过期了，额度应全部释放：还能再建两个
+        third = self._make_job(csrf, gen["id"], [0])
+        self.assertEqual(third["status"], "running")
+        fourth = self._make_job(csrf, gen["id"], [0])
+        self.assertEqual(fourth["status"], "running")
+
+        # 此刻未完成的是 third + fourth，共两个，第五个就该撞上限
+        response = self.client.post(
+            f"{API}/render-jobs",
+            json={
+                "generationId": gen["id"],
+                "backend": "canvas2d",
+                "timesMs": [0],
+                "executionMode": "browser_upload",
+                "rendererVersion": "test-1.0",
+                "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1},
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(response.status_code, 429, response.text)
 
     def test_frame_upload_completes_job(self):
         self._new_user("owner2")

@@ -109,3 +109,16 @@ def invalid_state(message: str) -> ApiError:
 
 def self_review_forbidden(message: str = "不能审核自己提交的内容") -> ApiError:
     return ApiError(403, "SELF_REVIEW_FORBIDDEN", message)
+
+
+def execution_busy(
+    message: str = "未完成的上传任务已达上限，请先完成、取消或等待旧任务过期",
+    details: Any = None,
+) -> ApiError:
+    """契约 2.3 的 429：每用户最多两个未完成上传任务。
+
+    这不是防刷限流，而是因为每个未完成任务都会占住浏览器端的一次完整
+    出图与上传流程；放开会让页面同时挂着多个互不相干的上传会话，
+    前端也很难判断该把哪一帧交给哪个任务。
+    """
+    return ApiError(429, "EXECUTION_BUSY", message, details=details)
