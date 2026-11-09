@@ -17,16 +17,19 @@ from sqlalchemy.orm import Session
 
 from app.deps import current_user, get_db, require_csrf, require_user
 from app.models.users import User as UserModel
+from app.schemas.reviews import RevisionRequest
 from app.schemas.works import (
     Scope,
     Work,
     WorkCreate,
     WorkCreated,
     WorkPage,
+    WorkVersion,
     WorkVersionCreate,
     WorkVersionDetail,
     WorkVersionPage,
 )
+from app.services import reviews as reviews_service
 from app.services import works as works_service
 
 router = APIRouter(tags=["作品"])
@@ -119,3 +122,26 @@ def read_version(
     viewer: UserModel | None = Depends(current_user),
 ) -> WorkVersionDetail:
     return works_service.get_version_detail(db, viewer, version_id)
+
+
+@router.post(
+    "/work-versions/{version_id}/submit",
+    response_model=WorkVersion,
+    summary="提交作品版本审核",
+    description=(
+        "权限 O（本人）。只允许 private/rejected → pending_review。"
+        "派生自未发布模板的版本（generation.unpublishedSource=true）会被 409 "
+        "UNPUBLISHED_SOURCE 拒绝——审核人看到的会是一张来源尚不存在的作品。"
+        "渲染任务未完成同样拒绝。"
+    ),
+)
+def submit_work_version(
+    payload: RevisionRequest,
+    version_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> WorkVersion:
+    return reviews_service.submit_work_version(
+        db, user, version_id, payload.expectedRevision
+    )

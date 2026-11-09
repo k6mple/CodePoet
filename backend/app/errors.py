@@ -107,6 +107,17 @@ def invalid_state(message: str) -> ApiError:
     return ApiError(409, "INVALID_STATE", message)
 
 
+def unpublished_source(message: str, details: Any = None) -> ApiError:
+    """内容派生自未发布的源，不能公开送审。
+
+    典型场景：用草稿模板生成的图被存成作品后直接送审。审核人看到的
+    会是一张「来源还不存在」的作品；等模板真发布了，这张图也不会自动
+    跟着更新（契约 5.1 明确：模板后来通过不会改旧 generation）。
+    所以这里必须拒绝，让用户先让模板过审再重新生成。
+    """
+    return ApiError(409, "UNPUBLISHED_SOURCE", message, details=details)
+
+
 def self_review_forbidden(message: str = "不能审核自己提交的内容") -> ApiError:
     return ApiError(403, "SELF_REVIEW_FORBIDDEN", message)
 
