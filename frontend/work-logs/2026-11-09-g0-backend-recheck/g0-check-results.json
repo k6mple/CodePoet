@@ -1,0 +1,210 @@
+{
+  "base": "http://127.0.0.1:13120",
+  "diagnostic": false,
+  "status": "blocked",
+  "g0Passed": false,
+  "checks": [
+    {
+      "name": "register-login-default-generation",
+      "generationId": "gen-6010141e2ef54ede9c248a20f60d3322"
+    },
+    {
+      "name": "parameter-changes-real-canvas"
+    },
+    {
+      "name": "invalid-number-retains-canvas-and-disables-save"
+    },
+    {
+      "name": "real-cross-field-422",
+      "code": "VALIDATION_ERROR",
+      "requestId": "req-e857b9bacb254cc6929204ab960fa50b"
+    },
+    {
+      "name": "real-401-relogin-preserves-generation"
+    },
+    {
+      "name": "late-real-response-cannot-overwrite-newer-generation",
+      "generationId": "gen-9084aae727dd4c82b421f04b14c65f53",
+      "radius": 34
+    },
+    {
+      "name": "creator-390-no-horizontal-overflow",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "name": "network-failure-retains-generation-without-false-save"
+    },
+    {
+      "name": "create-real-upload-job",
+      "id": "job-48c7b0048262487db0cf563438ed82af",
+      "status": "queued",
+      "phase": "awaiting_frames",
+      "expiresAt": null,
+      "requestId": "req-23a732997c68457d9051511c42cfe5b7"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "BE-G0-001",
+      "expected": "running/awaiting_frames",
+      "actual": "queued/awaiting_frames",
+      "jobId": "job-48c7b0048262487db0cf563438ed82af",
+      "requestId": "req-23a732997c68457d9051511c42cfe5b7"
+    }
+  ],
+  "requests": [
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-b88c6149d1c347a39bbbcd63bd832751"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-e89e7ce1c99b49ae81ec1366a0a6ed8b"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-debf044458b0448ab6ecb97c540ec024"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 401,
+      "requestId": "req-b58df8369cce438e85598d6549277e82"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-50309c90a137400088a522bd4041c6ae"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-lotus-001",
+      "status": 200,
+      "requestId": "req-352bdc6dcd764407babe6cbe333ca6b8"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-db88620266044d10911a1097bc8fd7ed"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "status": 201,
+      "requestId": "req-a863c543b45a48beb893f0663a9c6e20"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-ba834453fd244814ba218aae3321dde8"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-c5bf578f46804000a272128930dc6640"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-657a122d8f9846d7a123613dddb48fd1"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-69b883361497463c934c2cdebab19f9b"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 422,
+      "requestId": "req-e857b9bacb254cc6929204ab960fa50b"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-e7bb874dda004a929fbe220934543d1a"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-5dcdde54b863487cad63bf843e8e3dfa"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "status": 204,
+      "requestId": "req-11dae2c295f2421996aa74c10ef8594f"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 401,
+      "requestId": "req-be212c4978664cc1b80ab72e83933494"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-69345a343780430dadc81ce3c9ab08af"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-629f616ac1cf41f399e3cef5ec84a9f1"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-55d22e46adea40dd9a1b763f266b5bde"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-23a732997c68457d9051511c42cfe5b7"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "automated-creator-390.png",
+    "automated-backend-job-status-mismatch.png"
+  ]
+}

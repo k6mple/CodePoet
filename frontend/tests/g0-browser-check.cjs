@@ -10,7 +10,9 @@ if (!['127.0.0.1', 'localhost'].includes(new URL(base).hostname)) {
   throw new Error('G0 checks require a local, isolated test deployment.')
 }
 const diagnostic = process.argv.includes('--diagnostic-upload')
-const out = path.resolve(__dirname, '../work-logs/2026-11-09-g0-integration')
+const out = process.env.CODEPOET_G0_OUTPUT_DIR
+  ? path.resolve(process.env.CODEPOET_G0_OUTPUT_DIR)
+  : path.resolve(__dirname, '../work-logs/2026-11-09-g0-integration')
 const resultFile = path.join(out, diagnostic ? 'g0-diagnostic-results.json' : 'g0-check-results.json')
 fs.mkdirSync(out, { recursive: true })
 const secrets = []
