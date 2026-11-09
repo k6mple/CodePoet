@@ -29,9 +29,15 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(16), nullable=False, default="creator")
     # active / disabled
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="active")
-    # 角色申请：申请时间与目标角色，审批后清空
+    # 角色申请：申请时间与目标角色，审批后 role_applied_for 保留作为历史
     role_applied_at: Mapped[str | None] = mapped_column(Text, nullable=True)
     role_applied_for: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # 申请状态：pending / approved / rejected（005 新增）
+    # 注册时只写 role_applied_for，状态由数据库触发器补成 pending
+    role_application_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    role_decision_reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    role_decided_at: Mapped[str | None] = mapped_column(Text, nullable=True)
+    role_decided_by: Mapped[str | None] = mapped_column(String(80), nullable=True)
     # 乐观并发版本号，从 1 起
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     created_at: Mapped[str] = mapped_column(Text, nullable=False)
