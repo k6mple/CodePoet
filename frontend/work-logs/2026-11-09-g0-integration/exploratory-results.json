@@ -1,0 +1,336 @@
+{
+  "status": "blocked",
+  "g0Passed": false,
+  "assistedUpload": true,
+  "owner": "g0a_mw96qo7u",
+  "other": "g0b_mw96uni7",
+  "jobCreation": {
+    "id": "job-2081fe1a465f4727874b29690f2b65a1",
+    "createdAt": "2026-11-09T11:36:56Z",
+    "ownerId": "usr-8af8a3cd1460432cbdb5e5819f52d567",
+    "generationId": "gen-aacef8870afb4cecbfdca6c541283db0",
+    "status": "queued",
+    "backend": "canvas2d",
+    "timesMs": [
+      0
+    ],
+    "policyRevision": 1,
+    "rendererVersion": "codepoet-canvas-1.0.0",
+    "originalJobId": null,
+    "startedAt": null,
+    "finishedAt": null,
+    "manifest": null,
+    "qualityReport": null,
+    "error": null,
+    "executionMode": "browser_upload",
+    "phase": "awaiting_frames",
+    "expiresAt": null,
+    "clientEnvironment": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "deviceScaleFactor": 1
+    }
+  },
+  "diagnosticUpload": {
+    "status": 200,
+    "requestId": "req-f1176d93d4894e3692288040f1ed8239",
+    "pngBytes": 28776,
+    "pngSignature": [
+      137,
+      80,
+      78,
+      71,
+      13,
+      10,
+      26,
+      10
+    ]
+  },
+  "saved": {
+    "work": {
+      "id": "work-c7e6d9f5e6564b3e9d436388a0667035",
+      "revision": 1,
+      "createdAt": "2026-11-09T11:38:18Z",
+      "updatedAt": "2026-11-09T11:38:18Z",
+      "ownerId": "usr-8af8a3cd1460432cbdb5e5819f52d567",
+      "title": "G0 真实保存验证",
+      "description": "",
+      "workingTitle": null,
+      "workingDescription": null,
+      "publishedVersionId": null,
+      "latestVersionId": "wv-a666e103e3614daca9ba76fffc2509e2",
+      "displayVersionId": "wv-a666e103e3614daca9ba76fffc2509e2",
+      "isFavorite": false,
+      "thumbnailArtifactId": "art-74dc69d9eb0542d9b5e85fa504af0fe1",
+      "permissions": [
+        "work.read",
+        "work.update",
+        "work.delete",
+        "work.version.create"
+      ]
+    },
+    "version": {
+      "id": "wv-a666e103e3614daca9ba76fffc2509e2",
+      "revision": 1,
+      "createdAt": "2026-11-09T11:38:18Z",
+      "updatedAt": "2026-11-09T11:38:18Z",
+      "workId": "work-c7e6d9f5e6564b3e9d436388a0667035",
+      "versionNumber": 1,
+      "createdBy": "usr-8af8a3cd1460432cbdb5e5819f52d567",
+      "submittedBy": null,
+      "status": "private",
+      "title": "G0 真实保存验证",
+      "description": "",
+      "generationId": "gen-aacef8870afb4cecbfdca6c541283db0",
+      "renderJobId": "job-2081fe1a465f4727874b29690f2b65a1",
+      "changeNote": "",
+      "submittedAt": null,
+      "publishedAt": null,
+      "lastReview": null
+    }
+  },
+  "isolation": [
+    {
+      "path": "/work-versions/wv-a666e103e3614daca9ba76fffc2509e2",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "requestId": "req-ae03d02afcd74ee1996a54481c6be4ea"
+    },
+    {
+      "path": "/works/work-c7e6d9f5e6564b3e9d436388a0667035",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "requestId": "req-b73946584bf04f91a15e648ebd98a0ac"
+    },
+    {
+      "path": "/generations/gen-aacef8870afb4cecbfdca6c541283db0",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "requestId": "req-8c69721c5d1d44cabbb91481816828d7"
+    },
+    {
+      "path": "/render-jobs/job-2081fe1a465f4727874b29690f2b65a1",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "requestId": "req-379fd2f9c593468b8986e30c824c675c"
+    },
+    {
+      "path": "/artifacts/art-74dc69d9eb0542d9b5e85fa504af0fe1",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "requestId": "req-e245b416d2274280adcf82214c665dc7"
+    }
+  ],
+  "authRecovery": {
+    "logout": {
+      "status": 204,
+      "requestId": "req-b66ec54026eb4320a1185076fca143c0"
+    },
+    "before": {
+      "generationId": "gen-1590717385ef4296bfda09fcb8941c2a",
+      "param": "32"
+    },
+    "retainedBeforeLogin": "32",
+    "after": {
+      "generationId": "gen-1590717385ef4296bfda09fcb8941c2a",
+      "param": "32",
+      "saveEnabled": true
+    }
+  },
+  "race": {
+    "accepted": "gen-6f7267d3843a423d968d2c4835efeb0e",
+    "params": {
+      "coreColor": "#E8A020",
+      "frameRadius": 80,
+      "petalColor": "#F2C7C7",
+      "petalOpacity": 0.92,
+      "petalRadius": 34
+    },
+    "responses": [
+      {
+        "radius": 34,
+        "status": 201
+      },
+      {
+        "radius": 30,
+        "status": 201
+      }
+    ],
+    "latestWon": true
+  },
+  "mobile": {
+    "viewport": 390,
+    "document": 380,
+    "body": 380
+  },
+  "events": [
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-beb5e54540314646b795e0731cb0c1cf"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "status": 201,
+      "requestId": "req-f9fcef5e440c493fb9e7bfd103cdd798"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-2b0277e05398462ca53b2e0f53527171"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-1b77e95ba25c48c0aeb768e1f86f3dcd",
+      "generationId": "gen-ed23d1da1e6148c79a8de3e11fe1b9c5",
+      "params": {
+        "coreColor": "#E8A020",
+        "frameRadius": 80,
+        "petalColor": "#F2C7C7",
+        "petalOpacity": 0.92,
+        "petalRadius": 28
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-789d1f19b8154d48be6e793de9d1a5a0",
+      "generationId": "gen-64ad254f23b54e98ba12f48fbeb991f3",
+      "params": {
+        "coreColor": "#E8A020",
+        "frameRadius": 80,
+        "petalColor": "#F2C7C7",
+        "petalOpacity": 0.92,
+        "petalRadius": 36
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-f1df8a007b584b3f9ad4dd08eb4ddf37",
+      "generationId": "gen-9b2c38cfa34842a08bc501100cdf4ec6",
+      "params": {
+        "coreColor": "#E8A020",
+        "frameRadius": 80,
+        "petalColor": "#F2C7C7",
+        "petalOpacity": 0.92,
+        "petalRadius": 28
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 422,
+      "requestId": "req-ed22893b866f4c808f3cbd1bdb286149"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-f3f1770efe63412a9b4c1d9a3a56d5d5",
+      "generationId": "gen-aacef8870afb4cecbfdca6c541283db0",
+      "params": {
+        "coreColor": "#E8A020",
+        "frameRadius": 80,
+        "petalColor": "#F2C7C7",
+        "petalOpacity": 0.92,
+        "petalRadius": 28
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-b89b5d37cca54e0bb0b567ab4994d5de"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-da3386299b3643ba90235c7db90d3997"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-2081fe1a465f4727874b29690f2b65a1/frames",
+      "status": 200,
+      "requestId": "req-f1176d93d4894e3692288040f1ed8239"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-2081fe1a465f4727874b29690f2b65a1",
+      "status": 200,
+      "requestId": "req-96e041805fda428ea89b71cca204e1fe"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/works",
+      "status": 201,
+      "requestId": "req-14d97a92cfaf4222941057d532c3bff5"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-af6ae32388164f09ba9a7a383e9a80c3",
+      "generationId": "gen-1590717385ef4296bfda09fcb8941c2a",
+      "params": {
+        "coreColor": "#E8A020",
+        "frameRadius": 80,
+        "petalColor": "#F2C7C7",
+        "petalOpacity": 0.92,
+        "petalRadius": 32
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-cd50d331d17b4beaaadc0e98d00de711"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "status": 204,
+      "requestId": "req-b66ec54026eb4320a1185076fca143c0"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 401,
+      "requestId": "req-84eabe8145a9434fb4793822c9369824"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-8be1293ecc3340f9a46eee5e3040f6a4"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-4bf612c3f7d844a0baa78a00b05c753a"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-f0eb8beb782d4f31bcec0bda5991e562",
+      "generationId": "gen-6f7267d3843a423d968d2c4835efeb0e",
+      "params": {
+        "coreColor": "#E8A020",
+        "frameRadius": 80,
+        "petalColor": "#F2C7C7",
+        "petalOpacity": 0.92,
+        "petalRadius": 34
+      }
+    }
+  ],
+  "errors": []
+}

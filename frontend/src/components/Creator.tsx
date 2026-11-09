@@ -711,7 +711,7 @@ export default function Creator() {
           {!features?.semanticGeneration && <p className="rail-lead">当前后端尚未启用语义生成。</p>}
         </form>}
         {mode === 'ir' && (generation && generation.ownerId === userId
-          ? <IRControls key={generation.id} generation={generation} draft={draft} selected={nodeId}
+          ? <IRControls key={generation.id} ir={generation.ir} draft={draft} selected={nodeId}
             onSelect={setNodeId} disabled={saving || pending || initializing || !capability}
             subgraph={Boolean(features?.subgraphEditing)}
             onDraft={(value) => { setDraft(value); setDirty(true) }}

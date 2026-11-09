@@ -3154,6 +3154,19 @@ textarea { resize: vertical; }
 
 .p1-modes { margin-block: 1rem; }
 .p1-json { width: 100%; resize: vertical; }
+.ir-layer-tree { margin-block: 1rem; }
+.ir-layer-tree legend { font-size: 12px; font-weight: 600; }
+.ir-layer-scroll { max-height: 18rem; overflow: auto; margin-block: 0.5rem; border: 1px solid var(--line); }
+.ir-node-list { list-style: none; margin: 0; padding: 0; }
+.ir-node-list .ir-node-list { margin-left: 12px; border-left: 1px solid var(--line); }
+.ir-node-choice { display: flex; align-items: flex-start; gap: 8px; padding: 8px; cursor: pointer; }
+.ir-node-choice.is-selected { background: var(--paper-raised); }
+.ir-node-choice:focus-within { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ir-node-choice input { width: auto; flex: 0 0 auto; margin-top: 3px; }
+.ir-node-choice span { min-width: 0; overflow-wrap: anywhere; font-size: 12px; }
+.ir-node-choice small { color: var(--muted); }
+.fixture-editor { margin-top: 1.5rem; }
+.fixture-editor pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .p1-viewport,
 .p1-comparison {
   display: grid;

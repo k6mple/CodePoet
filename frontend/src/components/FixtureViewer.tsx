@@ -14,6 +14,7 @@ import TimelinePlayer from './TimelinePlayer'
 import { exportFrame } from '@/renderers/canvas/renderScene'
 import { errorMessage } from '@/api/client'
 import { InlineNotice } from './Feedback'
+import IRControls from './IRControls'
 
 type TemplateSeed = { versions: { irTemplate: DrawingIR }[] }
 const templateIr = (seed: unknown) => (seed as TemplateSeed).versions[0].irTemplate
@@ -28,6 +29,23 @@ const fixtures = [
   { value: 'bamboo', label: '竹·守正 · 模板原始 IR', ir: templateIr(bambooTemplate) },
   { value: 'narrative-template', label: '四秒·清莲叙事 · 模板原始 IR', ir: templateIr(narrativeTemplate) },
 ]
+
+function FixtureEditor({ ir }: { ir: DrawingIR }) {
+  const [draft, setDraft] = useState(() => JSON.stringify(ir, null, 2))
+  const [selected, setSelected] = useState<string | null>(null)
+  const [recorded, setRecorded] = useState('')
+  return <details className="tech-details fixture-editor">
+    <summary>本地 IR 编辑控件检查</summary>
+    <p>这里只检查选择、JSON 和请求输入，不调用后端、不修改上方固定画布，也不创建生成记录或作品。</p>
+    <IRControls ir={ir} draft={draft} selected={selected} onDraft={setDraft} onSelect={setSelected}
+      disabled={false} subgraph applyLabel="记录完整 IR 输入" subgraphLabel="记录子树输入"
+      onApply={(value) => setRecorded(JSON.stringify({ kind: '完整 IR', ir: value }, null, 2))}
+      onSubgraph={(value) => setRecorded(JSON.stringify({ kind: '子树', ...value }, null, 2))} />
+    {recorded && <output aria-label="本地控件输入记录">
+      <p>本地记录，未请求服务器。</p><pre>{recorded}</pre>
+    </output>}
+  </details>
+}
 
 export default function FixtureViewer() {
   const [name, setName] = useState('probe')
@@ -89,7 +107,7 @@ export default function FixtureViewer() {
         <p className="fixture-badge">本地示例 · 非服务器生成</p>
         <div className="stage-mount">
           <div className="stage-surface">
-            <TimelinePlayer key={name} ir={ir} />
+            <TimelinePlayer key={name} ir={ir} paused={exporting} />
           </div>
           <div className="stage-caption">
             <span>{selected.label}</span>
@@ -99,5 +117,6 @@ export default function FixtureViewer() {
         <p className="fixture-note">时间轴只在本地 IR 上播放；真实作品的服务器 PNG 与生成记录在作品详情页，不使用这里的示例冒充。</p>
       </div>
     </div>
+    <FixtureEditor key={name} ir={ir} />
   </section>
 }
