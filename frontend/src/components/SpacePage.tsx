@@ -226,7 +226,8 @@ function SessionsPanel() {
             <div className="space-session-list">
               <ul className="manager-list">
                 {sessions.map((session) => <li className={`manager-row${selected?.id === session.id ? ' is-selected' : ''}`} key={session.id}>
-                  <button type="button" className="space-session-main" onClick={() => { setSelected(session); setRestoreError(''); setNotice('') }}>
+                  <button type="button" className="space-session-main" disabled={Boolean(restoreBusy)}
+                    onClick={() => { setSelected(session); setRestoreError(''); setNotice('') }}>
                     <strong>{session.name || '未命名创作现场'}</strong>
                     <span className="mono">更新 {formatDateTime(session.updatedAt)} · rev {session.revision}</span>
                     <span className="mono">最新快照 {shortId(session.latestSnapshotId)}</span>

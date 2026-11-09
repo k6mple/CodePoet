@@ -8,9 +8,10 @@ import type {
 } from '@/types/core'
 import { formatDateTime, shortId } from '@/utils/format'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
+import MappingRules from './MappingRules'
 import { useSession } from './SessionProvider'
 
-type Tab = 'export' | 'import' | 'audit'
+type Tab = 'export' | 'import' | 'audit' | 'rules'
 
 const EXPORT_TYPES = [
   { value: 'entities', label: '知识实体' },
@@ -46,11 +47,13 @@ export default function AdminOps() {
   const canExport = Boolean(user?.permissions.includes('exports.create'))
   const canImport = Boolean(user?.permissions.includes('imports.apply'))
   const canAudit = Boolean(user?.permissions.includes('audit.read'))
+  const canEditRules = Boolean(user?.permissions.includes('rules.write'))
   const availableTabs = useMemo(() => [
     ...(canExport ? [{ key: 'export' as const, label: '导出' }] : []),
     ...(canImport ? [{ key: 'import' as const, label: '导入' }] : []),
     ...(canAudit ? [{ key: 'audit' as const, label: '审计日志' }] : []),
-  ], [canExport, canImport, canAudit])
+    ...(canEditRules ? [{ key: 'rules' as const, label: '映射规则' }] : []),
+  ], [canExport, canImport, canAudit, canEditRules])
   const canAccess = availableTabs.length > 0
   const [tab, setTab] = useState<Tab>('export')
   const activeTab = availableTabs.some((item) => item.key === tab) ? tab : availableTabs[0]?.key
@@ -242,7 +245,7 @@ export default function AdminOps() {
         </EmptyState>
         : !canAccess
           ? <EmptyState title="无权访问" action={<Link href="/" className="button button--secondary">返回创作台</Link>}>
-            当前账号没有导出、导入或审计权限。
+            当前账号没有运维或规则维护权限。
           </EmptyState>
           : <>
             <div className="manager-tabs" role="tablist" aria-label="运维分类">
@@ -256,6 +259,7 @@ export default function AdminOps() {
               >{item.label}</button>)}
             </div>
 
+            {activeTab === 'rules' && <MappingRules key={user.id} />}
             {activeTab === 'export' && <section className="editor-panel" aria-labelledby="export-heading">
               <div className="panel-head">
                 <h2 id="export-heading">导出备份</h2>

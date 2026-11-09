@@ -73,7 +73,7 @@ export default function AccountProfile() {
   const canReview = Boolean(user?.permissions.includes('reviews.decide'))
   const canApproveUsers = Boolean(user?.permissions.includes('users.approveRole'))
   const canOps = Boolean(user?.permissions.some((permission) =>
-    permission === 'exports.create' || permission === 'imports.apply' || permission === 'audit.read'))
+    permission === 'exports.create' || permission === 'imports.apply' || permission === 'audit.read' || permission === 'rules.write'))
   const application = user?.roleApplication
 
   return <section className="account-page" aria-labelledby="account-heading">

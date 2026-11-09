@@ -80,6 +80,10 @@ export default function KnowledgeViewer({ id }: { id: string }) {
                 {entity.timeTheme && <span className="tag-chip">{entity.timeTheme}</span>}
                 <span className="mono">{formatDateTime(entity.updatedAt)}</span>
               </div>
+              {entity.status === 'active' && <Link
+                href={`/?entity=${encodeURIComponent(entity.id)}`}
+                className="button button--secondary button--small"
+              >基于此知识创作</Link>}
             </header>
 
             <div className="knowledge-detail-layout">

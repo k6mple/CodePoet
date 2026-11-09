@@ -300,6 +300,60 @@ export interface Generation {
   templateVersionId?: string | null
   unpublishedSource: boolean
   requestId: string
+  provenance?: Provenance
+  validationReport?: {
+    parameterValid: boolean
+    nodeCount: number
+    outOfBoundsNodeCount: number
+    issues: Issue[]
+  }
+  warnings?: Issue[]
+}
+
+export type SemanticInput = EditorState['semanticInput']
+
+export interface Provenance {
+  kind: string
+  baseGenerationId: string | null
+  matchedEntities: { entityId: string; revision: number; content: Record<string, unknown> }[]
+  matchedRules: { ruleId: string; version: number; content: Record<string, unknown> }[]
+  selectedSymbols: string[]
+  paletteDecision: Decision | null
+  compositionDecision: Decision | null
+  timelineDecision: Decision | null
+  templateSelection: { templateVersionId: string; reason: string } | null
+  conflicts: Issue[]
+  warnings: Issue[]
+  engineVersion: string
+  ontologyVersion: number
+  policyRevision: number
+}
+
+interface Decision {
+  value: unknown
+  ruleIds: string[]
+  reason: string
+}
+
+export interface MappingRuleInput {
+  name: string
+  enabled: boolean
+  priority: number
+  match: { keywords: string[]; entityIds: string[]; conceptIds: string[]; tagIds: string[]; operator: 'any' | 'all' }
+  effects: {
+    symbolIds: string[]
+    palette: string[]
+    composition: 'centered' | 'vertical' | 'horizontal' | 'radial'
+    motion: 'none' | 'sway' | 'reveal'
+    caption: string
+  }
+  explanation: string
+}
+
+export interface MappingRule extends MappingRuleInput {
+  id: string
+  revision: number
+  version: number
 }
 
 export interface Frame {
@@ -319,6 +373,26 @@ export interface RenderJob {
   rendererVersion?: string | null
   error: { code: string; message: string } | null
   manifest: { irHash: string; frames: Frame[]; timesMs: number[] } | null
+  originalJobId?: string | null
+  qualityReport?: {
+    nonBackgroundPixelRatio: number
+    emptyOutput: boolean
+    issues: Issue[]
+  } | null
+}
+
+interface PixelMetrics {
+  exactMatch: boolean | null
+  mae: number | null
+  differentPixelRatio: number | null
+}
+
+export interface Comparison extends PixelMetrics {
+  jobId: string
+  originalJobId: string
+  compatible: boolean
+  reason: string | null
+  frames: (PixelMetrics & { timeMs: number })[]
 }
 
 export interface Work {
@@ -371,6 +445,7 @@ export interface Page<T> {
 export interface Capabilities {
   profile: string
   backends: { backend: string; available: boolean; executionModes: string[]; unavailableReason: string | null }[]
+  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean }
 }
 
 // P1-A knowledge, ontology and tag models. Field names follow docs/openapi-core.json.

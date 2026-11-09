@@ -2,16 +2,20 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import type { DrawingIR } from '@/types/core'
+import type { DrawingIR, Provenance } from '@/types/core'
 import { renderScene } from '@/renderers/canvas/renderScene'
 
-export default function TimelinePlayer({ ir, linkEntities = false }: {
+export default function TimelinePlayer({ ir, linkEntities = false, paused = false, initialTime = 0, onTimeChange, entities = [] }: {
   ir: DrawingIR
   linkEntities?: boolean
+  paused?: boolean
+  initialTime?: number
+  onTimeChange?: (timeMs: number) => void
+  entities?: Provenance['matchedEntities']
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const timeRef = useRef(0)
-  const [time, setTime] = useState(0)
+  const timeRef = useRef(Math.max(0, Math.min(initialTime, ir.durationMs)))
+  const [time, setTime] = useState(timeRef.current)
   const [playing, setPlaying] = useState(false)
   const [error, setError] = useState('')
 
@@ -26,9 +30,17 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
 
   useEffect(() => {
     setPlaying(false)
-    timeRef.current = 0
-    setTime(0)
-  }, [ir])
+    timeRef.current = Math.max(0, Math.min(initialTime, ir.durationMs))
+    setTime(timeRef.current)
+  }, [ir, initialTime])
+
+  useEffect(() => {
+    if (paused) setPlaying(false)
+  }, [paused])
+
+  useEffect(() => {
+    onTimeChange?.(Math.round(time))
+  }, [time, onTimeChange])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -47,7 +59,7 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
   }, [ir, time])
 
   useEffect(() => {
-    if (!playing || ir.durationMs <= 0) return
+    if (!playing || paused || ir.durationMs <= 0) return
     const duration = ir.durationMs
     const startTime = timeRef.current
     const startWall = performance.now()
@@ -64,7 +76,7 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [playing, ir.durationMs])
+  }, [playing, paused, ir.durationMs])
 
   function seek(next: number) {
     const duration = ir.durationMs
@@ -102,7 +114,7 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
     {error && <p className="error" role="alert">绘制失败：{error}</p>}
     {ir.durationMs > 0
       ? <>
-        <div className="timeline-controls">
+        <fieldset className="timeline-controls" disabled={paused} aria-label="时间轴播放控制">
           <button type="button" className="button button--secondary button--small" onClick={togglePlay}>{playing ? '暂停' : '播放'}</button>
           <button type="button" className="button button--secondary button--small" disabled={time <= 0} onClick={() => seek(0)}>回到开始</button>
           <input
@@ -115,7 +127,7 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
             onChange={(event) => seek(Number(event.target.value))}
           />
           <span className="mono timeline-time">{Math.round(time)} / {ir.durationMs} ms</span>
-        </div>
+        </fieldset>
         {narrative.length > 0 && <div className="timeline-narrative">
           <div className="timeline-markers" role="group" aria-label="叙事时间点">
             {narrative.map((entry, index) => <button
@@ -123,6 +135,7 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
               key={`${entry.timeMs}-${index}`}
               className={`timeline-marker${currentNarrative?.timeMs === entry.timeMs ? ' is-active' : ''}`}
               title={entry.caption}
+              disabled={paused}
               onClick={() => seek(entry.timeMs)}
             >{entry.timeMs}ms</button>)}
           </div>
@@ -130,10 +143,19 @@ export default function TimelinePlayer({ ir, linkEntities = false }: {
             <p>{currentNarrative.caption || '本时间点没有题记。'}</p>
             {currentNarrative.entityIds.length > 0 && <div className="tag-line">
               <span className="tag-label">知识</span>
-              {currentNarrative.entityIds.map((entityId) => linkEntities
-                ? <Link className="tag-chip" key={entityId} href={`/knowledge/${encodeURIComponent(entityId)}`} title={entityId}>{entityId}</Link>
-                : <span className="tag-chip" key={entityId} title={entityId}>{entityId}</span>)}
+              {currentNarrative.entityIds.map((entityId) => {
+                const snapshot = entities.find((entity) => entity.entityId === entityId)
+                const name = typeof snapshot?.content.name === 'string' ? snapshot.content.name : entityId
+                return linkEntities
+                  ? <Link className="tag-chip" key={entityId} href={`/knowledge/${encodeURIComponent(entityId)}`} title={entityId}>{name}</Link>
+                  : <span className="tag-chip" key={entityId}>{name}</span>
+              })}
             </div>}
+            {entities.filter((entity) => currentNarrative.entityIds.includes(entity.entityId)).map((entity) =>
+              <details className="tech-details" key={entity.entityId}>
+                <summary>创作时的知识快照 · rev {entity.revision}</summary>
+                <pre>{JSON.stringify(entity.content, null, 2)}</pre>
+              </details>)}
           </div>}
         </div>}
       </>

@@ -658,6 +658,10 @@ export function TemplateEditor({ id }: { id: string }) {
                         <div><dt>约束</dt><dd>{versionView.constraints.length} 项</dd></div>
                       </dl>
                       <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
+                      {isEditableVersion(versionView.status) && <Link
+                        className="button button--secondary button--small"
+                        href={`/?draft=${encodeURIComponent(versionView.id)}`}
+                      >在创作台私有预览默认参数</Link>}
                     </div>
                   </div>
                   <details className="tech-details">

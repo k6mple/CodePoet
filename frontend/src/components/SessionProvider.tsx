@@ -139,7 +139,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
   const canReview = Boolean(user?.permissions.includes('reviews.decide'))
   const canApproveUsers = Boolean(user?.permissions.includes('users.approveRole'))
   const canOps = Boolean(user?.permissions.some((permission) =>
-    permission === 'exports.create' || permission === 'imports.apply' || permission === 'audit.read'))
+    permission === 'exports.create' || permission === 'imports.apply' || permission === 'audit.read' || permission === 'rules.write'))
   const personName = user ? (user.nickname || user.username) : ''
 
   return <SessionContext.Provider value={{ user, loading, openLogin, updateUser, refreshUser }}>

@@ -3151,6 +3151,17 @@ textarea { resize: vertical; }
   min-width: 0;
 }
 .stage-surface .timeline-player { padding: 12px; }
+
+.p1-modes { margin-block: 1rem; }
+.p1-json { width: 100%; resize: vertical; }
+.p1-viewport,
+.p1-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.p1-comparison figure { min-width: 0; margin: 0; }
+.p1-comparison img { display: block; width: 100%; height: auto; }
 .timeline-canvas-frame {
   display: flex;
   justify-content: center;
