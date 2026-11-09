@@ -67,21 +67,224 @@ export interface TemplateMetadata {
   description: string
   symbols?: string[]
   timeTheme?: string | null
+  entityIds?: string[]
+  tagIds?: string[]
 }
 
 export interface Template {
   id: string
+  revision: number
+  createdAt: string
+  updatedAt: string
+  ownerId: string
   metadata: TemplateMetadata
+  workingMetadata: TemplateMetadata | null
   publishedVersionId: string | null
+  latestVersionId: string | null
   supportedBackends: string[]
+  thumbnailArtifactId: string | null
+  permissions: string[]
+}
+
+export interface Review {
+  id: string
+  createdAt: string
+  targetType: 'template_version' | 'work_version'
+  targetId: string
+  targetRevision: number
+  submittedBy: string
+  reviewerId: string
+  decision: 'approve' | 'reject'
+  reason: string
 }
 
 export interface TemplateVersion {
   id: string
-  status: string
+  revision: number
+  createdAt: string
+  updatedAt: string
+  templateId: string
+  versionNumber: number
+  createdBy: string
+  submittedBy: string | null
+  status: 'draft' | 'submitted' | 'published' | 'rejected' | 'archived'
   metadata: TemplateMetadata
-  parameterSchema: Parameter[]
   irTemplate: DrawingIR
+  generatorRef: 'ir'
+  parameterSchema: Parameter[]
+  bindings: unknown[]
+  constraints: unknown[]
+  supportedBackends: string[]
+  fragmentSource: null
+  ontologyVersion: number
+  changeNote: string
+  submittedAt: string | null
+  publishedAt: string | null
+  lastReview: Review | null
+}
+
+export interface VersionCreateInput {
+  metadata?: TemplateMetadata
+  irTemplate?: DrawingIR
+  parameterSchema?: Parameter[]
+  bindings?: unknown[]
+  constraints?: unknown[]
+  supportedBackends?: string[]
+  changeNote?: string
+  fromVersionId?: string
+}
+
+export interface TemplateCreateInput {
+  metadata: TemplateMetadata
+}
+
+export interface TemplateUpdateInput {
+  expectedRevision: number
+  metadata: TemplateMetadata
+}
+
+export interface ReviewQueueItem {
+  targetType: 'template_version' | 'work_version'
+  targetId: string
+  targetRevision: number
+  title: string
+  submittedBy: string
+  submittedAt: string
+  status: 'submitted' | 'pending_review' | 'published' | 'rejected' | 'archived'
+  canReview: boolean
+  latestReview: Review | null
+}
+
+export interface ReviewCreateInput {
+  targetType: 'template_version' | 'work_version'
+  targetId: string
+  expectedRevision: number
+  decision: 'approve' | 'reject'
+  reason: string
+}
+
+export interface EditorState {
+  mode: 'template' | 'semantic' | 'ir'
+  templateVersionId: string | null
+  params: Params
+  semanticInput: { text: string; entityIds: string[] }
+  draftIR: DrawingIR | null
+  fragmentSource: ''
+  backend: string
+  seed: number
+  timelineTimeMs: number
+  selectedNodeId: string | null
+  generationId: string | null
+}
+
+export interface CreationSession {
+  id: string
+  revision: number
+  createdAt: string
+  updatedAt: string
+  ownerId: string
+  name: string
+  state: EditorState
+  latestSnapshotId: string | null
+}
+
+export interface Snapshot {
+  id: string
+  createdAt: string
+  sessionId: string
+  sessionRevision: number
+  state: EditorState
+  name: string
+  note: string
+  restoredFromSnapshotId: string | null
+}
+
+export interface SnapshotSaved {
+  session: CreationSession
+  snapshot: Snapshot
+}
+
+export interface FavoriteResult {
+  workId: string
+  isFavorite: boolean
+}
+
+export interface Issue {
+  code: string
+  message: string
+  path: string | null
+  nodeIds: string[]
+}
+
+export interface AuditLog {
+  id: string
+  createdAt: string
+  actorId: string | null
+  actorRole: string | null
+  action: string
+  targetType: string
+  targetId: string | null
+  versionId: string | null
+  requestId: string
+  parentRequestId: string | null
+  generationId: string | null
+  jobId: string | null
+  workId: string | null
+  inputSummary: Record<string, unknown>
+  before: Record<string, unknown> | null
+  after: Record<string, unknown> | null
+  result: 'success' | 'failure'
+  errorCode: string | null
+}
+
+export interface ExportRequest {
+  types: string[]
+  ids?: Record<string, unknown>
+}
+
+export interface ImportManifest {
+  counts: Record<string, number>
+  includesArtifacts: false
+}
+
+export interface BackupPackage {
+  schemaVersion: '1.0'
+  exportedAt: string
+  manifest: ImportManifest
+  data: Record<string, unknown[]>
+}
+
+export interface ImportValidation {
+  validationId: string
+  valid: boolean
+  contentHash: string
+  expectedDataRevision: number
+  expiresAt: string
+  counts: Record<string, number>
+  errors: Issue[]
+}
+
+export interface ImportApply {
+  validationId: string
+  expectedDataRevision: number
+}
+
+export interface ImportApplied {
+  importId: string
+  dataRevision: number
+  counts: Record<string, number>
+  warnings: Issue[]
+}
+
+export interface SearchQuery {
+  view: 'templates' | 'knowledge'
+  q: string
+  entityIds: string[]
+  tagIds: string[]
+  symbols: string[]
+  backend: string
+  timeTheme: string
+  page: number
 }
 
 export interface Generation {
@@ -97,6 +300,60 @@ export interface Generation {
   templateVersionId?: string | null
   unpublishedSource: boolean
   requestId: string
+  provenance?: Provenance
+  validationReport?: {
+    parameterValid: boolean
+    nodeCount: number
+    outOfBoundsNodeCount: number
+    issues: Issue[]
+  }
+  warnings?: Issue[]
+}
+
+export type SemanticInput = EditorState['semanticInput']
+
+export interface Provenance {
+  kind: string
+  baseGenerationId: string | null
+  matchedEntities: { entityId: string; revision: number; content: Record<string, unknown> }[]
+  matchedRules: { ruleId: string; version: number; content: Record<string, unknown> }[]
+  selectedSymbols: string[]
+  paletteDecision: Decision | null
+  compositionDecision: Decision | null
+  timelineDecision: Decision | null
+  templateSelection: { templateVersionId: string; reason: string } | null
+  conflicts: Issue[]
+  warnings: Issue[]
+  engineVersion: string
+  ontologyVersion: number
+  policyRevision: number
+}
+
+interface Decision {
+  value: unknown
+  ruleIds: string[]
+  reason: string
+}
+
+export interface MappingRuleInput {
+  name: string
+  enabled: boolean
+  priority: number
+  match: { keywords: string[]; entityIds: string[]; conceptIds: string[]; tagIds: string[]; operator: 'any' | 'all' }
+  effects: {
+    symbolIds: string[]
+    palette: string[]
+    composition: 'centered' | 'vertical' | 'horizontal' | 'radial'
+    motion: 'none' | 'sway' | 'reveal'
+    caption: string
+  }
+  explanation: string
+}
+
+export interface MappingRule extends MappingRuleInput {
+  id: string
+  revision: number
+  version: number
 }
 
 export interface Frame {
@@ -116,6 +373,26 @@ export interface RenderJob {
   rendererVersion?: string | null
   error: { code: string; message: string } | null
   manifest: { irHash: string; frames: Frame[]; timesMs: number[] } | null
+  originalJobId?: string | null
+  qualityReport?: {
+    nonBackgroundPixelRatio: number
+    emptyOutput: boolean
+    issues: Issue[]
+  } | null
+}
+
+interface PixelMetrics {
+  exactMatch: boolean | null
+  mae: number | null
+  differentPixelRatio: number | null
+}
+
+export interface Comparison extends PixelMetrics {
+  jobId: string
+  originalJobId: string
+  compatible: boolean
+  reason: string | null
+  frames: (PixelMetrics & { timeMs: number })[]
 }
 
 export interface Work {
@@ -128,10 +405,13 @@ export interface Work {
   description: string
   displayVersionId: string
   thumbnailArtifactId: string | null
+  isFavorite: boolean
+  permissions?: string[]
 }
 
 export interface WorkVersion {
   id: string
+  revision: number
   workId: string
   versionNumber: number
   status: 'private' | 'pending_review' | 'published' | 'rejected'
@@ -139,8 +419,14 @@ export interface WorkVersion {
   description: string
   generationId: string
   renderJobId: string
+  createdBy: string
+  submittedBy: string | null
+  changeNote: string
   createdAt: string
   updatedAt: string
+  submittedAt: string | null
+  publishedAt: string | null
+  lastReview: Review | null
 }
 
 export interface WorkDetail {
@@ -159,6 +445,7 @@ export interface Page<T> {
 export interface Capabilities {
   profile: string
   backends: { backend: string; available: boolean; executionModes: string[]; unavailableReason: string | null }[]
+  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean }
 }
 
 // P1-A knowledge, ontology and tag models. Field names follow docs/openapi-core.json.

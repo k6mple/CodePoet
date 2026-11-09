@@ -3,16 +3,20 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ApiError, errorMessage, request } from '@/api/client'
-import type { Page, Work, WorkDetail } from '@/types/core'
+import type { FavoriteResult, Page, Work, WorkDetail, WorkVersion } from '@/types/core'
 import { formatDateTime, paddedIndex, workStatusLabel } from '@/utils/format'
-import CanvasPreview from './CanvasPreview'
+import { reviewDecisionLabel } from '@/utils/template'
+import TimelinePlayer from './TimelinePlayer'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
+import { GenerationEvidence, QualityEvidence } from './GenerationEvidence'
 import { useSession } from './SessionProvider'
+import WorkReproduction from './WorkReproduction'
 
 const PAGE_SIZE = 12
 
 export function WorkList() {
   const { user, loading, openLogin } = useSession()
+  const [scope, setScope] = useState<'mine' | 'public'>('mine')
   const [page, setPage] = useState(1)
   const [data, setData] = useState<Page<Work> | null>(null)
   const [error, setError] = useState('')
@@ -23,20 +27,20 @@ export function WorkList() {
   useEffect(() => {
     setData(null)
     setError('')
-    if (!user) return
+    if (scope === 'mine' && !user) return
     const controller = new AbortController()
-    request<Page<Work>>(`/works?scope=mine&page=${page}&pageSize=${PAGE_SIZE}`, { signal: controller.signal })
+    request<Page<Work>>(`/works?scope=${scope}&page=${page}&pageSize=${PAGE_SIZE}`, { signal: controller.signal })
       .then((result) => { if (!controller.signal.aborted) setData(result) })
       .catch((cause) => { if (!controller.signal.aborted) setError(errorMessage(cause)) })
     return () => controller.abort()
-  }, [user, page, attempt])
+  }, [scope, user, page, attempt])
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1
 
   return <section className="works-page" aria-labelledby="works-heading">
     <header className="page-intro page-intro--compact">
       <div>
-        <h1 id="works-heading">我的作品</h1>
+        <h1 id="works-heading">{scope === 'mine' ? '我的作品' : '公开作品'}</h1>
         <p>按保存时间排列的作品档案。每件作品都绑定服务器确认的生成记录与 PNG 上传任务。</p>
       </div>
       <div className="page-intro__actions">
@@ -44,9 +48,16 @@ export function WorkList() {
       </div>
     </header>
 
+    <div className="param-actions" role="group" aria-label="作品范围">
+      {(['mine', 'public'] as const).map((value) => <button key={value} type="button"
+        className={`button button--small button--${scope === value ? 'primary' : 'secondary'}`}
+        aria-pressed={scope === value} onClick={() => { setScope(value); setPage(1) }}>
+        {value === 'mine' ? '我的作品' : '公开作品'}
+      </button>)}
+    </div>
     {loading
       ? <LoadingLines label="正在恢复登录" />
-      : !user
+      : !user && scope === 'mine'
         ? <EmptyState
           title="登录后查看作品"
           action={<button type="button" className="button button--primary" onClick={() => openLogin('登录后即可查看并管理你的私有作品。')}>登录</button>}
@@ -68,10 +79,10 @@ export function WorkList() {
             ? <WorkSkeleton />
             : data.items.length === 0
               ? <EmptyState
-                title="还没有保存的作品"
+                title={scope === 'mine' ? '还没有保存的作品' : '还没有公开作品'}
                 action={<Link href="/" className="button button--primary">前往创作台</Link>}
               >
-                在创作台生成并保存作品后，它会出现在这里。
+                {scope === 'mine' ? '在创作台生成并保存作品后，它会出现在这里。' : '作品通过审核后会出现在这里。'}
               </EmptyState>
               : <>
                 <div className="works-toolbar">
@@ -92,6 +103,55 @@ export function WorkList() {
                 </nav>
               </>}
   </section>
+}
+
+function WorkHistory({ version, canEdit }: { version: WorkVersion; canEdit: boolean }) {
+  const [open, setOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [data, setData] = useState<Page<WorkVersion> | null>(null)
+  const [error, setError] = useState('')
+  const [attempt, setAttempt] = useState(0)
+  const workId = encodeURIComponent(version.workId)
+
+  useEffect(() => {
+    if (!open) return
+    const controller = new AbortController()
+    const { signal } = controller
+    setData(null)
+    setError('')
+    request<Page<WorkVersion>>(`/works/${workId}/versions?page=${page}&pageSize=${PAGE_SIZE}`, { signal })
+      .then((result) => { if (!signal.aborted) setData(result) })
+      .catch((cause) => { if (!signal.aborted) setError(errorMessage(cause)) })
+    return () => controller.abort()
+  }, [open, workId, page, attempt])
+
+  return <details className="tech-details" onToggle={(event) => setOpen(event.currentTarget.open)}>
+    <summary>作品版本历史</summary>
+    {canEdit && <Link className="button button--secondary button--small"
+      href={`/?work=${workId}&from=${encodeURIComponent(version.id)}`}>以当前版本继续创作</Link>}
+    {open && (error ? <InlineNotice tone="error" title="无法读取版本历史">
+      {error}
+      <button type="button" className="button button--secondary button--small"
+        onClick={() => setAttempt((value) => value + 1)}>重新加载</button>
+    </InlineNotice> : !data ? <LoadingLines label="正在读取作品版本历史" />
+      : <>
+        {data.items.length === 0 && <p>没有可见的历史版本。</p>}
+        <ul className="issue-list">
+          {data.items.map((item) => <li key={item.id}>
+            <Link href={`/works/versions/${encodeURIComponent(item.id)}`} aria-current={item.id === version.id ? 'page' : undefined}>
+              第 {item.versionNumber} 版
+            </Link> · {workStatusLabel(item.status)} · {formatDateTime(item.createdAt)}
+            {item.changeNote && <p>{item.changeNote}</p>}
+          </li>)}
+        </ul>
+        {data.total > data.pageSize && <nav className="pager" aria-label="作品版本分页">
+          <button type="button" className="button button--secondary button--small" disabled={page <= 1}
+            onClick={() => setPage(page - 1)}>上一页</button>
+          <button type="button" className="button button--secondary button--small" disabled={page * data.pageSize >= data.total}
+            onClick={() => setPage(page + 1)}>下一页</button>
+        </nav>}
+      </>)}
+  </details>
 }
 
 function WorkCard({ work, number }: { work: Work; number: number }) {
@@ -183,6 +243,26 @@ export function WorkViewer({ id }: { id: string }) {
   const [attempt, setAttempt] = useState(0)
   const [frames, setFrames] = useState<{ url: string; time: number }[]>([])
   const [selected, setSelected] = useState(0)
+  const [submitBusy, setSubmitBusy] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitNotice, setSubmitNotice] = useState('')
+  const [currentWork, setCurrentWork] = useState<Work | null>(null)
+  const [favoriteBusy, setFavoriteBusy] = useState(false)
+  const [favoriteError, setFavoriteError] = useState('')
+  const currentWorkId = data?.workVersion.workId
+  const userId = user?.id
+
+  useEffect(() => {
+    setCurrentWork(null)
+    setFavoriteError('')
+    if (!currentWorkId || !userId) return
+    const controller = new AbortController()
+    const { signal } = controller
+    request<Work>(`/works/${encodeURIComponent(currentWorkId)}`, { signal })
+      .then((work) => { if (!signal.aborted) setCurrentWork(work) })
+      .catch((cause) => { if (!signal.aborted) setFavoriteError(errorMessage(cause)) })
+    return () => controller.abort()
+  }, [currentWorkId, userId])
 
   useEffect(() => {
     if (loading) return
@@ -238,6 +318,45 @@ export function WorkViewer({ id }: { id: string }) {
   }, [id, user, loading, attempt])
 
   const activeFrame = data?.renderJob.manifest?.frames[selected]
+  const canSubmit = Boolean(data && user && user.id === data.workVersion.createdBy
+    && !data.generation.unpublishedSource
+    && (data.workVersion.status === 'private' || data.workVersion.status === 'rejected'))
+
+  async function submitForReview() {
+    if (!data || !user || submitBusy) return
+    setSubmitBusy(true)
+    setSubmitError('')
+    setSubmitNotice('')
+    try {
+      await request<WorkVersion>(`/work-versions/${encodeURIComponent(data.workVersion.id)}/submit`, {
+        method: 'POST',
+        body: JSON.stringify({ expectedRevision: data.workVersion.revision }),
+      })
+      setSubmitNotice('已提交审核。')
+      setAttempt((value) => value + 1)
+    } catch (cause) {
+      setSubmitError(errorMessage(cause))
+    } finally {
+      setSubmitBusy(false)
+    }
+  }
+
+  async function toggleFavorite() {
+    if (!currentWork || currentWork.id !== currentWorkId || !userId || favoriteBusy) return
+    const { id: workId, isFavorite } = currentWork
+    setFavoriteBusy(true)
+    setFavoriteError('')
+    try {
+      const result = await request<FavoriteResult | undefined>(`/works/${encodeURIComponent(workId)}/favorite`, {
+        method: isFavorite ? 'DELETE' : 'PUT',
+      })
+      setCurrentWork((work) => work?.id === workId ? { ...work, isFavorite: result?.isFavorite ?? !isFavorite } : work)
+    } catch (cause) {
+      setFavoriteError(errorMessage(cause))
+    } finally {
+      setFavoriteBusy(false)
+    }
+  }
 
   return <section className="work-viewer" aria-labelledby="work-heading">
     <nav className="back-link" aria-label="返回">
@@ -306,23 +425,48 @@ export function WorkViewer({ id }: { id: string }) {
                 <div><dt>保存时间</dt><dd className="mono">{formatDateTime(data.workVersion.createdAt)}</dd></div>
                 <div><dt>画布</dt><dd className="mono">{data.generation.ir.viewport.width} × {data.generation.ir.viewport.height}</dd></div>
                 <div><dt>采样</dt><dd className="mono">{data.renderJob.timesMs.map((time) => `${time}ms`).join(' / ') || '—'}</dd></div>
+                {data.workVersion.lastReview && <div>
+                  <dt>最近审核</dt>
+                  <dd>{reviewDecisionLabel(data.workVersion.lastReview.decision)}：{data.workVersion.lastReview.reason || '未填写理由'}</dd>
+                </div>}
               </dl>
               <p className="work-label__note">服务器保存的 PNG 来自浏览器 Canvas 的真实绘制与上传；服务端验证了帧、尺寸和生成记录的一致性。</p>
+              {user && currentWork?.id === currentWorkId && currentWork && <button type="button"
+                className="button button--secondary button--small" aria-pressed={currentWork.isFavorite}
+                disabled={favoriteBusy} onClick={() => void toggleFavorite()}>
+                {favoriteBusy ? '处理中…' : currentWork.isFavorite ? '取消收藏' : '收藏作品'}
+              </button>}
+              {favoriteError && <InlineNotice tone="error" title="收藏信息不可用">{favoriteError}</InlineNotice>}
+              {data.generation.unpublishedSource && <p className="work-label__note">来源模板未发布，此作品仅供私有预览。</p>}
+              {canSubmit && <div className="work-submit">
+                {submitNotice && <InlineNotice tone="success">{submitNotice}</InlineNotice>}
+                {submitError && <InlineNotice tone="error" title="提交失败">{submitError}</InlineNotice>}
+                <button type="button" className="button button--primary button--small" disabled={submitBusy} onClick={() => void submitForReview()}>
+                  {submitBusy ? '提交中…' : '提交作品审核'}
+                </button>
+                <p className="work-label__note">提交后由领域专家/管理员审核；审核期间不能继续修改该版本。</p>
+              </div>}
             </aside>
           </div>
 
           <section className="ir-preview" aria-labelledby="ir-preview-heading">
             <header>
               <h2 id="ir-preview-heading">按保存 IR 重绘</h2>
-              <p>此预览由当前浏览器按保存的 IR 重新绘制，不是服务器保存的 PNG。</p>
+              <p>此预览由当前浏览器按保存的 IR 重新绘制，可播放和定位采样时刻；不是服务器保存的 PNG。</p>
             </header>
             <div className="ir-preview__frame">
-              <CanvasPreview ir={data.generation.ir} timeMs={data.generation.ir.durationMs} />
+              <TimelinePlayer ir={data.generation.ir} linkEntities entities={data.generation.provenance?.matchedEntities} />
             </div>
           </section>
 
+          <WorkReproduction key={`${id}:${user?.id ?? ''}`} work={data} signedIn={Boolean(user)}
+            onLogin={() => openLogin('登录后即可复现可见作品。')} />
+
           <section className="technical" aria-labelledby="technical-heading">
             <h2 id="technical-heading">技术档案</h2>
+            <WorkHistory key={id} version={data.workVersion} canEdit={Boolean(user && user.id === data.workVersion.createdBy)} />
+            <GenerationEvidence generation={data.generation} />
+            <QualityEvidence generation={data.generation} report={data.renderJob.qualityReport} />
             <details className="tech-details">
               <summary>生成与渲染记录</summary>
               <pre>{JSON.stringify({ generation: data.generation, renderJob: data.renderJob }, null, 2)}</pre>

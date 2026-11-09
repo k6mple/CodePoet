@@ -1,0 +1,178 @@
+[
+  {
+    "id": "rule-lotus-pure",
+    "name": "莲·清正",
+    "enabled": true,
+    "priority": 80,
+    "match": {
+      "keywords": ["莲", "莲花", "爱莲", "出淤泥"],
+      "entityIds": ["knowledge-lotus"],
+      "conceptIds": ["concept-symbols"],
+      "tagIds": ["tag-pure"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["lotus", "water"],
+      "palette": ["#D4537E", "#EF9F27", "#3B6D11", "#F7F6F0"],
+      "composition": "radial",
+      "motion": "sway",
+      "caption": "莲：出淤泥而不染，濯清涟而不妖。"
+    },
+    "explanation": "命中莲的符号、清白标签或“出淤泥”等关键词时，选择莲纹放射构图与清雅色板。",
+    "version": 1
+  },
+  {
+    "id": "rule-bamboo-upright",
+    "name": "竹·守正",
+    "enabled": true,
+    "priority": 70,
+    "match": {
+      "keywords": ["竹", "竹节", "守正", "咬定青山"],
+      "entityIds": ["knowledge-bamboo"],
+      "conceptIds": ["concept-symbols"],
+      "tagIds": ["tag-steadfast"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["bamboo"],
+      "palette": ["#3B6D11", "#4F7A3A", "#B8B2A5", "#F4F1E9"],
+      "composition": "vertical",
+      "motion": "sway",
+      "caption": "竹：咬定青山不放松，立根原在破岩中。"
+    },
+    "explanation": "命中竹的符号或“守正”“咬定青山”等关键词时，选择三竿修竹的竖向构图。",
+    "version": 1
+  },
+  {
+    "id": "rule-water-humble",
+    "name": "水·谦逊",
+    "enabled": true,
+    "priority": 60,
+    "match": {
+      "keywords": ["水", "清涟", "上善若水", "不争"],
+      "entityIds": ["knowledge-water"],
+      "conceptIds": ["concept-self"],
+      "tagIds": ["tag-humility"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["water", "lotus"],
+      "palette": ["#5F6C55", "#7FA99B", "#F7F6F0", "#A83E32"],
+      "composition": "horizontal",
+      "motion": "reveal",
+      "caption": "水：上善若水，水善利万物而不争。"
+    },
+    "explanation": "命中水或谦逊语义时，选择水平水线与低透明度叠色，叙事上偏向渐显。",
+    "version": 1
+  },
+  {
+    "id": "rule-lime-pure",
+    "name": "石灰·清白",
+    "enabled": true,
+    "priority": 55,
+    "match": {
+      "keywords": ["石灰", "清白", "于谦", "粉骨碎身"],
+      "entityIds": ["knowledge-lime"],
+      "conceptIds": ["concept-integrity"],
+      "tagIds": ["tag-pure"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["lotus", "water"],
+      "palette": ["#F7F6F0", "#D8D5CC", "#A83E32", "#202421"],
+      "composition": "centered",
+      "motion": "none",
+      "caption": "石灰：要留清白在人间。"
+    },
+    "explanation": "命中石灰、清白或于谦时，选择白色块面与朱红印章式点缀，不使用过密装饰。",
+    "version": 1
+  },
+  {
+    "id": "rule-plum-clear",
+    "name": "墨梅·清气",
+    "enabled": true,
+    "priority": 50,
+    "match": {
+      "keywords": ["墨梅", "梅花", "清气", "王冕"],
+      "entityIds": ["knowledge-plum"],
+      "conceptIds": ["concept-symbols"],
+      "tagIds": ["tag-pure"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["lotus", "water"],
+      "palette": ["#202421", "#6C7068", "#D4537E", "#F7F6F0"],
+      "composition": "centered",
+      "motion": "none",
+      "caption": "墨梅：不要人夸好颜色，只留清气满乾坤。"
+    },
+    "explanation": "命中墨梅或清气时，选择墨色、低饱和粉色与留白构图。",
+    "version": 1
+  },
+  {
+    "id": "rule-family-integrity",
+    "name": "家风·退鱼悬鱼",
+    "enabled": true,
+    "priority": 45,
+    "match": {
+      "keywords": ["家风", "陶母", "悬鱼", "退鱼", "封鲊"],
+      "entityIds": ["knowledge-tao-mu", "knowledge-yang-xu"],
+      "conceptIds": ["concept-family", "concept-stories"],
+      "tagIds": ["tag-family"],
+      "operator": "all"
+    },
+    "effects": {
+      "symbolIds": ["bamboo", "lotus"],
+      "palette": ["#5F6C55", "#A83E32", "#D8D5CC", "#F3F0E8"],
+      "composition": "vertical",
+      "motion": "reveal",
+      "caption": "家风：陶母退鱼，羊续悬鱼。"
+    },
+    "explanation": "同时命中家风关键词、典故概念和家风标签时，使用竖向叙事构图；该规则用于演示 all 组合。",
+    "version": 1
+  },
+  {
+    "id": "rule-four-knowledges",
+    "name": "四知·慎独",
+    "enabled": true,
+    "priority": 40,
+    "match": {
+      "keywords": ["四知", "慎独", "杨震", "天知"],
+      "entityIds": ["knowledge-yang-zhen"],
+      "conceptIds": ["concept-self"],
+      "tagIds": ["tag-self-discipline"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["bamboo", "water"],
+      "palette": ["#202421", "#5F6C55", "#B8B2A5", "#F7F6F0"],
+      "composition": "centered",
+      "motion": "none",
+      "caption": "四知：天知，神知，我知，子知。"
+    },
+    "explanation": "命中四知、慎独或杨震时，选择克制的墨绿与中心构图，强调无人监督时的自持。",
+    "version": 1
+  },
+  {
+    "id": "rule-narrative-four-seconds",
+    "name": "四秒·清莲叙事",
+    "enabled": true,
+    "priority": 90,
+    "match": {
+      "keywords": ["叙事", "四秒", "清莲", "时间轴"],
+      "entityIds": ["knowledge-lotus", "knowledge-bamboo"],
+      "conceptIds": ["concept-integrity"],
+      "tagIds": ["tag-integrity"],
+      "operator": "any"
+    },
+    "effects": {
+      "symbolIds": ["narrative", "lotus", "bamboo", "water"],
+      "palette": ["#F7F6F0", "#D4537E", "#EF9F27", "#3B6D11", "#5F6C55", "#A83E32"],
+      "composition": "radial",
+      "motion": "reveal",
+      "caption": "四秒清莲叙事：由水到莲，再到守正。"
+    },
+    "explanation": "显式命中叙事/四秒/时间轴，或同时涉及莲与竹时，优先选择带时间轴的叙事模板。",
+    "version": 1
+  }
+]

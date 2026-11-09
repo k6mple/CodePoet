@@ -72,6 +72,21 @@ class IntegerParameter(ParameterBase):
             raise ValueError("max 不能小于 min")
         return value
 
+    @model_validator(mode="after")
+    def _default_within_range(self) -> "IntegerParameter":
+        """默认值必须落在 [min, max] 内。
+
+        引擎的 ``_resolve_parameters`` 在「未提供该参数」时直接用 ``param.default``
+        而不复查，注释写的是「默认值在模型层已校验过」——所以这条必须在模型层
+        真的存在。少了它，一个 default 越界的模板建出来就带着「一按生成就报错」
+        的缺陷，P1A-03 的「默认参数校验」也就无从谈起。
+        """
+        if not self.min <= self.default <= self.max:
+            raise ValueError(
+                f"default「{self.default}」必须在 {self.min} 到 {self.max} 之间"
+            )
+        return self
+
 
 class NumberParameter(ParameterBase):
     type: Literal["number"]
@@ -87,6 +102,15 @@ class NumberParameter(ParameterBase):
         if minimum is not None and value < minimum:
             raise ValueError("max 不能小于 min")
         return value
+
+    @model_validator(mode="after")
+    def _default_within_range(self) -> "NumberParameter":
+        """同上：默认值必须在 [min, max] 内，否则模板一建出来就是坏的。"""
+        if not self.min <= self.default <= self.max:
+            raise ValueError(
+                f"default「{self.default}」必须在 {self.min} 到 {self.max} 之间"
+            )
+        return self
 
 
 class BooleanParameter(ParameterBase):

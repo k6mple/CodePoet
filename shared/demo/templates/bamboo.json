@@ -1,0 +1,344 @@
+{
+  "template": {
+    "id": "tpl-bamboo",
+    "metadata": {
+      "name": "竹·守正",
+      "description": "以三竿修竹、错落竹叶和山石构图表达“咬定青山不放松”的坚韧与守正。",
+      "entityIds": ["knowledge-bamboo", "knowledge-integrity"],
+      "tagIds": ["tag-steadfast", "tag-pure", "tag-integrity"],
+      "symbols": ["bamboo"],
+      "timeTheme": "四季"
+    },
+    "publishedVersionId": "tv-bamboo-1",
+    "latestVersionId": "tv-bamboo-2",
+    "supportedBackends": ["canvas2d"]
+  },
+  "versions": [
+    {
+      "id": "tv-bamboo-1",
+      "versionNumber": 1,
+      "status": "published",
+      "metadata": {
+        "name": "竹·守正",
+        "description": "以三竿修竹、错落竹叶和山石构图表达“咬定青山不放松”的坚韧与守正。",
+        "entityIds": ["knowledge-bamboo", "knowledge-integrity"],
+        "tagIds": ["tag-steadfast", "tag-pure", "tag-integrity"],
+        "symbols": ["bamboo"],
+        "timeTheme": "四季"
+      },
+      "irTemplate": {
+        "schemaVersion": "1.0",
+        "seed": 23,
+        "canvas": { "width": 800, "height": 600, "background": "#F4F1E9" },
+        "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "bamboo",
+            "parentId": null,
+            "type": "group",
+            "transform": { "x": 400, "y": 540, "rotation": 0, "scaleX": 1, "scaleY": 1 },
+            "style": { "opacity": 1 }
+          },
+          {
+            "id": "stem-1",
+            "parentId": "bamboo",
+            "type": "polyline",
+            "geometry": { "points": [[-100, 0], [-86, -180], [-76, -330]] },
+            "style": { "fill": null, "stroke": "#3B6D11", "strokeWidth": 8, "opacity": 1 }
+          },
+          {
+            "id": "stem-2",
+            "parentId": "bamboo",
+            "type": "polyline",
+            "geometry": { "points": [[0, 0], [-6, -200], [6, -400]] },
+            "style": { "fill": null, "stroke": "#3B6D11", "strokeWidth": 8, "opacity": 1 }
+          },
+          {
+            "id": "stem-3",
+            "parentId": "bamboo",
+            "type": "polyline",
+            "geometry": { "points": [[100, 0], [88, -150], [76, -300]] },
+            "style": { "fill": null, "stroke": "#3B6D11", "strokeWidth": 8, "opacity": 1 }
+          },
+          {
+            "id": "leaf-1",
+            "parentId": "bamboo",
+            "type": "polygon",
+            "geometry": { "points": [[-80, -300], [-40, -322], [-68, -350]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.9 }
+          },
+          {
+            "id": "leaf-2",
+            "parentId": "bamboo",
+            "type": "polygon",
+            "geometry": { "points": [[-58, -248], [-18, -272], [-48, -302]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.9 }
+          },
+          {
+            "id": "leaf-3",
+            "parentId": "bamboo",
+            "type": "polygon",
+            "geometry": { "points": [[0, -360], [36, -382], [8, -412]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.9 }
+          },
+          {
+            "id": "leaf-4",
+            "parentId": "bamboo",
+            "type": "polygon",
+            "geometry": { "points": [[82, -270], [120, -292], [92, -322]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.9 }
+          },
+          {
+            "id": "leaf-5",
+            "parentId": "bamboo",
+            "type": "polygon",
+            "geometry": { "points": [[60, -210], [98, -232], [70, -262]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.9 }
+          },
+          {
+            "id": "leaf-6",
+            "parentId": "bamboo",
+            "type": "polygon",
+            "geometry": { "points": [[-20, -150], [18, -172], [-10, -202]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.9 }
+          },
+          {
+            "id": "stone",
+            "parentId": null,
+            "type": "polygon",
+            "geometry": { "points": [[520, 540], [580, 520], [620, 540], [600, 560], [540, 560]] },
+            "style": { "fill": "#D8D5CC", "stroke": "#B8B2A5", "strokeWidth": 1, "opacity": 1 }
+          },
+          {
+            "id": "ground",
+            "parentId": null,
+            "type": "polyline",
+            "geometry": { "points": [[150, 560], [650, 560]] },
+            "style": { "fill": null, "stroke": "#B8B2A5", "strokeWidth": 2, "opacity": 1 }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "generatorRef": "ir",
+      "parameterSchema": [
+        {
+          "name": "stemScale",
+          "label": "修竹尺度",
+          "description": "整体缩放竹丛；1.0 为标准大小。",
+          "type": "number",
+          "default": 1,
+          "min": 0.8,
+          "max": 1.15,
+          "step": 0.05
+        },
+        {
+          "name": "leafColor",
+          "label": "竹叶颜色",
+          "description": "六片竹叶的填充颜色。",
+          "type": "color",
+          "default": "#4F7A3A"
+        },
+        {
+          "name": "leafOpacity",
+          "label": "竹叶透明度",
+          "description": "竹叶的透明度，过低会显得空。",
+          "type": "number",
+          "default": 0.9,
+          "min": 0.5,
+          "max": 1,
+          "step": 0.05
+        },
+        {
+          "name": "stemWidth",
+          "label": "竹竿线宽",
+          "description": "三根竹竿的描边宽度，单位为逻辑像素。",
+          "type": "number",
+          "default": 8,
+          "min": 4,
+          "max": 12,
+          "step": 0.5
+        },
+        {
+          "name": "sway",
+          "label": "竹丛倾斜",
+          "description": "整体旋转角度，单位为度；负值向左。",
+          "type": "number",
+          "default": 0,
+          "min": -6,
+          "max": 6,
+          "step": 1
+        }
+      ],
+      "bindings": [
+        { "parameter": "stemScale", "nodeId": "bamboo", "property": "transform.scaleX" },
+        { "parameter": "stemScale", "nodeId": "bamboo", "property": "transform.scaleY" },
+        { "parameter": "leafColor", "nodeId": "leaf-1", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "leaf-2", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "leaf-3", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "leaf-4", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "leaf-5", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "leaf-6", "property": "style.fill" },
+        { "parameter": "leafOpacity", "nodeId": "leaf-1", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "leaf-2", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "leaf-3", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "leaf-4", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "leaf-5", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "leaf-6", "property": "style.opacity" },
+        { "parameter": "stemWidth", "nodeId": "stem-1", "property": "style.strokeWidth" },
+        { "parameter": "stemWidth", "nodeId": "stem-2", "property": "style.strokeWidth" },
+        { "parameter": "stemWidth", "nodeId": "stem-3", "property": "style.strokeWidth" },
+        { "parameter": "sway", "nodeId": "bamboo", "property": "transform.rotation" }
+      ],
+      "constraints": [],
+      "supportedBackends": ["canvas2d"],
+      "fragmentSource": null,
+      "ontologyVersion": 1,
+      "changeNote": "初始竹石构图：三竿修竹、六片竹叶与山石。"
+    },
+    {
+      "id": "tv-bamboo-2",
+      "versionNumber": 2,
+      "status": "rejected",
+      "metadata": {
+        "name": "竹·守正",
+        "description": "增加竹叶密度后的修订稿；因留白不足被退回。",
+        "entityIds": ["knowledge-bamboo", "knowledge-integrity"],
+        "tagIds": ["tag-steadfast", "tag-pure", "tag-integrity"],
+        "symbols": ["bamboo"],
+        "timeTheme": "四季"
+      },
+      "irTemplate": {
+        "schemaVersion": "1.0",
+        "seed": 29,
+        "canvas": { "width": 800, "height": 600, "background": "#F4F1E9" },
+        "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "bamboo-dense",
+            "parentId": null,
+            "type": "group",
+            "transform": { "x": 400, "y": 540, "rotation": 0, "scaleX": 1, "scaleY": 1 },
+            "style": { "opacity": 1 }
+          },
+          {
+            "id": "dense-stem-1",
+            "parentId": "bamboo-dense",
+            "type": "polyline",
+            "geometry": { "points": [[-70, 0], [-62, -220], [-56, -400]] },
+            "style": { "fill": null, "stroke": "#3B6D11", "strokeWidth": 8, "opacity": 1 }
+          },
+          {
+            "id": "dense-stem-2",
+            "parentId": "bamboo-dense",
+            "type": "polyline",
+            "geometry": { "points": [[60, 0], [54, -180], [48, -330]] },
+            "style": { "fill": null, "stroke": "#3B6D11", "strokeWidth": 8, "opacity": 1 }
+          },
+          {
+            "id": "dense-leaf-1",
+            "parentId": "bamboo-dense",
+            "type": "polygon",
+            "geometry": { "points": [[-70, -320], [-18, -344], [-48, -378]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.95 }
+          },
+          {
+            "id": "dense-leaf-2",
+            "parentId": "bamboo-dense",
+            "type": "polygon",
+            "geometry": { "points": [[-50, -250], [8, -278], [-32, -312]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.95 }
+          },
+          {
+            "id": "dense-leaf-3",
+            "parentId": "bamboo-dense",
+            "type": "polygon",
+            "geometry": { "points": [[30, -300], [86, -326], [48, -360]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.95 }
+          },
+          {
+            "id": "dense-leaf-4",
+            "parentId": "bamboo-dense",
+            "type": "polygon",
+            "geometry": { "points": [[10, -220], [70, -246], [34, -280]] },
+            "style": { "fill": "#4F7A3A", "stroke": null, "strokeWidth": 0, "opacity": 0.95 }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "generatorRef": "ir",
+      "parameterSchema": [
+        {
+          "name": "stemScale",
+          "label": "修竹尺度",
+          "description": "整体缩放竹丛。",
+          "type": "number",
+          "default": 1,
+          "min": 0.8,
+          "max": 1.15,
+          "step": 0.05
+        },
+        {
+          "name": "leafColor",
+          "label": "竹叶颜色",
+          "description": "四片竹叶的填充颜色。",
+          "type": "color",
+          "default": "#4F7A3A"
+        },
+        {
+          "name": "leafOpacity",
+          "label": "竹叶透明度",
+          "description": "竹叶的透明度。",
+          "type": "number",
+          "default": 0.95,
+          "min": 0.5,
+          "max": 1,
+          "step": 0.05
+        },
+        {
+          "name": "stemWidth",
+          "label": "竹竿线宽",
+          "description": "两根竹竿的描边宽度。",
+          "type": "number",
+          "default": 8,
+          "min": 4,
+          "max": 12,
+          "step": 0.5
+        },
+        {
+          "name": "sway",
+          "label": "竹丛倾斜",
+          "description": "整体旋转角度。",
+          "type": "number",
+          "default": 0,
+          "min": -6,
+          "max": 6,
+          "step": 1
+        }
+      ],
+      "bindings": [
+        { "parameter": "stemScale", "nodeId": "bamboo-dense", "property": "transform.scaleX" },
+        { "parameter": "stemScale", "nodeId": "bamboo-dense", "property": "transform.scaleY" },
+        { "parameter": "leafColor", "nodeId": "dense-leaf-1", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "dense-leaf-2", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "dense-leaf-3", "property": "style.fill" },
+        { "parameter": "leafColor", "nodeId": "dense-leaf-4", "property": "style.fill" },
+        { "parameter": "leafOpacity", "nodeId": "dense-leaf-1", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "dense-leaf-2", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "dense-leaf-3", "property": "style.opacity" },
+        { "parameter": "leafOpacity", "nodeId": "dense-leaf-4", "property": "style.opacity" },
+        { "parameter": "stemWidth", "nodeId": "dense-stem-1", "property": "style.strokeWidth" },
+        { "parameter": "stemWidth", "nodeId": "dense-stem-2", "property": "style.strokeWidth" },
+        { "parameter": "sway", "nodeId": "bamboo-dense", "property": "transform.rotation" }
+      ],
+      "constraints": [],
+      "supportedBackends": ["canvas2d"],
+      "fragmentSource": null,
+      "ontologyVersion": 1,
+      "changeNote": "增加竹叶密度后留白不足；审核退回，建议减少叶片或调整构图。"
+    }
+  ]
+}

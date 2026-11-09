@@ -1,0 +1,74 @@
+[
+  {
+    "id": "tag-integrity",
+    "name": "廉洁",
+    "description": "廉洁文化主题的总标签。",
+    "parentId": null,
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-pure",
+    "name": "清白",
+    "description": "强调不染、不贪、清白的意象。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": ["tag-ornate"]
+  },
+  {
+    "id": "tag-steadfast",
+    "name": "坚韧",
+    "description": "在困难环境中守住原则的品格。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-humility",
+    "name": "谦逊",
+    "description": "利万物而不争的低调姿态。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-self-discipline",
+    "name": "慎独",
+    "description": "无人监督时仍不逾矩的自我约束。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-family",
+    "name": "家风",
+    "description": "家庭内部的廉洁教育与代际传承。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-public-service",
+    "name": "为民",
+    "description": "公共事务中的责任与为民取向。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-symbol",
+    "name": "象征",
+    "description": "以自然物象承载文化寓意的标签。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": []
+  },
+  {
+    "id": "tag-ornate",
+    "name": "浮华",
+    "description": "与清白主题互斥的浮华取向，用于验证冲突检测。",
+    "parentId": "tag-integrity",
+    "status": "active",
+    "conflictsWith": ["tag-pure"]
+  }
+]

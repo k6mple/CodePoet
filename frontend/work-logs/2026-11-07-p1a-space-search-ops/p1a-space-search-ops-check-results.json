@@ -1,0 +1,238 @@
+{
+  "steps": [
+    {
+      "name": "developer nav",
+      "space": 1,
+      "search": 1,
+      "review": 0,
+      "users": 0,
+      "ops": 0
+    },
+    {
+      "name": "search templates",
+      "realApiError": true,
+      "filterCount": 5
+    },
+    {
+      "name": "search knowledge",
+      "realApiError": true,
+      "knowledgeActive": "true"
+    },
+    {
+      "name": "developer ops gate",
+      "forbidden": true
+    },
+    {
+      "name": "developer account links",
+      "space": 1,
+      "ops": 0
+    },
+    {
+      "name": "expert nav",
+      "review": 1,
+      "ops": 1,
+      "users": 0
+    },
+    {
+      "name": "expert ops/export",
+      "tabs": [
+        "导出"
+      ],
+      "realApiError": true
+    },
+    {
+      "name": "admin nav",
+      "ops": 1,
+      "users": 1
+    },
+    {
+      "name": "admin ops tabs",
+      "tabs": [
+        "导出",
+        "导入",
+        "审计日志"
+      ]
+    },
+    {
+      "name": "admin import api",
+      "realApiError": true
+    }
+  ],
+  "console": [
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/space",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/space?tab=sessions",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/search",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/search?view=knowledge&backend=canvas2d",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/knowledge/test-knowledge",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/admin/ops",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/admin/ops",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/admin/ops",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/space",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3000/search",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "space-works-error-1440.png",
+    "space-sessions-error-1440.png",
+    "space-profile-1440.png",
+    "search-templates-error-1440.png",
+    "search-knowledge-error-1440.png",
+    "knowledge-detail-error-1440.png",
+    "admin-ops-forbidden-developer-1440.png",
+    "admin-ops-export-error-expert-1440.png",
+    "admin-ops-tabs-1440.png",
+    "admin-import-parse-error-1440.png",
+    "admin-import-api-error-1440.png",
+    "admin-audit-error-1440.png",
+    "admin-ops-390.png",
+    "space-390.png",
+    "search-390.png"
+  ],
+  "overflow": [
+    {
+      "label": "space-works-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "space-sessions-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "space-profile-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "search-templates-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "search-knowledge-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "knowledge-detail-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-ops-forbidden-developer-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-ops-export-error-expert-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-ops-tabs-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-audit-error-1440",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "label": "admin-ops-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "space-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "label": "search-390",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    }
+  ],
+  "consoleErrorCount": 19
+}

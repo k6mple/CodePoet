@@ -14,17 +14,24 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Path, Query
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, Query, status
 from sqlalchemy.orm import Session
 
-from app.deps import current_user, get_db
+from app.deps import current_user, get_db, require_csrf, require_user
 from app.models.users import User as UserModel
 from app.schemas.templates import (
     Backend,
     Scope,
     Symbol,
+    Template,
+    TemplateCreate,
     TemplatePage,
+    TemplateUpdate,
     TemplateVersion,
+    TemplateVersionPage,
+    VersionCreate,
 )
 from app.services import templates
 
@@ -92,3 +99,102 @@ def read_template_version(
     viewer: UserModel | None = Depends(current_user),
 ) -> TemplateVersion:
     return templates.get_template_version(db, viewer, version_id)
+
+
+# ---- P1A-03：容器与版本的写路径 -------------------------------------------
+
+TemplateIdPath = Annotated[
+    str,
+    Path(
+        ...,
+        min_length=1,
+        max_length=80,
+        pattern=r"^[A-Za-z0-9_-]+$",
+        description="模板 ID，不透明串",
+    ),
+]
+
+
+@router.post(
+    "/templates",
+    response_model=Template,
+    status_code=status.HTTP_201_CREATED,
+    summary="新建模板容器",
+    description="只建容器与工作元数据，版本另由 POST /templates/{id}/versions 创建。",
+)
+def create_template(
+    payload: TemplateCreate,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> Template:
+    return templates.create_template(db, user, payload)
+
+
+@router.get(
+    "/templates/{template_id}",
+    response_model=Template,
+    summary="模板详情",
+    description="从未发布的模板对非作者按不存在处理，不暴露草稿的存在性。",
+)
+def read_template(
+    template_id: TemplateIdPath,
+    db: Session = Depends(get_db),
+    viewer: UserModel | None = Depends(current_user),
+) -> Template:
+    return templates.get_template(db, viewer, template_id)
+
+
+@router.patch(
+    "/templates/{template_id}",
+    response_model=Template,
+    summary="更新工作元数据",
+    description="不修改已发布版本元数据；新版本创建时复制工作元数据。",
+)
+def update_template(
+    payload: TemplateUpdate,
+    template_id: TemplateIdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> Template:
+    return templates.update_template(db, user, template_id, payload)
+
+
+@router.get(
+    "/templates/{template_id}/versions",
+    response_model=TemplateVersionPage,
+    summary="版本列表",
+    description="作者与管理员看全部版本；其他读者只看已发布版本。",
+)
+def list_versions(
+    template_id: TemplateIdPath,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100, alias="pageSize"),
+    db: Session = Depends(get_db),
+    viewer: UserModel | None = Depends(current_user),
+) -> TemplateVersionPage:
+    return templates.list_template_versions(
+        db, viewer, template_id, page=page, page_size=page_size
+    )
+
+
+@router.post(
+    "/templates/{template_id}/versions",
+    response_model=TemplateVersion,
+    status_code=status.HTTP_201_CREATED,
+    summary="创建或克隆草稿版本",
+    description=(
+        "无 fromVersionId 时 irTemplate / parameterSchema / supportedBackends 必填；"
+        "metadata 默认容器工作元数据。克隆时显式字段覆盖来源版本，其余继承。"
+        "落库前会用引擎校验模板自洽性与参数默认值，不自洽直接 422。"
+    ),
+)
+def create_version(
+    payload: VersionCreate,
+    template_id: TemplateIdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> TemplateVersion:
+    return templates.create_template_version(db, user, template_id, payload)

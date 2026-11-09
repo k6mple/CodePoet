@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0",
+  "seed": 20261109,
+  "canvas": { "width": 800, "height": 600, "background": "#F7F6F0" },
+  "viewport": { "x": 0, "y": 0, "width": 800, "height": 600 },
+  "durationMs": 4000,
+  "nodes": [
+    {
+      "id": "reveal",
+      "parentId": null,
+      "type": "group",
+      "transform": { "x": 400, "y": 300 },
+      "style": { "opacity": 1 }
+    },
+    {
+      "id": "diamond",
+      "parentId": "reveal",
+      "type": "polygon",
+      "geometry": { "points": [[0, -150], [110, 0], [0, 150], [-110, 0]] },
+      "style": { "fill": "#D4537E", "stroke": "#993556", "strokeWidth": 2, "opacity": 0.85 }
+    },
+    {
+      "id": "center",
+      "parentId": "reveal",
+      "type": "circle",
+      "geometry": { "cx": 0, "cy": 0, "r": 56 },
+      "style": { "fill": "#EF9F27", "stroke": "#854F0B", "strokeWidth": 2, "opacity": 1 }
+    },
+    {
+      "id": "water",
+      "parentId": null,
+      "type": "polyline",
+      "geometry": { "points": [[120, 500], [320, 486], [520, 502], [700, 490]] },
+      "style": { "fill": null, "stroke": "#5F6C55", "strokeWidth": 2, "opacity": 0.4 }
+    }
+  ],
+  "animations": [
+    {
+      "nodeId": "reveal",
+      "property": "opacity",
+      "from": 0,
+      "to": 1,
+      "startMs": 0,
+      "endMs": 2000,
+      "easing": "linear"
+    },
+    {
+      "nodeId": "reveal",
+      "property": "rotation",
+      "from": 0,
+      "to": 30,
+      "startMs": 0,
+      "endMs": 4000,
+      "easing": "linear"
+    },
+    {
+      "nodeId": "water",
+      "property": "opacity",
+      "from": 0.2,
+      "to": 0.7,
+      "startMs": 0,
+      "endMs": 4000,
+      "easing": "linear"
+    }
+  ],
+  "narrative": [
+    {
+      "timeMs": 0,
+      "entityIds": ["knowledge-water"],
+      "caption": "水润万物，清而不争。"
+    },
+    {
+      "timeMs": 1500,
+      "entityIds": ["knowledge-lotus"],
+      "caption": "出淤泥而不染。"
+    },
+    {
+      "timeMs": 2800,
+      "entityIds": ["knowledge-bamboo"],
+      "caption": "咬定青山不放松。"
+    },
+    {
+      "timeMs": 4000,
+      "entityIds": ["knowledge-integrity"],
+      "caption": "清正廉洁，守正不移。"
+    }
+  ]
+}

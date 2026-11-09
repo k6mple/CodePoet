@@ -97,3 +97,10 @@ export function parameterValueLabel(value: Value | undefined) {
   if (typeof value === 'boolean') return value ? '开启' : '关闭'
   return String(value)
 }
+
+export function parameterTypeLabel(type: string) {
+  const labels: Record<string, string> = {
+    number: '数值', integer: '整数', enum: '枚举', boolean: '布尔', color: '颜色',
+  }
+  return labels[type] ?? type
+}

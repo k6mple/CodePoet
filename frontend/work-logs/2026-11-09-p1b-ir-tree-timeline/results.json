@@ -1,0 +1,122 @@
+{
+  "scope": "local-fixture-components-only",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "layer-tree-preserves-sibling-draw-order"
+    },
+    {
+      "name": "parent-link-works-when-child-is-listed-first"
+    },
+    {
+      "name": "orphan-and-cycle-remain-inspectable-without-recursion-loop"
+    },
+    {
+      "name": "real-component-renders-nested-layers",
+      "roots": [
+        "parent",
+        "frame-line"
+      ],
+      "children": [
+        "child-polygon",
+        "child-circle"
+      ]
+    },
+    {
+      "name": "native-keyboard-node-selection"
+    },
+    {
+      "name": "separate-subtree-drafts-survive-node-switching"
+    },
+    {
+      "name": "subtree-payload-keeps-root-parent-and-crop"
+    },
+    {
+      "name": "invalid-root-and-crop-do-not-replace-recorded-input"
+    },
+    {
+      "name": "invalid-full-ir-is-rejected-without-side-effects"
+    },
+    {
+      "name": "ir-editor-mobile-no-overflow",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "name": "narrative-marker-seeks-to-exact-time"
+    },
+    {
+      "name": "pause-freezes-playback-time"
+    },
+    {
+      "name": "replay-at-end-restarts-from-zero"
+    },
+    {
+      "name": "export-pauses-clock-and-restores-controls"
+    },
+    {
+      "name": "real-local-three-frame-png-export",
+      "frames": [
+        {
+          "time": 0,
+          "width": 800,
+          "height": 600,
+          "bytes": 15277,
+          "signature": [
+            137,
+            80,
+            78,
+            71,
+            13,
+            10,
+            26,
+            10
+          ],
+          "hash": "fc203f2504753865a274612473c0f683087c3023564e660f4a16ef01278f6706"
+        },
+        {
+          "time": 2000,
+          "width": 800,
+          "height": 600,
+          "bytes": 32384,
+          "signature": [
+            137,
+            80,
+            78,
+            71,
+            13,
+            10,
+            26,
+            10
+          ],
+          "hash": "73136ea547734ab289d923da629610ec194f7ff509427cdae4580e02c32a9283"
+        },
+        {
+          "time": 4000,
+          "width": 800,
+          "height": 600,
+          "bytes": 31527,
+          "signature": [
+            137,
+            80,
+            78,
+            71,
+            13,
+            10,
+            26,
+            10
+          ],
+          "hash": "057d37b4abce662ab6809bad5dfee02a4a2a29222c11fd9739f78db74bb32059"
+        }
+      ]
+    },
+    {
+      "name": "leaving-page-cancels-animation-frame"
+    },
+    {
+      "name": "fixture-never-writes-generations-or-works"
+    }
+  ],
+  "pageErrors": [],
+  "businessWrites": []
+}
