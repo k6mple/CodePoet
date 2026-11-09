@@ -17,13 +17,19 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from pydantic import TypeAdapter
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import errors
-from app.engine.instantiate import TemplateDefinitionError
+from app.engine.instantiate import (
+    TemplateDefinitionError,
+    check_template_integrity,
+    instantiate,
+)
 from app.models.templates import Template as TemplateModel
 from app.models.templates import TemplateVersion as VersionModel
 from app.models.users import User
@@ -34,9 +40,13 @@ from app.schemas.templates import (
     Scope,
     Symbol,
     Template,
+    TemplateCreate,
     TemplateMetadata,
     TemplatePage,
+    TemplateUpdate,
     TemplateVersion,
+    TemplateVersionPage,
+    VersionCreate,
 )
 from app.services import permissions
 
@@ -399,11 +409,311 @@ def get_template_version(
     return build_version(row)
 
 
+# ---- P1A-03：容器与版本的写路径 -------------------------------------------
+#
+# 读路径在上面（list_templates / get_template_version），这里补写。
+# 写操作的三条共同规则：
+#   1. 权限按「作者本人 + 管理员」判，无权时给 404 而不是 403 ——
+#      403 等于告诉对方「这个模板确实存在」，草稿的存在性也是信息。
+#   2. 容器与版本都是乐观锁，expectedRevision 不匹配一律 409。
+#   3. 版本内容必须能通过引擎的完整性校验才允许落库，
+#      否则库里会出现「存进去了但一生成就 500」的模板。
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _can_manage(actor: User, row: TemplateModel) -> bool:
+    """D-own/A：作者本人可管自己的模板，管理员可管全部。"""
+    if actor.id == row.owner_id and permissions.has_permission(
+        actor, permissions.TEMPLATES_EDIT_OWN
+    ):
+        return True
+    return permissions.has_permission(actor, permissions.TEMPLATES_EDIT_ANY)
+
+
+def _load_template_or_404(db: Session, template_id: str) -> TemplateModel:
+    row = db.get(TemplateModel, template_id)
+    if row is None:
+        raise errors.not_found("模板不存在")
+    return row
+
+
+def _load_published(db: Session, row: TemplateModel) -> VersionModel | None:
+    if not row.published_version_id:
+        return None
+    return db.get(VersionModel, row.published_version_id)
+
+
+def create_template(db: Session, actor: User, payload: TemplateCreate) -> Template:
+    """新建模板容器。此时还没有任何版本，``latestVersionId`` 为 null。"""
+    if not permissions.has_permission(actor, permissions.TEMPLATES_CREATE):
+        raise errors.forbidden("没有创建模板的权限")
+
+    metadata = payload.metadata
+    now = _now_iso()
+    row = TemplateModel(
+        id=f"tpl-{uuid4().hex}",
+        owner_id=actor.id,
+        # 容器上的 name/description 是冗余列，供列表页免解析 JSON；
+        # 权威值仍是 working_metadata_json
+        name=metadata.name,
+        description=metadata.description,
+        status="draft",
+        published_version_id=None,
+        latest_version_id=None,
+        working_metadata_json=metadata.model_dump_json(),
+        supported_backends_json='["canvas2d"]',
+        revision=1,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(row)
+    db.commit()
+    return build_template(row, None, actor)
+
+
+def get_template(db: Session, viewer: User | None, template_id: str) -> Template:
+    """模板详情。
+
+    从没有发布过的模板对非作者按不存在处理——草稿的 ID 不该能被试探。
+    """
+    row = _load_template_or_404(db, template_id)
+    is_owner = viewer is not None and viewer.id == row.owner_id
+    is_admin = viewer is not None and viewer.role == "admin"
+    if row.published_version_id is None and not (is_owner or is_admin):
+        raise errors.not_found("模板不存在")
+    return build_template(row, _load_published(db, row), viewer)
+
+
+def update_template(
+    db: Session, actor: User, template_id: str, payload: TemplateUpdate
+) -> Template:
+    """更新容器的工作元数据。**不触碰已发布版本的快照。**
+
+    新版本创建时才把当前工作元数据复制过去，所以这里改了也不会
+    影响已经公开的版本——这正是「工作区」和「快照」该有的隔离。
+    """
+    row = _load_template_or_404(db, template_id)
+    if not _can_manage(actor, row):
+        raise errors.not_found("模板不存在")
+    if row.revision != payload.expectedRevision:
+        raise errors.revision_conflict(payload.expectedRevision, row.revision)
+
+    metadata = payload.metadata
+    row.name = metadata.name
+    row.description = metadata.description
+    row.working_metadata_json = metadata.model_dump_json()
+    row.revision += 1
+    row.updated_at = _now_iso()
+    db.commit()
+    return build_template(row, _load_published(db, row), actor)
+
+
+def list_template_versions(
+    db: Session,
+    viewer: User | None,
+    template_id: str,
+    *,
+    page: int = 1,
+    page_size: int = 20,
+) -> TemplateVersionPage:
+    """版本列表。
+
+    作者/管理员看全部；其他人只看已发布版本——待审和草稿的存在性同样不该
+    通过这个接口泄露出去。
+
+    排序用 ``version_number`` 降序而不是契约通用的 ``created_at`` 降序：
+    版本号单调递增且唯一，等价于时间序但更稳定（同一秒内建两个版本也不会乱序）。
+    """
+    row = _load_template_or_404(db, template_id)
+    is_owner = viewer is not None and viewer.id == row.owner_id
+    is_admin = viewer is not None and viewer.role == "admin"
+    can_manage = is_owner or is_admin
+
+    # 和 get_template 同一条可见性规则：从没发布过的模板对外就是不存在。
+    # 少了这一句，匿名者虽然只看到已发布版本，但能通过「返回空列表而非 404」
+    # 反推出这个 ID 确实是个模板——存在性也是信息。
+    if row.published_version_id is None and not can_manage:
+        raise errors.not_found("模板不存在")
+
+    statement = select(VersionModel).where(VersionModel.template_id == template_id)
+    if not can_manage:
+        statement = statement.where(VersionModel.status == "published")
+
+    total = db.scalar(select(func.count()).select_from(statement.subquery())) or 0
+    rows = list(
+        db.scalars(
+            statement.order_by(
+                VersionModel.version_number.desc(), VersionModel.id.desc()
+            )
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+    )
+    return TemplateVersionPage(
+        items=[build_version(item) for item in rows],
+        total=total,
+        page=page,
+        pageSize=page_size,
+    )
+
+
+def _next_version_number(db: Session, template_id: str) -> int:
+    current = db.scalar(
+        select(func.max(VersionModel.version_number)).where(
+            VersionModel.template_id == template_id
+        )
+    )
+    return (current or 0) + 1
+
+
+def _dump_params(items: list) -> str:
+    """参数定义是判别联合，必须走 TypeAdapter 才能带上 type 字段。"""
+    return json.dumps(
+        [_PARAM_ADAPTER.dump_python(item, mode="json") for item in items],
+        ensure_ascii=False,
+    )
+
+
+def _dump_constraints(items: list) -> str:
+    return json.dumps(
+        [_CONSTRAINT_ADAPTER.dump_python(item, mode="json") for item in items],
+        ensure_ascii=False,
+    )
+
+
+def create_template_version(
+    db: Session, actor: User, template_id: str, payload: VersionCreate
+) -> TemplateVersion:
+    """创建新版本，或从既有版本克隆。
+
+    字段来源的优先级：**请求显式给出 > 克隆来源版本 > 容器工作元数据**。
+    这样前端克隆时只传想改的字段即可，不用先把整份内容读回来再原样发一遍。
+    """
+    row = _load_template_or_404(db, template_id)
+    if not _can_manage(actor, row):
+        raise errors.not_found("模板不存在")
+
+    if payload.fromVersionId is not None:
+        base = db.get(VersionModel, payload.fromVersionId)
+        # 跨模板克隆没有语义：版本号、元数据都得挂在自己的容器下
+        if base is None or base.template_id != template_id:
+            raise errors.not_found("来源版本不存在")
+        source = build_version(base)
+        ir_template = payload.irTemplate or source.irTemplate
+        parameter_schema = (
+            payload.parameterSchema
+            if payload.parameterSchema is not None
+            else source.parameterSchema
+        )
+        bindings = payload.bindings if payload.bindings is not None else source.bindings
+        constraints = (
+            payload.constraints
+            if payload.constraints is not None
+            else source.constraints
+        )
+        metadata = payload.metadata or source.metadata
+        ontology_version = payload.ontologyVersion or source.ontologyVersion
+        change_note = (
+            payload.changeNote
+            if payload.changeNote is not None
+            else f"克隆自版本 {source.versionNumber}"
+        )
+    else:
+        ir_template = payload.irTemplate
+        parameter_schema = payload.parameterSchema
+        bindings = payload.bindings or []
+        constraints = payload.constraints or []
+        metadata = payload.metadata or parse_metadata(
+            row.working_metadata_json,
+            fallback_name=row.name,
+            fallback_description=row.description,
+        )
+        ontology_version = payload.ontologyVersion or 1
+        change_note = payload.changeNote or ""
+
+    # 这里三个都不该是 None：没有 fromVersionId 时校验器已经要求必填，
+    # 有 fromVersionId 时从来源版本补齐了。断言式防御，避免把 None 写进 NOT NULL 列。
+    if ir_template is None or parameter_schema is None:
+        raise errors.validation_error("版本内容不完整")
+
+    try:
+        check_template_integrity(ir_template, parameter_schema, bindings, constraints)
+        outcome = instantiate(ir_template, parameter_schema, bindings, constraints, {})
+    except TemplateDefinitionError as exc:
+        # 引擎把这类问题当作「服务端数据缺陷」，但在这里是客户端刚提交的定义
+        # 不自洽，该由它修 → 转成 422，不要让用户看到 500。
+        raise errors.validation_error(
+            "模板定义不自洽", [{"path": "irTemplate", "message": str(exc)}]
+        ) from exc
+
+    if not outcome.ok:
+        # 参数默认值本身不合法：建出来的模板一按「生成」就报错，必须当场拦
+        raise errors.validation_error(
+            "参数默认值不合法",
+            [
+                {
+                    "path": f"parameterSchema.{issue.path}",
+                    "message": issue.message,
+                }
+                for issue in outcome.issues
+            ],
+        )
+
+    now = _now_iso()
+    version = VersionModel(
+        id=f"tver-{uuid4().hex}",
+        template_id=template_id,
+        version_number=_next_version_number(db, template_id),
+        created_by=actor.id,
+        status="draft",
+        metadata_json=metadata.model_dump_json(),
+        ir_template_json=ir_template.model_dump_json(),
+        parameter_schema_json=_dump_params(list(parameter_schema)),
+        bindings_json=json.dumps(
+            [item.model_dump(mode="json") for item in bindings], ensure_ascii=False
+        ),
+        constraints_json=_dump_constraints(list(constraints)),
+        supported_backends_json='["canvas2d"]',
+        fragment_source=None,
+        ontology_version=ontology_version,
+        change_note=change_note,
+        submitted_by=None,
+        submitted_at=None,
+        published_at=None,
+        last_review_json=None,
+        revision=1,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(version)
+    # 容器的最新版本指针跟着走；发布指针留给 P1A-04 的审核流程
+    row.latest_version_id = version.id
+    if row.working_metadata_json is None:
+        row.working_metadata_json = metadata.model_dump_json()
+    row.revision += 1
+    row.updated_at = now
+    try:
+        db.commit()
+    except IntegrityError:
+        # (template_id, version_number) 唯一约束兜住并发创建
+        db.rollback()
+        raise errors.invalid_state("并发创建版本冲突，请重试")
+    return build_version(version)
+
+
 __all__ = [
     "build_template",
     "build_version",
     "can_read_version",
+    "create_template",
+    "create_template_version",
+    "get_template",
     "get_template_version",
+    "list_template_versions",
     "list_templates",
     "parse_metadata",
+    "update_template",
 ]

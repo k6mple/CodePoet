@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.generation import Binding, Constraint, ParameterDefinition
 from app.schemas.ir import DrawingIR
@@ -117,13 +117,97 @@ class TemplateVersion(BaseModel):
     lastReview: dict[str, Any] | None
 
 
+class TemplateCreate(BaseModel):
+    """新建模板容器。只带元数据，版本另开接口创建。
+
+    容器和版本分开建是刻意的：容器的元数据是可以反复改的「工作区」，
+    版本才是不可变快照。先有容器才能挂版本，顺序反过来会出一堆悬空引用。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    metadata: TemplateMetadata
+
+
+class TemplateUpdate(BaseModel):
+    """更新容器的工作元数据。
+
+    只改 ``working_metadata_json`` 和容器上冗余的 name/description，
+    **不碰已发布版本的快照**——契约明确要求「不修改已发布版本元数据」。
+    新版本创建时才把当前工作元数据复制过去。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    expectedRevision: int = Field(ge=1)
+    metadata: TemplateMetadata
+
+
+class VersionCreate(BaseModel):
+    """创建新版本，或从既有版本克隆。
+
+    契约里这个 schema 是 ``oneOf`` 两支，这里用「一个模型 + 校验器」表达：
+
+    * 给了 ``fromVersionId`` → 克隆分支，其余字段可选，显式给了就覆盖；
+    * 没给 → 一次性新建分支，必须自带 ``irTemplate`` / ``parameterSchema``
+      / ``supportedBackends``。
+
+    合成一个模型的好处是前端可以只写一个构造函数，也免得 Pydantic 在
+    ``oneOf`` 上给出难以解读的联合错误。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    fromVersionId: str | None = Field(default=None, min_length=1, max_length=80)
+    metadata: TemplateMetadata | None = None
+    irTemplate: DrawingIR | None = None
+    generatorRef: Literal["ir"] | None = None
+    parameterSchema: list[ParameterDefinition] | None = Field(default=None, max_length=16)
+    bindings: list[Binding] | None = Field(default=None, max_length=100)
+    constraints: list[Constraint] | None = Field(default=None, max_length=50)
+    # 契约限定 minItems=maxItems=1 且元素只能是 canvas2d
+    supportedBackends: list[Literal["canvas2d"]] | None = Field(
+        default=None, min_length=1, max_length=1
+    )
+    # 当前实现只有 IR 模板，片元源码恒为 null
+    fragmentSource: None = None
+    ontologyVersion: int | None = Field(default=None, ge=1)
+    changeNote: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def _require_new_version_fields(self) -> "VersionCreate":
+        if self.fromVersionId is not None:
+            return self
+        missing = [
+            name
+            for name in ("irTemplate", "parameterSchema", "supportedBackends")
+            if getattr(self, name) is None
+        ]
+        if missing:
+            raise ValueError("新建版本必须提供：" + "、".join(missing))
+        return self
+
+
+class TemplateVersionPage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[TemplateVersion] = Field(default_factory=list, max_length=100)
+    total: int = Field(ge=0)
+    page: int = Field(ge=1)
+    pageSize: int = Field(ge=1, le=100)
+
+
 __all__ = [
     "Backend",
     "Scope",
     "Symbol",
     "Template",
+    "TemplateCreate",
     "TemplateMetadata",
     "TemplatePage",
+    "TemplateUpdate",
     "TemplateVersion",
+    "TemplateVersionPage",
+    "VersionCreate",
     "VersionStatus",
 ]
