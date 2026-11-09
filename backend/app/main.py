@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 
+from app.api.admin import router as admin_router
 from app.api.auth import router as auth_router
 from app.api.creation import router as creation_router
 from app.api.engine import router as engine_router
@@ -144,6 +145,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return error_response(request, 503, "DATABASE_UNAVAILABLE", "数据库连接不可用")
         return Health()
 
+    application.include_router(admin_router, prefix="/api/v1")
     application.include_router(auth_router, prefix="/api/v1")
     application.include_router(creation_router, prefix="/api/v1")
     application.include_router(engine_router, prefix="/api/v1")
