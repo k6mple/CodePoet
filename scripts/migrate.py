@@ -72,7 +72,12 @@ def applied_versions(connection: sqlite3.Connection) -> set[int]:
 
 def apply_one(connection: sqlite3.Connection, version: int, path: Path) -> None:
     sql = path.read_text(encoding="utf-8")
-    if re.search(r"^\s*(BEGIN|COMMIT)\b", sql, flags=re.IGNORECASE | re.MULTILINE):
+    # 只拦「独立成行的 BEGIN; / COMMIT;」。触发器本体是
+    # ``CREATE TRIGGER ... BEGIN ... END;``，那个 BEGIN 后面没有分号，
+    # 不能被这条检查误伤。
+    if re.search(
+        r"^\s*(BEGIN|COMMIT)\s*;\s*$", sql, flags=re.IGNORECASE | re.MULTILINE
+    ):
         raise SystemExit(f"{path.name} 里不要自带 BEGIN/COMMIT，事务由迁移器管理")
 
     applied_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
