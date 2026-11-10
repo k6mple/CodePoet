@@ -225,9 +225,18 @@ def compare_jobs(
     if original is None:
         raise errors.not_found("原渲染任务不存在")
 
-    # 原任务可能是别人的（复现他人的公开作品）。判据落在「这份快照你能
-    # 不能读」——本人、管理员，或它被某个你读得到的版本引用。按原任务
-    # owner 判会让契约允许的复现链路在最后一步 404。
+    # 只允许跟这个任务**当初绑定的那个原任务**比较（契约 8.2）。
+    # 上一轮我把授权放宽到"快照可读"，结果只要某个公开版本引用了这份
+    # generation，就能拿自己的复现任务去比该 generation 下任意别的任务——
+    # 包括产物根本读不到的私有任务，而 MAE/differentPixelRatio 会把那张图
+    # 的像素统计泄露出去。快照公开不等于它底下的所有渲染输出都公开。
+    if job.original_job_id is not None:
+        if job.original_job_id != original.id:
+            raise errors.not_found("原渲染任务不存在")
+    elif original.owner_id != user.id:
+        # 没绑定原任务的普通渲染任务，只能跟自己的任务比
+        raise errors.not_found("原渲染任务不存在")
+
     original_generation = db.get(GenerationModel, original.generation_id)
     if original_generation is None or not works_service.can_read_generation(
         db, user, original_generation

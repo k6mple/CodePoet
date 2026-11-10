@@ -622,3 +622,65 @@ class ReproduceTests(unittest.TestCase):
         ).json()
         self.assertTrue(body["exactMatch"], body)
         self.assertEqual(body["mae"], 0.0)
+
+    def test_comparison_rejects_unbound_original_job(self) -> None:
+        """只能跟任务绑定的那个原任务比较，不能拿同 generation 的别的任务比。
+
+        评审 [P2]：授权放宽到"快照可读"之后，B 拿自己的复现任务去比该
+        generation 下的私有任务会返回 200，并给出那张图的 MAE 与差异像素比
+        ——而 B 直接 GET 那个任务和它的产物都是 404。快照公开不等于它下面的
+        所有渲染输出都公开，契约 8.2 也要求两任务的原任务绑定一致。
+        """
+        self._register("bind_owner")
+        self._seed_ready(make_png(rgb=(200, 120, 90)))
+        # 同一个 generation 下另一个任务，产物 B 读不到，也没被任何版本引用
+        self._job_with_frame("job-private", "gen-r", make_png(rgb=(10, 200, 10)))
+        reproduced = self._reproduce("wv-r")
+        self.assertEqual(reproduced.status_code, 202, reproduced.text)
+        job_id = reproduced.json()["id"]
+
+        # 绑定的原任务是 job-orig，换成 job-private 必须 404
+        swapped = self.client.get(
+            f"{API}/render-jobs/{job_id}/comparison?originalJobId=job-private"
+        )
+        self.assertEqual(swapped.status_code, 404, f"不该泄露别的任务：{swapped.text[:200]}")
+
+        # 绑定一致的那条仍然可用（先补一帧让任务完成）
+        upload = self.client.post(
+            f"{API}/render-jobs/{job_id}/frames",
+            files={"file": ("frame.png", make_png(rgb=(200, 120, 90)), "image/png")},
+            data={"timeMs": "0", "irHash": "a" * 64},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(upload.status_code, 200, upload.text)
+        ok = self.client.get(
+            f"{API}/render-jobs/{job_id}/comparison?originalJobId=job-orig"
+        )
+        self.assertEqual(ok.status_code, 200, ok.text)
+
+    def test_derive_generation_from_public_snapshot(self) -> None:
+        """能从「当前公开版本可见」的快照派生自己的 generation。
+
+        评审 [P2]：上一轮我把这里收紧成只允许本人，把契约 8.2 的流程
+        （先 mode=ir 派生本人 generation，再建任务保存副本）挡死了：
+        B 读得到 A 的公开快照，却派生 404。
+        """
+        self._register("derive_owner")
+        self._seed_ready()
+        body = {
+            "mode": "ir",
+            "baseGenerationId": "gen-r",
+            "backend": "canvas2d",
+            "ir": nested_ir(),
+        }
+
+        self._register("derive_viewer")  # 现在是 B
+        derived = self.client.post(
+            f"{API}/generations", json=body, headers={"X-CSRF-Token": self.csrf}
+        )
+        self.assertEqual(derived.status_code, 201, derived.text)
+        generation = derived.json()
+        self.assertEqual(generation["ownerId"], self.user_id, "新快照归操作者")
+        self.assertEqual(
+            generation["provenance"]["baseGenerationId"], "gen-r", "要记下来源"
+        )

@@ -305,10 +305,11 @@ def _prepare_from_ir(
     db: Session, user: User, payload: IRGeneration
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     base = db.get(GenerationModel, payload.baseGenerationId)
-    # 派生新快照比"读"更严格：只允许在自己的快照上派生。
-    # V 权限里的"通过公开版本可读"只解决画图，不该顺带允许别人以你的
-    # 快照为基底再生成一份新的。
-    if base is None or not (base.owner_id == user.id or user.role == "admin"):
+    # 契约（接口文档 3.1）：base 可为「本人或当前公开版本可见」，新 generation
+    # 归操作者、kind 记 manual_edit。上一轮我把这里收紧成"只允许本人派生"，
+    # 结果把 8.2 指定的流程（先派生本人 generation，再建任务保存副本）挡死了：
+    # B 能读 A 的公开快照，却无法据此派生自己的。
+    if base is None or not can_read(db, user, base):
         raise errors.not_found("基底生成快照不存在")
 
     provenance = Provenance(
