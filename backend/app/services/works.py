@@ -48,6 +48,7 @@ from app.schemas.works import (
     WorkVersionDetail,
     WorkVersionPage,
 )
+from app.services import quality as quality_service
 from app.services import uploads
 from app.services.generations import build_generation_schema
 from app.settings import Settings
@@ -286,6 +287,29 @@ def create_render_job(
     if payload.backend != generation.backend:
         raise validation_error(f"快照的后端是 {generation.backend}，与请求的 {payload.backend} 不一致")
 
+    # 采样时刻必须与 IR 对得上：静态图只取 [0]；动画的完整保存必须
+    # 恰好是 [0, floor(duration/2), duration]（契约 7.1）。否则会存下一份
+    # "动画"却只画了开头一帧，回放时看不出问题但内容其实缺了 2/3
+    ir_doc = json.loads(generation.ir_json or "{}")
+    duration = int(ir_doc.get("durationMs") or 0)
+    if duration == 0:
+        if payload.timesMs != [0]:
+            raise validation_error(
+                f"静态图只能采样时刻 [0]，收到 {payload.timesMs}"
+            )
+    else:
+        over = [item for item in payload.timesMs if item > duration]
+        if over:
+            raise validation_error(
+                f"采样时刻 {over} 超出动画时长 {duration}ms"
+            )
+        if len(payload.timesMs) == 3:
+            expected = [0, duration // 2, duration]
+            if payload.timesMs != expected:
+                raise validation_error(
+                    f"完整动画保存的采样时刻必须是 {expected}，收到 {payload.timesMs}"
+                )
+
     # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
     if _expire_stale_uploads(db, user.id):
         db.commit()
@@ -459,6 +483,12 @@ def upload_frame(
     if all(t in uploaded_times for t in times):
         manifest = _rebuild_manifest(db, row, generation)
         row.manifest_json = manifest.model_dump_json()
+        # 帧齐了才谈质量：一张全白的 PNG 能通过所有结构校验、能存成作品，
+        # 但它上面什么都没画——只有看像素才发现
+        quality = quality_service.build_quality_report(
+            db, settings, row.id, generation.ir_json, times
+        )
+        row.quality_report_json = quality.model_dump_json()
         row.status = "succeeded"
         row.phase = "completed"
         row.started_at = row.started_at or now
