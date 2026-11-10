@@ -173,22 +173,23 @@ def can_read_generation(db: Session, user: User | None, generation) -> bool:
 
 
 def can_read_artifact(db: Session, user: User | None, row) -> bool:
-    """产物能不能读：本人、管理员，或它所属快照当前可读。
+    """产物能不能读：本人、管理员，或**引用这次渲染任务的那个版本**可读。
 
-    PNG 不属于"作品"，它属于某次渲染任务的快照。所以可见性要顺着
-    artifact → render_job → generation 找，而不是只看 artifact.owner_id：
-    只看 owner 会让已发布作品的图片对任何人都取不到，也会让审核人打不开
-    待审作品的图。
+    PNG 属于某一次渲染任务，而**同一个快照可以渲染出多次**：作者可能把
+    J1 的结果发布成公开作品、把 J2 的结果留在私有作品里。所以判据必须是
+    「artifact → 它自己的 render_job → 引用了**这个 job** 的版本」，
+    而不是「artifact → job → 快照」——按快照判会把同一 generation 下所有
+    任务的输出一起放出去，公开一个版本就漏了另一个私有作品的图。
     """
     if user is not None and (row.owner_id == user.id or _is_admin(user)):
         return True
     if not row.render_job_id:
+        # 还没挂到任何作品（比如刚上传完的帧）：只有本人和管理员能读
         return False
-    job = db.get(RenderJob, row.render_job_id)
-    if job is None:
-        return False
-    generation = db.get(GenerationModel, job.generation_id)
-    return generation is not None and can_read_generation(db, user, generation)
+    versions = db.scalars(
+        select(WorkVersion).where(WorkVersion.render_job_id == row.render_job_id)
+    ).all()
+    return any(can_read_version(db, user, version) for version in versions)
 
 
 # ---------------------------------------------------------------------------

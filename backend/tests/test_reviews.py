@@ -651,17 +651,37 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertEqual(response.status_code, 403, response.text)
 
     # ---- 评审 2026-11-10（PR #11 五条）----------------------------------
-    def _add_artifact(self, generation_id: str, owner_id: str) -> str:
-        """真落一张 PNG 并登记，否则读取时是"文件已丢失"的 404，测不出授权。"""
-        import io
+    def _add_artifact(
+        self, generation_id: str, owner_id: str, rgb: tuple[int, int, int] = (200, 120, 90)
+    ) -> str:
+        """真落一张 PNG 并登记，否则读取时是"文件已丢失"的 404，测不出授权。
 
-        from PIL import Image
+        用 struct+zlib 手写 PNG，不依赖 Pillow——测试不该要求产品依赖清单里
+        没有的库，否则干净环境跑到这里就是 ModuleNotFoundError。
+        """
+        import struct
+        import zlib
 
         from app.services import uploads
 
-        buffer = io.BytesIO()
-        Image.new("RGB", (8, 6), (200, 120, 90)).save(buffer, format="PNG")
-        stored = uploads.store_frame(self.settings, owner_id, buffer.getvalue(), 0)
+        width, height = 8, 6
+        raw = b"".join(b"\x00" + bytes(rgb) * width for _ in range(height))
+
+        def chunk(tag: bytes, payload: bytes) -> bytes:
+            return (
+                struct.pack(">I", len(payload))
+                + tag
+                + payload
+                + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF)
+            )
+
+        png = (
+            b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(raw, 9))
+            + chunk(b"IEND", b"")
+        )
+        stored = uploads.store_frame(self.settings, owner_id, png, 0)
 
         connection = sqlite3.connect(self.settings.database_path)
         connection.execute("PRAGMA foreign_keys=ON")
@@ -884,3 +904,101 @@ class ReviewFlowTests(unittest.TestCase):
         connection.close()
         self.assertEqual(published, v1)
         self.assertEqual(latest, "tv-latest-v2", "最新版本指针不该被批准动作拉回去")
+
+    def test_artifact_isolated_between_jobs_of_same_generation(self) -> None:
+        """同一快照的两次渲染要各自授权，不能因为一个版本公开就放出另一个。
+
+        评审 [P1]：`can_read_artifact` 原本按 generation 判可见性，于是作者把
+        J1 的结果发布后，同一 generation 下 J2（私有作品用的那份）的产物也
+        变成匿名可读——响应字节就是私有 PNG。
+        """
+        owner_id = self._register("iso_owner")
+        public_work, public_version, generation_id = self._seed_work_version(
+            owner_id, status="published"
+        )
+        public_artifact = self._add_artifact(generation_id, owner_id, rgb=(200, 120, 90))
+
+        # 同一个 generation 下再造一个任务，挂在私有作品上
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO render_jobs (id, owner_id, generation_id, backend,"
+            " execution_mode, status, phase, times_ms_json, policy_revision,"
+            " renderer_version, client_environment_json, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("job-iso-private", owner_id, generation_id, "canvas2d", "browser_upload",
+             "succeeded", "completed", "[0]", 1, "test-1.0",
+             '{"userAgent":"t","deviceScaleFactor":1}', 1,
+             "2026-11-09T10:00:00+00:00", "2026-11-09T10:00:00+00:00"),
+        )
+        connection.execute(
+            "INSERT INTO works (id, owner_id, title, description, revision,"
+            " created_at, updated_at) VALUES (?,?,?,?,?,?,?)",
+            ("wrk-iso-private", owner_id, "私有作品", "", 1,
+             "2026-11-09T10:00:00+00:00", "2026-11-09T10:00:00+00:00"),
+        )
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("wv-iso-private", "wrk-iso-private", 1, owner_id, "private", "私有作品", "",
+             generation_id, "job-iso-private", "", None, None, 1,
+             "2026-11-09T10:00:00+00:00", "2026-11-09T10:00:00+00:00"),
+        )
+        connection.commit()
+        connection.close()
+
+        # 私有那份的产物
+        private_artifact = self._add_artifact_for_job("job-iso-private", owner_id, (10, 200, 10))
+
+        self._logout()
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{public_artifact}").status_code, 200,
+            "公开作品的产物要匿名可读",
+        )
+        leaked = self.client.get(f"{API}/artifacts/{private_artifact}")
+        self.assertEqual(
+            leaked.status_code, 404,
+            "同一快照下私有任务的产物不能因为别的版本公开就跟着公开",
+        )
+
+    def _add_artifact_for_job(
+        self, job_id: str, owner_id: str, rgb: tuple[int, int, int]
+    ) -> str:
+        """给指定 job 落一张 PNG（_add_artifact 按 generation 找 job，这里要指定）。"""
+        import struct
+        import zlib
+
+        from app.services import uploads
+
+        width, height = 8, 6
+        raw = b"".join(b"\x00" + bytes(rgb) * width for _ in range(height))
+
+        def chunk(tag: bytes, payload: bytes) -> bytes:
+            return (
+                struct.pack(">I", len(payload))
+                + tag
+                + payload
+                + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF)
+            )
+
+        png = (
+            b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(raw, 9))
+            + chunk(b"IEND", b"")
+        )
+        stored = uploads.store_frame(self.settings, owner_id, png, 0)
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "INSERT INTO artifacts (id, owner_id, kind, content_type, byte_size,"
+            " storage_path, sha256, width, height, time_ms, render_job_id, created_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (stored.artifact_id, owner_id, stored.kind, stored.content_type,
+             stored.byte_size, stored.storage_path, stored.sha256,
+             stored.width, stored.height, 0, job_id, "2026-11-09T10:00:00+00:00"),
+        )
+        connection.commit()
+        connection.close()
+        return stored.artifact_id
