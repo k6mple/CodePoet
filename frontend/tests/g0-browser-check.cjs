@@ -171,11 +171,15 @@ async function main() {
     const jobResponse = await jobResponsePromise
     assert.equal(jobResponse.status(), 202)
     let job = await jobResponse.json()
-    record('create-real-upload-job', { id: job.id, status: job.status, phase: job.phase, expiresAt: job.expiresAt,
+    const uploadLifetimeMs = Date.parse(job.expiresAt) - Date.parse(job.createdAt)
+    const validExpiry = Number.isFinite(uploadLifetimeMs) && Math.abs(uploadLifetimeMs - 300_000) <= 1000
+    record('create-real-upload-job', { id: job.id, status: job.status, phase: job.phase, createdAt: job.createdAt, expiresAt: job.expiresAt,
+      uploadLifetimeMs: Number.isFinite(uploadLifetimeMs) ? uploadLifetimeMs : null,
       requestId: jobResponse.headers()['x-request-id'] })
-    if (job.status !== 'running' || job.phase !== 'awaiting_frames') {
-      await page.locator('.archive [role=alert]').waitFor()
-      result.blockers.push({ id: 'BE-G0-001', expected: 'running/awaiting_frames', actual: `${job.status}/${job.phase}`,
+    if (job.status !== 'running' || job.phase !== 'awaiting_frames' || !validExpiry) {
+      if (job.status !== 'running' || job.phase !== 'awaiting_frames') await page.locator('.archive [role=alert]').waitFor()
+      result.blockers.push({ id: 'BE-G0-001', expected: 'running/awaiting_frames with 300-second expiry', actual: `${job.status}/${job.phase}`,
+        uploadLifetimeMs: Number.isFinite(uploadLifetimeMs) ? uploadLifetimeMs : null,
         jobId: job.id, requestId: jobResponse.headers()['x-request-id'] })
       await screenshot(page, 'automated-backend-job-status-mismatch.png')
       if (!diagnostic) { result.status = 'blocked'; return }
