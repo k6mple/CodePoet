@@ -10,16 +10,22 @@ import json
 import sqlite3
 import struct
 import tempfile
+import threading
 import unittest
 import zlib
 from datetime import datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 
 from app.db import create_database, create_session_factory
+from app.errors import ApiError
 from app.main import create_app
+from app.models.users import User as UserModel
+from app.schemas.works import RenderCreate
 from app.services import uploads
+from app.services import works as works_service
 from app.settings import Settings
 
 API = "/api/v1"
@@ -231,10 +237,6 @@ class WorkFlowTests(unittest.TestCase):
                 db.commit()
         finally:
             engine.dispose()
-        return {
-            "id": "gen-test-1" if duration_ms == 0 else f"gen-test-d{duration_ms}",
-            "irHash": ir_hash,
-        }
         return {
             "id": "gen-test-1" if duration_ms == 0 else f"gen-test-d{duration_ms}",
             "irHash": ir_hash,
@@ -574,6 +576,243 @@ class WorkFlowTests(unittest.TestCase):
         page = self.client.get(f"{API}/works?scope=public")
         self.assertEqual(page.status_code, 200)
         self.assertEqual(page.json()["total"], 0)
+
+    # ---- PR #10 评审回归（2026-11-10）-----------------------------------
+    def _insert_legacy_jobs(self, count: int, created_at: str) -> list[str]:
+        """造出旧版本遗留的 queued / expires_at=NULL 任务。
+
+        当前实现写不出这种行（创建即 running + 5 分钟到期），所以只能直接
+        插库来模拟升级前的数据。评审的复现也是这么做的。
+        """
+        ids: list[str] = []
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        for index in range(count):
+            job_id = f"job-legacy-{index}"
+            connection.execute(
+                "INSERT INTO render_jobs (id, owner_id, generation_id, backend,"
+                " execution_mode, status, phase, times_ms_json, policy_revision,"
+                " revision, created_at, updated_at)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    job_id,
+                    self._user_id,
+                    self._gen_id,
+                    "canvas2d",
+                    "browser_upload",
+                    "queued",
+                    "awaiting_frames",
+                    "[0]",
+                    1,
+                    1,
+                    created_at,
+                    created_at,
+                ),
+            )
+            ids.append(job_id)
+        connection.commit()
+        connection.close()
+        return ids
+
+    def _open_job_count(self) -> int:
+        connection = sqlite3.connect(self.settings.database_path)
+        total = connection.execute(
+            "SELECT COUNT(*) FROM render_jobs WHERE owner_id = ?"
+            " AND status IN ('queued', 'running')",
+            (self._user_id,),
+        ).fetchone()[0]
+        connection.close()
+        return total
+
+    def test_succeeded_job_is_not_rewritten_by_expiry(self):
+        """已成功的任务超过上传期限后仍是 succeeded。
+
+        评审 [P1]：``_mark_expired_if_due`` 只看 expires_at 不看 status，而
+        ``get_render_job`` 对任意状态都调它——把 expires_at 拨到过去后，
+        一次已经成功上传完的任务被读成 timed_out，还多挂一个 UPLOAD_EXPIRED，
+        manifest 却还留着。读一次改一次，保存重试也会据此判失败。
+        """
+        self._new_user("owner9")
+        csrf = self._login("owner9")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        job = self._make_job(csrf, gen["id"], [0])
+        upload = self.client.post(
+            f"{API}/render-jobs/{job['id']}/frames",
+            files={"file": ("frame.png", make_png(), "image/png")},
+            data={"timeMs": "0", "irHash": gen["irHash"]},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(upload.status_code, 200, upload.text)
+        self.assertEqual(upload.json()["status"], "succeeded")
+
+        # 五分钟真的过去了
+        self._force_expire(job["id"])
+
+        for attempt in range(2):  # 读两次，确认不是"第一次侥幸没改"
+            got = self.client.get(f"{API}/render-jobs/{job['id']}")
+            self.assertEqual(got.status_code, 200)
+            body = got.json()
+            self.assertEqual(
+                body["status"], "succeeded", f"第 {attempt + 1} 次读取被时钟改写了状态"
+            )
+            self.assertEqual(body["phase"], "completed")
+            self.assertIsNone(body["error"], "成功任务不该带 UPLOAD_EXPIRED")
+            self.assertIsNotNone(body["manifest"], "成功任务的清单要还在")
+            self.assertEqual(len(body["manifest"]["frames"]), 1)
+
+    def test_legacy_queued_job_without_expiry_releases_quota(self):
+        """旧版本 queued / expiresAt=null 的任务要能被清理，不能永久占名额。
+
+        评审 [P2]：``deadline is None`` 直接 return False，而额度检查又把
+        queued 算作未完成——两条遗留任务就能把用户永久锁死：建不出新任务，
+        GET 它们也还是 queued/null，用户只能手工取消。
+        """
+        self._new_user("owner10")
+        csrf = self._login("owner10")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        self._gen_id = gen["id"]
+        legacy = self._insert_legacy_jobs(2, "2026-11-09T00:00:00+00:00")
+
+        first = self.client.get(f"{API}/render-jobs/{legacy[0]}")
+        self.assertEqual(first.status_code, 200)
+        body = first.json()
+        self.assertEqual(body["status"], "timed_out", "旧任务应当按 created_at+TTL 判过期")
+        self.assertEqual((body["error"] or {}).get("code"), "UPLOAD_EXPIRED")
+        self.assertIsNotNone(
+            body["expiresAt"], "补算出来的到期时刻要能读回来，否则前端不知道凭什么叫过期"
+        )
+
+        # 另一条还挂着 queued，新建时应当先清理再放行，而不是 429
+        created = self.client.post(
+            f"{API}/render-jobs",
+            json={
+                "generationId": gen["id"],
+                "backend": "canvas2d",
+                "timesMs": [0],
+                "executionMode": "browser_upload",
+                "rendererVersion": "test-1.0",
+                "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1},
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(created.status_code, 202, created.text)
+        self.assertEqual(self._open_job_count(), 1, "旧的应当被清掉，只剩新建的这一条")
+
+    def test_legacy_job_inside_ttl_is_not_expired(self):
+        """没写到期时刻但还在五分钟内的旧任务不能被误杀。
+
+        补算用的是 created_at + TTL，刚建出来还没到期的必须保持原状——
+        否则升级瞬间会把所有进行中的上传一起判死。
+        """
+        self._new_user("owner11")
+        csrf = self._login("owner11")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        self._gen_id = gen["id"]
+        fresh = datetime.now().astimezone().isoformat(timespec="seconds")
+        legacy = self._insert_legacy_jobs(1, fresh)
+
+        got = self.client.get(f"{API}/render-jobs/{legacy[0]}")
+        self.assertEqual(got.status_code, 200)
+        self.assertEqual(got.json()["status"], "queued", "还在有效期内不该被判过期")
+        self.assertIsNone(got.json()["error"])
+
+    def test_migration_backfills_legacy_expiry(self):
+        """迁移 010 要把遗留任务的 expires_at 真的补成 created_at + 300s。
+
+        惰性补算已经能兜住，但 GET 返回 ``expiresAt: null`` 而状态是
+        timed_out 会让前端困惑。迁移负责把列填上，所以这条 SQL 必须真的
+        算对——它一旦写错，所有人启动时迁移就失败。
+        """
+        self._new_user("owner13")
+        csrf = self._login("owner13")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        self._gen_id = gen["id"]
+        legacy = self._insert_legacy_jobs(1, "2026-11-09T10:00:00+00:00")
+
+        migration = (
+            Path(__file__).resolve().parents[1] / "migrations" / "010_backfill_upload_expiry.sql"
+        )
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.executescript(migration.read_text(encoding="utf-8"))
+        connection.commit()
+        value = connection.execute(
+            "SELECT expires_at FROM render_jobs WHERE id = ?", (legacy[0],)
+        ).fetchone()[0]
+        connection.close()
+
+        self.assertEqual(value, "2026-11-09T10:05:00+00:00")
+
+    def test_concurrent_create_cannot_exceed_limit(self):
+        """并发创建不能突破「每用户两个未完成上传」。
+
+        评审 [P2]：COUNT 与 INSERT 之间没有原子保护，两个并发 POST 都返回
+        202，库里变成 3 个未完成任务。
+
+        这里用真实引擎 + 两个线程各自一个 Session 直调服务层（控制器只是
+        透传，竞态在服务层）。为了让"读-改-写交错"成为必然而不是偶然，在
+        额度查询语句处挂 before_cursor_execute 撮合两个线程：修好之后只有
+        先拿到写锁的那个能走到 COUNT，另一个卡在 BEGIN IMMEDIATE 上，栅栏
+        超时后它才会发现名额已满。
+        """
+        self._new_user("owner12")
+        csrf = self._login("owner12")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        self._make_job(csrf, gen["id"], [0])  # 先占 1 个名额，上限 2
+
+        payload = RenderCreate(
+            generationId=gen["id"],
+            backend="canvas2d",
+            timesMs=[0],
+            executionMode="browser_upload",
+            rendererVersion="test-1.0",
+            clientEnvironment={"userAgent": "test/1.0", "deviceScaleFactor": 1},
+        )
+        gate = threading.Barrier(2, timeout=4)
+        results: list[tuple] = []
+
+        def worker() -> None:
+            engine = create_database(self.settings)
+
+            @event.listens_for(engine, "before_cursor_execute")
+            def _meet_at_quota_check(conn, cursor, statement, params, context, executemany):
+                lowered = statement.lower()
+                if "count(" in lowered and "render_jobs" in lowered:
+                    try:
+                        gate.wait()
+                    except threading.BrokenBarrierError:
+                        pass  # 修好之后另一个线程压根到不了这里
+
+            factory = create_session_factory(engine)
+            try:
+                with factory() as db:
+                    user = db.get(UserModel, self._user_id)
+                    try:
+                        job = works_service.create_render_job(db, user, payload)
+                        results.append(("created", job.id))
+                    except ApiError as exc:
+                        results.append((exc.status_code, exc.code))
+            finally:
+                engine.dispose()
+
+        threads = [threading.Thread(target=worker) for _ in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+        self.assertFalse(any(thread.is_alive() for thread in threads), "线程没有结束")
+
+        created = [item for item in results if item[0] == "created"]
+        busy = [item for item in results if item[0] == 429]
+        self.assertEqual(len(results), 2, f"两个请求都要有结果：{results}")
+        self.assertEqual(len(created), 1, f"并发创建只能成功一个：{results}")
+        self.assertEqual(len(busy), 1, f"另一个必须是 429：{results}")
+        self.assertEqual(busy[0][1], "EXECUTION_BUSY", results)
+        self.assertEqual(self._open_job_count(), 2, "上限是 2，并发不该突破")
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from PIL import Image, ImageChops, ImageStat
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import errors
@@ -38,9 +38,10 @@ from app.settings import Settings
 
 __all__ = ["compare_jobs", "reproduce_version"]
 
-# 与 BE-G0-001 保持一致：browser_upload 任务创建即 running，5 分钟有效
+# 与 BE-G0-001 保持一致：browser_upload 任务创建即 running，5 分钟有效。
+# 额度上限不在这里重复定义——统一由 works.reserve_upload_slot 管，
+# 两份各自实现迟早会漂移，而这里漂移的后果是限流失效。
 _UPLOAD_TTL_SECONDS = 300
-_MAX_OPEN_UPLOADS = 2
 
 
 def _now() -> datetime:
@@ -84,20 +85,10 @@ def reproduce_version(
     if not times:
         raise errors.validation_error("原始任务没有采样时刻，无法复现")
 
-    # 未完成任务上限与普通上传任务共用一套额度，避免绕过限流
-    open_count = db.scalar(
-        select(func.count())
-        .select_from(RenderJob)
-        .where(
-            RenderJob.owner_id == user.id,
-            RenderJob.execution_mode == "browser_upload",
-            RenderJob.status.in_(("queued", "running")),
-        )
-    )
-    if (open_count or 0) >= _MAX_OPEN_UPLOADS:
-        raise errors.execution_busy(
-            f"未完成的上传任务已达 {_MAX_OPEN_UPLOADS} 个上限，请先完成或等待过期"
-        )
+    # 未完成任务上限与普通上传任务共用一套额度，避免绕过限流。
+    # 走 works 的共用函数而不是在这里再数一遍：它会把「清过期 + 数额度」
+    # 放进同一个 IMMEDIATE 写事务，否则并发两次复现同样能突破上限。
+    works_service.reserve_upload_slot(db, user.id)
 
     now = _now()
     stamp = now.isoformat(timespec="seconds")
@@ -142,7 +133,11 @@ def reproduce_version(
         },
         result="success",
     )
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     db.refresh(row)
     return works_service.build_render_job(row)
 

@@ -20,7 +20,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.errors import (
@@ -260,13 +260,43 @@ def _expire_stale_uploads(db: Session, owner_id: str) -> int:
     return sum(1 for row in rows if _mark_expired_if_due(row, now))
 
 
-def _mark_expired_if_due(row: RenderJob, now: datetime) -> bool:
-    """单个任务到期就地标记，返回是否真的改过。phase 保留原值。"""
+def _deadline_of(row: RenderJob) -> datetime | None:
+    """任务真正的到期时刻。
+
+    旧版本创建的上传任务是 ``queued`` 且 ``expires_at = NULL``（那时只写了
+    状态，没有到期约定）。它们一样占着额度，所以这里回退到
+    ``created_at + TTL`` 补算——否则这些任务永远不会释放，升级后用户必须
+    手工取消才能再建任务，而状态字段上看不出任何原因。
+    """
     deadline = _parse_dt(row.expires_at)
+    if deadline is not None:
+        return deadline
+    created = _parse_dt(row.created_at)
+    if created is None:
+        return None
+    return created + timedelta(seconds=UPLOAD_TTL_SECONDS)
+
+
+def _mark_expired_if_due(row: RenderJob, now: datetime) -> bool:
+    """单个任务到期就地标记，返回是否真的改过。phase 保留原值。
+
+    **只对未完成状态生效**。``succeeded`` / ``failed`` / ``cancelled`` 都是
+    终态：它们已经结束了，跟"上传期限"没有关系。之前这里不看 status，而
+    ``get_render_job`` 会对任意状态调用它，于是一个已经成功上传完的任务，
+    只要 expires_at 过了就被读成 ``timed_out``——读一次改一次，越读越坏，
+    保存重试也会据此判失败。成功就是成功，不该被时钟改写。
+    """
+    if row.status not in _OPEN_JOB_STATUSES:
+        return False
+    deadline = _deadline_of(row)
     if deadline is None or deadline > now:
         return False
     stamp = now.isoformat(timespec="seconds")
     row.status = "timed_out"
+    if not row.expires_at:
+        # 补上补算出来的值：前端要能看出它是按哪个时刻判过期的，
+        # 而不是拿到一个 null 又看见 timed_out
+        row.expires_at = deadline.isoformat(timespec="seconds")
     row.error_json = json.dumps(
         {
             "code": UPLOAD_EXPIRED_CODE,
@@ -278,6 +308,56 @@ def _mark_expired_if_due(row: RenderJob, now: datetime) -> bool:
     row.finished_at = row.finished_at or stamp
     row.updated_at = stamp
     return True
+
+
+def _begin_immediate(db: Session) -> None:
+    """在当前 Session 上开一个**独占写事务**。
+
+    SQLite 默认是 DEFERRED 事务：先读后写时，写锁要等到 INSERT 那一刻才
+    升级，中间那段窗口里别的连接也能读到同样的 COUNT，于是两个并发请求
+    各自看到"还有名额"、然后各插一条——上限就这么被突破了，而 429 只挡得住
+    串行的第二次请求。IMMEDIATE 在事务一开始就拿写锁，COUNT 与 INSERT
+    之间插不进任何人。
+
+    调用前必须没有未提交的改动：这里先 commit 一次，把前面只读的事务
+    收干净，再显式开 IMMEDIATE。
+    """
+    db.commit()
+    db.execute(text("BEGIN IMMEDIATE"))
+
+
+def reserve_upload_slot(db: Session, owner_id: str) -> None:
+    """在独占写事务里完成「清过期 → 数额度 → 超额就 429」。
+
+    调用方拿到写锁后自己插入任务并提交，两步之间不会插进别人。抽成函数是
+    因为普通上传与复现任务共用同一份额度——两份各自实现迟早会漂移，而这里
+    漂移的后果是限流失效。
+
+    抛出 429 前会回滚：IMMEDIATE 已经拿到写锁，不回滚的话锁要挂到 Session
+    依赖清理才放开，并发请求只能干等到超时（429 变成 500）。
+    """
+    _begin_immediate(db)
+    try:
+        # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
+        _expire_stale_uploads(db, owner_id)
+
+        open_count = db.scalar(
+            select(func.count())
+            .select_from(RenderJob)
+            .where(
+                RenderJob.owner_id == owner_id,
+                RenderJob.execution_mode == "browser_upload",
+                RenderJob.status.in_(_OPEN_JOB_STATUSES),
+            )
+        )
+        if (open_count or 0) >= MAX_OPEN_UPLOADS:
+            raise execution_busy(
+                f"未完成的上传任务已达 {MAX_OPEN_UPLOADS} 个上限，请先完成或等待旧任务过期",
+                details={"maxOpenUploads": MAX_OPEN_UPLOADS, "openUploads": open_count},
+            )
+    except Exception:
+        db.rollback()
+        raise
 
 
 def create_render_job(
@@ -310,56 +390,47 @@ def create_render_job(
                     f"完整动画保存的采样时刻必须是 {expected}，收到 {payload.timesMs}"
                 )
 
-    # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
-    if _expire_stale_uploads(db, user.id):
+    # 额度检查与插入必须落在**同一个写事务**里。DEFERRED 事务下"先读后写"
+    # 会留出一个窗口：两个并发请求各自读到「还有名额」，然后各插一条，
+    # 上限被突破——429 只挡得住串行的第二次请求。评审复现过一次：两个
+    # POST /render-jobs 都返回 202，库里变成 3 个未完成任务。
+    reserve_upload_slot(db, user.id)
+    try:
+        now = datetime.now(timezone.utc)
+        stamp = now.isoformat(timespec="seconds")
+        expires = (now + timedelta(seconds=UPLOAD_TTL_SECONDS)).isoformat(timespec="seconds")
+
+        row = RenderJob(
+            id=_new_id("job"),
+            owner_id=user.id,
+            generation_id=payload.generationId,
+            backend=payload.backend,
+            execution_mode=payload.executionMode,
+            # 契约 7.1 对 browser_upload 明确规定「状态 running、phase=awaiting_frames」。
+            # 帧齐了才变 succeeded/phase=completed。
+            status="running",
+            phase="awaiting_frames",
+            times_ms_json=json.dumps(payload.timesMs),
+            policy_revision=1,
+            renderer_version=payload.rendererVersion,
+            client_environment_json=payload.clientEnvironment.model_dump_json(),
+            original_job_id=None,
+            started_at=None,
+            finished_at=None,
+            expires_at=expires,
+            manifest_json=None,
+            quality_report_json=None,
+            error_json=None,
+            revision=1,
+            created_at=stamp,
+            updated_at=stamp,
+        )
+        db.add(row)
         db.commit()
+    except Exception:
+        db.rollback()
+        raise
 
-    open_count = db.scalar(
-        select(func.count())
-        .select_from(RenderJob)
-        .where(
-            RenderJob.owner_id == user.id,
-            RenderJob.execution_mode == "browser_upload",
-            RenderJob.status.in_(_OPEN_JOB_STATUSES),
-        )
-    )
-    if (open_count or 0) >= MAX_OPEN_UPLOADS:
-        raise execution_busy(
-            f"未完成的上传任务已达 {MAX_OPEN_UPLOADS} 个上限，请先完成或等待旧任务过期",
-            details={"maxOpenUploads": MAX_OPEN_UPLOADS, "openUploads": open_count},
-        )
-
-    now = datetime.now(timezone.utc)
-    stamp = now.isoformat(timespec="seconds")
-    expires = (now + timedelta(seconds=UPLOAD_TTL_SECONDS)).isoformat(timespec="seconds")
-
-    row = RenderJob(
-        id=_new_id("job"),
-        owner_id=user.id,
-        generation_id=payload.generationId,
-        backend=payload.backend,
-        execution_mode=payload.executionMode,
-        # 契约 7.1 对 browser_upload 明确规定「状态 running、phase=awaiting_frames」。
-        # 帧齐了才变 succeeded/phase=completed。
-        status="running",
-        phase="awaiting_frames",
-        times_ms_json=json.dumps(payload.timesMs),
-        policy_revision=1,
-        renderer_version=payload.rendererVersion,
-        client_environment_json=payload.clientEnvironment.model_dump_json(),
-        original_job_id=None,
-        started_at=None,
-        finished_at=None,
-        expires_at=expires,
-        manifest_json=None,
-        quality_report_json=None,
-        error_json=None,
-        revision=1,
-        created_at=stamp,
-        updated_at=stamp,
-    )
-    db.add(row)
-    db.commit()
     db.refresh(row)
     return build_render_job(row)
 
