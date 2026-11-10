@@ -714,6 +714,94 @@ class WorkFlowTests(unittest.TestCase):
         self.assertEqual(got.json()["status"], "queued", "还在有效期内不该被判过期")
         self.assertIsNone(got.json()["error"])
 
+    def _upload_frame(self, csrf: str, job_id: str, ir_hash: str, time_ms: int = 0):
+        return self.client.post(
+            f"{API}/render-jobs/{job_id}/frames",
+            files={"file": ("frame.png", make_png(), "image/png")},
+            data={"timeMs": str(time_ms), "irHash": ir_hash},
+            headers={"X-CSRF-Token": csrf},
+        )
+
+    def test_upload_still_rejected_after_get_marked_expired(self):
+        """已被 GET 标成 timed_out 的任务，上传仍然要 409。
+
+        评审 [P2]：终态保护让 `_mark_expired_if_due` 对 timed_out 返回 False，
+        而 `upload_frame` 只在它返回 True 时才拒绝——于是"没改过记录"被误读成
+        "可以收帧"，第二次上传就把过期任务救活成 succeeded，还能存成作品。
+        这里走「GET 先标超时」这个入口。
+        """
+        self._new_user("owner14")
+        csrf = self._login("owner14")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        job = self._make_job(csrf, gen["id"], [0])
+        self._force_expire(job["id"])
+
+        first = self.client.get(f"{API}/render-jobs/{job['id']}")
+        self.assertEqual(first.json()["status"], "timed_out")
+
+        upload = self._upload_frame(csrf, job["id"], gen["irHash"])
+        self.assertEqual(upload.status_code, 409, upload.text)
+        self.assertEqual(upload.json()["error"]["code"], "INVALID_STATE")
+
+        still = self.client.get(f"{API}/render-jobs/{job['id']}")
+        self.assertEqual(still.json()["status"], "timed_out", "被拒的上传不该改写状态")
+        self.assertIsNone(still.json()["manifest"], "被拒的上传不该产出清单")
+
+        saved = self.client.post(
+            f"{API}/works",
+            json={"title": "过期任务的作品", "generationId": gen["id"], "renderJobId": job["id"]},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertNotEqual(saved.status_code, 201, "过期任务不该能存成作品")
+
+    def test_upload_still_rejected_after_first_upload_marked_expired(self):
+        """第一次上传把任务标成 timed_out 后，第二次上传同样要 409。
+
+        评审指出的正是这条路径：409 → 200 → 保存 201。第一次上传负责标超时，
+        第二次就该被状态检查拦住，而不是被"到期检查没改过"放行。
+        """
+        self._new_user("owner15")
+        csrf = self._login("owner15")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        job = self._make_job(csrf, gen["id"], [0])
+        self._force_expire(job["id"])
+
+        first = self._upload_frame(csrf, job["id"], gen["irHash"])
+        self.assertEqual(first.status_code, 409, first.text)
+        self.assertEqual(first.json()["error"]["code"], "INVALID_STATE")
+
+        # 关键：故意**不**先 GET，直接再传一次
+        second = self._upload_frame(csrf, job["id"], gen["irHash"])
+        self.assertEqual(second.status_code, 409, f"第二次上传被放行了：{second.text}")
+        self.assertEqual(second.json()["error"]["code"], "INVALID_STATE")
+
+        got = self.client.get(f"{API}/render-jobs/{job['id']}")
+        self.assertEqual(got.json()["status"], "timed_out")
+        self.assertEqual((got.json()["error"] or {}).get("code"), "UPLOAD_EXPIRED")
+
+    def test_upload_allowed_again_on_succeeded_job(self):
+        """已成功的任务仍可重传同一帧（幂等替换），不能一刀切成 409。
+
+        响应丢了以后前端重试最后一张是常态；把 succeeded 也拒掉会让一次
+        实际上成功的上传显示成失败。这里锁住"只拒失败终态"的边界。
+        """
+        self._new_user("owner16")
+        csrf = self._login("owner16")
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf)
+        job = self._make_job(csrf, gen["id"], [0])
+
+        first = self._upload_frame(csrf, job["id"], gen["irHash"])
+        self.assertEqual(first.status_code, 200, first.text)
+        self.assertEqual(first.json()["status"], "succeeded")
+
+        again = self._upload_frame(csrf, job["id"], gen["irHash"])
+        self.assertEqual(again.status_code, 200, again.text)
+        self.assertEqual(again.json()["status"], "succeeded")
+        self.assertEqual(len(again.json()["manifest"]["frames"]), 1, "重传应替换而不是叠加")
+
     def test_migration_backfills_legacy_expiry(self):
         """迁移 010 要把遗留任务的 expires_at 真的补成 created_at + 300s。
 

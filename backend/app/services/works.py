@@ -61,6 +61,12 @@ UPLOAD_TTL_SECONDS = 300
 MAX_OPEN_UPLOADS = 2
 # 未完成 = 还能往上传帧的状态；timed_out 已经出局，不算占额度
 _OPEN_JOB_STATUSES = ("queued", "running")
+# 允许收帧的状态。**必须独立判断，不能依赖「到期检查有没有改过记录」**：
+# 任务可能早就被 GET 标成 timed_out，此时到期检查返回 False，
+# 「没改过」会被误读成「可以收帧」，重试一次就把过期任务救活成 succeeded。
+# succeeded 仍允许收帧：同一 timeMs 重复上传按替换处理（幂等），
+# 这样「响应丢了、前端重试最后一张」不会因为任务已成功而失败。
+_FRAME_ACCEPTING_STATUSES = ("queued", "running", "succeeded")
 # 过期任务对外暴露的错误码，契约 7.1 点名要求
 UPLOAD_EXPIRED_CODE = "UPLOAD_EXPIRED"
 
@@ -476,12 +482,18 @@ def upload_frame(
 ) -> RenderJobSchema:
     """上传一帧。同一 timeMs 重复上传按替换处理（幂等），不累积脏数据。"""
     row = _require_owned_job(db, user, job_id)
-    # 过期任务不能收帧：收下来以后要么产出「图是旧的」的成品，
-    # 要么得先把状态从 timed_out 拽回 running，两种都不该发生
+    # 先判到期（这一步可能把 running 翻成 timed_out 并拒绝），
+    # 再**独立**判一次状态：任务可能早就被 GET 或上一次上传标成 timed_out，
+    # 那时到期检查返回 False，只靠它的返回值判断就等于给过期任务开了后门
+    # （评审复现：过期任务第一次上传 409，第二次 200 → succeeded → 保存 201）。
     if _mark_expired_if_due(row, datetime.now(timezone.utc)):
         db.commit()
         db.refresh(row)
         raise invalid_state("上传任务已过期，请重新创建渲染任务")
+    if row.status not in _FRAME_ACCEPTING_STATUSES:
+        raise invalid_state(
+            f"任务当前是 {row.status}，不再接收帧；请重新创建渲染任务"
+        )
     generation = _require_owned_generation(db, user, row.generation_id)
 
     times: list[int] = _loads(row.times_ms_json, [])
