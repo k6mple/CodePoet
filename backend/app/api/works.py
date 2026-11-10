@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.deps import current_user, get_db, require_csrf, require_user
 from app.models.users import User as UserModel
 from app.schemas.reviews import RevisionRequest
+from app.schemas.sessions import FavoriteResult
 from app.schemas.works import (
     Scope,
     Work,
@@ -29,6 +30,7 @@ from app.schemas.works import (
     WorkVersionDetail,
     WorkVersionPage,
 )
+from app.services import favorites as favorites_service
 from app.services import reviews as reviews_service
 from app.services import works as works_service
 
@@ -145,3 +147,39 @@ def submit_work_version(
     return reviews_service.submit_work_version(
         db, user, version_id, payload.expectedRevision
     )
+
+
+@router.put(
+    "/works/{work_id}/favorite",
+    response_model=FavoriteResult,
+    summary="幂等收藏可见作品",
+    description=(
+        "权限 L。重复收藏返回 200 与 isFavorite=true，不报错——前端重试是常态。"
+        "看不见的作品一律 404，不确认存在性。"
+    ),
+)
+def favorite_work(
+    work_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> FavoriteResult:
+    return favorites_service.add_favorite(db, user, work_id)
+
+
+@router.delete(
+    "/works/{work_id}/favorite",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="幂等取消本人收藏",
+    description=(
+        "权限 L。没有收藏也返回 204；作品已下线仍可删除本人收藏关系"
+        "——那条记录属于用户，不该被作品状态绑架。"
+    ),
+)
+def unfavorite_work(
+    work_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> None:
+    favorites_service.remove_favorite(db, user, work_id)
