@@ -68,9 +68,10 @@ def reproduce_version(
     version = db.get(WorkVersion, version_id)
     if version is None:
         raise errors.not_found("作品版本不存在")
-    work = db.get(Work, version.work_id)
-    # 契约 access=V：必须登录且能看这个版本
-    if work is None or not works_service.can_read_work(db, user, work):
+    # 契约 access=V：判**这个版本**能不能看，不是"这个作品有没有公开版"。
+    # 用容器级判断的话，公开 v1 会连带授权私有 v2 的复现——拿到的还是
+    # 私有快照的 generationId 与原任务信息。
+    if not works_service.can_read_version(db, user, version):
         raise errors.not_found("作品版本不存在")
 
     generation = db.get(GenerationModel, version.generation_id)
@@ -175,20 +176,33 @@ def _compare_images(old: Image.Image, new: Image.Image) -> tuple[bool, float, fl
     用 PIL 的 C 实现而不是 Python 逐像素循环：800×600 是 48 万像素，
     Python 循环一帧要一两秒，PIL 的分通道求差是毫秒级。
 
-    ``differentPixelRatio`` 需要"任一通道有差"的像素比例，所以先把
-    RGB 三通道取较亮者合成一张掩码，再统计非零比例——直接对灰度图比较
-    会漏掉"只有蓝通道差 1"这种细微差异。
+    **必须包含 alpha**。契约规定 RGBA 四通道均值与「任一通道变化」的像素比。
+    之前只比 RGB，理由是「alpha 全不透明时恒为 0，算进去会稀释差异」——
+    但透明与不透明在图上看就是两张图：(10,20,30,255) 和 (10,20,30,0) 被判成
+    exactMatch=true / mae=0，是这类接口最坏的一种误导。稀释的担心也不成立：
+    MAE 取的是四通道平均，稳定不透明的两张图 alpha 差恒为 0，不会把 RGB 的
+    差异压小到看不见。
+
+    ``differentPixelRatio`` 需要"任一通道有差"的像素比例，所以把各通道取
+    较亮者合成一张掩码，再统计非零比例——直接对灰度图比较会漏掉"只有蓝通道
+    差 1"这种细微差异。
     """
+    if old.mode != new.mode:
+        raise errors.invalid_state("两张图的色彩模式不同，无法比较")
+    if old.mode != "RGBA":
+        old = old.convert("RGBA")
+        new = new.convert("RGBA")
+
     diff = ImageChops.difference(old, new)
     channels = diff.split()
-    # 只比较 RGB；alpha 全不透明时恒为 0，把它算进去会稀释差异
-    red, green, blue = channels[0], channels[1], channels[2]
-    peak = ImageChops.lighter(ImageChops.lighter(red, green), blue)
+    peak = channels[0]
+    for channel in channels[1:]:
+        peak = ImageChops.lighter(peak, channel)
     mask = peak.point(lambda value: 255 if value > 0 else 0)
 
     different_ratio = ImageStat.Stat(mask).mean[0] / 255.0
     means = ImageStat.Stat(diff).mean
-    mae = (means[0] + means[1] + means[2]) / 3.0 / 255.0
+    mae = sum(means[:4]) / 4.0 / 255.0
     return different_ratio == 0.0, round(mae, 6), round(different_ratio, 6)
 
 
@@ -208,7 +222,16 @@ def compare_jobs(
     original = db.get(RenderJob, original_job_id)
     if job is None or job.owner_id != user.id:
         raise errors.not_found("渲染任务不存在")
-    if original is None or original.owner_id != user.id:
+    if original is None:
+        raise errors.not_found("原渲染任务不存在")
+
+    # 原任务可能是别人的（复现他人的公开作品）。判据落在「这份快照你能
+    # 不能读」——本人、管理员，或它被某个你读得到的版本引用。按原任务
+    # owner 判会让契约允许的复现链路在最后一步 404。
+    original_generation = db.get(GenerationModel, original.generation_id)
+    if original_generation is None or not works_service.can_read_generation(
+        db, user, original_generation
+    ):
         raise errors.not_found("原渲染任务不存在")
 
     if job.phase != "completed" or original.phase != "completed":

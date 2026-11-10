@@ -98,9 +98,15 @@ def _parse_dt(value: str) -> datetime:
 # ---- 读快照 --------------------------------------------------------------
 
 
-def can_read(user: User, row: GenerationModel) -> bool:
-    """V 权限：本人或管理员。其他人的快照一律当作不存在。"""
-    return row.owner_id == user.id or user.role == "admin"
+def can_read(db: Session, user: User, row: GenerationModel) -> bool:
+    """V 权限：本人、管理员，或关联到某个可读版本。
+
+    第三种情况对应「复现他人的公开作品」：快照属于原作者，但发起复现的人
+    读得到引用它的那个已发布版本，那就该允许他拿到绘制所需的 IR。
+    """
+    from app.services import works as works_service  # 局部导入，避免模块环
+
+    return works_service.can_read_generation(db, user, row)
 
 
 def build_generation_schema(row: GenerationModel) -> GenerationSchema:
@@ -127,9 +133,15 @@ def build_generation_schema(row: GenerationModel) -> GenerationSchema:
 
 
 def get_generation(db: Session, user: User, generation_id: str) -> GenerationSchema:
-    """按 id 取快照。无权访问和不存在返回同一个 404，不泄露存在性。"""
+    """按 id 取快照。无权访问和不存在返回同一个 404，不泄露存在性。
+
+    V 权限包含「通过可读版本关联到这份快照」——复现他人公开作品时，浏览器
+    要画的是原作者的快照，只判归属会让复现链路在第一跳就 404。
+    """
     row = db.get(GenerationModel, generation_id)
-    if row is None or not can_read(user, row):
+    if row is None:
+        raise errors.not_found("生成快照不存在")
+    if not can_read(db, user, row):
         raise errors.not_found("生成快照不存在")
     return build_generation_schema(row)
 
@@ -293,7 +305,10 @@ def _prepare_from_ir(
     db: Session, user: User, payload: IRGeneration
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     base = db.get(GenerationModel, payload.baseGenerationId)
-    if base is None or not can_read(user, base):
+    # 派生新快照比"读"更严格：只允许在自己的快照上派生。
+    # V 权限里的"通过公开版本可读"只解决画图，不该顺带允许别人以你的
+    # 快照为基底再生成一份新的。
+    if base is None or not (base.owner_id == user.id or user.role == "admin"):
         raise errors.not_found("基底生成快照不存在")
 
     provenance = Provenance(

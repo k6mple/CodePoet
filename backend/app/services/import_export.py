@@ -46,9 +46,12 @@ from app.schemas.operations import (
     ManifestCounts,
     MAX_PACKAGE_BYTES,
 )
+from app.engine.validate import validate_ir
 from app.schemas.knowledge import KnowledgeEntity as KnowledgeEntitySchema
 from app.schemas.taxonomy import Concept as ConceptSchema
 from app.schemas.taxonomy import Tag as TagSchema
+from app.schemas.templates import Template as TemplateSchema
+from app.schemas.templates import TemplateVersion as TemplateVersionSchema
 from app.schemas.validation import Issue
 from app.services import audit
 from app.services import knowledge as knowledge_service
@@ -62,6 +65,9 @@ __all__ = ["apply_import", "export_backup", "validate_import"]
 VALIDATION_TTL_SECONDS = 600
 
 _IMPORTABLE = ("concepts", "tags", "entities", "templates")
+# 契约的 ExportRequest.types 里有、但 core-demo 没实现的类型。
+# 导出与导入必须用同一份范围，否则会产出一个「能导出、导不回去」的备份包。
+_UNSUPPORTED_TYPES = frozenset({"rules", "workSnapshots"})
 
 
 # ---------------------------------------------------------------------------
@@ -133,6 +139,18 @@ def _canonical_hash(payload: dict) -> str:
 def export_backup(db: Session, actor: User, types: list[str]) -> BackupPackage:
     """按类型导出整库。返回的对象同时也是导入接口能接受的结构。"""
     _require_permission(actor, permissions.EXPORTS_CREATE)
+
+    # 导出集合必须与导入集合一致。导入侧明确拒绝 rules 与 workSnapshots
+    # （core-demo 范围外），导出侧却接受它们并返回空数组——管理员会拿到一个
+    # 「看起来成功、其实什么都没备份、而且以后也导不回去」的包。宁可现在就
+    # 明确失败，也不要给一个假成功的备份。
+    unsupported = [item for item in types if item in _UNSUPPORTED_TYPES]
+    if unsupported:
+        raise errors.unsupported_capability(
+            "core-demo 不支持导出 "
+            + "、".join(sorted(unsupported))
+            + "；可用类型：concepts、tags、entities、templates"
+        )
 
     data: dict[str, list[dict]] = {key: [] for key in _IMPORTABLE}
 
@@ -296,6 +314,73 @@ def _validate_shape(items: list[dict], label: str, model, errors: list[Issue]) -
             )
 
 
+def _validate_template_structure(items: list[dict], errors: list[Issue]) -> None:
+    """按契约 schema 逐条校验模板容器与它的每个版本，含 IR 跨字段校验。
+
+    之前这里只查了 version 的 id 存在且不重复。一个只有 id 的版本能通过
+    校验、apply 落库，之后 GET /template-versions/{id} 因为缺 metadata /
+    irTemplate 直接 500——坏包没有被拒绝，而是污染了库。这个接口的承诺是
+    「不合格的包一行都不写」，那就必须把结构验到底。
+    """
+    for index, item in enumerate(items):
+        template = item.get("template") or {}
+        try:
+            TemplateSchema.model_validate(template)
+        except Exception as exc:  # noqa: BLE001 - Pydantic 的错误类型随版本变
+            errors.append(
+                _issue(
+                    "INVALID_TEMPLATE",
+                    f"templates[{index}].template 结构不合法："
+                    f"{str(exc).splitlines()[0][:200]}",
+                    f"data.templates[{index}].template",
+                )
+            )
+
+        for vidx, version in enumerate(item.get("versions") or []):
+            path = f"data.templates[{index}].versions[{vidx}]"
+            try:
+                parsed = TemplateVersionSchema.model_validate(version)
+            except Exception as exc:  # noqa: BLE001
+                errors.append(
+                    _issue(
+                        "INVALID_TEMPLATE_VERSION",
+                        f"templates[{index}].versions[{vidx}] 结构不合法："
+                        f"{str(exc).splitlines()[0][:200]}",
+                        path,
+                    )
+                )
+                continue
+
+            # 版本必须挂在它声明的模板下，否则导入后是个孤儿版本：
+            # 模板页永远看不到它，而它自己又占着 ID
+            template_id = template.get("id")
+            if template_id and parsed.templateId != template_id:
+                errors.append(
+                    _issue(
+                        "INVALID_TEMPLATE_VERSION",
+                        f"版本「{parsed.id}」的 templateId 是 {parsed.templateId}，"
+                        f"与所在模板「{template_id}」不一致",
+                        f"{path}.templateId",
+                    )
+                )
+
+            # IR 再过一遍跨字段校验：DrawingIR 只能保证字段形状，
+            # 节点 id 重复、父引用悬空这类问题要到 validate_ir 才看得出来
+            report = validate_ir(parsed.irTemplate)
+            for issue in report.issues:
+                if issue.code == "IR_OUT_OF_BOUNDS":
+                    continue  # 越界不阻断，和作品保存的判定保持一致
+                errors.append(
+                    _issue(
+                        issue.code,
+                        f"版本「{parsed.id}」的 IR 不合法：{issue.message}",
+                        f"{path}.irTemplate.{issue.path}"
+                        if issue.path
+                        else f"{path}.irTemplate",
+                    )
+                )
+
+
 def _check_parent_refs(
     items: list[dict], label: str, known: set[str], errors: list[Issue]
 ) -> None:
@@ -448,6 +533,7 @@ def validate_import(
     _validate_shape(package.data.tags, "tags", TagSchema, errors_list)
     _validate_shape(package.data.concepts, "concepts", ConceptSchema, errors_list)
     _validate_shape(package.data.entities, "entities", KnowledgeEntitySchema, errors_list)
+    _validate_template_structure(package.data.templates, errors_list)
 
     # 引用检查：包内的 + 库内已有的，都算可解析
     all_tags = tag_ids | _all_ids(db, TagModel)

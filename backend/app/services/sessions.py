@@ -22,7 +22,7 @@ import json
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app import errors
@@ -77,6 +77,38 @@ def _require_owned(db: Session, user: User, session_id: str) -> SessionModel:
     if row is None or row.owner_id != user.id:
         raise errors.not_found("会话不存在")
     return row
+
+
+def _cas_update(
+    db: Session,
+    row: SessionModel,
+    expected: int,
+    values: dict,
+    now: str,
+) -> int:
+    """带 revision 条件的更新，返回受影响行数。
+
+    这是保存与恢复的唯一并发闸门。只在 Python 里比一次 revision 是不够的：
+    两个并发请求都会读到同一个 expectedRevision、都通过比较，然后各自
+    无条件 UPDATE，后写的把先写的覆盖掉，而两边都收到 200——更新静默丢失，
+    客户端无从察觉。把条件放进 UPDATE 的 WHERE，数据库保证只有一个能让
+    rowcount 变成 1。
+    """
+    statement = (
+        update(SessionModel)
+        .where(SessionModel.id == row.id, SessionModel.revision == expected)
+        .values(revision=expected + 1, updated_at=now, **values)
+    )
+    return db.execute(statement).rowcount
+
+
+def _raise_conflict(db: Session, session_id: str, expected: int) -> None:
+    """CAS 失败：回滚（失败请求不能留下任何快照），报当前真实 revision。"""
+    db.rollback()
+    actual = db.scalar(
+        select(SessionModel.revision).where(SessionModel.id == session_id)
+    )
+    raise errors.revision_conflict(expected, actual if actual is not None else 0)
 
 
 def _parse_state(raw: str) -> EditorState:
@@ -191,29 +223,44 @@ def update_session(
         raise errors.revision_conflict(payload.expectedRevision, row.revision)
 
     now = _now_iso()
-    new_revision = row.revision + 1
-    if payload.name is not None:
-        row.name = payload.name
-    if payload.state is not None:
-        row.state_json = payload.state.model_dump_json()
-
+    new_revision = payload.expectedRevision + 1
+    name = payload.name if payload.name is not None else row.name
+    state_json = (
+        payload.state.model_dump_json() if payload.state is not None else row.state_json
+    )
     snapshot_id = _new_id("snp")
+
+    # 真正的并发闸门在这里：revision 条件进 UPDATE 的 WHERE。
+    # 只在 Python 里比一次是不够的——两个并发请求都会读到同一个
+    # expectedRevision、都通过比较，然后各自无条件更新，后写的把先写的
+    # 覆盖掉，而两边都收到 200，客户端根本无从察觉。
+    affected = _cas_update(
+        db,
+        row,
+        payload.expectedRevision,
+        {
+            "name": name,
+            "state_json": state_json,
+            "latest_snapshot_id": snapshot_id,
+        },
+        now,
+    )
+    if affected != 1:
+        _raise_conflict(db, row.id, payload.expectedRevision)
+
     db.add(
         SnapshotModel(
             id=snapshot_id,
             session_id=row.id,
             # 快照记「这次保存后的 revision」，和会话对上号
             session_revision=new_revision,
-            state_json=row.state_json,
-            name=row.name,
+            state_json=state_json,
+            name=name,
             note="保存",
             restored_from_snapshot_id=None,
             created_at=now,
         )
     )
-    row.latest_snapshot_id = snapshot_id
-    row.revision = new_revision
-    row.updated_at = now
     db.commit()
     db.refresh(row)
     return _build_session(row)
@@ -275,16 +322,38 @@ def restore_session(
         raise errors.revision_conflict(expected_revision, row.revision)
 
     now = _now_iso()
-    new_revision = row.revision + 1
+    new_revision = expected_revision + 1
+
+    # 恢复前的现场必须在 CAS 之前抓下来：CAS 走的是 bulk UPDATE，会绕过
+    # ORM 的 identity map，之后再读 row 拿到的已经是新值了。
+    before_state_json = row.state_json
+    before_name = row.name
+    restored_id = _new_id("snp")
+
+    # 恢复同样要过 CAS：两个人同时点恢复，后一个的「恢复前自动保存」
+    # 会记录一份已经被覆盖的现场，那条安全网就没意义了。
+    affected = _cas_update(
+        db,
+        row,
+        expected_revision,
+        {
+            "state_json": snapshot.state_json,
+            "name": snapshot.name or before_name,
+            "latest_snapshot_id": restored_id,
+        },
+        now,
+    )
+    if affected != 1:
+        _raise_conflict(db, row.id, expected_revision)
 
     # 恢复前自动保存：记录「点恢复之前是什么样」
     db.add(
         SnapshotModel(
             id=_new_id("snp"),
             session_id=row.id,
-            session_revision=row.revision,
-            state_json=row.state_json,
-            name=row.name,
+            session_revision=expected_revision,
+            state_json=before_state_json,
+            name=before_name,
             note="恢复前自动保存",
             restored_from_snapshot_id=None,
             created_at=now,
@@ -292,23 +361,17 @@ def restore_session(
     )
 
     restored = SnapshotModel(
-        id=_new_id("snp"),
+        id=restored_id,
         session_id=row.id,
         session_revision=new_revision,
         state_json=snapshot.state_json,
-        name=snapshot.name or row.name,
+        name=snapshot.name or before_name,
         note=f"从 {snapshot.id} 恢复",
         restored_from_snapshot_id=snapshot.id,
         created_at=now,
     )
     db.add(restored)
 
-    row.state_json = snapshot.state_json
-    if snapshot.name:
-        row.name = snapshot.name
-    row.latest_snapshot_id = restored.id
-    row.revision = new_revision
-    row.updated_at = now
     db.commit()
     db.refresh(row)
     db.refresh(restored)

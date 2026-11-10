@@ -120,6 +120,24 @@ def _require_owned_generation(db: Session, user: User, generation_id: str) -> Ge
     return row
 
 
+def _require_generation_for_job(
+    db: Session, user: User, row: RenderJob
+) -> GenerationModel:
+    """取任务绑定的快照，按任务类型决定要不要归属校验。
+
+    普通上传任务要求快照属于本人；复现任务绑的是**原作者**的快照（契约允许
+    复现他人的公开作品），此时凭「任务属于本人」放行——任务已经过归属校验，
+    快照只是它的绘制输入，不是用户可以随意指派的资源。少了这一条，B 复现
+    A 的公开作品时上传帧会 404，整条链路走不通。
+    """
+    if row.original_job_id:
+        generation = db.get(GenerationModel, row.generation_id)
+        if generation is None:
+            raise not_found("生成快照不存在")
+        return generation
+    return _require_owned_generation(db, user, row.generation_id)
+
+
 def _require_owned_job(db: Session, user: User, job_id: str) -> RenderJob:
     row = db.get(RenderJob, job_id)
     if row is None or row.owner_id != user.id:
@@ -148,6 +166,22 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
     if user is not None and (work.owner_id == user.id or _is_admin(user)):
         return True
     return row.status == "published"
+
+
+def can_read_generation(db: Session, user: User | None, generation) -> bool:
+    """契约的 V 权限：本人、管理员，或「通过某个可读版本关联到这份快照」。
+
+    最后一种正是复现他人公开作品需要的：B 复现 A 的公开作品时，浏览器要画的
+    是 A 的快照，但 B 与这份快照没有归属关系。判据必须落在「你能不能读那个
+    引用它的版本」，而不是「快照是不是你的」——否则契约里那句
+    「V=…公开作品具体版本…授权关联快照」在代码里就没有对应实现。
+    """
+    if user is not None and (generation.owner_id == user.id or _is_admin(user)):
+        return True
+    versions = db.scalars(
+        select(WorkVersion).where(WorkVersion.generation_id == generation.id)
+    ).all()
+    return any(can_read_version(db, user, version) for version in versions)
 
 
 # ---------------------------------------------------------------------------
@@ -517,7 +551,7 @@ def upload_frame(
         raise invalid_state(
             f"任务当前是 {row.status}，不再接收帧；请重新创建渲染任务"
         )
-    generation = _require_owned_generation(db, user, row.generation_id)
+    generation = _require_generation_for_job(db, user, row)
 
     times: list[int] = _loads(row.times_ms_json, [])
     if time_ms not in times:

@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import sqlite3
 import struct
@@ -19,6 +20,7 @@ import zlib
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from app.main import create_app
 from app.services import uploads
@@ -36,6 +38,15 @@ def apply_migrations(database_path: Path) -> None:
         connection.executescript(path.read_text(encoding="utf-8"))
     connection.commit()
     connection.close()
+
+
+def make_rgba_png(rgba: tuple[int, int, int, int],
+                  width: int = 800, height: int = 600) -> bytes:
+    """构造纯色 RGBA PNG。alpha 差异必须能被比较接口看出来。"""
+    image = Image.new("RGBA", (width, height), rgba)
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    return buffer.getvalue()
 
 
 def make_png(width: int = 800, height: int = 600,
@@ -477,3 +488,137 @@ class ReproduceTests(unittest.TestCase):
             f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
         )
         self.assertEqual(response.status_code, 404, response.text)
+
+    # ---- 复现他人的公开作品（评审 2026-11-10，两条 P2）------------------
+    def _reproduce(self, version_id: str):
+        return self.client.post(
+            f"{API}/work-versions/{version_id}/reproduce",
+            json={"rendererVersion": "canvas-1.0.0",
+                  "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1}},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+
+    def test_reproduce_others_public_work_end_to_end(self) -> None:
+        """B 复现 A 的公开作品：读快照、上传帧、比较像素都要通。
+
+        评审 [P2]：新任务 owner 是 B、generation 属于 A，于是
+        GET /generations 404、upload_frame 走 _require_owned_generation 404、
+        comparison 按原任务 owner 判 404。契约明确允许复现他人的公开作品。
+        """
+        self._register("pub_owner")
+        png = make_png()
+        self._seed_ready(png)
+
+        self._register("pub_viewer")  # 现在是 B 的身份
+        reproduced = self._reproduce("wv-r")
+        self.assertEqual(reproduced.status_code, 202, reproduced.text)
+        job = reproduced.json()
+
+        # 绘制要用的快照：B 读得到，因为引用它的版本是公开的
+        generation = self.client.get(f"{API}/generations/gen-r")
+        self.assertEqual(generation.status_code, 200, generation.text)
+        self.assertEqual(generation.json()["id"], "gen-r")
+
+        upload = self.client.post(
+            f"{API}/render-jobs/{job['id']}/frames",
+            files={"file": ("frame.png", png, "image/png")},
+            data={"timeMs": "0", "irHash": "a" * 64},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(upload.status_code, 200, upload.text)
+        self.assertEqual(upload.json()["status"], "succeeded")
+
+        comparison = self.client.get(
+            f"{API}/render-jobs/{job['id']}/comparison?originalJobId=job-orig"
+        )
+        self.assertEqual(comparison.status_code, 200, comparison.text)
+        body = comparison.json()
+        self.assertTrue(body["compatible"], body.get("reason"))
+        self.assertTrue(body["exactMatch"])
+        self.assertEqual(body["mae"], 0.0)
+
+    def test_generation_of_private_version_stays_hidden(self) -> None:
+        """无关用户读不到私有版本引用的快照。
+
+        V 权限放开的是「可读版本关联的快照」，不是所有快照。这条防的是
+        把 404 放宽成 200 之后顺手泄露别人草稿的 IR。
+        """
+        self._register("priv_owner")
+        self._seed_ready()
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO generations (id, owner_id, mode, backend, template_version_id,"
+            " params_json, seed, ir_json, ir_hash, provenance_json,"
+            " validation_report_json, warnings_json, unpublished_source, request_id,"
+            " created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("gen-priv", self.user_id, "ir", "canvas2d", None, "{}", 7,
+             json.dumps(nested_ir()), "b" * 64,
+             json.dumps({"kind": "manual_edit", "baseGenerationId": None,
+                         "matchedEntities": [], "matchedRules": [], "selectedSymbols": [],
+                         "paletteDecision": None, "compositionDecision": None,
+                         "timelineDecision": None, "templateSelection": None,
+                         "conflicts": [], "warnings": [], "engineVersion": "test-1.0",
+                         "ontologyVersion": 1, "policyRevision": 1,
+                         "fragmentSource": None, "fragmentSourceHash": None}),
+             '{"parameterValid":true,"nodeCount":4,"outOfBoundsNodeCount":0,"issues":[]}',
+             "[]", 0, "req-priv", NOW),
+        )
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("wv-r-priv", "wrk-r", 2, self.user_id, "private", "草稿", "",
+             "gen-priv", "job-orig", "", None, None, 1, NOW, NOW),
+        )
+        connection.commit()
+        connection.close()
+
+        self._register("priv_stranger")
+        self.assertEqual(self.client.get(f"{API}/generations/gen-priv").status_code, 404)
+        # 公开的是 v1，不该因此获得 v2 的复现权
+        self.assertEqual(self._reproduce("wv-r-priv").status_code, 404)
+        # 同作品的公开版本仍然可以复现
+        self.assertEqual(self._reproduce("wv-r").status_code, 202)
+
+    def test_alpha_difference_counts_as_difference(self) -> None:
+        """只差 alpha 的两张图必须判为不同。
+
+        评审 [P2]：(10,20,30,255) 与 (10,20,30,0) 之前被判成
+        exactMatch=true / mae=0 / differentPixelRatio=0——实现只比 RGB，
+        而契约要求 RGBA 四通道。透明和不透明在图上看就是两张图，
+        判成"完全一致"是这类接口最坏的误导。
+        """
+        self._register("alpha_owner")
+        opaque = make_rgba_png((10, 20, 30, 255))
+        clear = make_rgba_png((10, 20, 30, 0))
+        self._seed_ready(opaque)
+        self._job_with_frame("job-rep", "gen-r", clear)
+
+        response = self.client.get(
+            f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        self.assertTrue(body["compatible"], body.get("reason"))
+        self.assertFalse(body["exactMatch"], "只差 alpha 不该判成完全一致")
+        self.assertGreater(body["mae"], 0.0)
+        self.assertGreater(body["differentPixelRatio"], 0.0)
+
+    def test_identical_rgba_frames_stay_exact(self) -> None:
+        """两张完全相同的 RGBA 图仍然要判 exactMatch=true。
+
+        放开 alpha 比较之后要确认没把「没有差异」也算成差异——四通道
+        MAE 取平均，稳定不透明的两张图 alpha 差恒为 0，不该放大成误报。
+        """
+        self._register("alpha_same")
+        png = make_rgba_png((10, 20, 30, 128))
+        self._seed_ready(png)
+        self._job_with_frame("job-rep", "gen-r", png)
+
+        body = self.client.get(
+            f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
+        ).json()
+        self.assertTrue(body["exactMatch"], body)
+        self.assertEqual(body["mae"], 0.0)

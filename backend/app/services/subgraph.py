@@ -72,7 +72,7 @@ def edit_subgraph(
 ) -> SubgraphGeneration:
     base = db.get(GenerationModel, generation_id)
     # 契约：基础 generation 必须属本人。看不了的一律 404，不确认存在性
-    if base is None or not can_read(user, base) or base.owner_id != user.id:
+    if base is None or base.owner_id != user.id:
         raise errors.not_found("基底生成快照不存在")
 
     ir = DrawingIR.model_validate_json(base.ir_json)

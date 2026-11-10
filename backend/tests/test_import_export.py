@@ -182,6 +182,46 @@ class ImportExportTests(unittest.TestCase):
             headers={"X-CSRF-Token": self.csrf},
         )
 
+    def _seed_template(self) -> str:
+        """造一个真实的模板 + 版本，供导出的结构校验用例使用。"""
+        created = self.client.post(
+            f"{API}/templates",
+            json={
+                "metadata": {
+                    "name": "导出模板", "description": "",
+                    "entityIds": [], "tagIds": [], "symbols": [], "timeTheme": None,
+                }
+            },
+            headers={"X-CSRF-Token": self.csrf},
+        ).json()
+        self.client.post(
+            f"{API}/templates/{created['id']}/versions",
+            json={
+                "irTemplate": {
+                    "schemaVersion": "1.0", "seed": 1,
+                    "canvas": {"width": 800, "height": 600, "background": "#FFFFFF"},
+                    "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
+                    "durationMs": 0,
+                    "nodes": [{
+                        "id": "c1", "parentId": None, "type": "circle",
+                        "geometry": {"cx": 400, "cy": 300, "r": 60},
+                        "style": {"fill": "#E8A0A0", "stroke": "#8B3A3A",
+                                  "strokeWidth": 2, "opacity": 1},
+                    }],
+                    "animations": [], "narrative": [],
+                },
+                "parameterSchema": [], "bindings": [], "constraints": [],
+                "supportedBackends": ["canvas2d"],
+                "metadata": {
+                    "name": "导出模板", "description": "",
+                    "entityIds": [], "tagIds": [], "symbols": [], "timeTheme": None,
+                },
+                "changeNote": "初版",
+            },
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        return created["id"]
+
     def _validate(self, package: dict) -> dict:
         response = self.client.post(
             f"{API}/admin/imports/validate",
@@ -205,6 +245,24 @@ class ImportExportTests(unittest.TestCase):
         return value
 
     # ---- 导出 -----------------------------------------------------------
+    def test_export_rejects_unsupported_types(self) -> None:
+        """rules / workSnapshots 必须明确拒绝，不能返回 200 + 空数组。
+
+        评审 [P2]：`types` 接受这两类，但实现里只有 concepts/tags/entities/
+        templates，于是 `{"types":["rules"]}` 返回 200、`data.rules=[]`、
+        `counts.rules=0`。管理员会把它当成成功备份——而导入侧本来就拒绝
+        这两类，等于导出一个永远导不回去的包。
+        """
+        self._login_admin()
+        for types in (["rules"], ["workSnapshots"], ["concepts", "rules"]):
+            response = self.client.post(
+                f"{API}/admin/exports",
+                json={"types": types},
+                headers={"X-CSRF-Token": self.csrf},
+            )
+            self.assertEqual(response.status_code, 422, f"{types} 应当被拒：{response.text}")
+            self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+
     def test_export_counts_match_data(self) -> None:
         """看板：导出清单与实际数量相符。"""
         self._login_admin()
@@ -346,6 +404,86 @@ class ImportExportTests(unittest.TestCase):
         codes = {item["code"] for item in result["errors"]}
         self.assertIn("INVALID_SHAPE", codes)
 
+    def test_validate_rejects_hollow_template_version(self) -> None:
+        """只有 id 的版本必须在校验阶段被拒，不能落库后让 GET 500。
+
+        评审 [P1] 的复现包：template 只有 id + metadata.name，versions 只有
+        一个 {"id": ...}。之前只查 id 存在与否，这种包 valid=true、apply 201，
+        之后 GET /template-versions/{id} 因为缺 metadata/irTemplate 直接 500——
+        坏包污染了库，而不是被整体拒绝。
+        """
+        self._login_admin()
+        hollow = [
+            {
+                "template": {"id": "bad-template", "metadata": {"name": "Bad template"}},
+                "versions": [{"id": "bad-version"}],
+            }
+        ]
+        result = self._validate(build_package(templates=hollow))
+        self.assertFalse(result["valid"], "空壳版本不该通过校验")
+        codes = {item["code"] for item in result["errors"]}
+        self.assertTrue(
+            {"INVALID_TEMPLATE", "INVALID_TEMPLATE_VERSION"} & codes,
+            f"应当报模板或版本结构不合法，实际 {codes}",
+        )
+
+        # 而且不能签发凭证：apply 必须拿不到 validationId 就没法写库
+        apply_response = self._apply(result["validationId"], 0)
+        self.assertEqual(apply_response.status_code, 409, apply_response.text)
+        self.assertEqual(self._count("template_versions"), 0, "库里不该多出一条坏版本")
+
+    def test_validate_rejects_unknown_template_field(self) -> None:
+        """模板容器里出现契约没有的字段要拒绝，而不是静默忽略。
+
+        备份包应当是导出产物。出现未知字段说明它来自另一个版本或被人改过，
+        静默忽略会让「导入的东西和包里写的不一样」变成一个看不见的差异。
+        """
+        self._login_admin()
+        self._seed_template()
+        exported = self.client.post(
+            f"{API}/admin/exports",
+            json={"types": ["templates"]},
+            headers={"X-CSRF-Token": self.csrf},
+        ).json()
+        self.assertTrue(exported["data"]["templates"], "导出应当包含刚造的模板")
+
+        package = copy.deepcopy(exported)
+        item = package["data"]["templates"][0]
+        item["template"]["id"] = "unknown-field-tpl"
+        item["template"]["status"] = "published"  # 契约里没有这个字段
+        for version in item["versions"]:
+            version["id"] = "unknown-field-ver"
+            version["templateId"] = "unknown-field-tpl"
+
+        result = self._validate(package)
+        self.assertFalse(result["valid"])
+        codes = {i["code"] for i in result["errors"]}
+        self.assertIn("INVALID_TEMPLATE", codes)
+
+    def test_validate_accepts_real_template_roundtrip(self) -> None:
+        """导出→导入必须仍然有效，别把校验写得太严把正常包也拦了。"""
+        self._login_admin()
+        self._seed_template()
+        exported = self.client.post(
+            f"{API}/admin/exports",
+            json={"types": ["templates"]},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(exported.status_code, 200, exported.text)
+        package = exported.json()
+        self.assertTrue(package["data"]["templates"], "导出应当包含刚造的模板")
+
+        # 换 id 避免与库内冲突，再走一次校验
+        for item in package["data"]["templates"]:
+            item["template"]["id"] = "roundtrip-tpl"
+            for version in item["versions"]:
+                version["id"] = "roundtrip-ver-" + version["id"]
+                version["templateId"] = "roundtrip-tpl"
+        package["manifest"]["counts"]["templates"] = len(package["data"]["templates"])
+
+        result = self._validate(package)
+        self.assertTrue(result["valid"], f"正常包被拦了：{result['errors']}")
+
     # ---- 执行 -----------------------------------------------------------
     def test_apply_writes_data(self) -> None:
         self._login_admin()
@@ -428,7 +566,9 @@ class ImportExportTests(unittest.TestCase):
         old_template_id = item["template"]["id"]
         new_template_id = f"imp-{old_template_id}"
         item["template"]["id"] = new_template_id
-        item["template"]["status"] = "published"  # 故意写成 published
+        # 契约的 Template 容器没有 status 字段（status 在版本上），
+        # 往容器里塞一个会被结构校验正确地拒掉，所以这里只改版本的 status：
+        # 「包里写着 published 也不采纳」这条规则由版本状态即可验证。
         for version in item["versions"]:
             version["id"] = f"imp-{version['id']}"
             version["templateId"] = new_template_id

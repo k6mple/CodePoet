@@ -15,12 +15,19 @@ from __future__ import annotations
 import json
 import sqlite3
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 
+from app.db import create_database, create_session_factory
+from app.errors import ApiError
 from app.main import create_app
+from app.models.users import User as UserModel
+from app.schemas.sessions import EditorState, SessionUpdate
+from app.services import sessions as sessions_service
 from app.settings import Settings
 
 API = "/api/v1"
@@ -504,3 +511,130 @@ class SessionFlowTests(unittest.TestCase):
             f"{API}/works/does-not-exist/favorite", headers={"X-CSRF-Token": csrf}
         )
         self.assertEqual(response.status_code, 204, response.text)
+
+    # ---- 并发：保存与恢复都必须过 revision CAS（评审 2026-11-10）----------
+    def _race(self, owner_id: str, action) -> list[tuple]:
+        """两个线程各用自己的 Session 跑同一个动作。
+
+        在「读取会话行」这条 SQL 处用栅栏撮合两个线程，保证**两边都先读到
+        同一个 revision**、再各自去写——这正是评审复现的时序。没有这道
+        栅栏，两个请求可能一前一后错开，测不出 CAS 有没有生效。
+        """
+        gate = threading.Barrier(2, timeout=5)
+        results: list[tuple] = []
+
+        def worker() -> None:
+            engine = create_database(self.settings)
+
+            @event.listens_for(engine, "before_cursor_execute")
+            def _meet_at_row_load(conn, cursor, statement, params, context, executemany):
+                lowered = statement.lower()
+                if "from creation_sessions" in lowered and "where" in lowered:
+                    try:
+                        gate.wait()
+                    except threading.BrokenBarrierError:
+                        pass
+
+            factory = create_session_factory(engine)
+            try:
+                with factory() as db:
+                    user = db.get(UserModel, owner_id)
+                    try:
+                        results.append(("ok", action(db, user)))
+                    except ApiError as exc:
+                        results.append((exc.status_code, exc.code))
+            finally:
+                engine.dispose()
+
+        threads = [threading.Thread(target=worker) for _ in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+        self.assertFalse(any(t.is_alive() for t in threads), "线程没有结束")
+        self.assertEqual(len(results), 2, results)
+        return results
+
+    def _snapshot_total(self, csrf: str, session_id: str) -> int:
+        return self.client.get(
+            f"{API}/sessions/{session_id}/snapshots?pageSize=50"
+        ).json()["total"]
+
+    def test_concurrent_save_cannot_overwrite_each_other(self) -> None:
+        """两个并发保存传同一个 expectedRevision，只能有一个成功。
+
+        评审 [P1]：`update_session` 先读 revision 比较、再普通 ORM UPDATE，
+        两个请求都通过比较、都写成功，后写的覆盖先写的，而两边都收到
+        200——更新静默丢失。修好后第二个必须是 409，且不留快照。
+        """
+        self._register("ses_race_save")
+        csrf = self._login("ses_race_save")
+        session = self._create_session(csrf)
+
+        connection = sqlite3.connect(self.settings.database_path)
+        owner_id = connection.execute(
+            "SELECT owner_id FROM creation_sessions WHERE id = ?", (session["id"],)
+        ).fetchone()[0]
+        connection.close()
+
+        def action(db, user):
+            return sessions_service.update_session(
+                db,
+                user,
+                session["id"],
+                SessionUpdate(
+                    expectedRevision=1,
+                    name="并发保存",
+                    state=EditorState.model_validate(editor_state(seed=999)),
+                ),
+            )
+
+        results = self._race(owner_id, action)
+        ok = [r for r in results if r[0] == "ok"]
+        conflicts = [r for r in results if r[0] == 409]
+        self.assertEqual(len(ok), 1, f"只该有一个成功：{[r[0] for r in results]}")
+        self.assertEqual(len(conflicts), 1, f"另一个必须 409：{results}")
+        self.assertEqual(conflicts[0][1], "REVISION_CONFLICT", results)
+
+        got = self.client.get(f"{API}/sessions/{session['id']}").json()
+        self.assertEqual(got["revision"], 2, "revision 只能加 1")
+        # 创建时 1 条 + 成功的那次 1 条；失败的那次不能留快照
+        self.assertEqual(self._snapshot_total(csrf, session["id"]), 2)
+
+    def test_concurrent_restore_cannot_overwrite_each_other(self) -> None:
+        """并发恢复同样要过 CAS，失败的那次不能留下「恢复前自动保存」。
+
+        否则那条安全网记录的是已经被别人覆盖过的现场，等于假证据。
+        """
+        self._register("ses_race_restore")
+        csrf = self._login("ses_race_restore")
+        session = self._create_session(csrf)
+        first_snapshot = session["latestSnapshotId"]
+        self.client.patch(
+            f"{API}/sessions/{session['id']}",
+            json={"expectedRevision": 1, "name": "改过", "state": editor_state(seed=777)},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(self._snapshot_total(csrf, session["id"]), 2)
+
+        connection = sqlite3.connect(self.settings.database_path)
+        owner_id = connection.execute(
+            "SELECT owner_id FROM creation_sessions WHERE id = ?", (session["id"],)
+        ).fetchone()[0]
+        connection.close()
+
+        def action(db, user):
+            return sessions_service.restore_session(
+                db, user, session["id"], 2, first_snapshot
+            )
+
+        results = self._race(owner_id, action)
+        self.assertEqual(len([r for r in results if r[0] == "ok"]), 1, results)
+        conflicts = [r for r in results if r[0] == 409]
+        self.assertEqual(len(conflicts), 1, results)
+        self.assertEqual(conflicts[0][1], "REVISION_CONFLICT", results)
+
+        got = self.client.get(f"{API}/sessions/{session['id']}").json()
+        self.assertEqual(got["revision"], 3, "恢复只加 1")
+        # 2（创建+保存）+ 成功恢复的 2 条（恢复前 + 恢复后）
+        self.assertEqual(self._snapshot_total(csrf, session["id"]), 4)
