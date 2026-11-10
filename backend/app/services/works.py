@@ -146,7 +146,49 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
         return False
     if user is not None and (work.owner_id == user.id or _is_admin(user)):
         return True
+    # 待审版本对审核人开放：契约 V 明说「待审版本授权关联快照」。
+    # 队列会给非提交者的专家返回 canReview=true，但审核台要先读到详情和
+    # 图片才能裁决——只放行 published 会让专家看得到队列行、打不开要审的东西。
+    # 这里只放行待审的那一个版本，不是作者的全部历史。
+    if row.status == "pending_review" and user is not None:
+        from app.services import permissions
+
+        if permissions.has_permission(user, permissions.REVIEWS_DECIDE):
+            return True
     return row.status == "published"
+
+
+def can_read_generation(db: Session, user: User | None, generation) -> bool:
+    """快照可读性：本人、管理员，或「被某个你读得到的版本引用」。
+
+    产物、复现、派生都靠这条判断。只看 owner 会让公开作品的图片和复现
+    链路对所有人都断掉。
+    """
+    if user is not None and (generation.owner_id == user.id or _is_admin(user)):
+        return True
+    versions = db.scalars(
+        select(WorkVersion).where(WorkVersion.generation_id == generation.id)
+    ).all()
+    return any(can_read_version(db, user, version) for version in versions)
+
+
+def can_read_artifact(db: Session, user: User | None, row) -> bool:
+    """产物能不能读：本人、管理员，或它所属快照当前可读。
+
+    PNG 不属于"作品"，它属于某次渲染任务的快照。所以可见性要顺着
+    artifact → render_job → generation 找，而不是只看 artifact.owner_id：
+    只看 owner 会让已发布作品的图片对任何人都取不到，也会让审核人打不开
+    待审作品的图。
+    """
+    if user is not None and (row.owner_id == user.id or _is_admin(user)):
+        return True
+    if not row.render_job_id:
+        return False
+    job = db.get(RenderJob, row.render_job_id)
+    if job is None:
+        return False
+    generation = db.get(GenerationModel, job.generation_id)
+    return generation is not None and can_read_generation(db, user, generation)
 
 
 # ---------------------------------------------------------------------------

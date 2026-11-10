@@ -649,3 +649,238 @@ class ReviewFlowTests(unittest.TestCase):
         self._login("q_creator")
         response = self.client.get(f"{API}/reviews")
         self.assertEqual(response.status_code, 403, response.text)
+
+    # ---- 评审 2026-11-10（PR #11 五条）----------------------------------
+    def _add_artifact(self, generation_id: str, owner_id: str) -> str:
+        """真落一张 PNG 并登记，否则读取时是"文件已丢失"的 404，测不出授权。"""
+        import io
+
+        from PIL import Image
+
+        from app.services import uploads
+
+        buffer = io.BytesIO()
+        Image.new("RGB", (8, 6), (200, 120, 90)).save(buffer, format="PNG")
+        stored = uploads.store_frame(self.settings, owner_id, buffer.getvalue(), 0)
+
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        job_id = connection.execute(
+            "SELECT id FROM render_jobs WHERE generation_id = ?", (generation_id,)
+        ).fetchone()[0]
+        connection.execute(
+            "INSERT INTO artifacts (id, owner_id, kind, content_type, byte_size,"
+            " storage_path, sha256, width, height, time_ms, render_job_id, created_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (stored.artifact_id, owner_id, stored.kind, stored.content_type,
+             stored.byte_size, stored.storage_path, stored.sha256,
+             stored.width, stored.height, 0, job_id, "2026-11-09T10:00:00+00:00"),
+        )
+        connection.commit()
+        connection.close()
+        return stored.artifact_id
+
+    def test_reviewer_can_read_pending_version(self) -> None:
+        """待审版本要能被审核人读到，否则审核台点不动。
+
+        PR #11 [P1]：队列给非提交者专家返回 canReview=true，但
+        can_read_version 只放行本人/admin/published，专家 GET 版本和 PNG 都 404。
+        """
+        owner_id = self._register("rev_owner")
+        work_id, version_id, generation_id = self._seed_work_version(
+            owner_id, status="pending_review"
+        )
+        artifact_id = self._add_artifact(generation_id, owner_id)
+        self._logout()
+
+        self._register("rev_expert", role="expert")
+        self._login("rev_expert")  # 角色变更要重新登录才会进会话
+        got = self.client.get(f"{API}/work-versions/{version_id}")
+        self.assertEqual(got.status_code, 200, got.text)
+        png = self.client.get(f"{API}/artifacts/{artifact_id}")
+        self.assertEqual(png.status_code, 200, f"审核人打不开要审的图：{png.text[:120]}")
+
+    def test_artifact_visibility_follows_work_publication(self) -> None:
+        """发布后匿名可读产物；别人的私有作品仍 404。
+
+        PR #11 [P2]：作品详情匿名 200，但同一作品的 PNG 只有作者能取，
+        公共列表就是一片破图。
+        """
+        owner_id = self._register("art_owner")
+        public_work, public_version, public_gen = self._seed_work_version(
+            owner_id, status="published"
+        )
+        private_work, private_version, private_gen = self._seed_work_version(
+            owner_id, status="private"
+        )
+        public_artifact = self._add_artifact(public_gen, owner_id)
+        private_artifact = self._add_artifact(private_gen, owner_id)
+        self._logout()
+
+        anonymous = self.client.get(f"{API}/artifacts/{public_artifact}")
+        self.assertEqual(anonymous.status_code, 200, anonymous.text)
+        hidden = self.client.get(f"{API}/artifacts/{private_artifact}")
+        self.assertEqual(hidden.status_code, 404, "私有作品的图不能匿名读")
+
+    def test_archive_keeps_change_note_readable(self) -> None:
+        """归档理由不能把 change_note 撑过 500 字上限。
+
+        PR #11 [P2]：原文合法 500 字 + 理由合法，拼成 514 字后 commit 成功
+        但响应模型校验失败，之后每次读这个版本都 500。
+        """
+        owner_id = self._register("arch_owner", role="admin")
+        csrf = self._login("arch_owner")
+        long_note = "说" * 500
+        _template_id, version_id = self._seed_template_version(owner_id, status="published")
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE template_versions SET change_note = ? WHERE id = ?",
+            (long_note, version_id),
+        )
+        connection.commit()
+        connection.close()
+
+        archived = self.client.post(
+            f"{API}/template-versions/{version_id}/archive",
+            json={"expectedRevision": 1, "reason": "内容过时，已归档"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(archived.status_code, 200, archived.text)
+
+        again = self.client.get(f"{API}/template-versions/{version_id}")
+        self.assertEqual(again.status_code, 200, "归档后必须还能读出来")
+        self.assertLessEqual(len(again.json()["changeNote"]), 500)
+        self.assertTrue(again.json()["changeNote"].startswith("说" * 100), "作者原文要保住")
+
+    def test_concurrent_opposite_decisions_only_one_wins(self) -> None:
+        """并发提交 approve 与 reject，只能有一个成功。
+
+        PR #11 [P1]：`_check_revision` 与最终写入之间没有原子保护，两个请求
+        都用 expectedRevision=1，都通过检查、都写成功——留下两条互相矛盾的
+        审核记录，而版本状态只保留后写的那条。
+        """
+        import threading
+
+        from sqlalchemy import event
+
+        from app.db import create_database, create_session_factory
+        from app.errors import ApiError
+        from app.models.users import User as UserModel
+        from app.schemas.reviews import ReviewCreate
+        from app.services import reviews as reviews_service
+
+        owner_id = self._register("cas_owner", role="expert")
+        template_id, version_id = self._seed_template_version(
+            owner_id, status="submitted", submitted_by=owner_id
+        )
+        reviewer_id = self._register("cas_reviewer", role="expert")
+        self._logout()
+
+        gate = threading.Barrier(2, timeout=5)
+        results: list[tuple] = []
+
+        def worker(decision: str) -> None:
+            engine = create_database(self.settings)
+
+            @event.listens_for(engine, "before_cursor_execute")
+            def _meet(conn, cursor, statement, params, context, executemany):
+                lowered = statement.lower()
+                if "from template_versions" in lowered and "where" in lowered:
+                    try:
+                        gate.wait()
+                    except threading.BrokenBarrierError:
+                        pass
+
+            factory = create_session_factory(engine)
+            try:
+                with factory() as db:
+                    reviewer = db.get(UserModel, reviewer_id)
+                    payload = ReviewCreate(
+                        targetType="template_version",
+                        targetId=version_id,
+                        expectedRevision=1,
+                        decision=decision,
+                        reason="" if decision == "approve" else "不符合要求",
+                    )
+                    try:
+                        reviews_service.decide_review(db, reviewer, payload)
+                        results.append(("ok", decision))
+                    except ApiError as exc:
+                        results.append((exc.status_code, exc.code))
+            finally:
+                engine.dispose()
+
+        threads = [threading.Thread(target=worker, args=(d,))
+                   for d in ("approve", "reject")]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+
+        ok = [r for r in results if r[0] == "ok"]
+        conflicts = [r for r in results if r[0] == 409]
+        self.assertEqual(len(results), 2, results)
+        self.assertEqual(len(ok), 1, f"只能有一个裁决生效：{results}")
+        self.assertEqual(len(conflicts), 1, f"另一个必须 409：{results}")
+
+        connection = sqlite3.connect(self.settings.database_path)
+        reviews = connection.execute(
+            "SELECT COUNT(*) FROM reviews WHERE target_id = ?", (version_id,)
+        ).fetchone()[0]
+        status = connection.execute(
+            "SELECT status, revision FROM template_versions WHERE id = ?", (version_id,)
+        ).fetchone()
+        connection.close()
+        self.assertEqual(reviews, 1, "只该留下一条审核记录")
+        self.assertEqual(status[1], 2, "revision 只加 1")
+        self.assertIn(status[0], ("published", "rejected"))
+
+    def test_approve_old_version_keeps_latest_pointer(self) -> None:
+        """批准旧版本不该把 latest_version_id 拉回去。
+
+        PR #11 [P2]：v1 送审期间作者建了 v2 草稿，批准 v1 时把 latest 改回
+        v1，v2 就从"最新"里消失了。
+        """
+        owner_id = self._register("latest_owner", role="expert")
+        template_id, v1 = self._seed_template_version(
+            owner_id, status="submitted", submitted_by=owner_id
+        )
+        reviewer_id = self._register("latest_reviewer", role="expert")
+        self._logout()
+
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "INSERT INTO template_versions (id, template_id, version_number, created_by,"
+            " status, metadata_json, ir_template_json, parameter_schema_json,"
+            " bindings_json, constraints_json, supported_backends_json,"
+            " ontology_version, change_note, revision, created_at, updated_at)"
+            " SELECT ?, template_id, 2, created_by, 'draft', metadata_json,"
+            " ir_template_json, parameter_schema_json, bindings_json, constraints_json,"
+            " supported_backends_json, ontology_version, 'v2 草稿', 1, created_at, updated_at"
+            " FROM template_versions WHERE id = ?",
+            ("tv-latest-v2", v1),
+        )
+        connection.execute(
+            "UPDATE templates SET latest_version_id = 'tv-latest-v2' WHERE id = ?",
+            (template_id,),
+        )
+        connection.commit()
+        connection.close()
+
+        self._login("latest_reviewer")
+        decided = self.client.post(
+            f"{API}/reviews",
+            json={"targetType": "template_version", "targetId": v1,
+                  "expectedRevision": 1, "decision": "approve", "reason": ""},
+            headers={"X-CSRF-Token": self._csrf()},
+        )
+        self.assertEqual(decided.status_code, 201, decided.text)
+
+        connection = sqlite3.connect(self.settings.database_path)
+        published, latest = connection.execute(
+            "SELECT published_version_id, latest_version_id FROM templates WHERE id = ?",
+            (template_id,),
+        ).fetchone()
+        connection.close()
+        self.assertEqual(published, v1)
+        self.assertEqual(latest, "tv-latest-v2", "最新版本指针不该被批准动作拉回去")
