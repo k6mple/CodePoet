@@ -17,6 +17,7 @@ from app.api.creation import router as creation_router
 from app.api.engine import router as engine_router
 from app.api.knowledge import router as knowledge_router
 from app.api.render import router as render_router
+from app.api.reviews import router as reviews_router
 from app.api.templates import router as templates_router
 from app.api.works import router as works_router
 from app.db import create_database, create_session_factory
@@ -153,6 +154,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(templates_router, prefix="/api/v1")
     application.include_router(works_router, prefix="/api/v1")
     application.include_router(render_router, prefix="/api/v1")
+    application.include_router(reviews_router, prefix="/api/v1")
 
     return application
 
