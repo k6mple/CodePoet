@@ -31,7 +31,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import TypeAdapter
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app import errors
@@ -351,8 +351,30 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
         )
     )
 
+    # 先原子占住 (id, revision) 再改字段。`_check_revision` 只是提前给个
+    # 可读错误，真正防并发的是这条带条件的 UPDATE：两个人同时用同一个
+    # expectedRevision 提交 approve / reject，只有一个能让 rowcount=1，
+    # 另一个 409。否则两条审核记录都指向同一个 targetRevision，而版本状态
+    # 只留下后写的那条——记录和公开指针互相矛盾。
+    model = (
+        TemplateVersionModel
+        if payload.targetType == "template_version"
+        else WorkVersionModel
+    )
+    affected = db.execute(
+        update(model)
+        .where(model.id == row.id, model.revision == payload.expectedRevision)
+        .values(revision=payload.expectedRevision + 1)
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        raise errors.revision_conflict(
+            payload.expectedRevision, payload.expectedRevision + 1
+        )
+
+    # revision 已经由上面那条 UPDATE 推进，这里只改其余字段，
+    # 别再把 row.revision 加一遍（会跳号）
     row.status = target
-    row.revision += 1
     row.updated_at = now
     row.last_review_json = json.dumps(snapshot, ensure_ascii=False)
     if target == "published":
@@ -366,7 +388,9 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
             template.updated_at = now
             if target == "published":
                 template.published_version_id = row.id
-                template.latest_version_id = row.id
+                # 不动 latest_version_id：它指「最新创建的版本」，与"哪个版本
+                # 对外公开"是两件事。批准一个旧版本时若把它拉回旧版本，
+                # 作者更新的草稿就从"最新"里消失了。
     else:
         work = db.get(WorkModel, row.work_id)
         if work is not None:
@@ -375,7 +399,7 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
                 # 只有通过时才切公开指针，所以待审期间公开页仍指向旧版本
                 work.published_version_id = row.id
                 work.display_version_id = row.id
-                work.latest_version_id = row.id
+                # 同上：latest_version_id 保持指向最新创建的版本
 
     audit.record(
         db,
@@ -420,12 +444,33 @@ def archive_template_version(
     _assert_transition(TEMPLATE_TRANSITIONS, row.status, "archived", "模板版本")
 
     now = _now_iso()
+    # 归档同样走 CAS：与"批准"并发时，两边都可能通过 _check_revision，
+    # 然后一个写 status、另一个改公开指针，最后指针指向一个已归档的版本。
+    affected = db.execute(
+        update(TemplateVersionModel)
+        .where(
+            TemplateVersionModel.id == row.id,
+            TemplateVersionModel.revision == expected_revision,
+        )
+        .values(revision=expected_revision + 1)
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        raise errors.revision_conflict(expected_revision, expected_revision + 1)
+
     row.status = "archived"
-    row.revision += 1
     row.updated_at = now
-    # change_note 原本是版本说明，归档理由追加在后面，不覆盖作者的原文
+    # 归档理由追加到 change_note，但**必须在提交前就保证不超上限**。
+    # changeNote 的响应模型上限是 500 字：原文合法 500 字、归档理由也合法，
+    # 拼起来 514 字就会 commit 成功而响应模型校验失败，之后每次读这个版本
+    # 都 500。这里优先保住作者原文，理由超出部分截断并标记。
     note = (row.change_note or "").strip()
-    row.change_note = f"{note}\n[归档] {reason}".strip() if note else f"[归档] {reason}"
+    marker = "\n[归档] "
+    budget = 500 - len(note) - len(marker)
+    if budget >= 8:
+        trimmed = reason if len(reason) <= budget else reason[: budget - 1] + "…"
+        row.change_note = f"{note}{marker}{trimmed}" if note else f"[归档] {trimmed}"
+    # 额度不够就保持原文不动：作者的版本说明比归档理由更重要
 
     if template.published_version_id == row.id:
         # 先落盘，避免下面的候选查询把自己的旧状态算进去
