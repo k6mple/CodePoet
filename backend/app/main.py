@@ -12,6 +12,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 
 from app.api.admin import router as admin_router
+from app.observability import set_request_id
+from app.api.audit import router as audit_router
 from app.api.auth import router as auth_router
 from app.api.creation import router as creation_router
 from app.api.engine import router as engine_router
@@ -73,6 +75,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @application.middleware("http")
     async def response_metadata(request: Request, call_next):
         request.state.request_id = f"req-{uuid4().hex}"
+        set_request_id(request.state.request_id)
         if _content_too_large(request):
             response = error_response(
                 request, 413, "REQUEST_TOO_LARGE", "请求体超过 256KiB 限制"
@@ -148,6 +151,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return Health()
 
     application.include_router(admin_router, prefix="/api/v1")
+    application.include_router(audit_router, prefix="/api/v1")
     application.include_router(auth_router, prefix="/api/v1")
     application.include_router(creation_router, prefix="/api/v1")
     application.include_router(engine_router, prefix="/api/v1")

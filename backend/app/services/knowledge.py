@@ -41,6 +41,7 @@ from app.schemas.knowledge import (
     SourceReference,
 )
 from app.schemas.taxonomy import ManageScope
+from app.services import audit
 from app.services import permissions
 from app.services import taxonomy
 
@@ -324,6 +325,16 @@ def create_entity(db: Session, actor: User, payload: KnowledgeCreate) -> Knowled
         updated_at=now,
     )
     db.add(row)
+    audit.record(
+        db,
+        actor=actor,
+        action="knowledge.create",
+        target_type="knowledge_entity",
+        target_id=row.id,
+        input_summary={"type": payload.type, "name": payload.name},
+        after={"status": payload.status, "revision": 1},
+        result="success",
+    )
     try:
         db.commit()
     except IntegrityError:
@@ -386,8 +397,21 @@ def update_entity(
     if "status" in changed and payload.status is not None:
         row.status = payload.status
 
+    previous_revision = row.revision
     row.revision += 1
     row.updated_at = _iso(_now())
+    audit.record(
+        db,
+        actor=actor,
+        action="knowledge.update",
+        target_type="knowledge_entity",
+        target_id=row.id,
+        # 只记改了哪些字段名，不把整份正文塞进审计
+        input_summary={"changed": sorted(changed)},
+        before={"revision": previous_revision},
+        after={"revision": row.revision},
+        result="success",
+    )
     try:
         db.commit()
     except IntegrityError:
@@ -416,4 +440,14 @@ def deactivate_entity(
     row.status = "inactive"
     row.revision += 1
     row.updated_at = _iso(_now())
+    audit.record(
+        db,
+        actor=actor,
+        action="knowledge.delete",
+        target_type="knowledge_entity",
+        target_id=row.id,
+        before={"status": "active", "revision": expected_revision},
+        after={"status": "inactive", "revision": row.revision},
+        result="success",
+    )
     db.commit()

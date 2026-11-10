@@ -54,6 +54,7 @@ from app.schemas.reviews import (
 )
 from app.schemas.templates import TemplateVersion as TemplateVersionSchema
 from app.schemas.works import WorkVersion as WorkVersionSchema
+from app.services import audit
 from app.services import permissions
 from app.services import templates as templates_service
 from app.services import works as works_service
@@ -319,6 +320,8 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
 
     target = "published" if payload.decision == "approve" else "rejected"
     _assert_transition(transitions, row.status, target, label)
+    # 留痕要记「改之前是什么」，只记结果的话事后看不出这次审核改变了什么
+    previous_status = row.status
 
     now = _now_iso()
     review_id = _new_id("rev")
@@ -374,6 +377,22 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
                 work.display_version_id = row.id
                 work.latest_version_id = row.id
 
+    audit.record(
+        db,
+        actor=reviewer,
+        action="review.decide",
+        target_type=payload.targetType,
+        target_id=row.id,
+        version_id=row.id,
+        input_summary={
+            "decision": payload.decision,
+            "reason": payload.reason,
+            "targetRevision": payload.expectedRevision,
+        },
+        before={"status": previous_status},
+        after={"status": target, "reviewId": review_id},
+        result="success",
+    )
     db.commit()
     return Review.model_validate(snapshot)
 
