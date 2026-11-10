@@ -205,6 +205,21 @@ class WorkVersionCreate(BaseModel):
     changeNote: str = Field(default="", max_length=500)
 
 
+class WorkUpdate(BaseModel):
+    """改作品的工作元数据（标题/描述）。
+
+    契约明确写了「不修改既有版本标题/描述；新版本读取工作元数据」，所以
+    这里改的不是任何一个已存在版本的快照——版本的 title/description 一旦
+    创建就是历史，改它对不上当初审核/公开的那份内容。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    expectedRevision: int = Field(ge=1)
+    title: str | None = Field(default=None, min_length=1, max_length=80)
+    description: str | None = Field(default=None, max_length=1000)
+
+
 class Work(BaseModel):
     """作品容器。15 个字段全必填，可空字段显式 None。"""
 

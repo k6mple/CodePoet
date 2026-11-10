@@ -20,11 +20,12 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, update
 from sqlalchemy.orm import Session
 
 from app.errors import (
     execution_busy,
+    forbidden,
     invalid_state,
     not_found,
     revision_conflict,
@@ -33,6 +34,7 @@ from app.errors import (
 from app.models.creations import Generation as GenerationModel
 from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
+from app.schemas.reviews import ArchiveRequest
 from app.schemas.works import (
     ClientEnvironment,
     Frame,
@@ -47,7 +49,10 @@ from app.schemas.works import (
     WorkVersionCreate,
     WorkVersionDetail,
     WorkVersionPage,
+    WorkUpdate,
 )
+from app.services import audit
+from app.services import permissions
 from app.services import quality as quality_service
 from app.services import uploads
 from app.services.generations import build_generation_schema
@@ -173,7 +178,12 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
 
         if permissions.has_permission(user, permissions.REVIEWS_DECIDE):
             return True
-    return row.status == "published"
+    # 版本 status 是**审核结论**，容器指针才是**当前公开开关**。
+    # 只看 status 的话，管理员下线作品（清 publishedVersionId）之后，这个
+    # 版本仍然 status=published，于是详情、产物都还能匿名读——下线等于没做。
+    # published 是终态（WORK_TRANSITIONS），不能为了下线把它改回 private，
+    # 否则等于把"当初审核通过了"这段历史抹掉，派生过它的作品来源也会漂移。
+    return row.status == "published" and work.published_version_id is not None
 
 
 def can_read_generation(db: Session, user: User | None, generation) -> bool:
@@ -763,6 +773,102 @@ def get_work(db: Session, user: User | None, work_id: str) -> WorkSchema:
     return build_work(db, row, user)
 
 
+def update_work(db: Session, user: User, work_id: str, payload: WorkUpdate) -> WorkSchema:
+    """O。改工作元数据，**不动任何既有版本的标题/描述**。
+
+    契约那句「不修改既有版本标题/描述；新版本读取工作元数据」是一条规则，
+    不是两句话：版本的 title/description 在创建时就是快照，改它会让人对不上
+    「当初审核通过的是哪一份内容」。所以这里写的是 ``working_*``，由
+    ``create_version`` 在下一版创建时读取。
+    """
+    row = _require_owned_work(db, user, work_id)
+    if payload.title is None and payload.description is None:
+        raise validation_error("没有需要更新的字段：至少给 title 或 description")
+
+    values: dict[str, object] = {}
+    if payload.title is not None:
+        values["working_title"] = payload.title
+    if payload.description is not None:
+        values["working_description"] = payload.description
+
+    # 还没有公开版本时，作者的工作元数据就是唯一元数据：不同步容器字段的话，
+    # 列表、搜索、详情全都还停在创建时那个名字，改完等于没改。
+    # 一旦有了公开版本，公共元数据由发布版决定，这里就不再动容器字段——
+    # 否则等于绕过审核直接改公开页。
+    if row.published_version_id is None:
+        if payload.title is not None:
+            values["title"] = payload.title
+        if payload.description is not None:
+            values["description"] = payload.description
+
+    now = _now_iso()
+    affected = db.execute(
+        update(Work)
+        .where(Work.id == row.id, Work.revision == payload.expectedRevision)
+        .values(revision=payload.expectedRevision + 1, updated_at=now, **values)
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(Work.revision).where(Work.id == row.id)) or 0
+        raise revision_conflict(payload.expectedRevision, actual)
+
+    db.commit()
+    db.refresh(row)
+    return build_work(db, row, user)
+
+
+def unpublish_work(
+    db: Session, user: User, work_id: str, payload: ArchiveRequest
+) -> WorkSchema:
+    """A。下线作品：清公开指针，关闭所有旧公开版本与产物的公共访问。
+
+    **不改版本状态。** ``published`` 在 ``WORK_TRANSITIONS`` 里是终态，把它
+    改回 ``private`` 等于抹掉「当初审核通过了」这段历史，派生过它的作品来源
+    也会漂移。关闭公共访问靠容器指针：``can_read_version`` 要求版本是
+    published **且** 容器仍有公开版本，所以清指针一处就同时关掉了详情、产物
+    和公开列表。
+    """
+    if not permissions.has_permission(user, permissions.WORKS_UNPUBLISH_ANY):
+        raise forbidden("只有管理员或专家可以下线作品")
+
+    row = db.get(Work, work_id)
+    if row is None:
+        raise not_found("作品不存在")
+    if row.published_version_id is None:
+        raise invalid_state("作品当前没有公开版本，无需下线")
+
+    before_published = row.published_version_id
+    now = _now_iso()
+    affected = db.execute(
+        update(Work)
+        .where(Work.id == row.id, Work.revision == payload.expectedRevision)
+        .values(
+            revision=payload.expectedRevision + 1,
+            updated_at=now,
+            published_version_id=None,
+        )
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(Work.revision).where(Work.id == row.id)) or 0
+        raise revision_conflict(payload.expectedRevision, actual)
+
+    audit.record(
+        db,
+        actor=user,
+        action="work.unpublish",
+        target_type="work",
+        target_id=row.id,
+        input_summary={"reason": payload.reason},
+        before={"publishedVersionId": before_published},
+        after={"publishedVersionId": None},
+        result="success",
+    )
+    db.commit()
+    db.refresh(row)
+    return build_work(db, row, user)
+
+
 def list_versions(
     db: Session, user: User | None, work_id: str, page: int, page_size: int
 ) -> WorkVersionPage:
@@ -813,8 +919,15 @@ def create_version(
         version_number=max_no + 1,
         created_by=user.id,
         status="private",
-        title=work.title,
-        description=work.description,
+        # 契约「新版本读取工作元数据」：作者在 PATCH /works/{id} 改的标题要靠
+        # 这里带进新版本，否则改了等于没改。空串是合法的工作描述，所以用
+        # is not None 判断而不是真值判断。
+        title=work.working_title if work.working_title is not None else work.title,
+        description=(
+            work.working_description
+            if work.working_description is not None
+            else work.description
+        ),
         generation_id=generation.id,
         render_job_id=job.id,
         change_note=payload.changeNote,

@@ -222,6 +222,16 @@ class ReviewFlowTests(unittest.TestCase):
             " created_at, updated_at) VALUES (?,?,?,?,?,?,?)",
             (work_id, owner_id, "作品", "", 1, now, now),
         )
+        if status == "published":
+            # 公开指针必须和版本状态一起写。``can_read_version`` 现在要求
+            # 「版本是 published **且** 容器仍挂着公开版本」——只写状态不写指针
+            # 造出的是生产路径下不可能出现的数据（decide_review 两者同时写），
+            # 拿它去断言可见性只会测出一个假象。
+            connection.execute(
+                "UPDATE works SET published_version_id = ?, display_version_id = ?"
+                " WHERE id = ?",
+                (version_id, version_id, work_id),
+            )
         connection.execute(
             "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
             " title, description, generation_id, render_job_id, change_note,"

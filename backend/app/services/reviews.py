@@ -400,6 +400,13 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
                 work.published_version_id = row.id
                 work.display_version_id = row.id
                 # 同上：latest_version_id 保持指向最新创建的版本
+                # 公开元数据来自发布版（契约 5.1）。作者在 PATCH /works/{id}
+                # 改的是工作元数据，只有这一版真的审过了才允许它成为公开
+                # 标题；同时把工作元数据清空，避免下一次新建版本又继承一遍。
+                work.title = row.title
+                work.description = row.description
+                work.working_title = None
+                work.working_description = None
 
     audit.record(
         db,
