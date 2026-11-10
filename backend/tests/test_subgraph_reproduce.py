@@ -1,0 +1,479 @@
+"""P1B-02 子树编辑 + P1B-04 复现与像素比较测试。
+
+两块的核心都不是"接口返回 200"，而是：
+
+* 子树编辑要证明**只动了该动的那棵子树**——兄弟节点还在、后代全被删、
+  新节点 ID 不撞车。
+* 像素比较要证明**同一张图判一致、不同图判不同、不可比时给 null**。
+  尤其最后一条：不可比却返回 mae=0，会被读成"完美复现"。
+"""
+
+from __future__ import annotations
+
+import json
+import sqlite3
+import struct
+import tempfile
+import unittest
+import zlib
+from pathlib import Path
+
+from fastapi.testclient import TestClient
+
+from app.main import create_app
+from app.services import uploads
+from app.settings import Settings
+
+API = "/api/v1"
+MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
+NOW = "2026-11-10T00:00:00+00:00"
+
+
+def apply_migrations(database_path: Path) -> None:
+    connection = sqlite3.connect(database_path)
+    connection.execute("PRAGMA foreign_keys=ON")
+    for path in sorted(MIGRATIONS.glob("*.sql")):
+        connection.executescript(path.read_text(encoding="utf-8"))
+    connection.commit()
+    connection.close()
+
+
+def make_png(width: int = 800, height: int = 600,
+             rgb: tuple[int, int, int] = (200, 120, 90)) -> bytes:
+    raw = b"".join(b"\x00" + bytes(rgb) * width for _ in range(height))
+
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + tag
+            + data
+            + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+        )
+
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", zlib.compress(raw, 9))
+        + chunk(b"IEND", b"")
+    )
+
+
+def nested_ir() -> dict:
+    """一棵有父子结构的 IR：g1 下挂两个圆，另有一个独立圆。"""
+    def leaf(node_id: str, cx: int) -> dict:
+        return {
+            "id": node_id,
+            "parentId": "g1",
+            "type": "circle",
+            "geometry": {"cx": cx, "cy": 300, "r": 60},
+            "style": {"fill": "#E8A0A0", "stroke": "#8B3A3A",
+                      "strokeWidth": 2, "opacity": 1},
+        }
+
+    return {
+        "schemaVersion": "1.0",
+        "seed": 7,
+        "canvas": {"width": 800, "height": 600, "background": "#FFFFFF"},
+        "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
+        "durationMs": 0,
+        "nodes": [
+            {"id": "g1", "parentId": None, "type": "group",
+             "style": {"opacity": 1}},
+            leaf("c1", 300),
+            leaf("c2", 500),
+            {"id": "c3", "parentId": None, "type": "circle",
+             "geometry": {"cx": 100, "cy": 100, "r": 40},
+             "style": {"fill": "#9FE1CB", "stroke": "#0F6E56",
+                       "strokeWidth": 2, "opacity": 1}},
+        ],
+        "animations": [],
+        "narrative": [],
+    }
+
+
+class SubgraphEditTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.settings = Settings(_env_file=None, data_dir=Path(self.tmp.name) / "runtime")
+        self.app = create_app(self.settings)
+        self.client = TestClient(self.app)
+        self.client.__enter__()
+        self.addCleanup(self.client.__exit__, None, None, None)
+        apply_migrations(self.settings.database_path)
+        self.csrf = ""
+        self.user_id = ""
+
+    def _register(self, name: str, role: str = "creator") -> None:
+        token = self.client.get(f"{API}/auth/csrf").json()["csrfToken"]
+        password = "Aa1!" + "x" * 12
+        response = self.client.post(
+            f"{API}/auth/register",
+            json={"username": name, "password": password, "nickname": name},
+            headers={"X-CSRF-Token": token},
+        )
+        self.user_id = response.json()["id"]
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("UPDATE users SET role = ? WHERE id = ?", (role, self.user_id))
+        connection.commit()
+        connection.close()
+        login = self.client.post(
+            f"{API}/auth/login",
+            json={"username": name, "password": password},
+            headers={
+                "X-CSRF-Token": self.client.get(f"{API}/auth/csrf").json()["csrfToken"]
+            },
+        )
+        self.csrf = login.json()["csrfToken"]
+
+    def _logout(self) -> None:
+        self.client.post(
+            f"{API}/auth/logout",
+            headers={"X-CSRF-Token": self.client.get(f"{API}/auth/csrf").json()["csrfToken"]},
+        )
+
+    def _seed_generation(self, owner_id: str, gen_id: str = "gen-base") -> str:
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        provenance = json.dumps({
+            "kind": "manual_edit", "baseGenerationId": None, "matchedEntities": [],
+            "matchedRules": [], "selectedSymbols": [], "paletteDecision": None,
+            "compositionDecision": None, "timelineDecision": None,
+            "templateSelection": None, "conflicts": [], "warnings": [],
+            "engineVersion": "test-1.0", "ontologyVersion": 1, "policyRevision": 1,
+            "fragmentSource": None, "fragmentSourceHash": None,
+        })
+        connection.execute(
+            "INSERT INTO generations (id, owner_id, mode, backend, template_version_id,"
+            " params_json, seed, ir_json, ir_hash, provenance_json,"
+            " validation_report_json, warnings_json, unpublished_source, request_id,"
+            " created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (gen_id, owner_id, "ir", "canvas2d", None, "{}", 7,
+             json.dumps(nested_ir()), "f" * 64, provenance,
+             '{"parameterValid":true,"nodeCount":4,"outOfBoundsNodeCount":0,"issues":[]}',
+             "[]", 0, "req-t", NOW),
+        )
+        connection.commit()
+        connection.close()
+        return gen_id
+
+    def _replacement(self, node_id: str = "n1", cx: int = 400) -> dict:
+        return {
+            "id": node_id,
+            "parentId": None,
+            "type": "circle",
+            "geometry": {"cx": cx, "cy": 300, "r": 80},
+            "style": {"fill": "#FAC775", "stroke": "#854F0B",
+                      "strokeWidth": 3, "opacity": 1},
+        }
+
+    def _edit(self, gen_id: str, body: dict):
+        return self.client.post(
+            f"{API}/generations/{gen_id}/subgraph",
+            json=body,
+            headers={"X-CSRF-Token": self.csrf},
+        )
+
+    # ---- 用例 -----------------------------------------------------------
+    def test_replaces_whole_subtree_and_keeps_siblings(self) -> None:
+        self._register("sg_owner")
+        self._seed_generation(self.user_id)
+
+        response = self._edit("gen-base", {
+            "rootNodeId": "g1",
+            "replacementNodes": [self._replacement()],
+        })
+        self.assertEqual(response.status_code, 201, response.text)
+        body = response.json()
+
+        # g1 与它的两个后代都被移除
+        self.assertEqual(set(body["removedNodeIds"]), {"g1", "c1", "c2"})
+        self.assertEqual(body["changedNodeIds"], ["n1"])
+
+        nodes = body["generation"]["ir"]["nodes"]
+        ids = {node["id"] for node in nodes}
+        self.assertEqual(ids, {"c3", "n1"}, "只剩兄弟节点和新节点")
+        self.assertEqual(body["generation"]["mode"], "subgraph")
+        provenance = body["generation"]["provenance"]
+        self.assertEqual(provenance["kind"], "subgraph_edit")
+        self.assertEqual(provenance["baseGenerationId"], "gen-base")
+
+    def test_empty_replacement_deletes_subtree(self) -> None:
+        self._register("sg_delete")
+        self._seed_generation(self.user_id)
+        response = self._edit("gen-base", {"rootNodeId": "g1", "replacementNodes": []})
+        self.assertEqual(response.status_code, 201, response.text)
+        ids = {n["id"] for n in response.json()["generation"]["ir"]["nodes"]}
+        self.assertEqual(ids, {"c3"})
+        self.assertEqual(response.json()["changedNodeIds"], [])
+
+    def test_unknown_root_is_rejected(self) -> None:
+        self._register("sg_missing")
+        self._seed_generation(self.user_id)
+        response = self._edit("gen-base", {"rootNodeId": "nope", "replacementNodes": []})
+        self.assertEqual(response.status_code, 422, response.text)
+
+    def test_id_conflict_outside_subtree_is_rejected(self) -> None:
+        """新节点撞到子树外的现有节点 → 422，且报错点出冲突 ID。"""
+        self._register("sg_conflict")
+        self._seed_generation(self.user_id)
+        response = self._edit("gen-base", {
+            "rootNodeId": "g1",
+            "replacementNodes": [self._replacement(node_id="c3")],
+        })
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertIn("冲突", response.json()["error"]["message"])
+
+    def test_duplicate_ids_in_replacement_is_rejected(self) -> None:
+        self._register("sg_dup")
+        self._seed_generation(self.user_id)
+        response = self._edit("gen-base", {
+            "rootNodeId": "g1",
+            "replacementNodes": [self._replacement("n1"), self._replacement("n1")],
+        })
+        self.assertEqual(response.status_code, 422, response.text)
+
+    def test_dangling_parent_after_edit_is_rejected(self) -> None:
+        """替换后新节点指向已被删掉的目标，必须拒掉而不是产出坏 IR。"""
+        self._register("sg_dangling")
+        self._seed_generation(self.user_id)
+        orphan = self._replacement("n1")
+        orphan["parentId"] = "g1"  # g1 正好被这次编辑删除
+        response = self._edit("gen-base", {
+            "rootNodeId": "g1",
+            "replacementNodes": [orphan],
+        })
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()["error"]["code"], "IR_INVALID")
+
+    def test_viewport_can_be_overridden(self) -> None:
+        self._register("sg_viewport")
+        self._seed_generation(self.user_id)
+        response = self._edit("gen-base", {
+            "rootNodeId": "g1",
+            "replacementNodes": [self._replacement()],
+            "viewport": {"x": 100, "y": 50, "width": 400, "height": 300},
+        })
+        self.assertEqual(response.status_code, 201, response.text)
+        viewport = response.json()["generation"]["ir"]["viewport"]
+        self.assertEqual(viewport["width"], 400)
+        self.assertEqual(viewport["x"], 100)
+
+    def test_other_users_generation_is_404(self) -> None:
+        self._register("sg_real")
+        self._seed_generation(self.user_id)
+        self._logout()
+        self._register("sg_other")
+        response = self._edit("gen-base", {"rootNodeId": "g1", "replacementNodes": []})
+        self.assertEqual(response.status_code, 404, response.text)
+
+
+class ReproduceTests(unittest.TestCase):
+    """P1B-04：复现任务 + 像素比较。"""
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.settings = Settings(_env_file=None, data_dir=Path(self.tmp.name) / "runtime")
+        self.app = create_app(self.settings)
+        self.client = TestClient(self.app)
+        self.client.__enter__()
+        self.addCleanup(self.client.__exit__, None, None, None)
+        apply_migrations(self.settings.database_path)
+        self.csrf = ""
+        self.user_id = ""
+
+    def _register(self, name: str) -> None:
+        token = self.client.get(f"{API}/auth/csrf").json()["csrfToken"]
+        password = "Aa1!" + "x" * 12
+        response = self.client.post(
+            f"{API}/auth/register",
+            json={"username": name, "password": password, "nickname": name},
+            headers={"X-CSRF-Token": token},
+        )
+        self.user_id = response.json()["id"]
+        login = self.client.post(
+            f"{API}/auth/login",
+            json={"username": name, "password": password},
+            headers={
+                "X-CSRF-Token": self.client.get(f"{API}/auth/csrf").json()["csrfToken"]
+            },
+        )
+        self.csrf = login.json()["csrfToken"]
+
+    def _job_with_frame(self, job_id: str, gen_id: str, png: bytes,
+                        *, renderer: str = "canvas-1.0.0") -> str:
+        """造一个已完成的渲染任务 + 一帧真实产物。"""
+        stored = uploads.store_frame(self.settings, self.user_id, png, 0)
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO render_jobs (id, owner_id, generation_id, backend, execution_mode,"
+            " status, phase, times_ms_json, policy_revision, renderer_version,"
+            " client_environment_json, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (job_id, self.user_id, gen_id, "canvas2d", "browser_upload", "succeeded",
+             "completed", "[0]", 1, renderer,
+             '{"userAgent":"test/1.0","deviceScaleFactor":1}', 1, NOW, NOW),
+        )
+        connection.execute(
+            "INSERT INTO artifacts (id, owner_id, kind, content_type, byte_size,"
+            " storage_path, sha256, width, height, time_ms, render_job_id, created_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (stored.artifact_id, self.user_id, stored.kind, stored.content_type,
+             stored.byte_size, stored.storage_path, stored.sha256,
+             stored.width, stored.height, stored.time_ms, job_id, NOW),
+        )
+        connection.commit()
+        connection.close()
+        return stored.artifact_id
+
+    def _seed_generation(self, gen_id: str = "gen-r") -> None:
+        """只插 generation。work_versions 依赖 render_jobs，得等 job 建好。"""
+        ir = json.dumps(nested_ir())
+        provenance = json.dumps({
+            "kind": "manual_edit", "baseGenerationId": None, "matchedEntities": [],
+            "matchedRules": [], "selectedSymbols": [], "paletteDecision": None,
+            "compositionDecision": None, "timelineDecision": None,
+            "templateSelection": None, "conflicts": [], "warnings": [],
+            "engineVersion": "test-1.0", "ontologyVersion": 1, "policyRevision": 1,
+            "fragmentSource": None, "fragmentSourceHash": None,
+        })
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO generations (id, owner_id, mode, backend, template_version_id,"
+            " params_json, seed, ir_json, ir_hash, provenance_json,"
+            " validation_report_json, warnings_json, unpublished_source, request_id,"
+            " created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (gen_id, self.user_id, "ir", "canvas2d", None, "{}", 7, ir, "a" * 64,
+             provenance,
+             '{"parameterValid":true,"nodeCount":4,"outOfBoundsNodeCount":0,"issues":[]}',
+             "[]", 0, "req-r", NOW),
+        )
+        connection.commit()
+        connection.close()
+
+    def _seed_work_row(self, original_job_id: str) -> None:
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO works (id, owner_id, title, description, published_version_id,"
+            " revision, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)",
+            ("wrk-r", self.user_id, "复现作品", "", "wv-r", 1, NOW, NOW),
+        )
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("wv-r", "wrk-r", 1, self.user_id, "published", "复现作品", "",
+             "gen-r", original_job_id, "", None, None, 1, NOW, NOW),
+        )
+        connection.commit()
+        connection.close()
+
+    def _seed_ready(self, png: bytes | None = None) -> None:
+        """按依赖顺序造齐：generation → 原任务+帧 → 作品与版本。"""
+        self._seed_generation()
+        self._job_with_frame("job-orig", "gen-r", png or make_png())
+        self._seed_work_row("job-orig")
+
+    # ---- 用例 -----------------------------------------------------------
+    def test_reproduce_creates_job_bound_to_original(self) -> None:
+        self._register("rep_owner")
+        self._seed_ready()
+
+        response = self.client.post(
+            f"{API}/work-versions/wv-r/reproduce",
+            json={"rendererVersion": "canvas-1.0.0",
+                  "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1}},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(response.status_code, 202, response.text)
+        job = response.json()
+        self.assertEqual(job["originalJobId"], "job-orig")
+        self.assertEqual(job["status"], "running")
+        self.assertEqual(job["phase"], "awaiting_frames")
+        self.assertEqual(job["generationId"], "gen-r")
+        self.assertIsNotNone(job["expiresAt"])
+
+    def test_identical_frames_compare_exact(self) -> None:
+        """同一张图 → exactMatch=true、mae=0。"""
+        self._register("cmp_same")
+        png = make_png()
+        self._seed_ready(png)
+        self._job_with_frame("job-rep", "gen-r", png)
+
+        response = self.client.get(
+            f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        self.assertTrue(body["compatible"], body.get("reason"))
+        self.assertTrue(body["exactMatch"])
+        self.assertEqual(body["mae"], 0.0)
+        self.assertEqual(body["differentPixelRatio"], 0.0)
+        self.assertEqual(len(body["frames"]), 1)
+
+    def test_different_frames_report_difference(self) -> None:
+        self._register("cmp_diff")
+        self._seed_ready(make_png(rgb=(200, 120, 90)))
+        self._job_with_frame("job-rep", "gen-r", make_png(rgb=(20, 20, 20)))
+
+        body = self.client.get(
+            f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
+        ).json()
+        self.assertTrue(body["compatible"])
+        self.assertFalse(body["exactMatch"])
+        self.assertGreater(body["mae"], 0.0)
+        self.assertEqual(body["differentPixelRatio"], 1.0, "整幅图都不同")
+
+    def test_incompatible_returns_null_metrics(self) -> None:
+        """渲染器版本不同 → 不可比，指标必须是 null 而不是 0。"""
+        self._register("cmp_incompat")
+        self._seed_ready(make_png())
+        self._job_with_frame("job-rep", "gen-r", make_png(), renderer="canvas-2.0.0")
+
+        body = self.client.get(
+            f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
+        ).json()
+        self.assertFalse(body["compatible"])
+        self.assertIn("渲染器版本", body["reason"])
+        self.assertIsNone(body["exactMatch"], "不可比时不能给 0，会被读成完全一致")
+        self.assertIsNone(body["mae"])
+        self.assertIsNone(body["differentPixelRatio"])
+        self.assertEqual(body["frames"], [])
+
+    def test_comparison_requires_completed_jobs(self) -> None:
+        self._register("cmp_pending")
+        self._seed_ready()
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "INSERT INTO render_jobs (id, owner_id, generation_id, backend, execution_mode,"
+            " status, phase, times_ms_json, policy_revision, renderer_version,"
+            " client_environment_json, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("job-pending", self.user_id, "gen-r", "canvas2d", "browser_upload",
+             "running", "awaiting_frames", "[0]", 1, "canvas-1.0.0",
+             '{"userAgent":"test/1.0","deviceScaleFactor":1}', 1, NOW, NOW),
+        )
+        connection.commit()
+        connection.close()
+
+        response = self.client.get(
+            f"{API}/render-jobs/job-pending/comparison?originalJobId=job-orig"
+        )
+        self.assertEqual(response.status_code, 409, response.text)
+
+    def test_comparison_of_foreign_job_is_404(self) -> None:
+        self._register("cmp_owner")
+        self._seed_ready()
+        self._job_with_frame("job-rep", "gen-r", make_png())
+        self.client.post(f"{API}/auth/logout",
+                         headers={"X-CSRF-Token": self.client.get(f"{API}/auth/csrf").json()["csrfToken"]})
+        self._register("cmp_stranger")
+
+        response = self.client.get(
+            f"{API}/render-jobs/job-rep/comparison?originalJobId=job-orig"
+        )
+        self.assertEqual(response.status_code, 404, response.text)

@@ -23,11 +23,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import errors
+from app.engine import semantic as semantic_engine
 from app.engine.instantiate import TemplateDefinitionError, instantiate
 from app.engine.validate import validate_ir
 from app.models.creations import Generation as GenerationModel
 from app.models.templates import TemplateVersion
 from app.models.users import User
+from app.models.knowledge import KnowledgeEntity as KnowledgeModel
+from app.models.rules import MappingRule as RuleModel
 from app.schemas.generation import (
     Binding,
     Constraint,
@@ -42,6 +45,8 @@ from app.schemas.generation import (
 )
 from app.schemas.ir import DrawingIR
 from app.schemas.validation import Issue, ValidationReport
+from app.services import knowledge as knowledge_service
+from app.services import rules as rules_service
 
 # 写进来源快照的引擎版本。改动实例化/校验逻辑时递增，方便复现时追溯。
 ENGINE_VERSION = "p0-03.1"
@@ -205,6 +210,85 @@ def _prepare_from_template(
 # ---- 手工 IR 路线 --------------------------------------------------------
 
 
+def _prepare_from_semantic(
+    db: Session, user: User, payload: SemanticGeneration
+) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
+    """语义生成：文字 + 实体 → 规则命中 → 图形决策 → IR。
+
+    没有任何规则命中时抛 422 ``NO_SEMANTIC_MATCH``，**不画兜底图**：
+    用户输入"随便什么"却得到一朵莲，会以为规则生效了，其实是系统替
+    它做了决定。契约把 NO_SEMANTIC_MATCH 列在 422 分支里，就是要求这样。
+    """
+    text = payload.input.text
+    entity_ids = list(payload.input.entityIds or [])
+    matched = rules_service.load_matched_rules(db, text=text, entity_ids=entity_ids)
+    if not matched:
+        raise errors.no_semantic_match(
+            f"输入没有匹配到任何映射规则：{text[:40] or '(空文本)'}",
+            details={"text": text, "entityIds": entity_ids},
+        )
+
+    synth = semantic_engine.synthesize(matched)
+    ir = semantic_engine.build_ir(synth, seed=payload.seed, entity_ids=entity_ids)
+
+    # 规则快照：记下"当时用的是第几版规则、内容是什么"。
+    # 规则以后被改，旧作品的溯源仍然准确。
+    rule_snapshots = []
+    palette_rule_ids: list[str] = []
+    composition_rule_ids: list[str] = []
+    for index, item in enumerate(matched):
+        row = db.get(RuleModel, item.rule_id)
+        if row is None:
+            continue
+        rule_snapshots.append({
+            "ruleId": row.id,
+            "version": row.version,
+            "content": rules_service._build(row).model_dump(mode="json"),  # noqa: SLF001
+        })
+        if index == 0:
+            palette_rule_ids.append(row.id)
+            composition_rule_ids.append(row.id)
+
+    # 实体快照：作品详情要能显示"创作时引用了哪些知识"
+    parents = knowledge_service._tag_tree(db)  # noqa: SLF001
+    entity_snapshots = []
+    for entity_id in entity_ids:
+        row = db.get(KnowledgeModel, entity_id)
+        if row is None:
+            continue
+        entity_snapshots.append({
+            "entityId": row.id,
+            "revision": row.revision,
+            "content": knowledge_service._build_entity(row, parents).model_dump(mode="json"),  # noqa: SLF001
+        })
+
+    provenance = Provenance(
+        kind="semantic",
+        baseGenerationId=None,
+        matchedEntities=entity_snapshots,
+        matchedRules=rule_snapshots,
+        selectedSymbols=list(synth.symbol_ids),
+        paletteDecision={
+            "value": ",".join(synth.palette),
+            "ruleIds": palette_rule_ids,
+            "reason": f"取最高优先级规则命中的调色板（{len(synth.palette)} 色）",
+        },
+        compositionDecision={
+            "value": synth.composition,
+            "ruleIds": composition_rule_ids,
+            "reason": "取最高优先级规则的构图方式",
+        },
+        timelineDecision=None,
+        templateSelection=None,
+        conflicts=[],
+        warnings=[],
+        engineVersion=ENGINE_VERSION,
+        ontologyVersion=ONTOLOGY_VERSION,
+        policyRevision=POLICY_REVISION,
+    )
+    return ir, {}, None, provenance, False, payload.seed
+
+
 def _prepare_from_ir(
     db: Session, user: User, payload: IRGeneration
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
@@ -241,11 +325,10 @@ def create_generation(
 ) -> GenerationSchema:
     """创建一份不可变快照。任何一步不合法都不落库。"""
     if isinstance(payload, SemanticGeneration):
-        raise errors.unsupported_capability(
-            "语义生成尚未实现；当前版本只支持 template 与 ir 两种模式"
+        ir, params, template_version_id, provenance, unpublished, seed = (
+            _prepare_from_semantic(db, user, payload)
         )
-
-    if isinstance(payload, TemplateGeneration):
+    elif isinstance(payload, TemplateGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (
             _prepare_from_template(db, user, payload)
         )

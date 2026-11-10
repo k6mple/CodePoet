@@ -10,14 +10,18 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Request, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, Request, status
 from sqlalchemy.orm import Session
 
 from app.deps import get_db, require_csrf, require_user
 from app.models.users import AuthSession, User as UserModel
 from app.schemas.generation import Generation as GenerationSchema
 from app.schemas.generation import GenerationCreate
+from app.schemas.subgraph import SubgraphEdit, SubgraphGeneration
 from app.services import generations
+from app.services import subgraph as subgraph_service
 
 router = APIRouter(tags=["创作"])
 
@@ -59,3 +63,37 @@ def read_generation(
     user: UserModel = Depends(require_user),
 ) -> GenerationSchema:
     return generations.get_generation(db, user, generation_id)
+
+
+GenerationIdPath = Annotated[
+    str,
+    Path(
+        ...,
+        min_length=1,
+        max_length=80,
+        pattern=r"^[A-Za-z0-9_-]+$",
+        description="生成快照 ID",
+    ),
+]
+
+
+@router.post(
+    "/generations/{generation_id}/subgraph",
+    response_model=SubgraphGeneration,
+    status_code=status.HTTP_201_CREATED,
+    summary="局部替换/裁剪为新快照",
+    description=(
+        "权限 L 且基础 generation 属本人。替换 rootNodeId 及其**全部后代**，"
+        "其余节点原样保留；replacementNodes 为空数组表示删掉整棵子树。"
+        "新节点 ID 不得撞到子树外的现有节点，否则两个节点同 ID，"
+        "IR 校验只会说「重复 id」，看不出是这次编辑引入的。"
+    ),
+)
+def edit_subgraph(
+    payload: SubgraphEdit,
+    generation_id: GenerationIdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> SubgraphGeneration:
+    return subgraph_service.edit_subgraph(db, user, generation_id, payload)
