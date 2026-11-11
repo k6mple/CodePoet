@@ -1,0 +1,368 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "real-429-retains-editing-state",
+      "requestId": "req-3342f0fa759549d29b65e886052712cf",
+      "code": "EXECUTION_BUSY"
+    },
+    {
+      "name": "quota-released-ui-retry-saves"
+    },
+    {
+      "name": "aborted-frame-upload-retries-original-task",
+      "jobId": "job-5606ecd07601460aa2b6f83992a44339",
+      "manifestFrames": 1
+    },
+    {
+      "name": "five-minute-expired-task-does-not-report-success",
+      "jobId": "job-d87130b86b0f47f2a9de833fa9c19300",
+      "createdAt": "2026-11-11T05:19:27Z",
+      "expiresAt": "2026-11-11T05:24:27Z",
+      "startedWaitingAt": "2026-11-11T05:19:27.529Z",
+      "checkedAt": "2026-11-11T05:24:28.563Z",
+      "requestId": "req-cd2aa8d7d5ea48be821101e460264b7d"
+    },
+    {
+      "name": "expired-task-new-task-recovers-and-saves"
+    },
+    {
+      "name": "recovered-work-real-png-hash-matches",
+      "versionId": "wv-590023212797400c8abcb9cc1ec09d1f",
+      "jobId": "job-06d113c033564b5bbe5920b27a9f49e8"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-d7a905b26e8f4fd7b232e66d2c50107f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-3f86c0435c7549e581e140f79a2d4b75"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-d0455ca3c52840d4b88b50c883ece42f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 401,
+      "requestId": "req-d7dd3871a69d4cf8aabbf46cd3d8607c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-7452cb112e3e41e480c86ec51c7cafb0"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-bamboo-2",
+      "status": 200,
+      "requestId": "req-7be1e46319574b5fb456d971a155a2ed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-22757356558342aeaaf988bf4525d7e0"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-ef6c308cddd34d60ba451ef19c7f31cd"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-cc12a1c282114b959f19f0ad31920c40"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-f7cfb71f223a42e4ad36e4ce5d1b4ea2"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-0036b482cbbc41c0bb0fd1575cea31f4"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-2a1811c24f4c4071a729cb6b49a5d240"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-b38567a810614fbdb7a9bb469f1ab82e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-lotus-2",
+      "status": 200,
+      "requestId": "req-56a96882d5894a85b30b3eac4f333169"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-653ae767f35444ab951c491db95f9539"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-c4e24b186b194fea99d5606f0475c54e"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-52081ffbebbe4d7faeecb5eba3636e4e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-b2029165c44d4dd788de17eda16f6bb3"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-cd6a51a070c44c23ba70e8cbad2af834"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 429,
+      "requestId": "req-3342f0fa759549d29b65e886052712cf"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-a4d860da4386480a8980b1186acf2877"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-34b2172ebed44ac590c46673014f1c56/cancel",
+      "status": 200,
+      "requestId": "req-1447f51d8b6247e8bab3afbbc75f960b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-b32f37a84cb741dc80416944dddaa851"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-bc7f67ff0db746b282d2b515bfdf0f81/cancel",
+      "status": 200,
+      "requestId": "req-42771a60dd9d406d99929edcaa3b3bea"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-2e6976f4b1b84baa9fdc3e7d5a8c911b"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-023b746ccf704a4d8f813007391ff3f3/frames",
+      "status": 200,
+      "requestId": "req-50cb04d7da95413f999091ab3fff3144"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/works",
+      "status": 201,
+      "requestId": "req-ae3c48e6862e435dbd31115efdcb5662"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-4ba5c6931d444bffa4cc1501eb2e4e2a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-59385737aea044d3b703fdd22087bd2a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-bfab1ef1c579456e935b3ebde285dd4f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-2c18370f4d4a437fb90ee31b936a8adc"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-ac0a8a7f6ce3433d954d10321b8b1745"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-lotus-2",
+      "status": 200,
+      "requestId": "req-4a592c7f33f047ca86df680bcc2c36a2"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-6cf42ba3193347849e2df27b90be3eb9"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-9c1a58db43fb484b91507e1b0a8f2a4e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-5606ecd07601460aa2b6f83992a44339",
+      "status": 200,
+      "requestId": "req-5dfd47af3e074c9ebd1fef2fdd8136aa"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-5606ecd07601460aa2b6f83992a44339",
+      "status": 200,
+      "requestId": "req-56aca7401f854bbba608e88de765604c"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-5606ecd07601460aa2b6f83992a44339/frames",
+      "status": 200,
+      "requestId": "req-ee924efe78804cc6ba7b5431ba530881"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/works",
+      "status": 201,
+      "requestId": "req-7c5ddf706d984b3dbf3e4535d5f13733"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-5606ecd07601460aa2b6f83992a44339",
+      "status": 200,
+      "requestId": "req-91b66c8494e34665a519929d53fc93cc"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-dfec7ffe789a4864b50ebb16024ad09d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-c59c86152ade4560aedbd8106c35bcef"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-1e7e45d42aba47fd8b968a9477e9b314"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-1bf1ed0bd7f242e79421da318e1cd075"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-53470a5d6689466baece6257594917d4"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-lotus-2",
+      "status": 200,
+      "requestId": "req-16ce25e0721c41f3b9e2a6d2f488e4b1"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-f18eb38f2fab437d96b37d019c99c3ea"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-aab35e93f9f44b1c975240b6abecc870"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-d87130b86b0f47f2a9de833fa9c19300",
+      "status": 200,
+      "requestId": "req-7768dbde24fa4905865866b329be2fb9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-d87130b86b0f47f2a9de833fa9c19300",
+      "status": 200,
+      "requestId": "req-30560aed9a81496990d139ee049eacc0"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/render-jobs/job-d87130b86b0f47f2a9de833fa9c19300",
+      "status": 200,
+      "requestId": "req-cd2aa8d7d5ea48be821101e460264b7d"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-41d1c57acad5433384dfad6223966ecf"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-06d113c033564b5bbe5920b27a9f49e8/frames",
+      "status": 200,
+      "requestId": "req-c7ce5c5a58e64970a767b4df29bba8b9"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/works",
+      "status": 201,
+      "requestId": "req-e3677e7343df494d89789f4c9963d063"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/work-versions/wv-590023212797400c8abcb9cc1ec09d1f",
+      "status": 200,
+      "requestId": "req-1b05d10eac104bd882474494c9482ea6"
+    }
+  ],
+  "pageErrors": []
+}

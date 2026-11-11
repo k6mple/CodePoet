@@ -17,9 +17,7 @@ const EXPORT_TYPES = [
   { value: 'entities', label: '知识实体' },
   { value: 'concepts', label: '本体概念' },
   { value: 'tags', label: '标签' },
-  { value: 'rules', label: '映射规则' },
   { value: 'templates', label: '模板' },
-  { value: 'workSnapshots', label: '作品 IR 快照' },
 ]
 
 const emptyFilters = { actorId: '', action: '', targetType: '', requestId: '', fromTime: '', toTime: '' }
@@ -233,7 +231,7 @@ export default function AdminOps() {
     <header className="page-intro page-intro--compact">
       <div>
         <h1 id="admin-ops-heading">运维与审计</h1>
-        <p>导出知识/模板/规则备份，预校验并事务导入 JSON，查看关键写操作审计日志。</p>
+        <p>导出知识与模板备份，预校验并事务导入 JSON，查看关键写操作审计日志。</p>
       </div>
     </header>
 
@@ -281,7 +279,7 @@ export default function AdminOps() {
                     </label>)}
                   </div>
                 </fieldset>
-                <p className="field-note">导出包包含知识、概念、标签、规则、模板与作品 IR 快照；不包含 PNG，也不恢复作品公开状态。</p>
+                <p className="field-note">当前支持知识、概念、标签与模板导出。规则与作品 IR 快照导出尚未启用；导出包不包含 PNG，也不恢复作品公开状态。</p>
                 <div className="form-actions">
                   <button type="submit" className="button button--primary" disabled={exportBusy}>{exportBusy ? '生成中…' : '生成导出包'}</button>
                 </div>

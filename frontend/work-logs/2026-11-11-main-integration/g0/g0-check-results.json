@@ -1,0 +1,456 @@
+{
+  "base": "http://127.0.0.1:13140",
+  "diagnostic": false,
+  "status": "passed",
+  "g0Passed": true,
+  "checks": [
+    {
+      "name": "register-login-default-generation",
+      "generationId": "gen-f9a997ff803c4ed592fe4bdd2ce78308"
+    },
+    {
+      "name": "parameter-changes-real-canvas"
+    },
+    {
+      "name": "invalid-number-retains-canvas-and-disables-save"
+    },
+    {
+      "name": "real-cross-field-422",
+      "code": "VALIDATION_ERROR",
+      "requestId": "req-98068d226c5b43869382171ee54df697"
+    },
+    {
+      "name": "real-401-relogin-preserves-generation"
+    },
+    {
+      "name": "late-real-response-cannot-overwrite-newer-generation",
+      "generationId": "gen-0a2c0948c2fc452c8a0a5b98317d009e",
+      "radius": 34
+    },
+    {
+      "name": "creator-390-no-horizontal-overflow",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "name": "network-failure-retains-generation-without-false-save"
+    },
+    {
+      "name": "create-real-upload-job",
+      "id": "job-8950720c1bba4e6ba87ac962b179c0a9",
+      "status": "running",
+      "phase": "awaiting_frames",
+      "createdAt": "2026-11-11T05:04:52Z",
+      "expiresAt": "2026-11-11T05:09:52Z",
+      "uploadLifetimeMs": 300000,
+      "requestId": "req-fc6aa04e657542809b217834d1afc5c0"
+    },
+    {
+      "name": "save-private-work",
+      "assisted": false,
+      "versionId": "wv-6a3377f85b944e2ab04b0e9ec5ed8354",
+      "workId": "work-cd46ef180e234c529da8c9c31a21c9cf",
+      "generationId": "gen-0a2c0948c2fc452c8a0a5b98317d009e",
+      "jobId": "job-8950720c1bba4e6ba87ac962b179c0a9",
+      "artifactId": "art-4c0ee767c38f4295aa22a3831de910a3"
+    },
+    {
+      "name": "reopen-new-tab-real-png",
+      "versionId": "wv-6a3377f85b944e2ab04b0e9ec5ed8354"
+    },
+    {
+      "name": "reopen-refresh-real-png",
+      "versionId": "wv-6a3377f85b944e2ab04b0e9ec5ed8354"
+    },
+    {
+      "name": "server-png-hash-matches-manifest",
+      "bytes": 29340,
+      "sha256": "78bc18e3aa64433660c3a102d8675a518b6a0b36b613369512bb43cae93bc559"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/works/work-cd46ef180e234c529da8c9c31a21c9cf",
+      "requestId": "req-762e09b90c8b4df9a6f606cadae14116"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/work-versions/wv-6a3377f85b944e2ab04b0e9ec5ed8354",
+      "requestId": "req-263d3e431a1040348c1dcea76b5f1d2b"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/generations/gen-0a2c0948c2fc452c8a0a5b98317d009e",
+      "requestId": "req-d4696d0013c643a2b8dad2ebac093083"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/render-jobs/job-8950720c1bba4e6ba87ac962b179c0a9",
+      "requestId": "req-eaf1fecbeee74e93aa22fb817ec77469"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/artifacts/art-4c0ee767c38f4295aa22a3831de910a3",
+      "requestId": "req-b25d97d90eb343deaadfb5d709941522"
+    },
+    {
+      "name": "other-user-page-does-not-expose-private-png"
+    },
+    {
+      "name": "no-authentication-in-web-storage",
+      "local": [],
+      "session": []
+    }
+  ],
+  "blockers": [],
+  "requests": [
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-b1504954689547838aa182c9d39531b9"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-dcaa7170fd6e4bddb90895e68dbe96dd"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-6537b00d1c1b49a1b0b6214667aacc36"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 401,
+      "requestId": "req-c2c9f4e7a46b48098186f6390c0909fa"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-1eb19b66c2144c8aa8d7d20f53a6556a"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-lotus-001",
+      "status": 200,
+      "requestId": "req-d3c3132870ed41dd8888d64ee0261772"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-9ea740a9eb934f6fafb2408eaf54ddfd"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "status": 201,
+      "requestId": "req-0f68d82dc2f945428f1e68f8c79ea5d7"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-9984c08ef58446ae90031c8db9c39fa7"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-47ddc2f92420424eba8c95d418aa57dc"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-a06bff4c287f462a9274f7c5a6067ba9"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-506ebc687fa24f81b350b5b5c1b09b83"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 422,
+      "requestId": "req-98068d226c5b43869382171ee54df697"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-88c9f11fc4d74c6d9d1c6b438515c91d"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-0881a92b9faa4815b1f55e58bae2cb41"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "status": 204,
+      "requestId": "req-3519053b6806426ba11a9e9c2c6c5190"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 401,
+      "requestId": "req-27306d16b86f45d78e4a027e6b5793f2"
+    },
+    {
+      "actor": "owner",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-b7d2fb70c3cf49ad9b9a23519c5c4525"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-d9397413143e498585a4efff6603c80d"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-6fe99e58416140d89391d3a8adf2832d"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/render-jobs",
+      "status": 202,
+      "requestId": "req-fc6aa04e657542809b217834d1afc5c0"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/render-jobs/job-8950720c1bba4e6ba87ac962b179c0a9/frames",
+      "status": 200,
+      "requestId": "req-83b5f5ec2a8f474481854695750886c3"
+    },
+    {
+      "actor": "owner",
+      "method": "POST",
+      "path": "/api/v1/works",
+      "status": 201,
+      "requestId": "req-e18a839eee9c4fb0b18bf7fb937c2ea0"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-1bdcff2b2a37464bb3441d7788299ccf"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-d206d8199d8942d4a4a6135b2f48e55c"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-4f20f94c024d415db76c2cd64065505e"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/work-versions/wv-6a3377f85b944e2ab04b0e9ec5ed8354",
+      "status": 200,
+      "requestId": "req-21c6a9f493b14d34b27b47981fd59a5e"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/artifacts/art-4c0ee767c38f4295aa22a3831de910a3",
+      "status": 200,
+      "requestId": "req-e020c084749b46198b2e244b758d1a19"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/works/work-cd46ef180e234c529da8c9c31a21c9cf",
+      "status": 200,
+      "requestId": "req-d059b4d1880e4108b1aaabf50058b6d6"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-92f9a7bd4226493088f4b1fa31e8bfc2"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-4d0b7e38cd5341b3b86fce2e4aab88ef"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-ea12093382dd4358a99d8a7fcbcca425"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/work-versions/wv-6a3377f85b944e2ab04b0e9ec5ed8354",
+      "status": 200,
+      "requestId": "req-9c8b99c41aff4a30bf03a8eb4e7e1f04"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/artifacts/art-4c0ee767c38f4295aa22a3831de910a3",
+      "status": 200,
+      "requestId": "req-7fba058e4a5749c7be2f13df7a7c68a2"
+    },
+    {
+      "actor": "owner-viewer",
+      "method": "GET",
+      "path": "/api/v1/works/work-cd46ef180e234c529da8c9c31a21c9cf",
+      "status": 200,
+      "requestId": "req-af31157a3c7546e99dc62c32cc0f4c50"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/engine/capabilities",
+      "status": 200,
+      "requestId": "req-ff219c90b7304c99baf8b47037716aa4"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-c3765b2d6f0d4b22bffef7aafe0d9ac4"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/templates",
+      "status": 200,
+      "requestId": "req-80fa883822c74ff8a1c3bccb65c0a0d0"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-94629053361c4470aeabfe923341b933"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 401,
+      "requestId": "req-7a5cf7d8c0ed4df0a9f2a271f666de91"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/template-versions/tv-lotus-001",
+      "status": 200,
+      "requestId": "req-7dd0971fe46a4e4d921e83d44d0a2b2d"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-8603bbcdac93491da88119183c9f0dce"
+    },
+    {
+      "actor": "other-user",
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "status": 201,
+      "requestId": "req-16bec60a878b4645899a9302c7913a2a"
+    },
+    {
+      "actor": "other-user",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "requestId": "req-fd547d2e951c40c5a05c68e7f17f92f6"
+    },
+    {
+      "actor": "other-user",
+      "method": "POST",
+      "path": "/api/v1/generations",
+      "status": 201,
+      "requestId": "req-5b03cea487f84015b06017a75ce5d362"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "requestId": "req-b9e9392e1352426384aeb40e5403f5ac"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "status": 200,
+      "requestId": "req-cacb62740f79477c88b87da27d8cefe2"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "status": 200,
+      "requestId": "req-9a0252628e5b42f2bf48723b34c6ad48"
+    },
+    {
+      "actor": "other-user",
+      "method": "GET",
+      "path": "/api/v1/work-versions/wv-6a3377f85b944e2ab04b0e9ec5ed8354",
+      "status": 404,
+      "requestId": "req-8f33abe7e47f4223aac7fdf55646e378"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "automated-creator-390.png",
+    "automated-reopened-1440.png",
+    "automated-private-denied-1440.png"
+  ]
+}
