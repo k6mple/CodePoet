@@ -23,7 +23,7 @@ from app.db import create_database, create_session_factory
 from app.errors import ApiError
 from app.main import create_app
 from app.models.users import User as UserModel
-from app.schemas.works import RenderCreate
+from app.schemas.works import RenderCreate, WorkUpdate
 from app.services import uploads
 from app.services import works as works_service
 from app.settings import Settings
@@ -1264,9 +1264,88 @@ class WorkFlowTests(unittest.TestCase):
             self.client.get(f"{API}/artifacts/{v2_artifact}").status_code, 200,
             "新版本的产物应当公开",
         )
+        # 列表也要一起关：详情 404 了、列表还在吐标题/描述/changeNote/lastReview，
+        # 等于关了一半的门（评审 #13 第三轮的 P2）
+        listing = self.client.get(f"{API}/works/{work['id']}/versions")
+        self.assertEqual(listing.status_code, 200, listing.text)
+        body = listing.json()
+        self.assertEqual(body["total"], 1, "匿名版本列表仍在统计已撤回的旧版本")
+        self.assertEqual(
+            [item["id"] for item in body["items"]], [v2["id"]],
+            "已撤回的旧版本不该出现在匿名列表里",
+        )
         self.assertEqual(self.client.get(f"{API}/works/{work['id']}").status_code, 200)
 
 
+
+    def test_patch_guard_blocks_public_metadata_mid_write(self) -> None:
+        """读完之后作品被公开，这条 UPDATE 必须一行也写不进去。
+
+        评审 #13 [P1] 的另一半：光靠 revision 挡不住**不推进 revision 的写路径**
+        （历史数据、别的服务、直接改库）。所以 PATCH 的原子写入里还带了
+        `published_version_id IS NULL` 条件。
+
+        这个交错没法用两个线程真做——SQLite 是 rollback journal 模式，第二个
+        写者的 COMMIT 会卡在第一个读者的共享锁后面，等于把死锁做成测试。这里
+        改为在同一个事务里、在那条 UPDATE 执行前一刻把作品公开，让 WHERE 里的
+        条件失效：语义上就是「读到的时候还没公开，写下去的时候已经公开了」。
+        """
+        self._new_user("meta_guard")
+        csrf = self._login("meta_guard")
+        saved = self._save_work(csrf)
+        work, version = saved["work"], saved["version"]
+        owner_id = self._whoami()
+
+        engine = create_database(self.settings)
+        factory = create_session_factory(engine)
+        fired = {"done": False}
+
+        @event.listens_for(engine, "before_cursor_execute")
+        def _publish_right_before_update(conn, cursor, statement, params, context, executemany):
+            if fired["done"]:
+                return
+            head = statement.lstrip().upper()
+            if head.startswith("UPDATE WORKS") and "REVISION" in head:
+                fired["done"] = True
+                conn.exec_driver_sql(
+                    "UPDATE works SET published_version_id = ? WHERE id = ?",
+                    (version["id"], work["id"]),
+                )
+
+        try:
+            with factory() as db:
+                user = db.get(UserModel, owner_id)
+                with self.assertRaises(ApiError) as caught:
+                    works_service.update_work(
+                        db, user, work["id"],
+                        WorkUpdate(expectedRevision=work["revision"], title="并发写入的标题"),
+                    )
+        finally:
+            engine.dispose()
+
+        self.assertTrue(fired["done"], "没拦到那条 UPDATE，测试没验到东西")
+        self.assertEqual(caught.exception.status_code, 409)
+        self.assertEqual(caught.exception.code, "INVALID_STATE")
+
+        # 事务已回滚，所以作品仍是未公开、标题仍是创建时那个
+        self.assertIsNone(self._published_version_of(work["id"]))
+        self.assertEqual(self._title_of(work["id"]), "莲花")
+
+    def _published_version_of(self, work_id: str) -> str | None:
+        connection = sqlite3.connect(self.settings.database_path)
+        row = connection.execute(
+            "SELECT published_version_id FROM works WHERE id = ?", (work_id,)
+        ).fetchone()
+        connection.close()
+        return row[0] if row else None
+
+    def _title_of(self, work_id: str) -> str:
+        connection = sqlite3.connect(self.settings.database_path)
+        row = connection.execute(
+            "SELECT title FROM works WHERE id = ?", (work_id,)
+        ).fetchone()
+        connection.close()
+        return row[0] if row else ""
 
 if __name__ == "__main__":
     unittest.main()

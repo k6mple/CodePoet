@@ -802,22 +802,35 @@ def update_work(db: Session, user: User, work_id: str, payload: WorkUpdate) -> W
     # 列表、搜索、详情全都还停在创建时那个名字，改完等于没改。
     # 一旦有了公开版本，公共元数据由发布版决定，这里就不再动容器字段——
     # 否则等于绕过审核直接改公开页。
-    if row.published_version_id is None:
+    sync_container = row.published_version_id is None
+    if sync_container:
         if payload.title is not None:
             values["title"] = payload.title
         if payload.description is not None:
             values["description"] = payload.description
 
     now = _now_iso()
+    statement = update(Work).where(
+        Work.id == row.id, Work.revision == payload.expectedRevision
+    )
+    if sync_container:
+        # 「读到 publishedVersionId 为空」和「写下去」之间必须没有窗口。
+        # 中间如果有一笔审核把作品公开了，这里写的就成了未经审核的公开标题。
+        # 光靠 revision 挡不住：审核推进 revision 是这一版才补的，历史数据
+        # 与别的写路径未必守；把当前公开状态也放进 WHERE 才不依赖别人的自觉。
+        statement = statement.where(Work.published_version_id.is_(None))
+
     affected = db.execute(
-        update(Work)
-        .where(Work.id == row.id, Work.revision == payload.expectedRevision)
-        .values(revision=payload.expectedRevision + 1, updated_at=now, **values)
+        statement.values(revision=payload.expectedRevision + 1, updated_at=now, **values)
     ).rowcount
     if affected != 1:
         db.rollback()
         actual = db.scalar(select(Work.revision).where(Work.id == row.id)) or 0
-        raise revision_conflict(payload.expectedRevision, actual)
+        if actual != payload.expectedRevision:
+            raise revision_conflict(payload.expectedRevision, actual)
+        # revision 没变却写不进去，只可能是作品刚被公开——让客户端刷新重试，
+        # 别把它当成版本冲突（数字一样，报冲突会让人以为是自己算错了版本号）
+        raise invalid_state("作品刚刚被公开，请刷新后重试")
 
     db.commit()
     db.refresh(row)
@@ -898,7 +911,13 @@ def list_versions(
 
     stmt = select(WorkVersion).where(WorkVersion.work_id == work_id)
     if user is None or (work.owner_id != user.id and not _is_admin(user)):
-        stmt = stmt.where(WorkVersion.status == "published")
+        # 对外只列「当前公开且没被撤回」的版本。判定要和 can_read_version 对齐：
+        # 少一个条件，详情已经 404 的旧版本会从列表里把标题、描述、changeNote、
+        # lastReview 和关联 ID 又吐出来——下线只关了一半的门。
+        stmt = stmt.where(
+            WorkVersion.status == "published",
+            WorkVersion.public_revoked_at.is_(None),
+        )
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = db.scalars(
@@ -961,6 +980,12 @@ def create_version(
     )
     db.add(version)
     db.flush()
+    # 工作元数据在这一刻被消费掉了：它已经复制进这一版的快照里。再留着，
+    # 下一版会把同一份编辑又继承一遍。清空放在**创建**这一侧，而不是等到
+    # 审核通过——作者可能在建完版本后又改了一次标题给下一版用，那时候
+    # 批准与否都不该动他现在攒着的东西。
+    work.working_title = None
+    work.working_description = None
     work.latest_version_id = version.id
     work.display_version_id = version.id
     work.revision += 1
