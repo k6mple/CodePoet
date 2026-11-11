@@ -937,9 +937,6 @@ def create_version(
     db: Session, user: User, work_id: str, payload: WorkVersionCreate
 ) -> WorkCreated:
     work = _require_owned_work(db, user, work_id)
-    # 乐观锁：客户端拿的是旧 revision 就拒绝，避免覆盖别人的修改
-    if payload.expectedRevision != work.revision:
-        raise revision_conflict(payload.expectedRevision, work.revision)
 
     generation = _require_owned_generation(db, user, payload.generationId)
     job = _require_owned_job(db, user, payload.renderJobId)
@@ -948,10 +945,26 @@ def create_version(
     if job.phase != "completed":
         raise validation_error("渲染任务还没完成，不能创建版本")
 
+    # 乐观锁必须是原子的。原来写的是「先比 expectedRevision，再无条件
+    # work.revision += 1」，两个并发请求会同时通过比较，各自算出
+    # version_number = max+1，然后第二条撞 UNIQUE(work_id, version_number)，
+    # 冒出来的是 500 而不是 409。条件放进 UPDATE 的 WHERE 之后，数据库保证
+    # 只有一个请求能把 revision 从 N 推到 N+1，另一个在这里就 409 退出，
+    # 连版本都插不进去。
+    now = _now_iso()
+    affected = db.execute(
+        update(Work)
+        .where(Work.id == work.id, Work.revision == payload.expectedRevision)
+        .values(revision=payload.expectedRevision + 1, updated_at=now)
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(Work.revision).where(Work.id == work.id)) or 0
+        raise revision_conflict(payload.expectedRevision, actual)
+
     max_no = db.scalar(
         select(func.max(WorkVersion.version_number)).where(WorkVersion.work_id == work_id)
     ) or 0
-    now = _now_iso()
     version = WorkVersion(
         id=_new_id("wv"),
         work_id=work.id,
@@ -990,7 +1003,7 @@ def create_version(
     # 保留它还有另一个好处：批准旧版本时不会误伤作者给下一版攒的编辑。
     work.latest_version_id = version.id
     work.display_version_id = version.id
-    work.revision += 1
+    # revision 已经由上面那条 CAS 推进过了，这里不能再加一次
     work.updated_at = now
     db.commit()
     db.refresh(work)

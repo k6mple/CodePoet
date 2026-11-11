@@ -23,7 +23,7 @@ from app.db import create_database, create_session_factory
 from app.errors import ApiError
 from app.main import create_app
 from app.models.users import User as UserModel
-from app.schemas.works import RenderCreate, WorkUpdate
+from app.schemas.works import RenderCreate, WorkUpdate, WorkVersionCreate
 from app.services import uploads
 from app.services import works as works_service
 from app.settings import Settings
@@ -1419,6 +1419,85 @@ class WorkFlowTests(unittest.TestCase):
         )
         # 公开标题仍是被批准的那一版，没被绕过
         self.assertEqual(self.client.get(f"{API}/works/{work['id']}").json()["title"], "A")
+
+    def test_concurrent_create_version_is_conflict_not_500(self) -> None:
+        """并发建版本：一个成功，另一个 409，而不是 500。
+
+        旧实现是「先比 expectedRevision，再 work.revision += 1」。两个请求会
+        同时通过比较、各自算出 ``version_number = max+1``，第二条撞
+        ``UNIQUE(work_id, version_number)``，冒出来的是 IntegrityError（500）——
+        一次合法重试被报成服务器错。改成带条件的 UPDATE 之后，第二个请求在
+        CAS 处就 409 退出，连版本都插不进去。
+        """
+        self._new_user("ver_race")
+        csrf = self._login("ver_race")
+        saved = self._save_work(csrf)
+        work = saved["work"]
+        owner_id = self._whoami()
+
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            uploaded = self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+            self.assertEqual(uploaded.status_code, 200, uploaded.text)
+
+        barrier = threading.Barrier(2, timeout=10)
+        results: list[tuple[str, object]] = []
+
+        def worker(tag: str) -> None:
+            engine = create_database(self.settings)
+            factory = create_session_factory(engine)
+            try:
+                with factory() as db:
+                    user = db.get(UserModel, owner_id)
+                    barrier.wait()
+                    try:
+                        works_service.create_version(
+                            db, user, work["id"],
+                            WorkVersionCreate(
+                                expectedRevision=work["revision"],
+                                generationId=gen["id"],
+                                renderJobId=job["id"],
+                                changeNote=tag,
+                            ),
+                        )
+                        results.append((tag, "ok"))
+                    except ApiError as exc:
+                        results.append((tag, exc.status_code))
+            finally:
+                engine.dispose()
+
+        threads = [threading.Thread(target=worker, args=(t_,)) for t_ in ("A", "B")]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+        self.assertFalse(any(t.is_alive() for t in threads), "线程没有结束")
+
+        self.assertEqual(len(results), 2, results)
+        self.assertEqual(
+            len([r for r in results if r[1] == "ok"]), 1,
+            f"并发只该有一个成功，实际：{results}",
+        )
+        conflicts = [r for r in results if r[1] == 409]
+        self.assertEqual(len(conflicts), 1, f"另一个必须是 409：{results}")
+
+        connection = sqlite3.connect(self.settings.database_path)
+        total = connection.execute(
+            "SELECT COUNT(*) FROM work_versions WHERE work_id = ?", (work["id"],)
+        ).fetchone()[0]
+        revision = connection.execute(
+            "SELECT revision FROM works WHERE id = ?", (work["id"],)
+        ).fetchone()[0]
+        connection.close()
+        self.assertEqual(total, 2, "并发只能建出一个新版本")
+        self.assertEqual(revision, work["revision"] + 1, "revision 只该加 1")
 
 if __name__ == "__main__":
     unittest.main()
