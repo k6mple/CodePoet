@@ -56,3 +56,5 @@
 - 已知未完成项：后端问题保持未解决，GA/GB 不因提交/推送改为通过。
 - 提交前核验：fetch 成功，origin/main 仍 8bbc10c，无新增远端提交；typecheck、生产 build（15 个静态页面）、两个脚本 node --check 均退出 0。5 份 JSON 可解析，最终 P1 无意外失败，证据未含种子密码；6 份相关 Markdown 的本地链接均存在；diff --check 与后端/共享目录无修改检查通过。
 - 提交准备已完成：仅纳入上述前端成果和已引用日志。实际创建提交及远端推送将在本记录写入后执行；提交号和远端核对结果见本次最终回复及 Git 历史。本节不预先声称推送成功。
+- 实际主体提交：df69465（fix(frontend): 修正默认导出并交接主线联调问题与证据），28 文件；提交后 show --check 通过，工作区干净。
+- `git push origin main` 被 GitHub GH006 拒绝：main 为受保护分支，必须经 PR。远端 main 未因此更新；没有强推或绕过保护。已切换新分支 `fix/frontend-main-integration-feedback` 保留相同成果，后续普通推送该分支并以 main 为 base 创建审查 PR；本补记随交接分支提交。远端最终结果由随后命令及最终回复确认。
