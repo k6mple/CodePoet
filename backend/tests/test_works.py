@@ -1195,5 +1195,78 @@ class WorkFlowTests(unittest.TestCase):
 
 
 
+    def test_republish_new_version_does_not_reopen_revoked_version(self) -> None:
+        """下线后发布新版本，旧版本与它的产物必须保持关闭。
+
+        评审 #13 [P1]：判定只看「容器指针非空」，于是 发布 v1 → 下线 →
+        发布 v2 之后指针重新非空，仍然 status=published 的 v1 又变成匿名可读，
+        连它的产物一起——绕过了「重新公开需新版本审核」。撤回必须持久化在
+        版本上，光清指针挡不住这条回潮路径。
+        """
+        self._new_user("revoke_owner")
+        csrf = self._login("revoke_owner")
+        owner_id = self._whoami()
+        saved = self._save_work(csrf, title="第一版")
+        work, v1 = saved["work"], saved["version"]
+        self._publish(work["id"], v1["id"])
+        v1_artifact = self._artifact_of_job(v1["renderJobId"])
+        self._promote_admin(owner_id)
+
+        taken = self.client.post(
+            f"{API}/works/{work['id']}/unpublish",
+            json={"expectedRevision": work["revision"], "reason": "内容需要修订"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(taken.status_code, 200, taken.text)
+
+        # 建 v2 并让它过审公开（直接改库，审核链路另有专门用例）
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+        created = self.client.post(
+            f"{API}/works/{work['id']}/versions",
+            json={
+                "expectedRevision": taken.json()["revision"],
+                "generationId": gen["id"],
+                "renderJobId": job["id"],
+                "changeNote": "修订版",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(created.status_code, 201, created.text)
+        v2 = created.json()["version"]
+        self._publish(work["id"], v2["id"])
+        v2_artifact = self._artifact_of_job(job["id"])
+
+        # 换个身份匿名读：新版本公开，被撤回的旧版本不能跟着复活
+        self.client.cookies.clear()
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{v1['id']}").status_code, 404,
+            "被撤回的旧版本在新版本公开后仍在对外可读",
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{v1_artifact}").status_code, 404,
+            "旧版本的产物跟着复活了",
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{v2['id']}").status_code, 200,
+            "新版本本身应当公开",
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{v2_artifact}").status_code, 200,
+            "新版本的产物应当公开",
+        )
+        self.assertEqual(self.client.get(f"{API}/works/{work['id']}").status_code, 200)
+
+
+
 if __name__ == "__main__":
     unittest.main()

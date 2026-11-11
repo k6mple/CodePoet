@@ -1012,3 +1012,80 @@ class ReviewFlowTests(unittest.TestCase):
         connection.commit()
         connection.close()
         return stored.artifact_id
+
+    # ---- #13 P2：批准旧版本不能吃掉新草稿的工作元数据 --------------------
+    def test_approving_old_version_keeps_newer_draft_metadata(self) -> None:
+        """批准旧版本时，作者给更新草稿改的标题不能被清掉。
+
+        评审 #13 [P2]：原来「批准任何版本都清空 working_*」，于是作者给 v2
+        改好的标题在审核人批准 v1 时被丢弃，而 latest 仍指向 v2，之后建 v3
+        会回落到 v1 的旧标题，编辑无声丢失。
+        """
+        owner = self._register("meta_old_owner")
+        self._login("meta_old_owner")
+        work_id, v1_id, _generation = self._seed_work_version(
+            owner, status="pending_review"
+        )
+
+        # 送审记录要指向真实提交人：reviews.submitted_by 有外键约束，
+        # 种子数据默认留空会让裁决时的审核记录插不进去
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE work_versions SET submitted_by = ?, submitted_at = ? WHERE id = ?",
+            (owner, "2026-11-11T00:00:00+00:00", v1_id),
+        )
+
+        # 造一个更新的草稿 v2，让 latest 指向它
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " SELECT ?, work_id, 2, created_by, 'private', title, description,"
+            " generation_id, render_job_id, 'v2 草稿', NULL, NULL, 1,"
+            " created_at, updated_at FROM work_versions WHERE id = ?",
+            ("wv-meta-v2", v1_id),
+        )
+        connection.execute(
+            "UPDATE works SET latest_version_id = 'wv-meta-v2' WHERE id = ?",
+            (work_id,),
+        )
+        connection.commit()
+        connection.close()
+
+        # 作者给下一版改标题（此时作品还没公开，容器字段会一起同步）
+        revision = self._column("works", work_id, "revision")
+        patched = self.client.patch(
+            f"{API}/works/{work_id}",
+            json={"expectedRevision": revision, "title": "给 v3 准备的标题"},
+            headers={"X-CSRF-Token": self._csrf()},
+        )
+        self.assertEqual(patched.status_code, 200, patched.text)
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给 v3 准备的标题"
+        )
+
+        # 审核人批准的是**旧**版本 v1
+        self._register("meta_old_reviewer", role="expert")
+        csrf = self._login("meta_old_reviewer")
+        decided = self.client.post(
+            f"{API}/reviews",
+            json={
+                "targetType": "work_version",
+                "targetId": v1_id,
+                "expectedRevision": 1,
+                "decision": "approve",
+                "reason": "",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(decided.status_code, 201, decided.text)
+
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给 v3 准备的标题",
+            "批准旧版本把作者给新草稿改的标题清掉了",
+        )
+        # 公开元数据仍然来自被批准的那一版
+        self.assertEqual(self._column("works", work_id, "title"), "作品")
+        self.assertEqual(
+            self._column("works", work_id, "published_version_id"), v1_id
+        )

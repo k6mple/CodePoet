@@ -400,13 +400,17 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
                 work.published_version_id = row.id
                 work.display_version_id = row.id
                 # 同上：latest_version_id 保持指向最新创建的版本
-                # 公开元数据来自发布版（契约 5.1）。作者在 PATCH /works/{id}
-                # 改的是工作元数据，只有这一版真的审过了才允许它成为公开
-                # 标题；同时把工作元数据清空，避免下一次新建版本又继承一遍。
+                # 公开元数据来自发布版（契约 5.1）：批准哪一版，公开标题就是
+                # 哪一版当初送审时的那份。
                 work.title = row.title
                 work.description = row.description
-                work.working_title = None
-                work.working_description = None
+                # 只有批准**最新版本**时才算消费掉工作元数据。批准旧版本时
+                # 作者可能已经给更新的草稿改过标题，那是给下一版准备的，
+                # 在这里清掉就等于把作者的编辑丢了——而 latest 仍指向新草稿，
+                # 之后建版本会回落到旧版本的标题。
+                if work.latest_version_id == row.id:
+                    work.working_title = None
+                    work.working_description = None
 
     audit.record(
         db,

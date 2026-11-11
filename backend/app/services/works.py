@@ -178,12 +178,19 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
 
         if permissions.has_permission(user, permissions.REVIEWS_DECIDE):
             return True
-    # 版本 status 是**审核结论**，容器指针才是**当前公开开关**。
-    # 只看 status 的话，管理员下线作品（清 publishedVersionId）之后，这个
-    # 版本仍然 status=published，于是详情、产物都还能匿名读——下线等于没做。
-    # published 是终态（WORK_TRANSITIONS），不能为了下线把它改回 private，
+    # 版本 status 是**审核结论**，容器指针是**当前公开开关**，撤回标记是
+    # **这件事发生过**的证据，三个都要看：
+    # - 只看 status：下线后版本仍是 published，详情和产物照旧匿名可读；
+    # - 只看指针：先发 v1 → 下线 → 再发 v2，指针重新非空，v1 又被带回来
+    #   （评审 #13 P1 复现的正是这条），等于绕过「重新公开需新版本审核」；
+    # - 撤回标记必须持久化在版本上，才能一直生效。
+    # published 是终态（WORK_TRANSITIONS），不能为了下线把状态改回 private，
     # 否则等于把"当初审核通过了"这段历史抹掉，派生过它的作品来源也会漂移。
-    return row.status == "published" and work.published_version_id is not None
+    return (
+        row.status == "published"
+        and work.published_version_id is not None
+        and row.public_revoked_at is None
+    )
 
 
 def can_read_generation(db: Session, user: User | None, generation) -> bool:
@@ -852,6 +859,19 @@ def unpublish_work(
         db.rollback()
         actual = db.scalar(select(Work.revision).where(Work.id == row.id)) or 0
         raise revision_conflict(payload.expectedRevision, actual)
+
+    # 给当时所有公开版本打上撤回标记。只清容器指针是不够的：下次发布新版本
+    # 指针会重新非空，这些旧版本会跟着"复活"——而契约要求它们一直关闭，
+    # 重新公开得走新版本的审核。状态仍是 published，这里只记"曾经被撤回"。
+    db.execute(
+        update(WorkVersion)
+        .where(
+            WorkVersion.work_id == row.id,
+            WorkVersion.status == "published",
+            WorkVersion.public_revoked_at.is_(None),
+        )
+        .values(public_revoked_at=now)
+    )
 
     audit.record(
         db,
