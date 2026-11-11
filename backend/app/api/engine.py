@@ -77,7 +77,7 @@ def build_capabilities() -> Capabilities:
         maxDepth=4,
         maxParameters=16,
         features=CapabilityFeatureFlags(
-            semanticGeneration=False,
+            semanticGeneration=True,
             subgraphEditing=False,
             dslSandbox=False,
             advancedPolicies=False,

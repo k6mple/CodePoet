@@ -14,15 +14,27 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Path, Request, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Path,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from app.deps import get_db, require_csrf, require_user
+from app.deps import current_user, get_db, require_csrf, require_user
 from app.errors import not_found, validation_error
 from app.models.users import User as UserModel
 from app.models.works import Artifact
+from app.schemas.reproduce import Comparison
 from app.schemas.works import RenderCreate, RenderJob
+from app.services import reproduce as reproduce_service
 from app.services import uploads
 from app.services import works as works_service
 from app.settings import Settings
@@ -90,10 +102,16 @@ def read_artifact(
     request: Request,
     artifact_id: IdPath,
     db: Session = Depends(get_db),
-    user: UserModel = Depends(require_user),
+    user: UserModel | None = Depends(current_user),
 ):
+    """V 权限：本人、管理员，或这份产物所属快照当前可读。
+
+    只判 owner_id 会让已发布作品的图片取不到：作品详情匿名可读 200，但同一
+    作品的 PNG 对别人是 401/404，公共列表就是一片破图。待审作品同理——审核人
+    能看到队列行，却打不开要审的那张图。
+    """
     row = db.get(Artifact, artifact_id)
-    if row is None or row.owner_id != user.id:
+    if row is None or not works_service.can_read_artifact(db, user, row):
         raise not_found("产物不存在")
 
     path = uploads.artifact_path(_settings(request), row.storage_path)
@@ -107,7 +125,12 @@ def read_artifact(
         headers={
             "Content-Length": str(row.byte_size),
             # 私有产物：允许浏览器缓存但禁止中间代理缓存
-            "Cache-Control": "private, max-age=3600",
+            # 公开可见的产物不能被中间代理当成私有缓存，否则换了人还是旧图
+            "Cache-Control": (
+                "private, max-age=3600"
+                if user is not None and row.owner_id == user.id
+                else "public, max-age=3600"
+            ),
             # 内容寻址：同一个 artifactId 的内容不会变，可以直接用哈希做强校验
             "ETag": f'"{row.sha256}"',
         },
@@ -143,3 +166,26 @@ def cancel_render_job(
     db.commit()
     db.refresh(row)
     return works_service.build_render_job(row)
+
+
+@router.get(
+    "/render-jobs/{job_id}/comparison",
+    response_model=Comparison,
+    summary="原任务与复现任务像素比较",
+    description=(
+        "权限 O。两个任务都成功后服务端解码 RGBA 比较。"
+        "compatible 只看渲染器版本、浏览器指纹与尺寸这三项硬条件——"
+        "契约明确说它不是硬件环境认证。不可比时三项指标返回 null 而不是 0，"
+        "给 0 会被读成「完全一致」。"
+    ),
+)
+def compare_render_jobs(
+    job_id: IdPath,
+    request: Request,
+    originalJobId: str = Query(..., min_length=1, max_length=80, alias="originalJobId"),
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+) -> Comparison:
+    return reproduce_service.compare_jobs(
+        db, _settings(request), user, job_id, originalJobId
+    )
