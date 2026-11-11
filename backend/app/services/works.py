@@ -17,13 +17,19 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
-from app.errors import not_found, revision_conflict, validation_error
+from app.errors import (
+    execution_busy,
+    invalid_state,
+    not_found,
+    revision_conflict,
+    validation_error,
+)
 from app.models.creations import Generation as GenerationModel
 from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
@@ -48,6 +54,21 @@ from app.settings import Settings
 
 # 依赖快照占位：P1B-04 要做真实的依赖哈希，现在用固定值避免假装精确
 _DEPENDENCY_SNAPSHOT = hashlib.sha256(b"codepoet-p0-04").hexdigest()
+
+# 契约 7.1：上传任务创建后有效期 5 分钟
+UPLOAD_TTL_SECONDS = 300
+# 契约 7.1：每用户最多两个未完成的上传任务
+MAX_OPEN_UPLOADS = 2
+# 未完成 = 还能往上传帧的状态；timed_out 已经出局，不算占额度
+_OPEN_JOB_STATUSES = ("queued", "running")
+# 允许收帧的状态。**必须独立判断，不能依赖「到期检查有没有改过记录」**：
+# 任务可能早就被 GET 标成 timed_out，此时到期检查返回 False，
+# 「没改过」会被误读成「可以收帧」，重试一次就把过期任务救活成 succeeded。
+# succeeded 仍允许收帧：同一 timeMs 重复上传按替换处理（幂等），
+# 这样「响应丢了、前端重试最后一张」不会因为任务已成功而失败。
+_FRAME_ACCEPTING_STATUSES = ("queued", "running", "succeeded")
+# 过期任务对外暴露的错误码，契约 7.1 点名要求
+UPLOAD_EXPIRED_CODE = "UPLOAD_EXPIRED"
 
 
 # ---------------------------------------------------------------------------
@@ -125,7 +146,50 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
         return False
     if user is not None and (work.owner_id == user.id or _is_admin(user)):
         return True
+    # 待审版本对审核人开放：契约 V 明说「待审版本授权关联快照」。
+    # 队列会给非提交者的专家返回 canReview=true，但审核台要先读到详情和
+    # 图片才能裁决——只放行 published 会让专家看得到队列行、打不开要审的东西。
+    # 这里只放行待审的那一个版本，不是作者的全部历史。
+    if row.status == "pending_review" and user is not None:
+        from app.services import permissions
+
+        if permissions.has_permission(user, permissions.REVIEWS_DECIDE):
+            return True
     return row.status == "published"
+
+
+def can_read_generation(db: Session, user: User | None, generation) -> bool:
+    """快照可读性：本人、管理员，或「被某个你读得到的版本引用」。
+
+    产物、复现、派生都靠这条判断。只看 owner 会让公开作品的图片和复现
+    链路对所有人都断掉。
+    """
+    if user is not None and (generation.owner_id == user.id or _is_admin(user)):
+        return True
+    versions = db.scalars(
+        select(WorkVersion).where(WorkVersion.generation_id == generation.id)
+    ).all()
+    return any(can_read_version(db, user, version) for version in versions)
+
+
+def can_read_artifact(db: Session, user: User | None, row) -> bool:
+    """产物能不能读：本人、管理员，或**引用这次渲染任务的那个版本**可读。
+
+    PNG 属于某一次渲染任务，而**同一个快照可以渲染出多次**：作者可能把
+    J1 的结果发布成公开作品、把 J2 的结果留在私有作品里。所以判据必须是
+    「artifact → 它自己的 render_job → 引用了**这个 job** 的版本」，
+    而不是「artifact → job → 快照」——按快照判会把同一 generation 下所有
+    任务的输出一起放出去，公开一个版本就漏了另一个私有作品的图。
+    """
+    if user is not None and (row.owner_id == user.id or _is_admin(user)):
+        return True
+    if not row.render_job_id:
+        # 还没挂到任何作品（比如刚上传完的帧）：只有本人和管理员能读
+        return False
+    versions = db.scalars(
+        select(WorkVersion).where(WorkVersion.render_job_id == row.render_job_id)
+    ).all()
+    return any(can_read_version(db, user, version) for version in versions)
 
 
 # ---------------------------------------------------------------------------
@@ -225,6 +289,125 @@ def build_render_job(row: RenderJob) -> RenderJobSchema:
 # ---------------------------------------------------------------------------
 
 
+def _expire_stale_uploads(db: Session, owner_id: str) -> int:
+    """把该用户已过期但仍挂着可上传状态的任务标成 timed_out。
+
+    契约 7.1 写的是「过期时检查并标 timed_out，不需常驻 worker」，所以
+    清理挂在读写路径上：建新任务前清一批，读单个任务时清一条。不这样做
+    的话，一个两小时前就该过期的任务会永久占着两个额度中的一个，用户
+    再也建不出新任务，而看状态字段又找不出原因。
+    """
+    now = datetime.now(timezone.utc)
+    rows = db.scalars(
+        select(RenderJob).where(
+            RenderJob.owner_id == owner_id,
+            RenderJob.execution_mode == "browser_upload",
+            RenderJob.status.in_(_OPEN_JOB_STATUSES),
+        )
+    ).all()
+    return sum(1 for row in rows if _mark_expired_if_due(row, now))
+
+
+def _deadline_of(row: RenderJob) -> datetime | None:
+    """任务真正的到期时刻。
+
+    旧版本创建的上传任务是 ``queued`` 且 ``expires_at = NULL``（那时只写了
+    状态，没有到期约定）。它们一样占着额度，所以这里回退到
+    ``created_at + TTL`` 补算——否则这些任务永远不会释放，升级后用户必须
+    手工取消才能再建任务，而状态字段上看不出任何原因。
+    """
+    deadline = _parse_dt(row.expires_at)
+    if deadline is not None:
+        return deadline
+    created = _parse_dt(row.created_at)
+    if created is None:
+        return None
+    return created + timedelta(seconds=UPLOAD_TTL_SECONDS)
+
+
+def _mark_expired_if_due(row: RenderJob, now: datetime) -> bool:
+    """单个任务到期就地标记，返回是否真的改过。phase 保留原值。
+
+    **只对未完成状态生效**。``succeeded`` / ``failed`` / ``cancelled`` 都是
+    终态：它们已经结束了，跟"上传期限"没有关系。之前这里不看 status，而
+    ``get_render_job`` 会对任意状态调用它，于是一个已经成功上传完的任务，
+    只要 expires_at 过了就被读成 ``timed_out``——读一次改一次，越读越坏，
+    保存重试也会据此判失败。成功就是成功，不该被时钟改写。
+    """
+    if row.status not in _OPEN_JOB_STATUSES:
+        return False
+    deadline = _deadline_of(row)
+    if deadline is None or deadline > now:
+        return False
+    stamp = now.isoformat(timespec="seconds")
+    row.status = "timed_out"
+    if not row.expires_at:
+        # 补上补算出来的值：前端要能看出它是按哪个时刻判过期的，
+        # 而不是拿到一个 null 又看见 timed_out
+        row.expires_at = deadline.isoformat(timespec="seconds")
+    row.error_json = json.dumps(
+        {
+            "code": UPLOAD_EXPIRED_CODE,
+            "message": "上传任务已过期，请重新创建渲染任务",
+            "details": None,
+        },
+        ensure_ascii=False,
+    )
+    row.finished_at = row.finished_at or stamp
+    row.updated_at = stamp
+    return True
+
+
+def _begin_immediate(db: Session) -> None:
+    """在当前 Session 上开一个**独占写事务**。
+
+    SQLite 默认是 DEFERRED 事务：先读后写时，写锁要等到 INSERT 那一刻才
+    升级，中间那段窗口里别的连接也能读到同样的 COUNT，于是两个并发请求
+    各自看到"还有名额"、然后各插一条——上限就这么被突破了，而 429 只挡得住
+    串行的第二次请求。IMMEDIATE 在事务一开始就拿写锁，COUNT 与 INSERT
+    之间插不进任何人。
+
+    调用前必须没有未提交的改动：这里先 commit 一次，把前面只读的事务
+    收干净，再显式开 IMMEDIATE。
+    """
+    db.commit()
+    db.execute(text("BEGIN IMMEDIATE"))
+
+
+def reserve_upload_slot(db: Session, owner_id: str) -> None:
+    """在独占写事务里完成「清过期 → 数额度 → 超额就 429」。
+
+    调用方拿到写锁后自己插入任务并提交，两步之间不会插进别人。抽成函数是
+    因为普通上传与复现任务共用同一份额度——两份各自实现迟早会漂移，而这里
+    漂移的后果是限流失效。
+
+    抛出 429 前会回滚：IMMEDIATE 已经拿到写锁，不回滚的话锁要挂到 Session
+    依赖清理才放开，并发请求只能干等到超时（429 变成 500）。
+    """
+    _begin_immediate(db)
+    try:
+        # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
+        _expire_stale_uploads(db, owner_id)
+
+        open_count = db.scalar(
+            select(func.count())
+            .select_from(RenderJob)
+            .where(
+                RenderJob.owner_id == owner_id,
+                RenderJob.execution_mode == "browser_upload",
+                RenderJob.status.in_(_OPEN_JOB_STATUSES),
+            )
+        )
+        if (open_count or 0) >= MAX_OPEN_UPLOADS:
+            raise execution_busy(
+                f"未完成的上传任务已达 {MAX_OPEN_UPLOADS} 个上限，请先完成或等待旧任务过期",
+                details={"maxOpenUploads": MAX_OPEN_UPLOADS, "openUploads": open_count},
+            )
+    except Exception:
+        db.rollback()
+        raise
+
+
 def create_render_job(
     db: Session, user: User, payload: RenderCreate
 ) -> RenderJobSchema:
@@ -232,39 +415,59 @@ def create_render_job(
     if payload.backend != generation.backend:
         raise validation_error(f"快照的后端是 {generation.backend}，与请求的 {payload.backend} 不一致")
 
-    now = _now_iso()
-    row = RenderJob(
-        id=_new_id("job"),
-        owner_id=user.id,
-        generation_id=payload.generationId,
-        backend=payload.backend,
-        execution_mode=payload.executionMode,
-        # 客户端还没上传任何一帧，所以先 queued + awaiting_frames
-        status="queued",
-        phase="awaiting_frames",
-        times_ms_json=json.dumps(payload.timesMs),
-        policy_revision=1,
-        renderer_version=payload.rendererVersion,
-        client_environment_json=payload.clientEnvironment.model_dump_json(),
-        original_job_id=None,
-        started_at=None,
-        finished_at=None,
-        expires_at=None,
-        manifest_json=None,
-        quality_report_json=None,
-        error_json=None,
-        revision=1,
-        created_at=now,
-        updated_at=now,
-    )
-    db.add(row)
-    db.commit()
+    # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
+    # 额度检查与插入必须落在**同一个写事务**里。DEFERRED 事务下"先读后写"
+    # 会留出一个窗口：两个并发请求各自读到「还有名额」，然后各插一条，
+    # 上限被突破——429 只挡得住串行的第二次请求。评审复现过一次：两个
+    # POST /render-jobs 都返回 202，库里变成 3 个未完成任务。
+    reserve_upload_slot(db, user.id)
+    try:
+        now = datetime.now(timezone.utc)
+        stamp = now.isoformat(timespec="seconds")
+        expires = (now + timedelta(seconds=UPLOAD_TTL_SECONDS)).isoformat(timespec="seconds")
+
+        row = RenderJob(
+            id=_new_id("job"),
+            owner_id=user.id,
+            generation_id=payload.generationId,
+            backend=payload.backend,
+            execution_mode=payload.executionMode,
+            # 契约 7.1 对 browser_upload 明确规定「状态 running、phase=awaiting_frames」。
+            # 帧齐了才变 succeeded/phase=completed。
+            status="running",
+            phase="awaiting_frames",
+            times_ms_json=json.dumps(payload.timesMs),
+            policy_revision=1,
+            renderer_version=payload.rendererVersion,
+            client_environment_json=payload.clientEnvironment.model_dump_json(),
+            original_job_id=None,
+            started_at=None,
+            finished_at=None,
+            expires_at=expires,
+            manifest_json=None,
+            quality_report_json=None,
+            error_json=None,
+            revision=1,
+            created_at=stamp,
+            updated_at=stamp,
+        )
+        db.add(row)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
     db.refresh(row)
     return build_render_job(row)
 
 
 def get_render_job(db: Session, user: User, job_id: str) -> RenderJobSchema:
-    return build_render_job(_require_owned_job(db, user, job_id))
+    row = _require_owned_job(db, user, job_id)
+    # 读路径也判一次：前端会反复 GET 同一任务，等下一次创建时才清理太晚
+    if _mark_expired_if_due(row, datetime.now(timezone.utc)):
+        db.commit()
+        db.refresh(row)
+    return build_render_job(row)
 
 
 def _rebuild_manifest(
@@ -322,6 +525,18 @@ def upload_frame(
 ) -> RenderJobSchema:
     """上传一帧。同一 timeMs 重复上传按替换处理（幂等），不累积脏数据。"""
     row = _require_owned_job(db, user, job_id)
+    # 先判到期（这一步可能把 running 翻成 timed_out 并拒绝），
+    # 再**独立**判一次状态：任务可能早就被 GET 或上一次上传标成 timed_out，
+    # 那时到期检查返回 False，只靠它的返回值判断就等于给过期任务开了后门
+    # （评审复现：过期任务第一次上传 409，第二次 200 → succeeded → 保存 201）。
+    if _mark_expired_if_due(row, datetime.now(timezone.utc)):
+        db.commit()
+        db.refresh(row)
+        raise invalid_state("上传任务已过期，请重新创建渲染任务")
+    if row.status not in _FRAME_ACCEPTING_STATUSES:
+        raise invalid_state(
+            f"任务当前是 {row.status}，不再接收帧；请重新创建渲染任务"
+        )
     generation = _require_owned_generation(db, user, row.generation_id)
 
     times: list[int] = _loads(row.times_ms_json, [])

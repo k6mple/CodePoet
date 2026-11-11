@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from app.deps import current_user, get_db, require_csrf, require_user
 from app.models.users import User as UserModel
+from app.schemas.reviews import ArchiveRequest, RevisionRequest
 from app.schemas.templates import (
     Backend,
     Scope,
@@ -33,6 +34,7 @@ from app.schemas.templates import (
     TemplateVersionPage,
     VersionCreate,
 )
+from app.services import reviews as reviews_service
 from app.services import templates
 
 router = APIRouter(tags=["模板"])
@@ -198,3 +200,64 @@ def create_version(
     _csrf: object = Depends(require_csrf),
 ) -> TemplateVersion:
     return templates.create_template_version(db, user, template_id, payload)
+
+
+"""模板版本的路径 ID 注解。
+
+与 ``TemplateIdPath`` 分开定义而不是共用：两者约束相同，但混用会让
+以后改其中一个的约束时意外改到另一个路由。
+"""
+VersionIdPath = Annotated[
+    str,
+    Path(
+        ...,
+        min_length=1,
+        max_length=80,
+        pattern=r"^[A-Za-z0-9_-]+$",
+        description="模板版本 ID，不透明串",
+    ),
+]
+
+
+@router.post(
+    "/template-versions/{version_id}/submit",
+    response_model=TemplateVersion,
+    summary="提交模板版本审核",
+    description=(
+        "权限 D-own/A。只允许 draft/rejected → submitted。"
+        "送审会用引擎重验 IR/参数/绑定/约束，不自洽直接 422，"
+        "不让坏定义进审核队列白费审核人时间。"
+    ),
+)
+def submit_template_version(
+    payload: RevisionRequest,
+    version_id: VersionIdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> TemplateVersion:
+    return reviews_service.submit_template_version(
+        db, user, version_id, payload.expectedRevision
+    )
+
+
+@router.post(
+    "/template-versions/{version_id}/archive",
+    response_model=TemplateVersion,
+    summary="归档已发布模板版本",
+    description=(
+        "权限 D-own/A。只允许 published → archived。"
+        "归档会清除容器的公开指针；若还有别的已发布版本，指针转过去，"
+        "否则整块模板标为 archived。历史作品不受影响，仍可按原 generation 复现。"
+    ),
+)
+def archive_template_version(
+    payload: ArchiveRequest,
+    version_id: VersionIdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> TemplateVersion:
+    return reviews_service.archive_template_version(
+        db, user, version_id, payload.expectedRevision, payload.reason
+    )

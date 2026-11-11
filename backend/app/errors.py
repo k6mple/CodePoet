@@ -107,5 +107,29 @@ def invalid_state(message: str) -> ApiError:
     return ApiError(409, "INVALID_STATE", message)
 
 
+def unpublished_source(message: str, details: Any = None) -> ApiError:
+    """内容派生自未发布的源，不能公开送审。
+
+    典型场景：用草稿模板生成的图被存成作品后直接送审。审核人看到的
+    会是一张「来源还不存在」的作品；等模板真发布了，这张图也不会自动
+    跟着更新（契约 5.1 明确：模板后来通过不会改旧 generation）。
+    所以这里必须拒绝，让用户先让模板过审再重新生成。
+    """
+    return ApiError(409, "UNPUBLISHED_SOURCE", message, details=details)
+
+
 def self_review_forbidden(message: str = "不能审核自己提交的内容") -> ApiError:
     return ApiError(403, "SELF_REVIEW_FORBIDDEN", message)
+
+
+def execution_busy(
+    message: str = "未完成的上传任务已达上限，请先完成、取消或等待旧任务过期",
+    details: Any = None,
+) -> ApiError:
+    """契约 2.3 的 429：每用户最多两个未完成上传任务。
+
+    这不是防刷限流，而是因为每个未完成任务都会占住浏览器端的一次完整
+    出图与上传流程；放开会让页面同时挂着多个互不相干的上传会话，
+    前端也很难判断该把哪一帧交给哪个任务。
+    """
+    return ApiError(429, "EXECUTION_BUSY", message, details=details)
