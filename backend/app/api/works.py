@@ -12,13 +12,16 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.deps import current_user, get_db, require_csrf, require_user
 from app.models.users import User as UserModel
+from app.schemas.reproduce import ReproduceRequest
 from app.schemas.reviews import RevisionRequest
+from app.schemas.sessions import FavoriteResult
 from app.schemas.works import (
+    RenderJob,
     Scope,
     Work,
     WorkCreate,
@@ -29,8 +32,11 @@ from app.schemas.works import (
     WorkVersionDetail,
     WorkVersionPage,
 )
+from app.services import favorites as favorites_service
+from app.services import reproduce as reproduce_service
 from app.services import reviews as reviews_service
 from app.services import works as works_service
+from app.settings import Settings
 
 router = APIRouter(tags=["作品"])
 
@@ -144,4 +150,69 @@ def submit_work_version(
 ) -> WorkVersion:
     return reviews_service.submit_work_version(
         db, user, version_id, payload.expectedRevision
+    )
+
+
+@router.put(
+    "/works/{work_id}/favorite",
+    response_model=FavoriteResult,
+    summary="幂等收藏可见作品",
+    description=(
+        "权限 L。重复收藏返回 200 与 isFavorite=true，不报错——前端重试是常态。"
+        "看不见的作品一律 404，不确认存在性。"
+    ),
+)
+def favorite_work(
+    work_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> FavoriteResult:
+    return favorites_service.add_favorite(db, user, work_id)
+
+
+@router.delete(
+    "/works/{work_id}/favorite",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="幂等取消本人收藏",
+    description=(
+        "权限 L。没有收藏也返回 204；作品已下线仍可删除本人收藏关系"
+        "——那条记录属于用户，不该被作品状态绑架。"
+    ),
+)
+def unfavorite_work(
+    work_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> None:
+    favorites_service.remove_favorite(db, user, work_id)
+
+
+"""渲染任务的 settings 从 app.state 取，与 render.py 保持一致。"""
+def _settings(request: Request) -> Settings:
+    return request.app.state.settings
+
+
+@router.post(
+    "/work-versions/{version_id}/reproduce",
+    response_model=RenderJob,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="按历史快照创建复现任务",
+    description=(
+        "权限 V，必须登录且能看该版本。IR、backend、采样时刻全部从历史读取，"
+        "不接受客户端传——传了就等于允许「复现成别的东西」。"
+        "返回 browser_upload 任务等待浏览器绘制上传，不重新推理。"
+    ),
+)
+def reproduce_work_version(
+    payload: ReproduceRequest,
+    version_id: IdPath,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> RenderJob:
+    return reproduce_service.reproduce_version(
+        db, _settings(request), user, version_id, payload
     )

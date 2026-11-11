@@ -657,7 +657,7 @@ class ReviewFlowTests(unittest.TestCase):
         """真落一张 PNG 并登记，否则读取时是"文件已丢失"的 404，测不出授权。
 
         用 struct+zlib 手写 PNG，不依赖 Pillow——测试不该要求产品依赖清单里
-        没有的库，否则干净环境跑到这里就是 ModuleNotFoundError。
+        没有的库。
         """
         import struct
         import zlib

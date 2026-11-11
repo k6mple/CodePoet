@@ -157,8 +157,12 @@ class WorkFlowTests(unittest.TestCase):
                 return item["publishedVersionId"]
         return None
 
-    def _seed_generation(self, csrf: str) -> dict:
-        """直接往库里插一条生成快照，避免依赖模板种子。"""
+    def _seed_generation(self, csrf: str, duration_ms: int = 0) -> dict:
+        """直接往库里插一条生成快照，避免依赖模板种子。
+
+        ``duration_ms`` 大于 0 时 seed 与 ir_hash 会跟着变——采样时刻校验
+        现在会比对 IR 的动画时长，静态图传多帧会被拒。
+        """
         from app.models.creations import Generation as GenerationModel
 
         ir = {
@@ -166,7 +170,7 @@ class WorkFlowTests(unittest.TestCase):
             "seed": 42,
             "canvas": {"width": 800, "height": 600, "background": "#FFFFFF"},
             "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
-            "durationMs": 0,
+            "durationMs": duration_ms,
             # DrawingIR 要求至少 1 个节点，空数组会被模型拒绝
             "nodes": [
                 {
@@ -185,9 +189,9 @@ class WorkFlowTests(unittest.TestCase):
             "animations": [],
             "narrative": [],
         }
-        ir_hash = "a" * 64
+        ir_hash = ("a" if duration_ms == 0 else "b") * 64
         row = GenerationModel(
-            id="gen-test-1",
+            id="gen-test-1" if duration_ms == 0 else f"gen-test-d{duration_ms}",
             owner_id=self._user_id,
             mode="ir",
             backend="canvas2d",
@@ -233,8 +237,10 @@ class WorkFlowTests(unittest.TestCase):
                 db.commit()
         finally:
             engine.dispose()
-        return {"id": "gen-test-1", "irHash": ir_hash}
-        return {"id": "gen-test-1", "irHash": ir_hash}
+        return {
+            "id": "gen-test-1" if duration_ms == 0 else f"gen-test-d{duration_ms}",
+            "irHash": ir_hash,
+        }
 
     def _whoami(self) -> str:
         """从登录响应里取 userId，避免依赖 /me 的包装结构。"""
@@ -463,7 +469,7 @@ class WorkFlowTests(unittest.TestCase):
         self._new_user("owner6")
         csrf = self._login("owner6")
         self._user_id = self._whoami()
-        gen = self._seed_generation(csrf)
+        gen = self._seed_generation(csrf, duration_ms=2000)
         job = self._make_job(csrf, gen["id"], [0, 1000])
         png = make_png(800, 600)
 
@@ -570,7 +576,6 @@ class WorkFlowTests(unittest.TestCase):
         page = self.client.get(f"{API}/works?scope=public")
         self.assertEqual(page.status_code, 200)
         self.assertEqual(page.json()["total"], 0)
-
 
     # ---- PR #10 评审回归（2026-11-10）-----------------------------------
     def _insert_legacy_jobs(self, count: int, created_at: str) -> list[str]:

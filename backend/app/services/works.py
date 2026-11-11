@@ -48,6 +48,7 @@ from app.schemas.works import (
     WorkVersionDetail,
     WorkVersionPage,
 )
+from app.services import quality as quality_service
 from app.services import uploads
 from app.services.generations import build_generation_schema
 from app.settings import Settings
@@ -119,6 +120,24 @@ def _require_owned_generation(db: Session, user: User, generation_id: str) -> Ge
     return row
 
 
+def _require_generation_for_job(
+    db: Session, user: User, row: RenderJob
+) -> GenerationModel:
+    """取任务绑定的快照，按任务类型决定要不要归属校验。
+
+    普通上传任务要求快照属于本人；复现任务绑的是**原作者**的快照（契约允许
+    复现他人的公开作品），此时凭「任务属于本人」放行——任务已经过归属校验，
+    快照只是它的绘制输入，不是用户可以随意指派的资源。少了这一条，B 复现
+    A 的公开作品时上传帧会 404，整条链路走不通。
+    """
+    if row.original_job_id:
+        generation = db.get(GenerationModel, row.generation_id)
+        if generation is None:
+            raise not_found("生成快照不存在")
+        return generation
+    return _require_owned_generation(db, user, row.generation_id)
+
+
 def _require_owned_job(db: Session, user: User, job_id: str) -> RenderJob:
     row = db.get(RenderJob, job_id)
     if row is None or row.owner_id != user.id:
@@ -146,10 +165,9 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
         return False
     if user is not None and (work.owner_id == user.id or _is_admin(user)):
         return True
-    # 待审版本对审核人开放：契约 V 明说「待审版本授权关联快照」。
-    # 队列会给非提交者的专家返回 canReview=true，但审核台要先读到详情和
-    # 图片才能裁决——只放行 published 会让专家看得到队列行、打不开要审的东西。
-    # 这里只放行待审的那一个版本，不是作者的全部历史。
+    # 待审版本对审核人开放：契约 V 明说「待审版本授权关联快照」。队列会给
+    # 非提交者的专家返回 canReview=true，但审核台要先读到详情和图片才能裁决。
+    # 只放行待审的那一个版本，不是作者的全部历史。
     if row.status == "pending_review" and user is not None:
         from app.services import permissions
 
@@ -159,10 +177,12 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
 
 
 def can_read_generation(db: Session, user: User | None, generation) -> bool:
-    """快照可读性：本人、管理员，或「被某个你读得到的版本引用」。
+    """契约的 V 权限：本人、管理员，或「通过某个可读版本关联到这份快照」。
 
-    产物、复现、派生都靠这条判断。只看 owner 会让公开作品的图片和复现
-    链路对所有人都断掉。
+    最后一种正是复现他人公开作品需要的：B 复现 A 的公开作品时，浏览器要画的
+    是 A 的快照，但 B 与这份快照没有归属关系。判据必须落在「你能不能读那个
+    引用它的版本」，而不是「快照是不是你的」——否则契约里那句
+    「V=…公开作品具体版本…授权关联快照」在代码里就没有对应实现。
     """
     if user is not None and (generation.owner_id == user.id or _is_admin(user)):
         return True
@@ -178,8 +198,7 @@ def can_read_artifact(db: Session, user: User | None, row) -> bool:
     PNG 属于某一次渲染任务，而**同一个快照可以渲染出多次**：作者可能把
     J1 的结果发布成公开作品、把 J2 的结果留在私有作品里。所以判据必须是
     「artifact → 它自己的 render_job → 引用了**这个 job** 的版本」，
-    而不是「artifact → job → 快照」——按快照判会把同一 generation 下所有
-    任务的输出一起放出去，公开一个版本就漏了另一个私有作品的图。
+    而不是「artifact → job → 快照」。
     """
     if user is not None and (row.owner_id == user.id or _is_admin(user)):
         return True
@@ -415,7 +434,29 @@ def create_render_job(
     if payload.backend != generation.backend:
         raise validation_error(f"快照的后端是 {generation.backend}，与请求的 {payload.backend} 不一致")
 
-    # 先清过期再数额度。顺序反了的话，过期任务会把自己算成占用的名额
+    # 采样时刻必须与 IR 对得上：静态图只取 [0]；动画的完整保存必须
+    # 恰好是 [0, floor(duration/2), duration]（契约 7.1）。否则会存下一份
+    # "动画"却只画了开头一帧，回放时看不出问题但内容其实缺了 2/3
+    ir_doc = json.loads(generation.ir_json or "{}")
+    duration = int(ir_doc.get("durationMs") or 0)
+    if duration == 0:
+        if payload.timesMs != [0]:
+            raise validation_error(
+                f"静态图只能采样时刻 [0]，收到 {payload.timesMs}"
+            )
+    else:
+        over = [item for item in payload.timesMs if item > duration]
+        if over:
+            raise validation_error(
+                f"采样时刻 {over} 超出动画时长 {duration}ms"
+            )
+        if len(payload.timesMs) == 3:
+            expected = [0, duration // 2, duration]
+            if payload.timesMs != expected:
+                raise validation_error(
+                    f"完整动画保存的采样时刻必须是 {expected}，收到 {payload.timesMs}"
+                )
+
     # 额度检查与插入必须落在**同一个写事务**里。DEFERRED 事务下"先读后写"
     # 会留出一个窗口：两个并发请求各自读到「还有名额」，然后各插一条，
     # 上限被突破——429 只挡得住串行的第二次请求。评审复现过一次：两个
@@ -537,7 +578,7 @@ def upload_frame(
         raise invalid_state(
             f"任务当前是 {row.status}，不再接收帧；请重新创建渲染任务"
         )
-    generation = _require_owned_generation(db, user, row.generation_id)
+    generation = _require_generation_for_job(db, user, row)
 
     times: list[int] = _loads(row.times_ms_json, [])
     if time_ms not in times:
@@ -586,6 +627,12 @@ def upload_frame(
     if all(t in uploaded_times for t in times):
         manifest = _rebuild_manifest(db, row, generation)
         row.manifest_json = manifest.model_dump_json()
+        # 帧齐了才谈质量：一张全白的 PNG 能通过所有结构校验、能存成作品，
+        # 但它上面什么都没画——只有看像素才发现
+        quality = quality_service.build_quality_report(
+            db, settings, row.id, generation.ir_json, times
+        )
+        row.quality_report_json = quality.model_dump_json()
         row.status = "succeeded"
         row.phase = "completed"
         row.started_at = row.started_at or now

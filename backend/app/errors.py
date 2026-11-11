@@ -107,6 +107,15 @@ def invalid_state(message: str) -> ApiError:
     return ApiError(409, "INVALID_STATE", message)
 
 
+def no_semantic_match(message: str, details: Any = None) -> ApiError:
+    """输入没有命中任何映射规则。
+
+    这里必须报错而不是画一张兜底图：用户输入"随便什么"却得到一朵莲，
+    会以为规则生效了，实际是系统在替它做决定。错误码取自契约 422 分支。
+    """
+    return ApiError(422, "NO_SEMANTIC_MATCH", message, details=details)
+
+
 def unpublished_source(message: str, details: Any = None) -> ApiError:
     """内容派生自未发布的源，不能公开送审。
 

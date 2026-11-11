@@ -54,7 +54,7 @@ from app.schemas.reviews import (
 )
 from app.schemas.templates import TemplateVersion as TemplateVersionSchema
 from app.schemas.works import WorkVersion as WorkVersionSchema
-
+from app.services import audit
 from app.services import permissions
 from app.services import templates as templates_service
 from app.services import works as works_service
@@ -320,6 +320,8 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
 
     target = "published" if payload.decision == "approve" else "rejected"
     _assert_transition(transitions, row.status, target, label)
+    # 留痕要记「改之前是什么」，只记结果的话事后看不出这次审核改变了什么
+    previous_status = row.status
 
     now = _now_iso()
     review_id = _new_id("rev")
@@ -354,7 +356,11 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
     # expectedRevision 提交 approve / reject，只有一个能让 rowcount=1，
     # 另一个 409。否则两条审核记录都指向同一个 targetRevision，而版本状态
     # 只留下后写的那条——记录和公开指针互相矛盾。
-    model = TemplateVersionModel if payload.targetType == "template_version" else WorkVersionModel
+    model = (
+        TemplateVersionModel
+        if payload.targetType == "template_version"
+        else WorkVersionModel
+    )
     affected = db.execute(
         update(model)
         .where(model.id == row.id, model.revision == payload.expectedRevision)
@@ -362,7 +368,9 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
     ).rowcount
     if affected != 1:
         db.rollback()
-        raise errors.revision_conflict(payload.expectedRevision, payload.expectedRevision + 1)
+        raise errors.revision_conflict(
+            payload.expectedRevision, payload.expectedRevision + 1
+        )
 
     # revision 已经由上面那条 UPDATE 推进，这里只改其余字段，
     # 别再把 row.revision 加一遍（会跳号）
@@ -393,6 +401,22 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
                 work.display_version_id = row.id
                 # 同上：latest_version_id 保持指向最新创建的版本
 
+    audit.record(
+        db,
+        actor=reviewer,
+        action="review.decide",
+        target_type=payload.targetType,
+        target_id=row.id,
+        version_id=row.id,
+        input_summary={
+            "decision": payload.decision,
+            "reason": payload.reason,
+            "targetRevision": payload.expectedRevision,
+        },
+        before={"status": previous_status},
+        after={"status": target, "reviewId": review_id},
+        result="success",
+    )
     db.commit()
     return Review.model_validate(snapshot)
 
@@ -439,15 +463,14 @@ def archive_template_version(
     # 归档理由追加到 change_note，但**必须在提交前就保证不超上限**。
     # changeNote 的响应模型上限是 500 字：原文合法 500 字、归档理由也合法，
     # 拼起来 514 字就会 commit 成功而响应模型校验失败，之后每次读这个版本
-    # 都 500。这里优先保住作者原文，理由超出部分截断并标记，绝不让持久化
-    # 的数据变成"读不出来"的状态。
+    # 都 500。这里优先保住作者原文，理由超出部分截断并标记。
     note = (row.change_note or "").strip()
     marker = "\n[归档] "
     budget = 500 - len(note) - len(marker)
     if budget >= 8:
         trimmed = reason if len(reason) <= budget else reason[: budget - 1] + "…"
         row.change_note = f"{note}{marker}{trimmed}" if note else f"[归档] {trimmed}"
-    # budget 不够就保持原文不动：作者的版本说明比归档理由更重要
+    # 额度不够就保持原文不动：作者的版本说明比归档理由更重要
 
     if template.published_version_id == row.id:
         # 先落盘，避免下面的候选查询把自己的旧状态算进去
