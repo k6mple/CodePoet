@@ -961,6 +961,8 @@ def create_version(
         # 契约「新版本读取工作元数据」：作者在 PATCH /works/{id} 改的标题要靠
         # 这里带进新版本，否则改了等于没改。空串是合法的工作描述，所以用
         # is not None 判断而不是真值判断。
+        # 回落到 work.title / work.description 只发生在作者从没改过的时候；
+        # 改过就一直用 working_*（见下面「不清空」那段）。
         title=work.working_title if work.working_title is not None else work.title,
         description=(
             work.working_description
@@ -980,12 +982,12 @@ def create_version(
     )
     db.add(version)
     db.flush()
-    # 工作元数据在这一刻被消费掉了：它已经复制进这一版的快照里。再留着，
-    # 下一版会把同一份编辑又继承一遍。清空放在**创建**这一侧，而不是等到
-    # 审核通过——作者可能在建完版本后又改了一次标题给下一版用，那时候
-    # 批准与否都不该动他现在攒着的东西。
-    work.working_title = None
-    work.working_description = None
+    # 这里**不清空** working_*。它是作者的"当前工作元数据"，是一个持续的默认值，
+    # 不是一次性缓冲：清空之后，下一次 create_version 会回落到 work.title /
+    # work.description，而这两个字段在有公开版本时是**上一版公开的**元数据，
+    # 于是「公开 v1(A) → 改标题 B → 建 v2(B) → 直接建 v3」的第二、第三版
+    # 会静默退回 A（评审 #13 第四轮的 P2，就是这么来的）。
+    # 保留它还有另一个好处：批准旧版本时不会误伤作者给下一版攒的编辑。
     work.latest_version_id = version.id
     work.display_version_id = version.id
     work.revision += 1

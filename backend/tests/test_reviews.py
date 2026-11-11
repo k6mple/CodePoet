@@ -1225,5 +1225,8 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertEqual(created.status_code, 201, created.text)
         self.assertEqual(created.json()["version"]["title"], "给下一版的标题")
         self.assertEqual(created.json()["version"]["description"], "给下一版的说明")
-        # 消费之后就清空，免得再下一版又继承一遍
-        self.assertIsNone(self._column("works", work_id, "working_title"))
+        # 工作元数据是持续的默认值，不清空：清空会让再下一版回落到旧公开版
+        # 的标题（评审 #13 第四轮 P2），这里明确锁住"建完版本后它还在"
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给下一版的标题"
+        )

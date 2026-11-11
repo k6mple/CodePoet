@@ -1347,5 +1347,78 @@ class WorkFlowTests(unittest.TestCase):
         connection.close()
         return row[0] if row else ""
 
+    def test_consecutive_versions_keep_staged_metadata(self) -> None:
+        """连续建版本不能静默退回旧公开版的标题。
+
+        评审 #13 [P2]（第四轮）：公开 v1（标题 A、描述空）→ 改工作标题 B、
+        描述 B → 建 v2 → 不再改元数据直接建 v3。上一版我在 create_version 里
+        清空 working_*，于是 v3 回落到 work.title / work.description——而它们
+        在有公开版本时是**上一版公开的**元数据，v3 静默变回 A、描述变空，
+        批准之后公开页也跟着回退。
+
+        工作元数据是持续的默认值，不是一次性缓冲。
+        """
+        self._new_user("chain_owner")
+        csrf = self._login("chain_owner")
+        saved = self._save_work(csrf, title="A")
+        work, v1 = saved["work"], saved["version"]
+        self._publish(work["id"], v1["id"])
+
+        current = self.client.get(f"{API}/works/{work['id']}").json()
+        staged = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={
+                "expectedRevision": current["revision"],
+                "title": "B",
+                "description": "描述 B",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(staged.status_code, 200, staged.text)
+        # 已有公开版本，所以只写工作元数据，公开标题仍是 A
+        self.assertEqual(staged.json()["title"], "A")
+
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+
+        def create_version(revision: int, note: str):
+            return self.client.post(
+                f"{API}/works/{work['id']}/versions",
+                json={
+                    "expectedRevision": revision,
+                    "generationId": gen["id"],
+                    "renderJobId": job["id"],
+                    "changeNote": note,
+                },
+                headers={"X-CSRF-Token": csrf},
+            )
+
+        v2 = create_version(staged.json()["revision"], "第二版")
+        self.assertEqual(v2.status_code, 201, v2.text)
+        self.assertEqual(v2.json()["version"]["title"], "B")
+        self.assertEqual(v2.json()["version"]["description"], "描述 B")
+
+        # 不再改任何元数据，直接建 v3
+        v3 = create_version(v2.json()["work"]["revision"], "第三版")
+        self.assertEqual(v3.status_code, 201, v3.text)
+        self.assertEqual(
+            v3.json()["version"]["title"], "B",
+            "连续建版本时标题退回了旧公开版（A）",
+        )
+        self.assertEqual(
+            v3.json()["version"]["description"], "描述 B",
+            "连续建版本时描述退回了旧公开版（空）",
+        )
+        # 公开标题仍是被批准的那一版，没被绕过
+        self.assertEqual(self.client.get(f"{API}/works/{work['id']}").json()["title"], "A")
+
 if __name__ == "__main__":
     unittest.main()
