@@ -97,3 +97,14 @@
 - 主体提交 `aa969a41f1a11bfd7fa5aa244acae57d365b02c2`：`feat(frontend): 完成 P1 集成验收与六类导出交付`，92 文件。`git show --check` 通过，提交后工作区干净。
 - `git push -u origin feat/p1-integration-delivery-20261112` 退出 0，已建立远端同名分支并设置 upstream。实际回读远端分支为 aa969a4，main 仍为 15d79ff；本地/远端分支差异为 0/0，确认本分支包含最新 main。
 - 没有强推、直接推 main、合并远端 PR、上传运行数据或删除其他 worktree。本补记只记录已观察到的成功结果，随后随日志提交同步；最终日志补记提交号以 Git 历史及本次最终回复为准。
+
+## 继续：用户授权创建 PR
+
+- 状态：进行中。用户明确要求“提交pr”，目标为 `feat/p1-integration-delivery-20261112` → `main`，创建可审查 PR，不自动合并。
+- 创建前核验：当前本地/远端 head 均为 `61fc00a`，工作区原本干净；fetch 后 main 仍 `15d79ff`，祖先检查通过。GitHub 搜索未找到当前 head 分支的现有 PR。
+- PR 范围相对 main 为 129 文件，包含 #14 既有前端验收/交接内容及本轮成果；正文会明确历史证据与最新 main-sync 结果的区别。
+- 本次仅创建 PR，不修改业务代码、不重跑完整后端或浏览器；新执行 diff/show --check 和三个验收脚本 node --check 均通过，沿用已提交的完整验证记录并标注其范围。
+- 本次 PR 操作的日志补记保留本地，不因创建 PR 额外提交或推送。
+- 创建结果：GitHub 连接器返回 403 Resource not accessible by integration；改用本机已登录 gh CLI，`gh pr create --repo k6mple/CodePoet --base main --head feat/p1-integration-delivery-20261112 --body-file .tools/p1-push-20261112/pr-body.md` 退出 0。
+- 已创建 [PR #17：完成 P1 前端联调交付并核验备份产物引用](https://github.com/k6mple/CodePoet/pull/17)。回读确认 open、非 draft、base=main、head=feat/p1-integration-delivery-20261112 / 61fc00a；未合并。
+- 状态：PR 提交已完成。代码提交与远端 head 未变，本次仅本日志有未提交补记；没有额外 Git 提交或推送。
