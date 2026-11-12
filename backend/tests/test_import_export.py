@@ -373,7 +373,17 @@ class ImportExportTests(unittest.TestCase):
         self.assertFalse(body["manifest"]["includesArtifacts"])
 
     def test_export_work_snapshots_carry_ir_and_flag(self) -> None:
-        """作品快照备份必须带 IR、渲染任务，并如实说明有没有产物。"""
+        """作品快照备份必须带 IR、渲染任务，并如实说明产物在不在。
+
+        ``missingArtifacts`` 不能只看 ``artifacts`` 里有没有行：行在、文件被
+        清掉的情况很常见。三态都验一遍，其中「有记录无文件」正是旧实现会说
+        谎的那一态。
+        """
+        import struct
+        import zlib
+
+        from app.services import uploads
+
         owner_id = self._login_admin()
         self._seed_work_snapshot(owner_id)
         response = self.client.post(
@@ -389,7 +399,56 @@ class ImportExportTests(unittest.TestCase):
             set(item), {"work", "version", "generation", "renderJob", "missingArtifacts"}
         )
         self.assertIsInstance(item["generation"]["ir"], dict)
-        self.assertIsInstance(item["missingArtifacts"], bool)
+        self.assertTrue(item["missingArtifacts"], "既没记录也没文件，必须报缺失")
+
+        # 落一份真实 PNG 并登记
+        width, height = 8, 6
+        raw = b"".join(b"\x00" + bytes((200, 60, 60)) * width for _ in range(height))
+
+        def chunk(tag: bytes, payload: bytes) -> bytes:
+            return (
+                struct.pack(">I", len(payload))
+                + tag
+                + payload
+                + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF)
+            )
+
+        png = (
+            b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(raw, 9))
+            + chunk(b"IEND", b"")
+        )
+        stored = uploads.store_frame(self.settings, owner_id, png, 0)
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "INSERT INTO artifacts (id, owner_id, kind, content_type, byte_size,"
+            " storage_path, sha256, width, height, time_ms, render_job_id, created_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                stored.artifact_id, owner_id, stored.kind, stored.content_type,
+                stored.byte_size, stored.storage_path, stored.sha256,
+                stored.width, stored.height, 0, "job-backup", NOW,
+            ),
+        )
+        connection.commit()
+        connection.close()
+
+        with_file = self.client.post(
+            f"{API}/admin/exports",
+            json={"types": ["workSnapshots"]},
+            headers={"X-CSRF-Token": self.csrf},
+        ).json()["data"]["workSnapshots"][0]
+        self.assertFalse(with_file["missingArtifacts"], "文件在，不该报缺失")
+
+        # 删掉文件但保留记录：这才是「用状态代理事实」会翻车的地方
+        uploads.artifact_path(self.settings, stored.storage_path).unlink()
+        gone = self.client.post(
+            f"{API}/admin/exports",
+            json={"types": ["workSnapshots"]},
+            headers={"X-CSRF-Token": self.csrf},
+        ).json()["data"]["workSnapshots"][0]
+        self.assertTrue(gone["missingArtifacts"], "记录在但文件没了，必须报缺失")
 
     def test_export_counts_match_data(self) -> None:
         """看板：导出清单与实际数量相符。"""

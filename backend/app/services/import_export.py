@@ -60,12 +60,14 @@ from app.schemas.taxonomy import Tag as TagSchema
 from app.schemas.templates import Template as TemplateSchema
 from app.schemas.templates import TemplateVersion as TemplateVersionSchema
 from app.schemas.validation import Issue
+from app.settings import Settings
 from app.services import audit
 from app.services import knowledge as knowledge_service
 from app.services import permissions
 from app.services import rules as rules_service
 from app.services import taxonomy
 from app.services import templates as templates_service
+from app.services import uploads
 from app.services import works as works_service
 from app.services.generations import build_generation_schema
 
@@ -149,7 +151,34 @@ def _canonical_hash(payload: dict) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _export_work_snapshots(db: Session, actor: User) -> list[dict]:
+def _artifact_missing(db: Session, settings: Settings | None, job_id: str) -> bool:
+    """这一版那次渲染的产物还在不在。
+
+    不能只看 ``artifacts`` 里有没有行：行还在、文件被清掉的情况在生产里
+    很常见（换机器、清理磁盘）。备份包既然不含 PNG，就必须如实告诉使用者
+    「这一条将来能不能直接复用」——用「有没有记录」代理「文件在不在」，
+    等于给一个会骗人的备份。
+    """
+    storage_path = db.scalar(
+        select(ArtifactModel.storage_path)
+        .where(ArtifactModel.render_job_id == job_id)
+        .order_by(ArtifactModel.time_ms)
+        .limit(1)
+    )
+    if not storage_path:
+        return True
+    if settings is None:
+        # 拿不到数据目录时只能按记录判断，明确退化为「记录在即认为在」
+        return False
+    try:
+        return not uploads.artifact_path(settings, storage_path).exists()
+    except Exception:  # noqa: BLE001 —— 库路径被手工改坏时按缺失处理
+        return True
+
+
+def _export_work_snapshots(
+    db: Session, actor: User, settings: Settings | None
+) -> list[dict]:
     """每个作品版本一条：作品 + 版本 + 生成快照 + 渲染任务。
 
     ``missingArtifacts`` 如实说明这一版那次渲染的产物还在不在：备份包本身
@@ -185,24 +214,22 @@ def _export_work_snapshots(db: Session, actor: User) -> list[dict]:
                 "BACKUP_DATA_CORRUPT",
                 f"作品版本 {version.id} 的关联数据不完整，无法导出备份",
             )
-        has_artifact = db.scalar(
-            select(ArtifactModel.id)
-            .where(ArtifactModel.render_job_id == job.id)
-            .limit(1)
-        )
+        missing = _artifact_missing(db, settings, job.id)
         items.append(
             {
                 "work": works_service.build_work(db, work, actor).model_dump(mode="json"),
                 "version": works_service.build_version(version).model_dump(mode="json"),
                 "generation": build_generation_schema(generation).model_dump(mode="json"),
                 "renderJob": works_service.build_render_job(job).model_dump(mode="json"),
-                "missingArtifacts": has_artifact is None,
+                "missingArtifacts": missing,
             }
         )
     return items
 
 
-def export_backup(db: Session, actor: User, types: list[str]) -> BackupPackage:
+def export_backup(
+    db: Session, actor: User, types: list[str], settings: Settings | None = None
+) -> BackupPackage:
     """按类型导出整库。
 
     ``types`` 覆盖契约里的全部六类。导出的东西不一定都导得回去：
@@ -287,7 +314,7 @@ def export_backup(db: Session, actor: User, types: list[str]) -> BackupPackage:
         ]
 
     if "workSnapshots" in types:
-        data["workSnapshots"] = _export_work_snapshots(db, actor)
+        data["workSnapshots"] = _export_work_snapshots(db, actor, settings)
 
     counts = ManifestCounts(
         concepts=len(data["concepts"]),
