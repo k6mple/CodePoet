@@ -251,6 +251,96 @@ class ReviewFlowTests(unittest.TestCase):
         connection.close()
         return work_id, version_id, generation_id
 
+    def _seed_extra_version(
+        self, work_id: str, owner_id: str, number: int, status: str = "private"
+    ) -> tuple[str, str]:
+        """给已有作品补一个版本（自带 generation + 完成的渲染任务）。
+
+        真实流程里 v2 是作者从旧版改 IR 后新建的，所以它有自己的快照与渲染
+        任务；共用 v1 的 job 就测不出「私有新版会不会把公开视图顶掉」。
+        返回 (version_id, generation_id)。
+        """
+        version_id = self._unique("wv")
+        generation_id = self._unique("gen")
+        job_id = self._unique("job")
+        now = "2026-11-09T11:00:00+00:00"
+        provenance = json.dumps(
+            {
+                "kind": "manual_edit",
+                "baseGenerationId": None,
+                "matchedEntities": [],
+                "matchedRules": [],
+                "selectedSymbols": [],
+                "paletteDecision": None,
+                "compositionDecision": None,
+                "timelineDecision": None,
+                "templateSelection": None,
+                "conflicts": [],
+                "warnings": [],
+                "engineVersion": "test-1.0",
+                "ontologyVersion": 1,
+                "policyRevision": 1,
+                "fragmentSource": None,
+                "fragmentSourceHash": None,
+            }
+        )
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO generations (id, owner_id, mode, backend, template_version_id,"
+            " params_json, seed, ir_json, ir_hash, provenance_json,"
+            " validation_report_json, warnings_json, unpublished_source, request_id,"
+            " created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                generation_id, owner_id, "ir", "canvas2d", None, "{}", 8,
+                template_ir(), "c" * 64, provenance,
+                '{"parameterValid":true,"nodeCount":1,"outOfBoundsNodeCount":0,"issues":[]}',
+                "[]", 0, "req-test", now,
+            ),
+        )
+        connection.execute(
+            "INSERT INTO render_jobs (id, owner_id, generation_id, backend,"
+            " execution_mode, status, phase, times_ms_json, policy_revision,"
+            " renderer_version, client_environment_json, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                job_id, owner_id, generation_id, "canvas2d", "browser_upload",
+                "succeeded", "completed", "[0]", 1, "test-1.0",
+                '{"userAgent":"t","deviceScaleFactor":1}', 1, now, now,
+            ),
+        )
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                version_id, work_id, number, owner_id, status, "作品", "",
+                generation_id, job_id, "", None, None, 1, now, now,
+            ),
+        )
+        connection.commit()
+        connection.close()
+        return version_id, generation_id
+
+    def _point_work_at(
+        self,
+        work_id: str,
+        *,
+        published: str | None,
+        latest: str,
+        display: str,
+        thumbnail: str | None = None,
+    ) -> None:
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE works SET published_version_id = ?, latest_version_id = ?,"
+            " display_version_id = ?, thumbnail_artifact_id = ? WHERE id = ?",
+            (published, latest, display, thumbnail, work_id),
+        )
+        connection.commit()
+        connection.close()
+
     def _status_of(self, table: str, row_id: str) -> str:
         connection = sqlite3.connect(self.settings.database_path)
         row = connection.execute(
@@ -587,6 +677,117 @@ class ReviewFlowTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 422, response.text)
 
+    # ---- 退回后修订（BE-TEMPLATE-EDIT-001）-------------------------------
+    def test_edit_rejected_version_in_place(self) -> None:
+        """退回的版本能就地改，改完直接再送审。
+
+        没有这条接口时前端只能 405，作者只能新建一个版本冒充修订——
+        版本号、变更说明、审核记录全部错位。
+        """
+        owner = self._register("edit_owner")
+        csrf = self._login("edit_owner")
+        _template_id, version_id = self._seed_template_version(owner, status="rejected")
+
+        patched = self.client.patch(
+            f"{API}/template-versions/{version_id}",
+            json={"expectedRevision": 1, "changeNote": "调整中心半径后重交"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(patched.status_code, 200, patched.text)
+        body = patched.json()
+        self.assertEqual(body["changeNote"], "调整中心半径后重交")
+        self.assertEqual(body["revision"], 2, "改内容必须推进 revision")
+        self.assertEqual(body["versionNumber"], 1, "就地修订不产生新版本号")
+        self.assertEqual(body["status"], "rejected", "改内容不该顺手改状态")
+
+        # 修订后的 revision 就是送审要带的那一个
+        submitted = self.client.post(
+            f"{API}/template-versions/{version_id}/submit",
+            json={"expectedRevision": 2},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(submitted.status_code, 200, submitted.text)
+        self.assertEqual(submitted.json()["status"], "submitted")
+
+    def test_cannot_edit_version_under_review_or_published(self) -> None:
+        """submitted 已进队列、published 是别人引用过的历史，都不能改。"""
+        owner = self._register("edit_locked")
+        csrf = self._login("edit_locked")
+        for status in ("submitted", "published"):
+            _template_id, version_id = self._seed_template_version(owner, status=status)
+            response = self.client.patch(
+                f"{API}/template-versions/{version_id}",
+                json={"expectedRevision": 1, "changeNote": "偷改一句"},
+                headers={"X-CSRF-Token": csrf},
+            )
+            self.assertEqual(response.status_code, 409, f"{status}: {response.text}")
+            self.assertEqual(response.json()["error"]["code"], "INVALID_STATE")
+
+    def test_edit_version_rejects_stale_revision(self) -> None:
+        owner = self._register("edit_stale")
+        csrf = self._login("edit_stale")
+        _template_id, version_id = self._seed_template_version(owner, status="draft")
+
+        first = self.client.patch(
+            f"{API}/template-versions/{version_id}",
+            json={"expectedRevision": 1, "changeNote": "第一次"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(first.status_code, 200, first.text)
+
+        stale = self.client.patch(
+            f"{API}/template-versions/{version_id}",
+            json={"expectedRevision": 1, "changeNote": "第二次"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(stale.status_code, 409, stale.text)
+        self.assertEqual(stale.json()["error"]["code"], "REVISION_CONFLICT")
+
+    def test_edit_version_revalidates_definition(self) -> None:
+        """绑定指向不存在的节点 = 定义不自洽，必须在写库前 422。"""
+        owner = self._register("edit_bad")
+        csrf = self._login("edit_bad")
+        _template_id, version_id = self._seed_template_version(owner, status="draft")
+
+        response = self.client.patch(
+            f"{API}/template-versions/{version_id}",
+            json={
+                "expectedRevision": 1,
+                "parameterSchema": [
+                    {
+                        "name": "r",
+                        "label": "半径",
+                        "description": "",
+                        "type": "number",
+                        "default": 10,
+                        "min": 1,
+                        "max": 100,
+                        "step": 1,
+                    }
+                ],
+                "bindings": [
+                    {"parameter": "r", "nodeId": "nope", "property": "geometry.r"}
+                ],
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(response.status_code, 422, response.text)
+
+    def test_other_user_cannot_edit_version(self) -> None:
+        owner = self._register("edit_a")
+        _template_id, version_id = self._seed_template_version(owner, status="draft")
+        self._logout()
+        self._register("edit_b")
+        csrf = self._login("edit_b")
+
+        response = self.client.patch(
+            f"{API}/template-versions/{version_id}",
+            json={"expectedRevision": 1, "changeNote": "改别人的"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        # 404 而不是 403：403 等于承认这个版本 id 真实存在
+        self.assertEqual(response.status_code, 404, response.text)
+
     # ---- 作品送审 -------------------------------------------------------
     def test_work_version_submit(self) -> None:
         owner = self._register("wv_owner", role="creator")
@@ -756,6 +957,114 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertEqual(anonymous.status_code, 200, anonymous.text)
         hidden = self.client.get(f"{API}/artifacts/{private_artifact}")
         self.assertEqual(hidden.status_code, 404, "私有作品的图不能匿名读")
+
+    def test_anonymous_work_detail_points_at_published_version(self) -> None:
+        """有更新的私有版本时，公共详情与缩略图都必须来自发布版（契约 5.1）。
+
+        BE-WORK-PUBLIC-POINTER-001：``display`` 以前直接取容器指针，作者一建
+        v2 它就指向私有版本，公共列表照这个 id 打开直接 404。缩略图是同源的
+        连带缺陷——``create_version`` 一建版就把 ``thumbnail_artifact_id``
+        换成新版本第一帧，匿名取图同样 404，而这一点他没提。
+        """
+        owner_id = self._register("ptr_owner", role="creator")
+        work_id, v1, gen1 = self._seed_work_version(owner_id, status="published")
+        public_artifact = self._add_artifact(gen1, owner_id, rgb=(10, 200, 10))
+        v2, gen2 = self._seed_extra_version(
+            work_id, owner_id, 2, status="pending_review"
+        )
+        private_artifact = self._add_artifact(gen2, owner_id, rgb=(200, 10, 10))
+        # 作者建完 v2 后容器的真实状态：最新/展示/缩略图全都跟着新版本走
+        self._point_work_at(
+            work_id, published=v1, latest=v2, display=v2, thumbnail=private_artifact
+        )
+        self._logout()
+
+        anonymous = self.client.get(f"{API}/works/{work_id}")
+        self.assertEqual(anonymous.status_code, 200, anonymous.text)
+        body = anonymous.json()
+        self.assertEqual(body["publishedVersionId"], v1)
+        self.assertEqual(body["displayVersionId"], v1, "公共详情必须指向发布版")
+        self.assertEqual(body["latestVersionId"], v2, "最新版本仍如实返回")
+        self.assertEqual(
+            body["thumbnailArtifactId"], public_artifact, "缩略图必须来自发布版的渲染"
+        )
+        # display 是「按这个 id 就能打开」的承诺，两头都要成立
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{body['displayVersionId']}").status_code,
+            200,
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{v2}").status_code, 404
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{private_artifact}").status_code, 404
+        )
+        listed = self.client.get(f"{API}/works?scope=public").json()
+        self.assertEqual([item["id"] for item in listed["items"]], [work_id])
+        self.assertEqual(listed["items"][0]["displayVersionId"], v1)
+        self.assertEqual(listed["items"][0]["thumbnailArtifactId"], public_artifact)
+
+        # 作者与管理员的视图不受影响，仍看最新版本与自己的缩略图
+        self._login("ptr_owner")
+        mine = self.client.get(f"{API}/works/{work_id}").json()
+        self.assertEqual(mine["displayVersionId"], v2)
+        self.assertEqual(mine["thumbnailArtifactId"], private_artifact)
+
+    def test_favorite_state_is_read_from_server(self) -> None:
+        """收藏必须由关系表说话（BE-FAVORITES-READ-001）。
+
+        以前 ``build_work`` 把 ``isFavorite`` 写死成 false、``list_works`` 的
+        favorites 分支直接返回空页，于是「PUT 成功、刷新前显示已收藏、刷新后
+        又变回未收藏」，收藏列表永远是空的。
+        """
+        owner_id = self._register("fav_owner", role="creator")
+        work_id, v1, _gen = self._seed_work_version(owner_id, status="published")
+        self._point_work_at(work_id, published=v1, latest=v1, display=v1)
+        self._logout()
+
+        self._register("fav_reader", role="creator")
+        self._login("fav_reader")
+        added = self.client.put(
+            f"{API}/works/{work_id}/favorite", headers={"X-CSRF-Token": self._csrf()}
+        )
+        self.assertEqual(added.status_code, 200, added.text)
+        self.assertTrue(added.json()["isFavorite"])
+        detail = self.client.get(f"{API}/works/{work_id}").json()
+        self.assertTrue(detail["isFavorite"], "写入后详情必须读到 true")
+        listed = self.client.get(f"{API}/works?scope=favorites").json()
+        self.assertEqual(listed["total"], 1)
+        self.assertEqual([item["id"] for item in listed["items"]], [work_id])
+
+        # 收藏是账号级数据，别人看不到
+        self._logout()
+        self._register("fav_other", role="creator")
+        self._login("fav_other")
+        self.assertFalse(self.client.get(f"{API}/works/{work_id}").json()["isFavorite"])
+        self.assertEqual(
+            self.client.get(f"{API}/works?scope=favorites").json()["total"], 0
+        )
+
+        # 作品被下线后从收藏列表消失，但关系保留——恢复上线应重新出现
+        self._point_work_at(work_id, published=None, latest=v1, display=v1)
+        self._login("fav_reader")
+        self.assertEqual(
+            self.client.get(f"{API}/works?scope=favorites").json()["total"], 0,
+            "读不到的作品不该留在收藏列表里",
+        )
+        self._point_work_at(work_id, published=v1, latest=v1, display=v1)
+        self.assertEqual(
+            self.client.get(f"{API}/works?scope=favorites").json()["total"], 1,
+            "关系不该被列表过滤顺手删掉",
+        )
+
+        removed = self.client.delete(
+            f"{API}/works/{work_id}/favorite", headers={"X-CSRF-Token": self._csrf()}
+        )
+        self.assertEqual(removed.status_code, 204, removed.text)
+        self.assertFalse(self.client.get(f"{API}/works/{work_id}").json()["isFavorite"])
+        self.assertEqual(
+            self.client.get(f"{API}/works?scope=favorites").json()["total"], 0
+        )
 
     def test_archive_keeps_change_note_readable(self) -> None:
         """归档理由不能把 change_note 撑过 500 字上限。

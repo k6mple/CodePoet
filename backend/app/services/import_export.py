@@ -24,18 +24,24 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from app import errors
+from app.models.creations import Generation as GenerationModel
 from app.models.knowledge import Concept as ConceptModel
 from app.models.knowledge import KnowledgeEntity as KnowledgeModel
 from app.models.knowledge import Tag as TagModel
 from app.models.operations import DataMeta
 from app.models.operations import ImportValidation as ValidationModel
+from app.models.rules import MappingRule as RuleModel
 from app.models.templates import Template as TemplateModel
 from app.models.templates import TemplateVersion as VersionModel
 from app.models.users import User
+from app.models.works import Artifact as ArtifactModel
+from app.models.works import RenderJob as RenderJobModel
+from app.models.works import Work as WorkModel
+from app.models.works import WorkVersion as WorkVersionModel
 from app.schemas.operations import (
     BackupPackage,
     CoreImportPackage,
@@ -48,26 +54,35 @@ from app.schemas.operations import (
 )
 from app.engine.validate import validate_ir
 from app.schemas.knowledge import KnowledgeEntity as KnowledgeEntitySchema
+from app.schemas.rules import MappingRule as MappingRuleSchema
 from app.schemas.taxonomy import Concept as ConceptSchema
 from app.schemas.taxonomy import Tag as TagSchema
 from app.schemas.templates import Template as TemplateSchema
 from app.schemas.templates import TemplateVersion as TemplateVersionSchema
 from app.schemas.validation import Issue
+from app.settings import Settings
 from app.services import audit
 from app.services import knowledge as knowledge_service
 from app.services import permissions
+from app.services import rules as rules_service
 from app.services import taxonomy
 from app.services import templates as templates_service
+from app.services import uploads
+from app.services import works as works_service
+from app.services.generations import build_generation_schema
 
 __all__ = ["apply_import", "export_backup", "validate_import"]
 
 # 契约：validationId 10 分钟有效
 VALIDATION_TTL_SECONDS = 600
 
-_IMPORTABLE = ("concepts", "tags", "entities", "templates")
-# 契约的 ExportRequest.types 里有、但 core-demo 没实现的类型。
-# 导出与导入必须用同一份范围，否则会产出一个「能导出、导不回去」的备份包。
-_UNSUPPORTED_TYPES = frozenset({"rules", "workSnapshots"})
+_IMPORTABLE = ("concepts", "tags", "entities", "rules", "templates")
+# 导出覆盖契约里的全部六类。导入只支持能完整还原的四类：
+# 契约写明 core-demo 不支持 workSnapshots 导入，作品快照是留档备份，
+# 恢复图片与公开状态不在范围内。
+_EXPORTABLE = ("concepts", "tags", "entities", "rules", "templates", "workSnapshots")
+# 契约 data.workSnapshots 的 maxItems；超了要明确报错，不能截断成假备份
+_MAX_SNAPSHOTS = 1000
 
 
 # ---------------------------------------------------------------------------
@@ -136,23 +151,128 @@ def _canonical_hash(payload: dict) -> str:
 # ---------------------------------------------------------------------------
 
 
-def export_backup(db: Session, actor: User, types: list[str]) -> BackupPackage:
-    """按类型导出整库。返回的对象同时也是导入接口能接受的结构。"""
-    _require_permission(actor, permissions.EXPORTS_CREATE)
+def _artifact_missing(
+    db: Session, settings: Settings | None, job: RenderJobModel
+) -> bool:
+    """这一版那次渲染**声明的每一帧**是不是都还有产物、文件也还在。
 
-    # 导出集合必须与导入集合一致。导入侧明确拒绝 rules 与 workSnapshots
-    # （core-demo 范围外），导出侧却接受它们并返回空数组——管理员会拿到一个
-    # 「看起来成功、其实什么都没备份、而且以后也导不回去」的包。宁可现在就
-    # 明确失败，也不要给一个假成功的备份。
-    unsupported = [item for item in types if item in _UNSUPPORTED_TYPES]
-    if unsupported:
-        raise errors.unsupported_capability(
-            "core-demo 不支持导出 "
-            + "、".join(sorted(unsupported))
-            + "；可用类型：concepts、tags、entities、templates"
+    两个坑都不能踩：
+
+    * 只看「``artifacts`` 里有没有行」——行在、文件被清掉（换机器、清磁盘）
+      时会把缺失报成完整。
+    * 只看「还剩任意一条」——多帧任务被清掉一部分时，``LIMIT 1`` 仍然能
+      捞到一条，于是「声明 2 帧、只剩 1 帧」也被标成完整。
+
+    所以按 ``times_ms_json`` 里声明的采样时刻逐个核对：**少一帧、或任一帧
+    的文件不在了，都算缺失**。备份包本身不含 PNG，这个标记是使用者判断
+    「这条将来能不能直接用」的唯一依据，不能含糊。
+    """
+    expected = _loads_times(job.times_ms_json)
+    rows = db.execute(
+        select(ArtifactModel.time_ms, ArtifactModel.storage_path).where(
+            ArtifactModel.render_job_id == job.id
+        )
+    ).all()
+    by_time: dict[int, str] = {}
+    for time_ms, storage_path in rows:
+        by_time.setdefault(int(time_ms), storage_path)
+
+    if not expected:
+        # 历史数据没有声明采样时刻：退化成「至少有一条产物」这种最弱判据
+        expected = sorted(by_time)[:1] or [0]
+
+    for time_ms in expected:
+        storage_path = by_time.get(time_ms)
+        if not storage_path:
+            return True
+        if settings is None:
+            # 拿不到数据目录时只能按记录判断，明确退化为「记录齐即认为齐」
+            continue
+        try:
+            if not uploads.artifact_path(settings, storage_path).exists():
+                return True
+        except Exception:  # noqa: BLE001 —— 库路径被手工改坏时按缺失处理
+            return True
+    return False
+
+
+def _loads_times(raw: str | None) -> list[int]:
+    """``times_ms_json`` 是 ``[0, 1000]`` 这种整型数组；坏数据当没声明。"""
+    if not raw:
+        return []
+    try:
+        items = json.loads(raw)
+    except (TypeError, ValueError):
+        return []
+    if not isinstance(items, list):
+        return []
+    return [int(item) for item in items if isinstance(item, (int, float))]
+
+
+def _export_work_snapshots(
+    db: Session, actor: User, settings: Settings | None
+) -> list[dict]:
+    """每个作品版本一条：作品 + 版本 + 生成快照 + 渲染任务。
+
+    ``missingArtifacts`` 如实说明这一版那次渲染的产物还在不在：备份包本身
+    不含 PNG（``includesArtifacts`` 恒 false），产物被清过的条目将来只能重渲染。
+    把这件事写在数据里，比在文档里写一句「不支持」更不容易被忽略。
+    """
+    versions = db.scalars(
+        select(WorkVersionModel)
+        .join(WorkModel, WorkModel.id == WorkVersionModel.work_id)
+        .order_by(WorkModel.created_at, WorkVersionModel.version_number)
+    ).all()
+    if len(versions) > _MAX_SNAPSHOTS:
+        raise errors.ApiError(
+            413,
+            "PACKAGE_TOO_LARGE",
+            f"作品版本 {len(versions)} 条，超过 {_MAX_SNAPSHOTS} 条上限；"
+            "请改导其他类型后分批留档",
         )
 
-    data: dict[str, list[dict]] = {key: [] for key in _IMPORTABLE}
+    items: list[dict] = []
+    for version in versions:
+        work = db.get(WorkModel, version.work_id)
+        generation = db.get(GenerationModel, version.generation_id)
+        job = (
+            db.get(RenderJobModel, version.render_job_id)
+            if version.render_job_id
+            else None
+        )
+        if work is None or generation is None or job is None:
+            # 少一条等于备份在骗人：宁可明确失败，也不要交出一个有洞的包
+            raise errors.ApiError(
+                500,
+                "BACKUP_DATA_CORRUPT",
+                f"作品版本 {version.id} 的关联数据不完整，无法导出备份",
+            )
+        missing = _artifact_missing(db, settings, job)
+        items.append(
+            {
+                "work": works_service.build_work(db, work, actor).model_dump(mode="json"),
+                "version": works_service.build_version(version).model_dump(mode="json"),
+                "generation": build_generation_schema(generation).model_dump(mode="json"),
+                "renderJob": works_service.build_render_job(job).model_dump(mode="json"),
+                "missingArtifacts": missing,
+            }
+        )
+    return items
+
+
+def export_backup(
+    db: Session, actor: User, types: list[str], settings: Settings | None = None
+) -> BackupPackage:
+    """按类型导出整库。
+
+    ``types`` 覆盖契约里的全部六类。导出的东西不一定都导得回去：
+    契约明说 core-demo 不支持 workSnapshots 导入——作品快照是留档备份，
+    恢复图片与公开状态不在范围内。所以包里带 ``missingArtifacts``，
+    让使用者知道「备份里没有图」这件事，而不是以为能一键还原。
+    """
+    _require_permission(actor, permissions.EXPORTS_CREATE)
+
+    data: dict[str, list[dict]] = {key: [] for key in _EXPORTABLE}
 
     if "concepts" in types:
         rows = db.scalars(
@@ -214,13 +334,28 @@ def export_backup(db: Session, actor: User, types: list[str]) -> BackupPackage:
             )
         data["templates"] = items
 
+    if "rules" in types:
+        # 按优先级导：映射规则是「先命中先算」的，顺序变了语义就变了
+        rows = db.scalars(
+            select(RuleModel).order_by(
+                RuleModel.priority, RuleModel.created_at, RuleModel.id
+            )
+        ).all()
+        data["rules"] = [
+            rules_service._build(row).model_dump(mode="json")  # noqa: SLF001
+            for row in rows
+        ]
+
+    if "workSnapshots" in types:
+        data["workSnapshots"] = _export_work_snapshots(db, actor, settings)
+
     counts = ManifestCounts(
         concepts=len(data["concepts"]),
         tags=len(data["tags"]),
         entities=len(data["entities"]),
-        rules=0,
+        rules=len(data["rules"]),
         templates=len(data["templates"]),
-        workSnapshots=0,
+        workSnapshots=len(data["workSnapshots"]),
     )
 
     package = {
@@ -433,15 +568,12 @@ def validate_import(
             f"包体 {size} 字节，超过 {MAX_PACKAGE_BYTES} 字节上限",
         )
 
-    if package.data.rules:
-        errors_list.append(
-            _issue("UNSUPPORTED_TYPE", "core-demo 不支持导入 mapping rules", "data.rules")
-        )
     if package.data.workSnapshots:
         errors_list.append(
             _issue(
                 "UNSUPPORTED_TYPE",
-                "core-demo 不支持导入 workSnapshots",
+                "core-demo 不支持导入 workSnapshots；作品快照是留档备份，"
+                "恢复图片与公开状态不在范围内",
                 "data.workSnapshots",
             )
         )
@@ -544,6 +676,37 @@ def validate_import(
     # 知识条目引用的标签/概念，要能在包内或库里解析到
     _check_list_refs(package.data.entities, "entities", "tagIds", all_tags, errors_list)
     _check_list_refs(package.data.entities, "entities", "conceptIds", all_concepts, errors_list)
+
+    # 映射规则：结构 + 主键 + 命中条件里的引用。规则被引用错了不会报错，
+    # 只会「看起来配了规则但一条都命中不了」，比直接失败更难查。
+    _check_duplicates(db, RuleModel, package.data.rules, "rules", errors_list)
+    _validate_shape(package.data.rules, "rules", MappingRuleSchema, errors_list)
+    all_entities = entity_ids | _all_ids(db, KnowledgeModel)
+    for index, item in enumerate(package.data.rules):
+        # 引用遍历必须走**已经验过类型的模型**，不能在原始 dict 上 `.get`。
+        # `BackupData.rules` 只保证元素是 dict，`match` 可能是字符串、`entityIds`
+        # 里可能塞对象——直接遍历会 AttributeError / TypeError，把一个本该
+        # 422 的非法包打成 500。结构错误已经在上面记过，这里跳过即可。
+        try:
+            rule = MappingRuleSchema.model_validate(item)
+        except ValidationError:
+            continue
+        for field, known in (
+            ("entityIds", all_entities),
+            ("conceptIds", all_concepts),
+            ("tagIds", all_tags),
+        ):
+            for ref in getattr(rule.match, field):
+                if ref in known:
+                    continue
+                errors_list.append(
+                    _issue(
+                        "UNRESOLVED_REFERENCE",
+                        f"rules[{index}]「{rule.name}」的 {field} "
+                        f"引用了不存在的「{ref}」",
+                        f"data.rules[{index}].match.{field}",
+                    )
+                )
 
     valid = not errors_list
     validation_id = _new_id("impv")
@@ -700,6 +863,33 @@ def _insert_entities(db: Session, items: list[dict], actor: User) -> None:
     db.flush()
 
 
+def _insert_rules(db: Session, items: list[dict], actor: User) -> None:
+    """还原映射规则，保留包内主键。
+
+    不用 ``rules_service.create_rule``：那个函数会生成新 id 并逐条 commit。
+    备份还原要求 id 稳定（规则可能被别处引用），且要和其余类型同处一个事务。
+    """
+    now = _now_iso()
+    for item in items:
+        db.add(
+            RuleModel(
+                id=item["id"],
+                name=str(item.get("name") or "")[:80],
+                enabled=1 if item.get("enabled", True) else 0,
+                priority=int(item.get("priority") or 0),
+                match_json=json.dumps(item.get("match") or {}, ensure_ascii=False),
+                effects_json=json.dumps(item.get("effects") or {}, ensure_ascii=False),
+                explanation=str(item.get("explanation") or "")[:500],
+                version=int(item.get("version") or 1),
+                revision=int(item.get("revision") or 1),
+                owner_id=actor.id,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+    db.flush()
+
+
 def _insert_templates(db: Session, items: list[dict], actor: User) -> None:
     """模板与版本一起插入，**状态一律 draft**。
 
@@ -804,6 +994,7 @@ def apply_import(
         _insert_concepts(db, package.data.concepts, actor)
         _insert_tags(db, package.data.tags, actor)
         _insert_entities(db, package.data.entities, actor)
+        _insert_rules(db, package.data.rules, actor)
         _insert_templates(db, package.data.templates, actor)
 
         row.consumed_at = _now_iso()

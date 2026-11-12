@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import TypeAdapter
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -47,6 +47,7 @@ from app.schemas.templates import (
     TemplateVersion,
     TemplateVersionPage,
     VersionCreate,
+    VersionUpdate,
 )
 from app.services import permissions
 
@@ -704,6 +705,142 @@ def create_template_version(
     return build_version(version)
 
 
+# 只有这两个状态下内容才算「还没被人看过」：submitted 已进队列、published 是
+# 别人引用过的历史，改它们等于在审核人看过的稿子上换字。
+_EDITABLE_STATUSES = ("draft", "rejected")
+
+
+def update_template_version(
+    db: Session, actor: User, version_id: str, payload: VersionUpdate
+) -> TemplateVersion:
+    """D-own/A。就地编辑 draft/rejected 版本。
+
+    「退回→修订→再送审」依赖这条接口。没有它，作者只能新建一个版本冒充
+    修订，版本号、变更说明、审核记录全都对不上原稿。
+    """
+    row = db.get(VersionModel, version_id)
+    template = db.get(TemplateModel, row.template_id) if row is not None else None
+    if row is None or template is None or not _can_manage(actor, template):
+        # 无权与不存在同样 404：403 等于承认这个版本 id 真的存在
+        raise errors.not_found("模板版本不存在")
+    if row.status not in _EDITABLE_STATUSES:
+        raise errors.invalid_state(
+            f"{row.status} 状态的版本不能编辑，只有草稿与被退回的版本可以改"
+        )
+    if payload.expectedRevision != row.revision:
+        raise errors.revision_conflict(payload.expectedRevision, row.revision)
+    if payload.fragmentSource is not None:
+        raise errors.validation_error("当前只支持 IR 模板，片段源码不可写")
+    if payload.generatorRef not in (None, "ir"):
+        raise errors.validation_error("当前只支持 IR 模板（generatorRef=ir）")
+
+    # 合并规则：请求给了才覆盖，没给就保留。版本是快照，
+    # 「这次没传」不等于「把这些字段清空」。
+    metadata_json = (
+        payload.metadata.model_dump_json()
+        if payload.metadata is not None
+        else row.metadata_json
+    )
+    ir_template_json = (
+        payload.irTemplate.model_dump_json()
+        if payload.irTemplate is not None
+        else row.ir_template_json
+    )
+    parameter_schema_json = (
+        _dump_params(list(payload.parameterSchema))
+        if payload.parameterSchema is not None
+        else row.parameter_schema_json
+    )
+    bindings_json = (
+        json.dumps(
+            [item.model_dump(mode="json") for item in payload.bindings],
+            ensure_ascii=False,
+        )
+        if payload.bindings is not None
+        else row.bindings_json
+    )
+    constraints_json = (
+        _dump_constraints(list(payload.constraints))
+        if payload.constraints is not None
+        else row.constraints_json
+    )
+    supported_backends_json = (
+        '["canvas2d"]'
+        if payload.supportedBackends is not None
+        else row.supported_backends_json
+    )
+    ontology_version = (
+        payload.ontologyVersion
+        if payload.ontologyVersion is not None
+        else row.ontology_version
+    )
+    change_note = (
+        payload.changeNote if payload.changeNote is not None else row.change_note
+    )
+
+    # 改完的定义必须还是「能生成」的：否则审核人点开才发现存了份跑不起来的
+    # 模板，等于把校验成本转给人工。
+    try:
+        ir_template = DrawingIR.model_validate_json(ir_template_json)
+        schema = [
+            _PARAM_ADAPTER.validate_python(item)
+            for item in json.loads(parameter_schema_json or "[]")
+        ]
+        bindings = [
+            Binding.model_validate(item) for item in json.loads(bindings_json or "[]")
+        ]
+        constraints = [
+            _CONSTRAINT_ADAPTER.validate_python(item)
+            for item in json.loads(constraints_json or "[]")
+        ]
+        check_template_integrity(ir_template, schema, bindings, constraints)
+        outcome = instantiate(ir_template, schema, bindings, constraints, {})
+    except TemplateDefinitionError as exc:
+        raise errors.validation_error(
+            "模板定义不自洽", [{"path": "irTemplate", "message": str(exc)}]
+        ) from exc
+    except ValueError as exc:
+        raise errors.validation_error(f"模板定义无法解析：{exc}") from exc
+    if not outcome.ok:
+        raise errors.validation_error(
+            "参数默认值不合法",
+            [
+                {"path": f"parameterSchema.{issue.path}", "message": issue.message}
+                for issue in outcome.issues
+            ],
+        )
+
+    now = _now_iso()
+    # 条件写进 WHERE。只靠上面那次「先比后写」，两个并发 PATCH 都能通过比较，
+    # 后一个把前一个的修改盖掉——这正是评审在作品路径上挑出来的同一类问题。
+    result = db.execute(
+        update(VersionModel)
+        .where(
+            VersionModel.id == version_id,
+            VersionModel.revision == payload.expectedRevision,
+            VersionModel.status.in_(_EDITABLE_STATUSES),
+        )
+        .values(
+            metadata_json=metadata_json,
+            ir_template_json=ir_template_json,
+            parameter_schema_json=parameter_schema_json,
+            bindings_json=bindings_json,
+            constraints_json=constraints_json,
+            supported_backends_json=supported_backends_json,
+            ontology_version=ontology_version,
+            change_note=change_note,
+            revision=VersionModel.revision + 1,
+            updated_at=now,
+        )
+    )
+    if result.rowcount != 1:
+        db.rollback()
+        raise errors.invalid_state("版本状态已变化，请重新读取后再改")
+    db.commit()
+    db.refresh(row)
+    return build_version(row)
+
+
 __all__ = [
     "build_template",
     "build_version",
@@ -716,4 +853,5 @@ __all__ = [
     "list_templates",
     "parse_metadata",
     "update_template",
+    "update_template_version",
 ]

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.deps import get_db, require_csrf, require_user
@@ -105,12 +105,17 @@ def decide_role(
     ),
 )
 def create_export(
+    request: Request,
     payload: ExportRequest,
     db: Session = Depends(get_db),
     user: UserModel = Depends(require_user),
     _csrf: object = Depends(require_csrf),
 ) -> BackupPackage:
-    return import_export.export_backup(db, user, list(payload.types))
+    # settings 用于核对产物文件是否真的还在（workSnapshots.missingArtifacts）；
+    # 直接取而不 getattr 兜底：配置缺失应该立刻炸，而不是悄悄降级成「都算在」
+    return import_export.export_backup(
+        db, user, list(payload.types), request.app.state.settings
+    )
 
 
 @router.post(
