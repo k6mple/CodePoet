@@ -319,6 +319,72 @@ class ImportExportTests(unittest.TestCase):
         connection.commit()
         connection.close()
 
+    def _write_frame(self, owner_id: str, time_ms: int) -> str:
+        """真落一张 PNG 并登记成 ``job-backup`` 的某一帧，返回相对存储路径。
+
+        用真文件而不是只插行：``missingArtifacts`` 现在既要核对帧数、也要
+        核对文件在不在，只有真文件能验证后者。
+        """
+        import struct
+        import zlib
+
+        from app.services import uploads
+
+        width, height = 8, 6
+        raw = b"".join(b"\x00" + bytes((10, 120, 200)) * width for _ in range(height))
+
+        def chunk(tag: bytes, payload: bytes) -> bytes:
+            return (
+                struct.pack(">I", len(payload))
+                + tag
+                + payload
+                + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF)
+            )
+
+        png = (
+            b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(raw, 9))
+            + chunk(b"IEND", b"")
+        )
+        stored = uploads.store_frame(self.settings, owner_id, png, time_ms)
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "INSERT INTO artifacts (id, owner_id, kind, content_type, byte_size,"
+            " storage_path, sha256, width, height, time_ms, render_job_id, created_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                stored.artifact_id, owner_id, stored.kind, stored.content_type,
+                stored.byte_size, stored.storage_path, stored.sha256,
+                stored.width, stored.height, time_ms, "job-backup", NOW,
+            ),
+        )
+        connection.commit()
+        connection.close()
+        return stored.storage_path
+
+    def _set_job_times(self, times: list[int]) -> None:
+        """改 ``job-backup`` 声明的采样时刻，模拟多帧任务。"""
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE render_jobs SET times_ms_json = ? WHERE id = 'job-backup'",
+            (str(times).replace(" ", ""),),
+        )
+        connection.commit()
+        connection.close()
+
+    def _export_snapshot(self) -> dict:
+        response = self.client.post(
+            f"{API}/admin/exports",
+            json={"types": ["workSnapshots"]},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        snapshots = response.json()["data"]["workSnapshots"]
+        self.assertEqual(len(snapshots), 1)
+        return snapshots[0]
+
+
     def _validate(self, package: dict) -> dict:
         response = self.client.post(
             f"{API}/admin/imports/validate",
@@ -375,80 +441,52 @@ class ImportExportTests(unittest.TestCase):
     def test_export_work_snapshots_carry_ir_and_flag(self) -> None:
         """作品快照备份必须带 IR、渲染任务，并如实说明产物在不在。
 
-        ``missingArtifacts`` 不能只看 ``artifacts`` 里有没有行：行在、文件被
-        清掉的情况很常见。三态都验一遍，其中「有记录无文件」正是旧实现会说
-        谎的那一态。
+        ``missingArtifacts`` 既不能只看「artifacts 里有没有行」（行在、文件被
+        清掉是常态），也不能只看「还剩任意一条」（多帧被清掉一部分时
+        ``LIMIT 1`` 照样能捞到一条）。
         """
-        import struct
-        import zlib
-
-        from app.services import uploads
-
         owner_id = self._login_admin()
         self._seed_work_snapshot(owner_id)
-        response = self.client.post(
-            f"{API}/admin/exports",
-            json={"types": ["workSnapshots"]},
-            headers={"X-CSRF-Token": self.csrf},
-        )
-        self.assertEqual(response.status_code, 200, response.text)
-        snapshots = response.json()["data"]["workSnapshots"]
-        self.assertEqual(len(snapshots), 1, "示例作品应当有一条快照")
-        item = snapshots[0]
+
+        item = self._export_snapshot()
         self.assertEqual(
             set(item), {"work", "version", "generation", "renderJob", "missingArtifacts"}
         )
         self.assertIsInstance(item["generation"]["ir"], dict)
         self.assertTrue(item["missingArtifacts"], "既没记录也没文件，必须报缺失")
 
-        # 落一份真实 PNG 并登记
-        width, height = 8, 6
-        raw = b"".join(b"\x00" + bytes((200, 60, 60)) * width for _ in range(height))
+        storage_path = self._write_frame(owner_id, 0)
+        self.assertFalse(self._export_snapshot()["missingArtifacts"], "文件在，不该报缺失")
 
-        def chunk(tag: bytes, payload: bytes) -> bytes:
-            return (
-                struct.pack(">I", len(payload))
-                + tag
-                + payload
-                + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF)
-            )
+        from app.services import uploads
 
-        png = (
-            b"\x89PNG\r\n\x1a\n"
-            + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
-            + chunk(b"IDAT", zlib.compress(raw, 9))
-            + chunk(b"IEND", b"")
+        uploads.artifact_path(self.settings, storage_path).unlink()
+        self.assertTrue(
+            self._export_snapshot()["missingArtifacts"],
+            "记录在但文件没了，必须报缺失",
         )
-        stored = uploads.store_frame(self.settings, owner_id, png, 0)
-        connection = sqlite3.connect(self.settings.database_path)
-        connection.execute(
-            "INSERT INTO artifacts (id, owner_id, kind, content_type, byte_size,"
-            " storage_path, sha256, width, height, time_ms, render_job_id, created_at)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-            (
-                stored.artifact_id, owner_id, stored.kind, stored.content_type,
-                stored.byte_size, stored.storage_path, stored.sha256,
-                stored.width, stored.height, 0, "job-backup", NOW,
-            ),
+
+    def test_export_marks_partial_frame_loss(self) -> None:
+        """声明两帧、只剩一帧，必须报缺失（评审 P2）。
+
+        旧实现用 ``LIMIT 1`` 判断「还有没有产物」，所以部分帧被清理后仍然报
+        ``missingArtifacts=false``，多帧备份被标成完整。
+        """
+        owner_id = self._login_admin()
+        self._seed_work_snapshot(owner_id)
+        self._set_job_times([0, 1000])
+
+        self._write_frame(owner_id, 0)
+        self.assertTrue(
+            self._export_snapshot()["missingArtifacts"],
+            "声明两帧只剩一帧，必须报缺失",
         )
-        connection.commit()
-        connection.close()
 
-        with_file = self.client.post(
-            f"{API}/admin/exports",
-            json={"types": ["workSnapshots"]},
-            headers={"X-CSRF-Token": self.csrf},
-        ).json()["data"]["workSnapshots"][0]
-        self.assertFalse(with_file["missingArtifacts"], "文件在，不该报缺失")
+        self._write_frame(owner_id, 1000)
+        self.assertFalse(
+            self._export_snapshot()["missingArtifacts"], "两帧齐了才算完整"
+        )
 
-        # 删掉文件但保留记录：这才是「用状态代理事实」会翻车的地方
-        uploads.artifact_path(self.settings, stored.storage_path).unlink()
-        gone = self.client.post(
-            f"{API}/admin/exports",
-            json={"types": ["workSnapshots"]},
-            headers={"X-CSRF-Token": self.csrf},
-        ).json()["data"]["workSnapshots"][0]
-        self.assertTrue(gone["missingArtifacts"], "记录在但文件没了，必须报缺失")
 
     def test_export_counts_match_data(self) -> None:
         """看板：导出清单与实际数量相符。"""
@@ -606,6 +644,25 @@ class ImportExportTests(unittest.TestCase):
         applied = self._apply(result["validationId"], result["expectedDataRevision"])
         self.assertIn(applied.status_code, (200, 201), applied.text)
         self.assertEqual(self._count("mapping_rules"), 1, "规则必须真的落库")
+
+    def test_validate_survives_malformed_rule_shapes(self) -> None:
+        """非法 match 结构必须返回 valid=false，不能 500（评审 P2）。
+
+        引用遍历以前直接在原始 dict 上 ``.get``：``match`` 是字符串时
+        AttributeError，``entityIds`` 里塞对象时集合判断 TypeError，两种都把
+        本该「指出哪条规则坏了」的校验打成 500。
+        """
+        self._login_admin()
+        cases = [
+            {"id": "rule-bad-1", "match": "bad-shape"},
+            {"id": "rule-bad-2", "match": {"entityIds": [{}]}},
+        ]
+        for rule in cases:
+            result = self._validate(build_package(rules=[rule]))
+            self.assertFalse(result["valid"], f"{rule} 不该通过校验")
+            codes = {item["code"] for item in result["errors"]}
+            self.assertIn("INVALID_SHAPE", codes, f"{rule} 应给出字段级错误：{codes}")
+
 
     def test_validate_rejects_work_snapshots(self) -> None:
         """workSnapshots 仍不接受导入：契约写的是「留档备份」。

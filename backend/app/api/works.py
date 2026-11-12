@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from app.deps import current_user, get_db, require_csrf, require_user
 from app.models.users import User as UserModel
 from app.schemas.reproduce import ReproduceRequest
-from app.schemas.reviews import RevisionRequest
+from app.schemas.reviews import ArchiveRequest, RevisionRequest
 from app.schemas.sessions import FavoriteResult
 from app.schemas.works import (
     RenderJob,
@@ -29,6 +29,7 @@ from app.schemas.works import (
     WorkPage,
     WorkVersion,
     WorkVersionCreate,
+    WorkUpdate,
     WorkVersionDetail,
     WorkVersionPage,
 )
@@ -84,6 +85,46 @@ def read_work(
     viewer: UserModel | None = Depends(current_user),
 ) -> Work:
     return works_service.get_work(db, viewer, work_id)
+
+
+@router.patch(
+    "/works/{work_id}",
+    response_model=Work,
+    summary="更新作品工作元数据",
+    description=(
+        "仅作品本人。带 expectedRevision 的乐观锁，冲突返回 409。"
+        "改的是工作元数据（workingTitle/workingDescription），"
+        "不修改任何既有版本的标题与描述——版本的标题是当初审核的快照。"
+    ),
+)
+def update_work(
+    payload: WorkUpdate,
+    work_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> Work:
+    return works_service.update_work(db, user, work_id, payload)
+
+
+@router.post(
+    "/works/{work_id}/unpublish",
+    response_model=Work,
+    summary="下线公开作品",
+    description=(
+        "仅管理员/专家（works.unpublishAny）。清除 publishedVersionId，"
+        "同时关闭该作品所有旧公开版本与产物的公共访问。"
+        "已发布版本的状态不变——那是当初的审核结论；重新公开需要新版本过审。"
+    ),
+)
+def unpublish_work(
+    payload: ArchiveRequest,
+    work_id: IdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> Work:
+    return works_service.unpublish_work(db, user, work_id, payload)
 
 
 @router.get(
