@@ -107,7 +107,7 @@ class TemplateVersion(BaseModel):
     parameterSchema: list[ParameterDefinition] = Field(default_factory=list, max_length=16)
     bindings: list[Binding] = Field(default_factory=list, max_length=100)
     constraints: list[Constraint] = Field(default_factory=list, max_length=50)
-    supportedBackends: list[Literal["canvas2d"]] = Field(default_factory=lambda: ["canvas2d"])
+    supportedBackends: list[Backend] = Field(default_factory=lambda: ["canvas2d"])
     fragmentSource: None = None
     ontologyVersion: int = Field(ge=1)
     changeNote: str = Field(default="", max_length=500)
@@ -165,9 +165,10 @@ class VersionCreate(BaseModel):
     parameterSchema: list[ParameterDefinition] | None = Field(default=None, max_length=16)
     bindings: list[Binding] | None = Field(default=None, max_length=100)
     constraints: list[Constraint] | None = Field(default=None, max_length=50)
-    # 契约限定 minItems=maxItems=1 且元素只能是 canvas2d
-    supportedBackends: list[Literal["canvas2d"]] | None = Field(
-        default=None, min_length=1, max_length=1
+    # 契约：minItems=1、maxItems=4、uniqueItems。四个枚举都能声明，
+    # 但「声明了」不等于「本实例能跑」——生成时由能力闸门兜底（S0-A1）。
+    supportedBackends: list[Backend] | None = Field(
+        default=None, min_length=1, max_length=4
     )
     # 当前实现只有 IR 模板，片元源码恒为 null
     fragmentSource: None = None
@@ -207,8 +208,8 @@ class VersionUpdate(BaseModel):
     parameterSchema: list[ParameterDefinition] | None = Field(default=None, max_length=16)
     bindings: list[Binding] | None = Field(default=None, max_length=100)
     constraints: list[Constraint] | None = Field(default=None, max_length=50)
-    supportedBackends: list[Literal["canvas2d"]] | None = Field(
-        default=None, min_length=1, max_length=1
+    supportedBackends: list[Backend] | None = Field(
+        default=None, min_length=1, max_length=4
     )
     # 契约允许 string|null；当前只实现 IR 模板，恒为 null
     fragmentSource: str | None = Field(default=None, max_length=16384)

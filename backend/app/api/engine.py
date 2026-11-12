@@ -16,6 +16,7 @@ from app.schemas.generation import (
     Capability,
     CapabilityFeatureFlags,
 )
+from app.engine import capabilities
 from app.services.generations import ENGINE_VERSION
 
 router = APIRouter(tags=["引擎"])
@@ -56,7 +57,9 @@ def build_capabilities() -> Capabilities:
                 backend="canvas2d",
                 available=True,
                 unavailableReason=None,
-                rendererVersion=ENGINE_VERSION,
+                # 渲染器版本与语义引擎版本是两件事：以前这里报 p0-03.1，
+                # 而前端实际跑的是 codepoet-canvas-1.0.0，两边各说各话。
+                rendererVersion=capabilities.renderer_version("canvas2d") or ENGINE_VERSION,
                 nodeTypes=_NODE_TYPES,  # type: ignore[arg-type]
                 shaderRefs=["flat"],
                 animationProperties=_ANIMATION_PROPS,  # type: ignore[arg-type]
