@@ -78,7 +78,10 @@ def build_capabilities() -> Capabilities:
         maxParameters=16,
         features=CapabilityFeatureFlags(
             semanticGeneration=True,
-            subgraphEditing=False,
+            # POST /generations/{id}/subgraph 已实现并有 8 条回归覆盖（子树替换、
+            # 空替换即删除、越界 ID 冲突、悬空父引用、viewport 覆盖、他人快照 404）。
+            # 接口能用却声明 false，前端按声明尊重能力，页面就把入口关掉了。
+            subgraphEditing=True,
             dslSandbox=False,
             advancedPolicies=False,
             headlessRendering=False,
