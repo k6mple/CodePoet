@@ -395,11 +395,24 @@ def decide_review(db: Session, reviewer: User, payload: ReviewCreate) -> Review:
         work = db.get(WorkModel, row.work_id)
         if work is not None:
             work.updated_at = now
+            # 审核也改 Work，就必须走同一条 revision 协议。不推进 revision 的话，
+            # 作者那一侧「读到 publishedVersionId 为空 → 据此同步容器标题」的
+            # PATCH 用同一个 expectedRevision 照样能写进去，把未审核的标题
+            # 塞进已经公开的容器（评审 #13 第三轮的 P1 就是这个交错）。
+            work.revision += 1
             if target == "published":
                 # 只有通过时才切公开指针，所以待审期间公开页仍指向旧版本
                 work.published_version_id = row.id
                 work.display_version_id = row.id
                 # 同上：latest_version_id 保持指向最新创建的版本
+                # 公开元数据来自发布版（契约 5.1）：批准哪一版，公开标题就是
+                # 哪一版当初送审时的那份。
+                work.title = row.title
+                work.description = row.description
+                # 这里**不碰** working_*：它在 create_version 复制进版本时就已经
+                # 被消费掉了，之后作者再改的是给下一版准备的编辑。批准与否都
+                # 不该动它——批准旧版本会丢编辑，批准最新版本同样会（作者建完
+                # v2 又改了标题给 v3），评审两轮分别指出了这两种顺序。
 
     audit.record(
         db,

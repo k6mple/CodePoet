@@ -110,6 +110,9 @@ class WorkVersion(Base):
     submitted_by: Mapped[str | None] = mapped_column(String(80), nullable=True)
     submitted_at: Mapped[str | None] = mapped_column(Text, nullable=True)
     published_at: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # 被管理员下线撤回公开的时间。published 是终态，不能改回 private，
+    # 所以「这个版本还能不能对外读」要靠这个标记持久化下来。
+    public_revoked_at: Mapped[str | None] = mapped_column(Text, nullable=True)
     last_review_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     created_at: Mapped[str] = mapped_column(Text, nullable=False)

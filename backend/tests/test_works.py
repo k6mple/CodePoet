@@ -23,7 +23,7 @@ from app.db import create_database, create_session_factory
 from app.errors import ApiError
 from app.main import create_app
 from app.models.users import User as UserModel
-from app.schemas.works import RenderCreate
+from app.schemas.works import RenderCreate, WorkUpdate, WorkVersionCreate
 from app.services import uploads
 from app.services import works as works_service
 from app.settings import Settings
@@ -902,6 +902,602 @@ class WorkFlowTests(unittest.TestCase):
         self.assertEqual(busy[0][1], "EXECUTION_BUSY", results)
         self.assertEqual(self._open_job_count(), 2, "上限是 2，并发不该突破")
 
+
+    # ---- P1C-06：作品工作元数据与管理员下线 ------------------------------
+    def _save_work(self, csrf: str, title: str = "莲花") -> dict:
+        """走完整链路建一个私有作品：生成 → 任务 → 传帧 → 保存。"""
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf, duration_ms=2000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            uploaded = self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+            self.assertEqual(uploaded.status_code, 200, uploaded.text)
+        created = self.client.post(
+            f"{API}/works",
+            json={
+                "title": title,
+                "description": "",
+                "generationId": gen["id"],
+                "renderJobId": job["id"],
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(created.status_code, 201, created.text)
+        return created.json()
+
+    def _publish(self, work_id: str, version_id: str) -> None:
+        """把作品直接置成"已公开"状态，跳过审核流程。
+
+        审核链路本身有专门的用例覆盖；这里要验的是**下线**之后可见性怎么变，
+        走一遍完整审核只会让用例变长而不增加覆盖。
+        """
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE work_versions SET status = 'published', published_at = ? WHERE id = ?",
+            ("2026-11-10T10:00:00+00:00", version_id),
+        )
+        connection.execute(
+            "UPDATE works SET published_version_id = ?, display_version_id = ? WHERE id = ?",
+            (version_id, version_id, work_id),
+        )
+        connection.commit()
+        connection.close()
+
+    def _promote_admin(self, user_id: str) -> None:
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("UPDATE users SET role = 'admin' WHERE id = ?", (user_id,))
+        connection.commit()
+        connection.close()
+
+    def _artifact_of_job(self, job_id: str) -> str | None:
+        connection = sqlite3.connect(self.settings.database_path)
+        row = connection.execute(
+            "SELECT id FROM artifacts WHERE render_job_id = ? ORDER BY time_ms LIMIT 1",
+            (job_id,),
+        ).fetchone()
+        connection.close()
+        return row[0] if row else None
+
+    def test_patch_updates_metadata_without_touching_version_snapshot(self) -> None:
+        """改标题只动工作元数据，既有版本的标题/描述是当初审核的快照。
+
+        契约：PATCH /works/{id}「不修改既有版本标题/描述；新版本读取工作元数据」。
+        这条把两半都验了：容器跟着改（否则列表/搜索还是旧名字），
+        版本不动（否则对不上当初审过的是哪份内容）。
+        """
+        self._new_user("meta_owner")
+        csrf = self._login("meta_owner")
+        saved = self._save_work(csrf, title="莲花")
+        work, version = saved["work"], saved["version"]
+
+        renamed = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={
+                "expectedRevision": work["revision"],
+                "title": "莲花·夏",
+                "description": "夏日的莲",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(renamed.status_code, 200, renamed.text)
+        body = renamed.json()
+        self.assertEqual(body["title"], "莲花·夏")
+        self.assertEqual(body["workingTitle"], "莲花·夏")
+        self.assertEqual(body["revision"], work["revision"] + 1)
+
+        original = self.client.get(f"{API}/work-versions/{version['id']}")
+        self.assertEqual(original.status_code, 200, original.text)
+        self.assertEqual(
+            original.json()["workVersion"]["title"], "莲花",
+            "既有版本标题不能被改掉",
+        )
+
+    def test_patch_keeps_public_metadata_when_work_is_published(self) -> None:
+        """作品已公开时改标题只落在工作元数据上，公开元数据等下一次过审。
+
+        否则等于给了一条绕过审核直接改公开页的路。
+        """
+        self._new_user("meta_pub")
+        csrf = self._login("meta_pub")
+        saved = self._save_work(csrf, title="莲花")
+        work, version = saved["work"], saved["version"]
+        self._publish(work["id"], version["id"])
+
+        current = self.client.get(f"{API}/works/{work['id']}").json()
+        renamed = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={"expectedRevision": current["revision"], "title": "偷偷改名"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(renamed.status_code, 200, renamed.text)
+        body = renamed.json()
+        self.assertEqual(body["workingTitle"], "偷偷改名")
+        self.assertEqual(body["title"], "莲花", "公开元数据不能绕过审核被改掉")
+
+    def test_patch_rejects_stale_revision(self) -> None:
+        self._new_user("meta_race")
+        csrf = self._login("meta_race")
+        saved = self._save_work(csrf)
+        work = saved["work"]
+        stale = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={"expectedRevision": work["revision"] + 5, "title": "过期客户端"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(stale.status_code, 409, stale.text)
+        self.assertEqual(stale.json()["error"]["code"], "REVISION_CONFLICT")
+
+    def test_patch_rejects_empty_update(self) -> None:
+        self._new_user("meta_empty")
+        csrf = self._login("meta_empty")
+        work = self._save_work(csrf)["work"]
+        empty = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={"expectedRevision": work["revision"]},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(empty.status_code, 422, empty.text)
+
+    def test_next_version_inherits_working_metadata(self) -> None:
+        """「新版本读取工作元数据」：改完标题，下一版必须带着新标题。"""
+        self._new_user("meta_next")
+        csrf = self._login("meta_next")
+        saved = self._save_work(csrf, title="莲花")
+        work, version = saved["work"], saved["version"]
+
+        renamed = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={"expectedRevision": work["revision"], "title": "莲花·秋"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(renamed.status_code, 200, renamed.text)
+
+        # 换一个 duration，让 _seed_generation 生成另一个固定 id（同一个
+        # 用例里造两份快照，同 id 会撞 UNIQUE）
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+        next_version = self.client.post(
+            f"{API}/works/{work['id']}/versions",
+            json={
+                "expectedRevision": renamed.json()["revision"],
+                "generationId": gen["id"],
+                "renderJobId": job["id"],
+                "changeNote": "换配色",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(next_version.status_code, 201, next_version.text)
+        self.assertEqual(next_version.json()["version"]["title"], "莲花·秋")
+        # 旧版本仍是当初那份快照
+        old = self.client.get(f"{API}/work-versions/{version['id']}").json()
+        self.assertEqual(old["workVersion"]["title"], "莲花")
+
+    def test_unpublish_closes_public_access(self) -> None:
+        """下线后：作品、版本、产物都不能再匿名读，且版本状态原样保留。"""
+        self._new_user("takedown_owner")
+        csrf = self._login("takedown_owner")
+        owner_id = self._whoami()
+        saved = self._save_work(csrf, title="要被下线的作品")
+        work, version = saved["work"], saved["version"]
+        self._publish(work["id"], version["id"])
+        artifact_id = self._artifact_of_job(version["renderJobId"])
+        self.assertIsNotNone(artifact_id, "上传帧之后应当有产物")
+
+        self._promote_admin(owner_id)
+        taken = self.client.post(
+            f"{API}/works/{work['id']}/unpublish",
+            json={"expectedRevision": work["revision"], "reason": "内容需要修订"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(taken.status_code, 200, taken.text)
+        self.assertIsNone(taken.json()["publishedVersionId"])
+        self.assertEqual(taken.json()["revision"], work["revision"] + 1)
+
+        # 版本状态不动：published 是终态，改它等于抹掉审核结论
+        connection = sqlite3.connect(self.settings.database_path)
+        status = connection.execute(
+            "SELECT status FROM work_versions WHERE id = ?", (version["id"],)
+        ).fetchone()[0]
+        audits = connection.execute(
+            "SELECT COUNT(*) FROM audit_logs WHERE action = 'work.unpublish' AND target_id = ?",
+            (work["id"],),
+        ).fetchone()[0]
+        connection.close()
+        self.assertEqual(status, "published", "下线不能改写审核结论")
+        self.assertEqual(audits, 1, "下线要留一条审计")
+
+        # 换个身份匿名读：全都得关掉
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(f"{API}/works/{work['id']}").status_code, 404)
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{version['id']}").status_code, 404
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{artifact_id}").status_code, 404,
+            "下线后产物不能还能匿名下载",
+        )
+        listed = self.client.get(f"{API}/works?scope=public").json()
+        self.assertEqual(listed["total"], 0, "下线作品不该留在公开列表里")
+
+    def test_unpublish_requires_permission(self) -> None:
+        """本人不是管理员也不行——下线是管理动作。"""
+        self._new_user("takedown_plain")
+        csrf = self._login("takedown_plain")
+        saved = self._save_work(csrf)
+        work, version = saved["work"], saved["version"]
+        self._publish(work["id"], version["id"])
+
+        denied = self.client.post(
+            f"{API}/works/{work['id']}/unpublish",
+            json={"expectedRevision": work["revision"], "reason": "我不喜欢"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(denied.status_code, 403, denied.text)
+        self.assertEqual(denied.json()["error"]["code"], "FORBIDDEN")
+
+        connection = sqlite3.connect(self.settings.database_path)
+        still = connection.execute(
+            "SELECT published_version_id FROM works WHERE id = ?", (work["id"],)
+        ).fetchone()[0]
+        connection.close()
+        self.assertEqual(still, version["id"], "拒绝之后不能有任何副作用")
+
+    def test_unpublish_without_published_version_is_rejected(self) -> None:
+        self._new_user("takedown_none")
+        csrf = self._login("takedown_none")
+        owner_id = self._whoami()
+        work = self._save_work(csrf)["work"]
+        self._promote_admin(owner_id)
+
+        response = self.client.post(
+            f"{API}/works/{work['id']}/unpublish",
+            json={"expectedRevision": work["revision"], "reason": "本来就没公开"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(response.status_code, 409, response.text)
+        self.assertEqual(response.json()["error"]["code"], "INVALID_STATE")
+
+    def test_unpublish_keeps_owner_access(self) -> None:
+        """下线只关公共访问，作者自己还得能继续维护这个作品。"""
+        self._new_user("takedown_self")
+        csrf = self._login("takedown_self")
+        owner_id = self._whoami()
+        saved = self._save_work(csrf)
+        work, version = saved["work"], saved["version"]
+        self._publish(work["id"], version["id"])
+        self._promote_admin(owner_id)
+        self.client.post(
+            f"{API}/works/{work['id']}/unpublish",
+            json={"expectedRevision": work["revision"], "reason": "内容需要修订"},
+            headers={"X-CSRF-Token": csrf},
+        )
+
+        self.assertEqual(self.client.get(f"{API}/works/{work['id']}").status_code, 200)
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{version['id']}").status_code, 200
+        )
+        mine = self.client.get(f"{API}/works?scope=mine").json()
+        self.assertEqual(mine["total"], 1)
+
+
+
+    def test_republish_new_version_does_not_reopen_revoked_version(self) -> None:
+        """下线后发布新版本，旧版本与它的产物必须保持关闭。
+
+        评审 #13 [P1]：判定只看「容器指针非空」，于是 发布 v1 → 下线 →
+        发布 v2 之后指针重新非空，仍然 status=published 的 v1 又变成匿名可读，
+        连它的产物一起——绕过了「重新公开需新版本审核」。撤回必须持久化在
+        版本上，光清指针挡不住这条回潮路径。
+        """
+        self._new_user("revoke_owner")
+        csrf = self._login("revoke_owner")
+        owner_id = self._whoami()
+        saved = self._save_work(csrf, title="第一版")
+        work, v1 = saved["work"], saved["version"]
+        self._publish(work["id"], v1["id"])
+        v1_artifact = self._artifact_of_job(v1["renderJobId"])
+        self._promote_admin(owner_id)
+
+        taken = self.client.post(
+            f"{API}/works/{work['id']}/unpublish",
+            json={"expectedRevision": work["revision"], "reason": "内容需要修订"},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(taken.status_code, 200, taken.text)
+
+        # 建 v2 并让它过审公开（直接改库，审核链路另有专门用例）
+        self._user_id = self._whoami()
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+        created = self.client.post(
+            f"{API}/works/{work['id']}/versions",
+            json={
+                "expectedRevision": taken.json()["revision"],
+                "generationId": gen["id"],
+                "renderJobId": job["id"],
+                "changeNote": "修订版",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(created.status_code, 201, created.text)
+        v2 = created.json()["version"]
+        self._publish(work["id"], v2["id"])
+        v2_artifact = self._artifact_of_job(job["id"])
+
+        # 换个身份匿名读：新版本公开，被撤回的旧版本不能跟着复活
+        self.client.cookies.clear()
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{v1['id']}").status_code, 404,
+            "被撤回的旧版本在新版本公开后仍在对外可读",
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{v1_artifact}").status_code, 404,
+            "旧版本的产物跟着复活了",
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/work-versions/{v2['id']}").status_code, 200,
+            "新版本本身应当公开",
+        )
+        self.assertEqual(
+            self.client.get(f"{API}/artifacts/{v2_artifact}").status_code, 200,
+            "新版本的产物应当公开",
+        )
+        # 列表也要一起关：详情 404 了、列表还在吐标题/描述/changeNote/lastReview，
+        # 等于关了一半的门（评审 #13 第三轮的 P2）
+        listing = self.client.get(f"{API}/works/{work['id']}/versions")
+        self.assertEqual(listing.status_code, 200, listing.text)
+        body = listing.json()
+        self.assertEqual(body["total"], 1, "匿名版本列表仍在统计已撤回的旧版本")
+        self.assertEqual(
+            [item["id"] for item in body["items"]], [v2["id"]],
+            "已撤回的旧版本不该出现在匿名列表里",
+        )
+        self.assertEqual(self.client.get(f"{API}/works/{work['id']}").status_code, 200)
+
+
+
+    def test_patch_guard_blocks_public_metadata_mid_write(self) -> None:
+        """读完之后作品被公开，这条 UPDATE 必须一行也写不进去。
+
+        评审 #13 [P1] 的另一半：光靠 revision 挡不住**不推进 revision 的写路径**
+        （历史数据、别的服务、直接改库）。所以 PATCH 的原子写入里还带了
+        `published_version_id IS NULL` 条件。
+
+        这个交错没法用两个线程真做——SQLite 是 rollback journal 模式，第二个
+        写者的 COMMIT 会卡在第一个读者的共享锁后面，等于把死锁做成测试。这里
+        改为在同一个事务里、在那条 UPDATE 执行前一刻把作品公开，让 WHERE 里的
+        条件失效：语义上就是「读到的时候还没公开，写下去的时候已经公开了」。
+        """
+        self._new_user("meta_guard")
+        csrf = self._login("meta_guard")
+        saved = self._save_work(csrf)
+        work, version = saved["work"], saved["version"]
+        owner_id = self._whoami()
+
+        engine = create_database(self.settings)
+        factory = create_session_factory(engine)
+        fired = {"done": False}
+
+        @event.listens_for(engine, "before_cursor_execute")
+        def _publish_right_before_update(conn, cursor, statement, params, context, executemany):
+            if fired["done"]:
+                return
+            head = statement.lstrip().upper()
+            if head.startswith("UPDATE WORKS") and "REVISION" in head:
+                fired["done"] = True
+                conn.exec_driver_sql(
+                    "UPDATE works SET published_version_id = ? WHERE id = ?",
+                    (version["id"], work["id"]),
+                )
+
+        try:
+            with factory() as db:
+                user = db.get(UserModel, owner_id)
+                with self.assertRaises(ApiError) as caught:
+                    works_service.update_work(
+                        db, user, work["id"],
+                        WorkUpdate(expectedRevision=work["revision"], title="并发写入的标题"),
+                    )
+        finally:
+            engine.dispose()
+
+        self.assertTrue(fired["done"], "没拦到那条 UPDATE，测试没验到东西")
+        self.assertEqual(caught.exception.status_code, 409)
+        self.assertEqual(caught.exception.code, "INVALID_STATE")
+
+        # 事务已回滚，所以作品仍是未公开、标题仍是创建时那个
+        self.assertIsNone(self._published_version_of(work["id"]))
+        self.assertEqual(self._title_of(work["id"]), "莲花")
+
+    def _published_version_of(self, work_id: str) -> str | None:
+        connection = sqlite3.connect(self.settings.database_path)
+        row = connection.execute(
+            "SELECT published_version_id FROM works WHERE id = ?", (work_id,)
+        ).fetchone()
+        connection.close()
+        return row[0] if row else None
+
+    def _title_of(self, work_id: str) -> str:
+        connection = sqlite3.connect(self.settings.database_path)
+        row = connection.execute(
+            "SELECT title FROM works WHERE id = ?", (work_id,)
+        ).fetchone()
+        connection.close()
+        return row[0] if row else ""
+
+    def test_consecutive_versions_keep_staged_metadata(self) -> None:
+        """连续建版本不能静默退回旧公开版的标题。
+
+        评审 #13 [P2]（第四轮）：公开 v1（标题 A、描述空）→ 改工作标题 B、
+        描述 B → 建 v2 → 不再改元数据直接建 v3。上一版我在 create_version 里
+        清空 working_*，于是 v3 回落到 work.title / work.description——而它们
+        在有公开版本时是**上一版公开的**元数据，v3 静默变回 A、描述变空，
+        批准之后公开页也跟着回退。
+
+        工作元数据是持续的默认值，不是一次性缓冲。
+        """
+        self._new_user("chain_owner")
+        csrf = self._login("chain_owner")
+        saved = self._save_work(csrf, title="A")
+        work, v1 = saved["work"], saved["version"]
+        self._publish(work["id"], v1["id"])
+
+        current = self.client.get(f"{API}/works/{work['id']}").json()
+        staged = self.client.patch(
+            f"{API}/works/{work['id']}",
+            json={
+                "expectedRevision": current["revision"],
+                "title": "B",
+                "description": "描述 B",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(staged.status_code, 200, staged.text)
+        # 已有公开版本，所以只写工作元数据，公开标题仍是 A
+        self.assertEqual(staged.json()["title"], "A")
+
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+
+        def create_version(revision: int, note: str):
+            return self.client.post(
+                f"{API}/works/{work['id']}/versions",
+                json={
+                    "expectedRevision": revision,
+                    "generationId": gen["id"],
+                    "renderJobId": job["id"],
+                    "changeNote": note,
+                },
+                headers={"X-CSRF-Token": csrf},
+            )
+
+        v2 = create_version(staged.json()["revision"], "第二版")
+        self.assertEqual(v2.status_code, 201, v2.text)
+        self.assertEqual(v2.json()["version"]["title"], "B")
+        self.assertEqual(v2.json()["version"]["description"], "描述 B")
+
+        # 不再改任何元数据，直接建 v3
+        v3 = create_version(v2.json()["work"]["revision"], "第三版")
+        self.assertEqual(v3.status_code, 201, v3.text)
+        self.assertEqual(
+            v3.json()["version"]["title"], "B",
+            "连续建版本时标题退回了旧公开版（A）",
+        )
+        self.assertEqual(
+            v3.json()["version"]["description"], "描述 B",
+            "连续建版本时描述退回了旧公开版（空）",
+        )
+        # 公开标题仍是被批准的那一版，没被绕过
+        self.assertEqual(self.client.get(f"{API}/works/{work['id']}").json()["title"], "A")
+
+    def test_concurrent_create_version_is_conflict_not_500(self) -> None:
+        """并发建版本：一个成功，另一个 409，而不是 500。
+
+        旧实现是「先比 expectedRevision，再 work.revision += 1」。两个请求会
+        同时通过比较、各自算出 ``version_number = max+1``，第二条撞
+        ``UNIQUE(work_id, version_number)``，冒出来的是 IntegrityError（500）——
+        一次合法重试被报成服务器错。改成带条件的 UPDATE 之后，第二个请求在
+        CAS 处就 409 退出，连版本都插不进去。
+        """
+        self._new_user("ver_race")
+        csrf = self._login("ver_race")
+        saved = self._save_work(csrf)
+        work = saved["work"]
+        owner_id = self._whoami()
+
+        gen = self._seed_generation(csrf, duration_ms=3000)
+        job = self._make_job(csrf, gen["id"], [0, 1000])
+        png = make_png()
+        for t in (0, 1000):
+            uploaded = self.client.post(
+                f"{API}/render-jobs/{job['id']}/frames",
+                files={"file": ("frame.png", png, "image/png")},
+                data={"timeMs": str(t), "irHash": gen["irHash"]},
+                headers={"X-CSRF-Token": csrf},
+            )
+            self.assertEqual(uploaded.status_code, 200, uploaded.text)
+
+        barrier = threading.Barrier(2, timeout=10)
+        results: list[tuple[str, object]] = []
+
+        def worker(tag: str) -> None:
+            engine = create_database(self.settings)
+            factory = create_session_factory(engine)
+            try:
+                with factory() as db:
+                    user = db.get(UserModel, owner_id)
+                    barrier.wait()
+                    try:
+                        works_service.create_version(
+                            db, user, work["id"],
+                            WorkVersionCreate(
+                                expectedRevision=work["revision"],
+                                generationId=gen["id"],
+                                renderJobId=job["id"],
+                                changeNote=tag,
+                            ),
+                        )
+                        results.append((tag, "ok"))
+                    except ApiError as exc:
+                        results.append((tag, exc.status_code))
+            finally:
+                engine.dispose()
+
+        threads = [threading.Thread(target=worker, args=(t_,)) for t_ in ("A", "B")]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+        self.assertFalse(any(t.is_alive() for t in threads), "线程没有结束")
+
+        self.assertEqual(len(results), 2, results)
+        self.assertEqual(
+            len([r for r in results if r[1] == "ok"]), 1,
+            f"并发只该有一个成功，实际：{results}",
+        )
+        conflicts = [r for r in results if r[1] == 409]
+        self.assertEqual(len(conflicts), 1, f"另一个必须是 409：{results}")
+
+        connection = sqlite3.connect(self.settings.database_path)
+        total = connection.execute(
+            "SELECT COUNT(*) FROM work_versions WHERE work_id = ?", (work["id"],)
+        ).fetchone()[0]
+        revision = connection.execute(
+            "SELECT revision FROM works WHERE id = ?", (work["id"],)
+        ).fetchone()[0]
+        connection.close()
+        self.assertEqual(total, 2, "并发只能建出一个新版本")
+        self.assertEqual(revision, work["revision"] + 1, "revision 只该加 1")
 
 if __name__ == "__main__":
     unittest.main()

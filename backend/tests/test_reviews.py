@@ -222,6 +222,21 @@ class ReviewFlowTests(unittest.TestCase):
             " created_at, updated_at) VALUES (?,?,?,?,?,?,?)",
             (work_id, owner_id, "作品", "", 1, now, now),
         )
+        # latest/display 都是必填指针：create_work 建完就补上，缺了会让
+        # build_work 的响应模型校验直接报「latestVersionId 至少 1 个字符」。
+        connection.execute(
+            "UPDATE works SET latest_version_id = ?, display_version_id = ? WHERE id = ?",
+            (version_id, version_id, work_id),
+        )
+        if status == "published":
+            # 公开指针必须和版本状态一起写。``can_read_version`` 现在要求
+            # 「版本是 published **且** 容器仍挂着公开版本」——只写状态不写指针
+            # 造出的是生产路径下不可能出现的数据（decide_review 两者同时写），
+            # 拿它去断言可见性只会测出一个假象。
+            connection.execute(
+                "UPDATE works SET published_version_id = ? WHERE id = ?",
+                (version_id, work_id),
+            )
         connection.execute(
             "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
             " title, description, generation_id, render_job_id, change_note,"
@@ -1311,3 +1326,216 @@ class ReviewFlowTests(unittest.TestCase):
         connection.commit()
         connection.close()
         return stored.artifact_id
+
+    # ---- #13 P2：批准旧版本不能吃掉新草稿的工作元数据 --------------------
+    def test_approving_old_version_keeps_newer_draft_metadata(self) -> None:
+        """批准旧版本时，作者给更新草稿改的标题不能被清掉。
+
+        评审 #13 [P2]：原来「批准任何版本都清空 working_*」，于是作者给 v2
+        改好的标题在审核人批准 v1 时被丢弃，而 latest 仍指向 v2，之后建 v3
+        会回落到 v1 的旧标题，编辑无声丢失。
+        """
+        owner = self._register("meta_old_owner")
+        self._login("meta_old_owner")
+        work_id, v1_id, _generation = self._seed_work_version(
+            owner, status="pending_review"
+        )
+
+        # 送审记录要指向真实提交人：reviews.submitted_by 有外键约束，
+        # 种子数据默认留空会让裁决时的审核记录插不进去
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE work_versions SET submitted_by = ?, submitted_at = ? WHERE id = ?",
+            (owner, "2026-11-11T00:00:00+00:00", v1_id),
+        )
+
+        # 造一个更新的草稿 v2，让 latest 指向它
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " SELECT ?, work_id, 2, created_by, 'private', title, description,"
+            " generation_id, render_job_id, 'v2 草稿', NULL, NULL, 1,"
+            " created_at, updated_at FROM work_versions WHERE id = ?",
+            ("wv-meta-v2", v1_id),
+        )
+        connection.execute(
+            "UPDATE works SET latest_version_id = 'wv-meta-v2' WHERE id = ?",
+            (work_id,),
+        )
+        connection.commit()
+        connection.close()
+
+        # 作者给下一版改标题（此时作品还没公开，容器字段会一起同步）
+        revision = self._column("works", work_id, "revision")
+        patched = self.client.patch(
+            f"{API}/works/{work_id}",
+            json={"expectedRevision": revision, "title": "给 v3 准备的标题"},
+            headers={"X-CSRF-Token": self._csrf()},
+        )
+        self.assertEqual(patched.status_code, 200, patched.text)
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给 v3 准备的标题"
+        )
+
+        # 审核人批准的是**旧**版本 v1
+        self._register("meta_old_reviewer", role="expert")
+        csrf = self._login("meta_old_reviewer")
+        decided = self.client.post(
+            f"{API}/reviews",
+            json={
+                "targetType": "work_version",
+                "targetId": v1_id,
+                "expectedRevision": 1,
+                "decision": "approve",
+                "reason": "",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(decided.status_code, 201, decided.text)
+
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给 v3 准备的标题",
+            "批准旧版本把作者给新草稿改的标题清掉了",
+        )
+        # 公开元数据仍然来自被批准的那一版
+        self.assertEqual(self._column("works", work_id, "title"), "作品")
+        self.assertEqual(
+            self._column("works", work_id, "published_version_id"), v1_id
+        )
+
+    # ---- #13 第三轮 P1：审核也要走 revision 协议 -------------------------
+    def test_approval_advances_work_revision_and_rejects_stale_patch(self) -> None:
+        """批准必须推进 Work.revision，否则旧读的 PATCH 能绕过审核写公开页。
+
+        评审 #13 [P1] 的交错顺序：作者 PATCH 先读到 ``publishedVersionId=None``
+        （据此决定同步容器标题）→ 另一会话批准首个版本 → PATCH 恢复执行。
+        如果审核不推进 revision，PATCH 的 CAS 仍然成立，于是一份未经审核的
+        标题被写进已经公开的容器，而公开版本的快照还是原批准标题。
+        """
+        owner = self._register("race_owner")
+        self._login("race_owner")
+        work_id, version_id, _generation = self._seed_work_version(
+            owner, status="pending_review"
+        )
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE work_versions SET submitted_by = ?, submitted_at = ? WHERE id = ?",
+            (owner, "2026-11-11T00:00:00+00:00", version_id),
+        )
+        connection.commit()
+        connection.close()
+
+        # 作者这一侧读到的 revision（PATCH 就是拿它当 expectedRevision）
+        stale_revision = self._column("works", work_id, "revision")
+
+        self._register("race_reviewer", role="expert")
+        csrf = self._login("race_reviewer")
+        approved = self.client.post(
+            f"{API}/reviews",
+            json={
+                "targetType": "work_version",
+                "targetId": version_id,
+                "expectedRevision": 1,
+                "decision": "approve",
+                "reason": "",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(approved.status_code, 201, approved.text)
+        self.assertEqual(
+            self._column("works", work_id, "revision"), stale_revision + 1,
+            "审核改了 Work 却没推进 revision，作者那一侧的老 revision 依然有效",
+        )
+
+        # 作者带着审核前的 revision 提交 PATCH，必须被拒
+        owner_csrf = self._login("race_owner")
+        stale_patch = self.client.patch(
+            f"{API}/works/{work_id}",
+            json={"expectedRevision": stale_revision, "title": "未经审核的标题"},
+            headers={"X-CSRF-Token": owner_csrf},
+        )
+        self.assertEqual(stale_patch.status_code, 409, stale_patch.text)
+        self.assertEqual(stale_patch.json()["error"]["code"], "REVISION_CONFLICT")
+        self.assertEqual(
+            self._column("works", work_id, "title"), "作品",
+            "公开标题必须还是被批准那一版，不能被旧读的 PATCH 改写",
+        )
+
+    # ---- #13 第三轮 P2：版本创建后才保存的工作元数据 ---------------------
+    def test_metadata_saved_after_submit_reaches_next_version(self) -> None:
+        """送审后改的标题要留给下一版，不能被「批准当前 latest」清掉。
+
+        评审 #13 [P2]：``latest_version_id == row.id`` 不代表 ``working_*``
+        已被这一版消费。作者建完并送审 v1 之后又改了标题（给下一版准备），
+        批准 v1 时把它清空，随后建的 v2 只有旧标题、空描述。
+        """
+        owner = self._register("staged_owner")
+        self._login("staged_owner")
+        work_id, version_id, generation_id = self._seed_work_version(
+            owner, status="pending_review"
+        )
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE work_versions SET submitted_by = ?, submitted_at = ? WHERE id = ?",
+            (owner, "2026-11-11T00:00:00+00:00", version_id),
+        )
+        job_id = connection.execute(
+            "SELECT render_job_id FROM work_versions WHERE id = ?", (version_id,)
+        ).fetchone()[0]
+        connection.commit()
+        connection.close()
+
+        # 送审之后，作者给下一版改标题（此时作品还没公开，容器字段一起同步）
+        csrf = self._csrf()
+        staged = self.client.patch(
+            f"{API}/works/{work_id}",
+            json={
+                "expectedRevision": self._column("works", work_id, "revision"),
+                "title": "给下一版的标题",
+                "description": "给下一版的说明",
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(staged.status_code, 200, staged.text)
+
+        self._register("staged_reviewer", role="expert")
+        reviewer_csrf = self._login("staged_reviewer")
+        approved = self.client.post(
+            f"{API}/reviews",
+            json={
+                "targetType": "work_version",
+                "targetId": version_id,
+                "expectedRevision": 1,
+                "decision": "approve",
+                "reason": "",
+            },
+            headers={"X-CSRF-Token": reviewer_csrf},
+        )
+        self.assertEqual(approved.status_code, 201, approved.text)
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给下一版的标题",
+            "批准 v1 把作者送审后攒着的编辑清掉了",
+        )
+        self.assertEqual(self._column("works", work_id, "title"), "作品")
+
+        # 再建 v2：必须继承作者攒下的标题与描述
+        owner_csrf = self._login("staged_owner")
+        created = self.client.post(
+            f"{API}/works/{work_id}/versions",
+            json={
+                "expectedRevision": self._column("works", work_id, "revision"),
+                "generationId": generation_id,
+                "renderJobId": job_id,
+                "changeNote": "下一版",
+            },
+            headers={"X-CSRF-Token": owner_csrf},
+        )
+        self.assertEqual(created.status_code, 201, created.text)
+        self.assertEqual(created.json()["version"]["title"], "给下一版的标题")
+        self.assertEqual(created.json()["version"]["description"], "给下一版的说明")
+        # 工作元数据是持续的默认值，不清空：清空会让再下一版回落到旧公开版
+        # 的标题（评审 #13 第四轮 P2），这里明确锁住"建完版本后它还在"
+        self.assertEqual(
+            self._column("works", work_id, "working_title"), "给下一版的标题"
+        )
