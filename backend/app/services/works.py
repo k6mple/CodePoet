@@ -20,11 +20,12 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, update
 from sqlalchemy.orm import Session
 
 from app.errors import (
     execution_busy,
+    forbidden,
     invalid_state,
     not_found,
     revision_conflict,
@@ -33,6 +34,7 @@ from app.errors import (
 from app.models.creations import Generation as GenerationModel
 from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
+from app.schemas.reviews import ArchiveRequest
 from app.schemas.works import (
     ClientEnvironment,
     Frame,
@@ -47,7 +49,10 @@ from app.schemas.works import (
     WorkVersionCreate,
     WorkVersionDetail,
     WorkVersionPage,
+    WorkUpdate,
 )
+from app.services import audit
+from app.services import permissions
 from app.services import quality as quality_service
 from app.services import uploads
 from app.services.generations import build_generation_schema
@@ -173,7 +178,19 @@ def can_read_version(db: Session, user: User | None, row: WorkVersion) -> bool:
 
         if permissions.has_permission(user, permissions.REVIEWS_DECIDE):
             return True
-    return row.status == "published"
+    # 版本 status 是**审核结论**，容器指针是**当前公开开关**，撤回标记是
+    # **这件事发生过**的证据，三个都要看：
+    # - 只看 status：下线后版本仍是 published，详情和产物照旧匿名可读；
+    # - 只看指针：先发 v1 → 下线 → 再发 v2，指针重新非空，v1 又被带回来
+    #   （评审 #13 P1 复现的正是这条），等于绕过「重新公开需新版本审核」；
+    # - 撤回标记必须持久化在版本上，才能一直生效。
+    # published 是终态（WORK_TRANSITIONS），不能为了下线把状态改回 private，
+    # 否则等于把"当初审核通过了"这段历史抹掉，派生过它的作品来源也会漂移。
+    return (
+        row.status == "published"
+        and work.published_version_id is not None
+        and row.public_revoked_at is None
+    )
 
 
 def can_read_generation(db: Session, user: User | None, generation) -> bool:
@@ -763,6 +780,128 @@ def get_work(db: Session, user: User | None, work_id: str) -> WorkSchema:
     return build_work(db, row, user)
 
 
+def update_work(db: Session, user: User, work_id: str, payload: WorkUpdate) -> WorkSchema:
+    """O。改工作元数据，**不动任何既有版本的标题/描述**。
+
+    契约那句「不修改既有版本标题/描述；新版本读取工作元数据」是一条规则，
+    不是两句话：版本的 title/description 在创建时就是快照，改它会让人对不上
+    「当初审核通过的是哪一份内容」。所以这里写的是 ``working_*``，由
+    ``create_version`` 在下一版创建时读取。
+    """
+    row = _require_owned_work(db, user, work_id)
+    if payload.title is None and payload.description is None:
+        raise validation_error("没有需要更新的字段：至少给 title 或 description")
+
+    values: dict[str, object] = {}
+    if payload.title is not None:
+        values["working_title"] = payload.title
+    if payload.description is not None:
+        values["working_description"] = payload.description
+
+    # 还没有公开版本时，作者的工作元数据就是唯一元数据：不同步容器字段的话，
+    # 列表、搜索、详情全都还停在创建时那个名字，改完等于没改。
+    # 一旦有了公开版本，公共元数据由发布版决定，这里就不再动容器字段——
+    # 否则等于绕过审核直接改公开页。
+    sync_container = row.published_version_id is None
+    if sync_container:
+        if payload.title is not None:
+            values["title"] = payload.title
+        if payload.description is not None:
+            values["description"] = payload.description
+
+    now = _now_iso()
+    statement = update(Work).where(
+        Work.id == row.id, Work.revision == payload.expectedRevision
+    )
+    if sync_container:
+        # 「读到 publishedVersionId 为空」和「写下去」之间必须没有窗口。
+        # 中间如果有一笔审核把作品公开了，这里写的就成了未经审核的公开标题。
+        # 光靠 revision 挡不住：审核推进 revision 是这一版才补的，历史数据
+        # 与别的写路径未必守；把当前公开状态也放进 WHERE 才不依赖别人的自觉。
+        statement = statement.where(Work.published_version_id.is_(None))
+
+    affected = db.execute(
+        statement.values(revision=payload.expectedRevision + 1, updated_at=now, **values)
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(Work.revision).where(Work.id == row.id)) or 0
+        if actual != payload.expectedRevision:
+            raise revision_conflict(payload.expectedRevision, actual)
+        # revision 没变却写不进去，只可能是作品刚被公开——让客户端刷新重试，
+        # 别把它当成版本冲突（数字一样，报冲突会让人以为是自己算错了版本号）
+        raise invalid_state("作品刚刚被公开，请刷新后重试")
+
+    db.commit()
+    db.refresh(row)
+    return build_work(db, row, user)
+
+
+def unpublish_work(
+    db: Session, user: User, work_id: str, payload: ArchiveRequest
+) -> WorkSchema:
+    """A。下线作品：清公开指针，关闭所有旧公开版本与产物的公共访问。
+
+    **不改版本状态。** ``published`` 在 ``WORK_TRANSITIONS`` 里是终态，把它
+    改回 ``private`` 等于抹掉「当初审核通过了」这段历史，派生过它的作品来源
+    也会漂移。关闭公共访问靠容器指针：``can_read_version`` 要求版本是
+    published **且** 容器仍有公开版本，所以清指针一处就同时关掉了详情、产物
+    和公开列表。
+    """
+    if not permissions.has_permission(user, permissions.WORKS_UNPUBLISH_ANY):
+        raise forbidden("只有管理员或专家可以下线作品")
+
+    row = db.get(Work, work_id)
+    if row is None:
+        raise not_found("作品不存在")
+    if row.published_version_id is None:
+        raise invalid_state("作品当前没有公开版本，无需下线")
+
+    before_published = row.published_version_id
+    now = _now_iso()
+    affected = db.execute(
+        update(Work)
+        .where(Work.id == row.id, Work.revision == payload.expectedRevision)
+        .values(
+            revision=payload.expectedRevision + 1,
+            updated_at=now,
+            published_version_id=None,
+        )
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(Work.revision).where(Work.id == row.id)) or 0
+        raise revision_conflict(payload.expectedRevision, actual)
+
+    # 给当时所有公开版本打上撤回标记。只清容器指针是不够的：下次发布新版本
+    # 指针会重新非空，这些旧版本会跟着"复活"——而契约要求它们一直关闭，
+    # 重新公开得走新版本的审核。状态仍是 published，这里只记"曾经被撤回"。
+    db.execute(
+        update(WorkVersion)
+        .where(
+            WorkVersion.work_id == row.id,
+            WorkVersion.status == "published",
+            WorkVersion.public_revoked_at.is_(None),
+        )
+        .values(public_revoked_at=now)
+    )
+
+    audit.record(
+        db,
+        actor=user,
+        action="work.unpublish",
+        target_type="work",
+        target_id=row.id,
+        input_summary={"reason": payload.reason},
+        before={"publishedVersionId": before_published},
+        after={"publishedVersionId": None},
+        result="success",
+    )
+    db.commit()
+    db.refresh(row)
+    return build_work(db, row, user)
+
+
 def list_versions(
     db: Session, user: User | None, work_id: str, page: int, page_size: int
 ) -> WorkVersionPage:
@@ -772,7 +911,13 @@ def list_versions(
 
     stmt = select(WorkVersion).where(WorkVersion.work_id == work_id)
     if user is None or (work.owner_id != user.id and not _is_admin(user)):
-        stmt = stmt.where(WorkVersion.status == "published")
+        # 对外只列「当前公开且没被撤回」的版本。判定要和 can_read_version 对齐：
+        # 少一个条件，详情已经 404 的旧版本会从列表里把标题、描述、changeNote、
+        # lastReview 和关联 ID 又吐出来——下线只关了一半的门。
+        stmt = stmt.where(
+            WorkVersion.status == "published",
+            WorkVersion.public_revoked_at.is_(None),
+        )
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = db.scalars(
@@ -792,9 +937,6 @@ def create_version(
     db: Session, user: User, work_id: str, payload: WorkVersionCreate
 ) -> WorkCreated:
     work = _require_owned_work(db, user, work_id)
-    # 乐观锁：客户端拿的是旧 revision 就拒绝，避免覆盖别人的修改
-    if payload.expectedRevision != work.revision:
-        raise revision_conflict(payload.expectedRevision, work.revision)
 
     generation = _require_owned_generation(db, user, payload.generationId)
     job = _require_owned_job(db, user, payload.renderJobId)
@@ -803,18 +945,43 @@ def create_version(
     if job.phase != "completed":
         raise validation_error("渲染任务还没完成，不能创建版本")
 
+    # 乐观锁必须是原子的。原来写的是「先比 expectedRevision，再无条件
+    # work.revision += 1」，两个并发请求会同时通过比较，各自算出
+    # version_number = max+1，然后第二条撞 UNIQUE(work_id, version_number)，
+    # 冒出来的是 500 而不是 409。条件放进 UPDATE 的 WHERE 之后，数据库保证
+    # 只有一个请求能把 revision 从 N 推到 N+1，另一个在这里就 409 退出，
+    # 连版本都插不进去。
+    now = _now_iso()
+    affected = db.execute(
+        update(Work)
+        .where(Work.id == work.id, Work.revision == payload.expectedRevision)
+        .values(revision=payload.expectedRevision + 1, updated_at=now)
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(Work.revision).where(Work.id == work.id)) or 0
+        raise revision_conflict(payload.expectedRevision, actual)
+
     max_no = db.scalar(
         select(func.max(WorkVersion.version_number)).where(WorkVersion.work_id == work_id)
     ) or 0
-    now = _now_iso()
     version = WorkVersion(
         id=_new_id("wv"),
         work_id=work.id,
         version_number=max_no + 1,
         created_by=user.id,
         status="private",
-        title=work.title,
-        description=work.description,
+        # 契约「新版本读取工作元数据」：作者在 PATCH /works/{id} 改的标题要靠
+        # 这里带进新版本，否则改了等于没改。空串是合法的工作描述，所以用
+        # is not None 判断而不是真值判断。
+        # 回落到 work.title / work.description 只发生在作者从没改过的时候；
+        # 改过就一直用 working_*（见下面「不清空」那段）。
+        title=work.working_title if work.working_title is not None else work.title,
+        description=(
+            work.working_description
+            if work.working_description is not None
+            else work.description
+        ),
         generation_id=generation.id,
         render_job_id=job.id,
         change_note=payload.changeNote,
@@ -828,9 +995,15 @@ def create_version(
     )
     db.add(version)
     db.flush()
+    # 这里**不清空** working_*。它是作者的"当前工作元数据"，是一个持续的默认值，
+    # 不是一次性缓冲：清空之后，下一次 create_version 会回落到 work.title /
+    # work.description，而这两个字段在有公开版本时是**上一版公开的**元数据，
+    # 于是「公开 v1(A) → 改标题 B → 建 v2(B) → 直接建 v3」的第二、第三版
+    # 会静默退回 A（评审 #13 第四轮的 P2，就是这么来的）。
+    # 保留它还有另一个好处：批准旧版本时不会误伤作者给下一版攒的编辑。
     work.latest_version_id = version.id
     work.display_version_id = version.id
-    work.revision += 1
+    # revision 已经由上面那条 CAS 推进过了，这里不能再加一次
     work.updated_at = now
     db.commit()
     db.refresh(work)
