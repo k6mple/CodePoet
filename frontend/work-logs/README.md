@@ -13,6 +13,8 @@
 
 | 日期 | 主题 | 文件 |
 | --- | --- | --- |
+| 2026-11-12 | P1 集成验收与演示交付收尾 | [P1 集成交付](2026-11-12-p1-integration-delivery.md) |
+| 2026-11-12 | 同步 main 与最新开发进度核对 | [main 同步进度](2026-11-12-main-sync-progress.md) |
 | 2026-11-11 | main G0 与 P1 真实联调、上传恢复 | [main 联调](2026-11-11-main-integration.md) |
 | 2026-11-11 | 再次同步 main 与可推进工作核对 | [main 最新核对](2026-11-11-main-readiness-review.md) |
 | 2026-11-10 | PR #10 的 G0 与模板审核真实验收 | [G0 与模板审核](2026-11-10-g0-template-review-acceptance.md) |

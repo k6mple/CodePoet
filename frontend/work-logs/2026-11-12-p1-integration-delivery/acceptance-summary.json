@@ -1,0 +1,95 @@
+{
+  "status": "passed",
+  "scope": "local-integrated-core-demo",
+  "g0Passed": true,
+  "gaMainPathsPassed": true,
+  "gbMainPathsPassed": true,
+  "productionLocalPassed": true,
+  "backendTests": {
+    "passed": 293,
+    "targetedBeforeFix": "29 tests / 3 failures",
+    "targetedAfterFix": "29 passed",
+    "httpSmoke": "36/36"
+  },
+  "suites": [
+    {
+      "mode": "next-dev",
+      "result": "g0/g0-check-results.json",
+      "checks": 20,
+      "status": "passed"
+    },
+    {
+      "mode": "next-dev",
+      "result": "templates/template-review-results.json",
+      "checks": 12,
+      "status": "passed"
+    },
+    {
+      "mode": "next-dev",
+      "result": "p1/p1-results.json",
+      "checks": 13,
+      "status": "passed"
+    },
+    {
+      "mode": "next-dev",
+      "result": "delivery/delivery-results.json",
+      "checks": 9,
+      "status": "passed"
+    },
+    {
+      "mode": "next-start",
+      "result": "production/g0/g0-check-results.json",
+      "checks": 20,
+      "status": "passed"
+    },
+    {
+      "mode": "next-start",
+      "result": "production/templates/template-review-results.json",
+      "checks": 12,
+      "status": "passed"
+    },
+    {
+      "mode": "next-start",
+      "result": "production/p1/p1-results.json",
+      "checks": 13,
+      "status": "passed"
+    },
+    {
+      "mode": "next-start",
+      "result": "production/delivery/delivery-results.json",
+      "checks": 9,
+      "status": "passed"
+    }
+  ],
+  "recoveryChecks": 6,
+  "fixtureOnlyControlsChecks": 17,
+  "backupRestore": {
+    "status": "passed",
+    "scope": "stopped-local-integration-sqlite-and-artifact-copy",
+    "integrityCheck": "ok",
+    "foreignKeyViolations": 0,
+    "artifactFileCount": 34,
+    "databaseArtifactCount": 34,
+    "sha256Verified": true,
+    "counts": {
+      "users": 6,
+      "templates": 7,
+      "work_versions": 20,
+      "artifacts": 34
+    },
+    "backupDirectory": ".tools\\p1-delivery-20261112\\backup-f0909da437",
+    "restoredDirectory": ".tools\\p1-delivery-20261112\\restored-p1",
+    "credentialsIncludedInEvidence": false
+  },
+  "publicDeploymentVerified": false,
+  "humanTimedRehearsalExecuted": false,
+  "remotePrsMerged": false,
+  "sourceSha256": {
+    "backend/app/services/import_export.py": "4bfe76193bfd72dc3a4e2ac74a450b57b7bceadc36ea558f71ad2fccb9cc7522",
+    "backend/tests/test_import_export.py": "ac82a9a25df8384a2fdfa17b91302765556ef0ae42a6192a2680f580d25560b3",
+    "frontend/src/components/AdminOps.tsx": "15fa3c8eaec9f9b9badef464f3cb3de295aadd9e57f8cc02d212c3b3e54b3936",
+    "frontend/tests/delivery-browser-check.cjs": "88fb4c782021b439735c0b008753677b820bd5d85df1dfcba8a79f8a13e4997b",
+    "frontend/tests/delivery-catalog-check.cjs": "9fde818a85adf4a83e77ce9b575872f31a3fc8e10aa9a04363d8f4bef58dc2f0",
+    "frontend/tests/p1b-controls-check.cjs": "4a4e63521839d15556014fcd109e08fe09fa3eeac4f1674e132d152a0d5d7323"
+  }
+}

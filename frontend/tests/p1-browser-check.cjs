@@ -241,6 +241,11 @@ async function main() {
       await applicant.getByRole('textbox', { name: '简介', exact: true }).fill('真实接口个人资料验收')
       await clickResponse(applicant, applicant.getByRole('button', { name: '保存资料', exact: true }), '/me', 'PATCH')
       await applicant.reload()
+      const persisted = ok(await api(applicant, '/me')).user
+      assert.equal(persisted.nickname, `已批准-${runId}`)
+      assert.equal(persisted.bio, '真实接口个人资料验收')
+      // Reload renders the controlled input before its user-data effect runs.
+      await applicant.waitForFunction(expected => document.querySelector('.account-form input')?.value === expected, `已批准-${runId}`)
       assert.equal(await applicant.getByRole('textbox', { name: '昵称', exact: true }).inputValue(), `已批准-${runId}`)
       record('role-approval-refresh-and-profile-persistence', { userId: before.id, roleBefore: before.role, roleAfter: after.role })
       await context.close()

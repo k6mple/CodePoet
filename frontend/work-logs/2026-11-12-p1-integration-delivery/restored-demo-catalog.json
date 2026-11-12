@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "scope": "local-integration-rehearsal-data",
+  "base": "http://127.0.0.1:13160",
+  "accounts": [
+    "creator_demo",
+    "developer_demo",
+    "expert_demo",
+    "admin_demo"
+  ],
+  "works": [
+    {
+      "label": "莲参数作品",
+      "versionId": "wv-6e55520bff9e40b69f8d5b90e1f2e7db",
+      "title": "作品验收-mwd0a40y",
+      "status": "published",
+      "workId": "work-81399ed0cc354b1492b8f6072b267519",
+      "path": "/works/versions/wv-6e55520bff9e40b69f8d5b90e1f2e7db",
+      "frameCount": 1,
+      "timesMs": [
+        0
+      ]
+    },
+    {
+      "label": "竹子树与裁剪",
+      "versionId": "wv-b2c4339a9340471cbe594bca39fde64e",
+      "title": "竹·局部编辑-mwd0apmq",
+      "status": "private",
+      "workId": "work-d81d9f6bf34a4f54a8eacea949e88f10",
+      "path": "/works/versions/wv-b2c4339a9340471cbe594bca39fde64e",
+      "frameCount": 1,
+      "timesMs": [
+        0
+      ]
+    },
+    {
+      "label": "四秒叙事",
+      "versionId": "wv-480424ba5bf9462b902a62c7e8ac72bb",
+      "title": "四秒叙事-mwd0a40y",
+      "status": "private",
+      "workId": "work-2586035e12fb49be970927b2ffcde38e",
+      "path": "/works/versions/wv-480424ba5bf9462b902a62c7e8ac72bb",
+      "frameCount": 3,
+      "timesMs": [
+        0,
+        2000,
+        4000
+      ]
+    }
+  ],
+  "templateReviewHistory": {
+    "templateId": "tpl-74433d83683c44968224c41ee482dfb0",
+    "path": "/manage/templates/tpl-74433d83683c44968224c41ee482dfb0"
+  },
+  "allFramesSha256Verified": true,
+  "browserOpenedThreeWorks": true,
+  "pageErrors": [],
+  "credentialsIncluded": false
+}

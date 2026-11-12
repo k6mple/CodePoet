@@ -7,7 +7,7 @@ const ts = require('typescript')
 const { chromium } = require('playwright')
 
 const base = process.env.CODEPOET_P1B_BASE_URL || 'http://127.0.0.1:13110'
-const out = path.resolve(__dirname, '../work-logs/2026-11-09-p1b-ir-tree-timeline')
+const out = path.resolve(process.env.CODEPOET_P1B_OUTPUT_DIR || path.join(__dirname, '../work-logs/2026-11-09-p1b-ir-tree-timeline'))
 fs.mkdirSync(out, { recursive: true })
 const result = { scope: 'local-fixture-components-only', status: 'running', checks: [], pageErrors: [], businessWrites: [] }
 const record = (name, actual = {}) => result.checks.push({ name, ...actual })
