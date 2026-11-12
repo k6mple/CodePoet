@@ -97,7 +97,7 @@ def entity_obj(
 
 def build_package(
     *, tags=None, concepts=None, entities=None, templates=None, rules=None,
-    counts_override: dict | None = None,
+    workSnapshots=None, counts_override: dict | None = None,
 ) -> dict:
     data = {
         "concepts": concepts or [],
@@ -105,7 +105,7 @@ def build_package(
         "entities": entities or [],
         "rules": rules or [],
         "templates": templates or [],
-        "workSnapshots": [],
+        "workSnapshots": workSnapshots or [],
     }
     counts = {
         "concepts": len(data["concepts"]),
@@ -113,7 +113,7 @@ def build_package(
         "entities": len(data["entities"]),
         "rules": len(data["rules"]),
         "templates": len(data["templates"]),
-        "workSnapshots": 0,
+        "workSnapshots": len(data["workSnapshots"]),
     }
     if counts_override:
         counts.update(counts_override)
@@ -222,6 +222,103 @@ class ImportExportTests(unittest.TestCase):
         )
         return created["id"]
 
+    def _seed_work_snapshot(self, owner_id: str) -> None:
+        """直接落一条完整作品链路，供 workSnapshots 导出用例使用。
+
+        走 API 要先生成、再建渲染任务、再上传真 PNG、再保存作品，几十行前置；
+        这里只关心导出读不读得出来，字段按最小合法值填。
+        """
+        import json as _json
+
+        now = "2026-11-12T00:00:00+00:00"
+        ir = {
+            "schemaVersion": "1.0",
+            "seed": 3,
+            "canvas": {"width": 800, "height": 600, "background": "#FFFFFF"},
+            "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
+            "durationMs": 0,
+            "nodes": [
+                {
+                    "id": "c1",
+                    "parentId": None,
+                    "type": "circle",
+                    "geometry": {"cx": 400, "cy": 300, "r": 60},
+                    "style": {
+                        "fill": "#E8A0A0",
+                        "stroke": "#8B3A3A",
+                        "strokeWidth": 2,
+                        "opacity": 1,
+                    },
+                }
+            ],
+            "animations": [],
+            "narrative": [],
+        }
+        provenance = {
+            "kind": "manual_edit",
+            "baseGenerationId": None,
+            "matchedEntities": [],
+            "matchedRules": [],
+            "selectedSymbols": [],
+            "paletteDecision": None,
+            "compositionDecision": None,
+            "timelineDecision": None,
+            "templateSelection": None,
+            "conflicts": [],
+            "warnings": [],
+            "engineVersion": "test-1.0",
+            "ontologyVersion": 1,
+            "policyRevision": 1,
+            "fragmentSource": None,
+            "fragmentSourceHash": None,
+        }
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            "INSERT INTO generations (id, owner_id, mode, backend, template_version_id,"
+            " params_json, seed, ir_json, ir_hash, provenance_json,"
+            " validation_report_json, warnings_json, unpublished_source, request_id,"
+            " created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                "gen-backup", owner_id, "ir", "canvas2d", None, "{}", 3,
+                _json.dumps(ir), "d" * 64, _json.dumps(provenance),
+                '{"parameterValid":true,"nodeCount":0,"outOfBoundsNodeCount":0,"issues":[]}',
+                "[]", 0, "req-backup", now,
+            ),
+        )
+        connection.execute(
+            "INSERT INTO render_jobs (id, owner_id, generation_id, backend,"
+            " execution_mode, status, phase, times_ms_json, policy_revision,"
+            " renderer_version, client_environment_json, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                "job-backup", owner_id, "gen-backup", "canvas2d", "browser_upload",
+                "succeeded", "completed", "[0]", 1, "test-1.0",
+                '{"userAgent":"t","deviceScaleFactor":1}', 1, now, now,
+            ),
+        )
+        connection.execute(
+            "INSERT INTO works (id, owner_id, title, description, revision,"
+            " published_version_id, latest_version_id, display_version_id,"
+            " created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+            (
+                "wrk-backup", owner_id, "备份作品", "", 1,
+                "wv-backup", "wv-backup", "wv-backup", now, now,
+            ),
+        )
+        connection.execute(
+            "INSERT INTO work_versions (id, work_id, version_number, created_by, status,"
+            " title, description, generation_id, render_job_id, change_note,"
+            " submitted_by, submitted_at, revision, created_at, updated_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                "wv-backup", "wrk-backup", 1, owner_id, "published", "备份作品", "",
+                "gen-backup", "job-backup", "", None, None, 1, now, now,
+            ),
+        )
+        connection.commit()
+        connection.close()
+
     def _validate(self, package: dict) -> dict:
         response = self.client.post(
             f"{API}/admin/imports/validate",
@@ -245,23 +342,54 @@ class ImportExportTests(unittest.TestCase):
         return value
 
     # ---- 导出 -----------------------------------------------------------
-    def test_export_rejects_unsupported_types(self) -> None:
-        """rules / workSnapshots 必须明确拒绝，不能返回 200 + 空数组。
+    def test_export_supports_all_six_types(self) -> None:
+        """六类都要能导出（BE-EXPORT-TYPES-001）。
 
-        评审 [P2]：`types` 接受这两类，但实现里只有 concepts/tags/entities/
-        templates，于是 `{"types":["rules"]}` 返回 200、`data.rules=[]`、
-        `counts.rules=0`。管理员会把它当成成功备份——而导入侧本来就拒绝
-        这两类，等于导出一个永远导不回去的包。
+        以前 rules / workSnapshots 直接 422：契约的 ``ExportRequest.types``
+        列了六类，路由描述也写着「导出知识/模板/规则与作品 IR 备份」，
+        前端默认全勾选时首次导出必然失败。
         """
         self._login_admin()
-        for types in (["rules"], ["workSnapshots"], ["concepts", "rules"]):
-            response = self.client.post(
-                f"{API}/admin/exports",
-                json={"types": types},
-                headers={"X-CSRF-Token": self.csrf},
-            )
-            self.assertEqual(response.status_code, 422, f"{types} 应当被拒：{response.text}")
-            self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+        response = self.client.post(
+            f"{API}/admin/exports",
+            json={
+                "types": [
+                    "concepts",
+                    "tags",
+                    "entities",
+                    "rules",
+                    "templates",
+                    "workSnapshots",
+                ]
+            },
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        counts = body["manifest"]["counts"]
+        for key in ("concepts", "tags", "entities", "rules", "templates", "workSnapshots"):
+            self.assertIn(key, body["data"])
+            self.assertEqual(counts[key], len(body["data"][key]), f"{key} 计数要如实")
+        self.assertFalse(body["manifest"]["includesArtifacts"])
+
+    def test_export_work_snapshots_carry_ir_and_flag(self) -> None:
+        """作品快照备份必须带 IR、渲染任务，并如实说明有没有产物。"""
+        owner_id = self._login_admin()
+        self._seed_work_snapshot(owner_id)
+        response = self.client.post(
+            f"{API}/admin/exports",
+            json={"types": ["workSnapshots"]},
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        snapshots = response.json()["data"]["workSnapshots"]
+        self.assertEqual(len(snapshots), 1, "示例作品应当有一条快照")
+        item = snapshots[0]
+        self.assertEqual(
+            set(item), {"work", "version", "generation", "renderJob", "missingArtifacts"}
+        )
+        self.assertIsInstance(item["generation"]["ir"], dict)
+        self.assertIsInstance(item["missingArtifacts"], bool)
 
     def test_export_counts_match_data(self) -> None:
         """看板：导出清单与实际数量相符。"""
@@ -386,9 +514,47 @@ class ImportExportTests(unittest.TestCase):
         codes = {item["code"] for item in result["errors"]}
         self.assertIn("COUNT_MISMATCH", codes)
 
-    def test_validate_rejects_rules(self) -> None:
+    def test_rules_round_trip(self) -> None:
+        """规则能导出就能导回：契约只禁 workSnapshots 导入。"""
         self._login_admin()
-        package = build_package(rules=[{"id": "rule-1"}])
+        rule = {
+            "id": "rule-imp-1",
+            "revision": 1,
+            "createdAt": NOW,
+            "updatedAt": NOW,
+            "name": "导入规则",
+            "enabled": True,
+            "priority": 10,
+            "match": {
+                "keywords": ["莲"],
+                "entityIds": [],
+                "conceptIds": [],
+                "tagIds": [],
+                "operator": "any",
+            },
+            "effects": {
+                "symbolIds": ["lotus"],
+                "palette": ["#E8A0A0"],
+                "composition": "centered",
+                "motion": "none",
+                "caption": "",
+            },
+            "explanation": "",
+            "version": 1,
+        }
+        result = self._validate(build_package(rules=[rule]))
+        self.assertTrue(result["valid"], result)
+        applied = self._apply(result["validationId"], result["expectedDataRevision"])
+        self.assertIn(applied.status_code, (200, 201), applied.text)
+        self.assertEqual(self._count("mapping_rules"), 1, "规则必须真的落库")
+
+    def test_validate_rejects_work_snapshots(self) -> None:
+        """workSnapshots 仍不接受导入：契约写的是「留档备份」。
+
+        rules 已经从「拒绝」改成「支持」——契约只禁了 workSnapshots 导入。
+        """
+        self._login_admin()
+        package = build_package(workSnapshots=[{"work": {"id": "wrk-1"}}])
         result = self._validate(package)
         self.assertFalse(result["valid"])
         codes = {item["code"] for item in result["errors"]}
