@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
@@ -76,11 +77,29 @@ def pick_admin(db) -> User:
 
 
 def clear_business_tables(db) -> None:
-    """只清业务表，不碰用户与会话。"""
+    """只清业务表，不碰用户与会话。
+
+    不在这里 commit：清空与重新写入必须同处一个事务，否则清完再导失败
+    就只剩一个空库。
+    """
     for model in (VersionModel, TemplateModel, KnowledgeModel, ConceptModel,
                   TagModel, RuleModel):
         db.execute(delete(model))
-    db.commit()
+    db.flush()
+
+
+def _pick_new(db, model, items: list[dict]) -> list[dict]:
+    """把库里已存在的 id 剔掉。
+
+    幂等必须按类型逐条判，不能「有标签就整体跳过」——默认
+    ``scripts/seed.py`` 会把同一份素材里的 tpl-lotus 写进库，但它不建标签，
+    于是旧判据放行，脚本一路插到模板才撞 ``templates.id`` 唯一键。
+    """
+    ids = [item["id"] for item in items]
+    if not ids:
+        return []
+    taken = set(db.scalars(select(model.id).where(model.id.in_(ids))).all())
+    return [item for item in items if item["id"] not in taken]
 
 
 def seed_templates(db, actor: User) -> int:
@@ -101,6 +120,9 @@ def seed_templates(db, actor: User) -> int:
             continue
 
         template_id = template["id"]
+        if db.get(TemplateModel, template_id) is not None:
+            # 默认 seed.py 写的就是同一份素材，这里再插一次必撞主键
+            continue
         metadata = template.get("metadata") or {}
         working = template.get("workingMetadata") or metadata
         now = "2026-11-10T00:00:00+00:00"
@@ -172,13 +194,22 @@ def seed_templates(db, actor: User) -> int:
             )
         db.flush()
         count += 1
-    db.commit()
     return count
 
 
 def seed_rules(db, actor: User) -> int:
+    """直接落规则行，不走 ``rules_service.create_rule``。
+
+    那个函数每写一条就 commit 一次，一批里失败几条之后就没法整体回滚，
+    留下「标签有、规则没有」的库。这里字段校验仍由 ``RuleCreate`` 完成，
+    提交交给调用方统一处理。
+    """
+    existing = set(db.scalars(select(RuleModel.name)).all())
+    now = "2026-11-10T00:00:00+00:00"
     count = 0
     for item in items_of(load("rules/rules.json")):
+        if item["name"] in existing:
+            continue
         payload = RuleCreate(
             name=item["name"],
             enabled=bool(item.get("enabled", True)),
@@ -187,8 +218,24 @@ def seed_rules(db, actor: User) -> int:
             effects=item["effects"],
             explanation=item.get("explanation") or "",
         )
-        rules_service.create_rule(db, actor, payload)
+        db.add(
+            RuleModel(
+                id=f"rule-{uuid4().hex}",
+                name=payload.name,
+                enabled=1 if payload.enabled else 0,
+                priority=payload.priority,
+                match_json=payload.match.model_dump_json(),
+                effects_json=payload.effects.model_dump_json(),
+                explanation=payload.explanation,
+                version=1,
+                revision=1,
+                owner_id=actor.id,
+                created_at=now,
+                updated_at=now,
+            )
+        )
         count += 1
+    db.flush()
     return count
 
 
@@ -198,30 +245,37 @@ def seed_all(db, actor: User, *, force: bool = False) -> dict:
     抽成函数而不是塞在 main 里，是为了能被测试直接调用——否则这段
     逻辑只能靠"跑一遍看看"验证，而那恰恰是最不可靠的方式。
     """
-    existing = db.scalar(select(TagModel.id).limit(1))
-    if existing is not None and not force:
-        return {"skipped": True}
     if force:
         clear_business_tables(db)
 
-    tags = items_of(load("knowledge/tags.json"))
-    concepts = items_of(load("knowledge/concepts.json"))
-    entities = items_of(load("knowledge/knowledge.json"))
+    # 幂等按类型逐条判：已经存在的跳过，缺的补上。
+    # 这样「默认 seed.py → seed_demo.py」这条顺序不会撞主键，也不会漏数据。
+    tags = _pick_new(db, TagModel, items_of(load("knowledge/tags.json")))
+    concepts = _pick_new(db, ConceptModel, items_of(load("knowledge/concepts.json")))
+    entities = _pick_new(db, KnowledgeModel, items_of(load("knowledge/knowledge.json")))
 
-    # 复用导入模块的插入函数：它们已处理父子依赖排序与成环检测
-    import_export._insert_concepts(db, concepts, actor)  # noqa: SLF001
-    import_export._insert_tags(db, tags, actor)  # noqa: SLF001
-    import_export._insert_entities(db, entities, actor)  # noqa: SLF001
-    db.commit()
+    try:
+        # 复用导入模块的插入函数：它们已处理父子依赖排序与成环检测
+        import_export._insert_concepts(db, concepts, actor)  # noqa: SLF001
+        import_export._insert_tags(db, tags, actor)  # noqa: SLF001
+        import_export._insert_entities(db, entities, actor)  # noqa: SLF001
 
-    templates = seed_templates(db, actor)
-    rule_count = seed_rules(db, actor)
+        template_count = seed_templates(db, actor)
+        rule_count = seed_rules(db, actor)
+        # 全流程一个事务：任一类失败就整体回滚，不留半套数据
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
     return {
-        "skipped": False,
+        "skipped": not any(
+            (tags, concepts, entities, template_count, rule_count)
+        ),
         "tags": len(tags),
         "concepts": len(concepts),
         "entities": len(entities),
-        "templates": templates,
+        "templates": template_count,
         "rules": rule_count,
     }
 
@@ -237,10 +291,10 @@ def main() -> int:
             print(f"执行导入的账号：{actor.username}（{actor.role}）")
             result = seed_all(db, actor, force=force)
             if result.get("skipped"):
-                print("库里已有标签，跳过。要重导请加 --force")
+                print("示例数据已全部存在，无需导入。要清空重导请加 --force")
                 return 0
             print(
-                f"标签 {result['tags']} / 概念 {result['concepts']} / "
+                f"本次写入：标签 {result['tags']} / 概念 {result['concepts']} / "
                 f"知识 {result['entities']} / 模板 {result['templates']}（已发布）"
                 f" / 规则 {result['rules']}"
             )
