@@ -416,6 +416,34 @@ def main() -> int:
                   snapshot.get("missingArtifacts") is True,
                   str(snapshot.get("missingArtifacts")))
 
+        print("== 导入校验：非法结构不能打成 500 ==")
+        for label, rule in (
+            ("match 是字符串", {"id": "rule-bad-1", "match": "bad-shape"}),
+            ("entityIds 里塞对象", {"id": "rule-bad-2", "match": {"entityIds": [{}]}}),
+        ):
+            package = {
+                "schemaVersion": 1.0,
+                "exportedAt": "2026-11-12T00:00:00Z",
+                "manifest": {
+                    "counts": {"concepts": 0, "tags": 0, "entities": 0, "rules": 1,
+                               "templates": 0, "workSnapshots": 0},
+                    "includesArtifacts": False,
+                },
+                "data": {"concepts": [], "tags": [], "entities": [], "rules": [rule],
+                         "templates": [], "workSnapshots": []},
+            }
+            validated = client.post(
+                f"{base}/admin/imports/validate",
+                json=package,
+                headers={"X-CSRF-Token": client.get(f"{base}/auth/csrf").json()["csrfToken"]},
+            )
+            check(f"非法规则（{label}）返回 200 而非 500",
+                  validated.status_code == 200, validated.text[:100])
+            if validated.status_code == 200:
+                check(f"非法规则（{label}）判为 valid=false",
+                      validated.json().get("valid") is False,
+                      str(validated.json().get("valid")))
+
         client.close()
     finally:
         server.terminate()

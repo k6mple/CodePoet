@@ -24,9 +24,9 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from app import errors
 from app.models.creations import Generation as GenerationModel
 from app.models.knowledge import Concept as ConceptModel
@@ -151,29 +151,62 @@ def _canonical_hash(payload: dict) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _artifact_missing(db: Session, settings: Settings | None, job_id: str) -> bool:
-    """这一版那次渲染的产物还在不在。
+def _artifact_missing(
+    db: Session, settings: Settings | None, job: RenderJobModel
+) -> bool:
+    """这一版那次渲染**声明的每一帧**是不是都还有产物、文件也还在。
 
-    不能只看 ``artifacts`` 里有没有行：行还在、文件被清掉的情况在生产里
-    很常见（换机器、清理磁盘）。备份包既然不含 PNG，就必须如实告诉使用者
-    「这一条将来能不能直接复用」——用「有没有记录」代理「文件在不在」，
-    等于给一个会骗人的备份。
+    两个坑都不能踩：
+
+    * 只看「``artifacts`` 里有没有行」——行在、文件被清掉（换机器、清磁盘）
+      时会把缺失报成完整。
+    * 只看「还剩任意一条」——多帧任务被清掉一部分时，``LIMIT 1`` 仍然能
+      捞到一条，于是「声明 2 帧、只剩 1 帧」也被标成完整。
+
+    所以按 ``times_ms_json`` 里声明的采样时刻逐个核对：**少一帧、或任一帧
+    的文件不在了，都算缺失**。备份包本身不含 PNG，这个标记是使用者判断
+    「这条将来能不能直接用」的唯一依据，不能含糊。
     """
-    storage_path = db.scalar(
-        select(ArtifactModel.storage_path)
-        .where(ArtifactModel.render_job_id == job_id)
-        .order_by(ArtifactModel.time_ms)
-        .limit(1)
-    )
-    if not storage_path:
-        return True
-    if settings is None:
-        # 拿不到数据目录时只能按记录判断，明确退化为「记录在即认为在」
-        return False
+    expected = _loads_times(job.times_ms_json)
+    rows = db.execute(
+        select(ArtifactModel.time_ms, ArtifactModel.storage_path).where(
+            ArtifactModel.render_job_id == job.id
+        )
+    ).all()
+    by_time: dict[int, str] = {}
+    for time_ms, storage_path in rows:
+        by_time.setdefault(int(time_ms), storage_path)
+
+    if not expected:
+        # 历史数据没有声明采样时刻：退化成「至少有一条产物」这种最弱判据
+        expected = sorted(by_time)[:1] or [0]
+
+    for time_ms in expected:
+        storage_path = by_time.get(time_ms)
+        if not storage_path:
+            return True
+        if settings is None:
+            # 拿不到数据目录时只能按记录判断，明确退化为「记录齐即认为齐」
+            continue
+        try:
+            if not uploads.artifact_path(settings, storage_path).exists():
+                return True
+        except Exception:  # noqa: BLE001 —— 库路径被手工改坏时按缺失处理
+            return True
+    return False
+
+
+def _loads_times(raw: str | None) -> list[int]:
+    """``times_ms_json`` 是 ``[0, 1000]`` 这种整型数组；坏数据当没声明。"""
+    if not raw:
+        return []
     try:
-        return not uploads.artifact_path(settings, storage_path).exists()
-    except Exception:  # noqa: BLE001 —— 库路径被手工改坏时按缺失处理
-        return True
+        items = json.loads(raw)
+    except (TypeError, ValueError):
+        return []
+    if not isinstance(items, list):
+        return []
+    return [int(item) for item in items if isinstance(item, (int, float))]
 
 
 def _export_work_snapshots(
@@ -214,7 +247,7 @@ def _export_work_snapshots(
                 "BACKUP_DATA_CORRUPT",
                 f"作品版本 {version.id} 的关联数据不完整，无法导出备份",
             )
-        missing = _artifact_missing(db, settings, job.id)
+        missing = _artifact_missing(db, settings, job)
         items.append(
             {
                 "work": works_service.build_work(db, work, actor).model_dump(mode="json"),
@@ -650,19 +683,26 @@ def validate_import(
     _validate_shape(package.data.rules, "rules", MappingRuleSchema, errors_list)
     all_entities = entity_ids | _all_ids(db, KnowledgeModel)
     for index, item in enumerate(package.data.rules):
-        match = item.get("match") or {}
+        # 引用遍历必须走**已经验过类型的模型**，不能在原始 dict 上 `.get`。
+        # `BackupData.rules` 只保证元素是 dict，`match` 可能是字符串、`entityIds`
+        # 里可能塞对象——直接遍历会 AttributeError / TypeError，把一个本该
+        # 422 的非法包打成 500。结构错误已经在上面记过，这里跳过即可。
+        try:
+            rule = MappingRuleSchema.model_validate(item)
+        except ValidationError:
+            continue
         for field, known in (
             ("entityIds", all_entities),
             ("conceptIds", all_concepts),
             ("tagIds", all_tags),
         ):
-            for ref in match.get(field) or []:
+            for ref in getattr(rule.match, field):
                 if ref in known:
                     continue
                 errors_list.append(
                     _issue(
                         "UNRESOLVED_REFERENCE",
-                        f"rules[{index}]「{item.get('name')}」的 {field} "
+                        f"rules[{index}]「{rule.name}」的 {field} "
                         f"引用了不存在的「{ref}」",
                         f"data.rules[{index}].match.{field}",
                     )
