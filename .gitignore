@@ -16,6 +16,9 @@ venv/
 htmlcov/
 *.egg-info/
 
+# 冒烟脚本的隔离数据目录（scripts/smoke_integration.py 默认写这里）
+.smoke/
+
 # 前端依赖与构建产物
 node_modules/
 .tools/
