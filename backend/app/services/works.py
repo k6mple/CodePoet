@@ -20,7 +20,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, true
 from sqlalchemy.orm import Session
 
 from app.errors import (
@@ -225,12 +225,111 @@ def _permissions_for(is_owner: bool, is_admin: bool) -> list[str]:
     return perms
 
 
-def build_work(db: Session, row: Work, user: User | None) -> WorkSchema:
+def _public_thumbnail_id(db: Session, row: Work) -> str | None:
+    """对外缩略图只能来自**公开版本**那次渲染的产物。
+
+    ``create_version`` 无条件把 ``thumbnail_artifact_id`` 改成新版本第一帧；
+    新版本一旦是私有待审，直接透出这个 id 等于让匿名列表拿到一个读不到的
+    artifact（取图 404）。所以对外视图必须回到公开版本自己的渲染任务。
+    """
+    version_id = row.published_version_id
+    if not version_id:
+        return None
+    render_job_id = db.scalar(
+        select(WorkVersion.render_job_id).where(WorkVersion.id == version_id)
+    )
+    if not render_job_id:
+        return None
+    return db.scalar(
+        select(Artifact.id)
+        .where(Artifact.render_job_id == render_job_id)
+        .order_by(Artifact.time_ms)
+    )
+
+
+def _public_thumbnails(db: Session, rows: list[Work]) -> dict[str, str | None]:
+    """批量算对外缩略图，避免列表页 N+1（每个 job 的帧数受 maxFrames 约束）。"""
+    needed = {r.published_version_id for r in rows if r.published_version_id}
+    if not needed:
+        return {}
+    job_of = dict(
+        db.execute(
+            select(WorkVersion.id, WorkVersion.render_job_id).where(
+                WorkVersion.id.in_(needed)
+            )
+        ).all()
+    )
+    job_ids = {job for job in job_of.values() if job}
+    first: dict[str, str] = {}
+    if job_ids:
+        for job_id, artifact_id, _ in db.execute(
+            select(Artifact.render_job_id, Artifact.id, Artifact.time_ms)
+            .where(Artifact.render_job_id.in_(job_ids))
+            .order_by(Artifact.render_job_id, Artifact.time_ms)
+        ).all():
+            first.setdefault(job_id, artifact_id)
+    return {
+        r.id: first.get(job_of.get(r.published_version_id))  # type: ignore[arg-type]
+        for r in rows
+    }
+
+
+def _favorite_ids(db: Session, user: User | None, rows: list[Work]) -> set[str]:
+    """批量查这页里哪些被当前用户收藏，避免逐条查造成 N+1。"""
+    if user is None or not rows:
+        return set()
+    from app.models.sessions import WorkFavorite
+
+    ids = [r.id for r in rows]
+    return set(
+        db.scalars(
+            select(WorkFavorite.work_id).where(
+                WorkFavorite.owner_id == user.id, WorkFavorite.work_id.in_(ids)
+            )
+        ).all()
+    )
+
+
+def _is_favorite(
+    db: Session, user: User | None, work_id: str, favorite_ids: set[str] | None
+) -> bool:
+    """收藏标记**必须读服务端关系表**，不能回固定值。
+
+    ``favorites`` 服务在函数内导入：它反过来依赖本模块的 ``can_read_work``，
+    顶层导入会成环。
+    """
+    if user is None:
+        return False
+    if favorite_ids is not None:
+        return work_id in favorite_ids
+    from app.services import favorites
+
+    return favorites.is_favorited(db, user, work_id)
+
+
+def build_work(
+    db: Session,
+    row: Work,
+    user: User | None,
+    *,
+    public_thumbnails: dict[str, str | None] | None = None,
+    favorite_ids: set[str] | None = None,
+) -> WorkSchema:
     is_owner = user is not None and row.owner_id == user.id
     is_admin = user is not None and _is_admin(user)
     # latest/display 在正常流程里由服务层维护，历史数据缺失时回落到最新版本
     latest = row.latest_version_id or row.display_version_id or ""
-    display = row.display_version_id or latest
+    if is_owner or is_admin:
+        display = row.display_version_id or latest
+        thumbnail = row.thumbnail_artifact_id
+    else:
+        # 契约 5.1：公共 metadata 来自发布版。display 是「按这个 id 就能打开」
+        # 的承诺，指到私有待审新版会让公共列表点进去直接 404。
+        display = row.published_version_id or ""
+        if public_thumbnails is not None:
+            thumbnail = public_thumbnails.get(row.id)
+        else:
+            thumbnail = _public_thumbnail_id(db, row)
     return WorkSchema(
         id=row.id,
         revision=row.revision,
@@ -245,8 +344,8 @@ def build_work(db: Session, row: Work, user: User | None) -> WorkSchema:
         publishedVersionId=row.published_version_id,
         latestVersionId=latest,
         displayVersionId=display,
-        isFavorite=False,
-        thumbnailArtifactId=row.thumbnail_artifact_id,
+        isFavorite=_is_favorite(db, user, row.id, favorite_ids),
+        thumbnailArtifactId=thumbnail,
         permissions=_permissions_for(is_owner, is_admin),
     )
 
@@ -726,7 +825,10 @@ def list_works(
     page: int,
     page_size: int,
 ) -> WorkPage:
+    from app.models.sessions import WorkFavorite
+
     stmt = select(Work)
+    order = [Work.updated_at.desc()]
     if scope == "mine":
         if user is None:
             raise not_found("作品不存在")
@@ -735,8 +837,22 @@ def list_works(
         if user is None or not _is_admin(user):
             raise not_found("作品不存在")
     elif scope == "favorites":
-        # 收藏属 P1A-05，表还没建。返回空页而不是假装支持
-        return WorkPage(items=[], total=0, page=page, pageSize=page_size)
+        if user is None:
+            raise not_found("作品不存在")
+        # 收藏是用户自己的数据，但列表里只能出现**当前还读得到**的作品：
+        # 被下线、或转私有的他人作品留在列表里只会是一张点进去 404 的卡片。
+        # 关系本身不删（取消收藏才是删），用户仍可从「我的收藏」里移除。
+        visible = Work.owner_id == user.id
+        if _is_admin(user):
+            visible = visible | true()
+        else:
+            visible = visible | Work.published_version_id.is_not(None)
+        stmt = (
+            stmt.join(WorkFavorite, WorkFavorite.work_id == Work.id)
+            .where(WorkFavorite.owner_id == user.id, visible)
+        )
+        # 收藏列表按收藏时间倒序：刚收的排前面，比「作品更新时间」更贴合
+        order = [WorkFavorite.created_at.desc()]
     else:  # public
         stmt = stmt.where(Work.published_version_id.is_not(None))
 
@@ -746,10 +862,18 @@ def list_works(
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = db.scalars(
-        stmt.order_by(Work.updated_at.desc()).offset((page - 1) * page_size).limit(page_size)
+        stmt.order_by(*order).offset((page - 1) * page_size).limit(page_size)
     ).all()
+    # 作者与管理员走各自分支，不会用到这份映射；只有对外视图才需要它
+    thumbnails = _public_thumbnails(db, list(rows))
+    favorites = _favorite_ids(db, user, list(rows))
     return WorkPage(
-        items=[build_work(db, r, user) for r in rows],
+        items=[
+            build_work(
+                db, r, user, public_thumbnails=thumbnails, favorite_ids=favorites
+            )
+            for r in rows
+        ],
         total=total,
         page=page,
         pageSize=page_size,

@@ -33,6 +33,7 @@ from app.schemas.templates import (
     TemplateVersion,
     TemplateVersionPage,
     VersionCreate,
+    VersionUpdate,
 )
 from app.services import reviews as reviews_service
 from app.services import templates
@@ -217,6 +218,26 @@ VersionIdPath = Annotated[
         description="模板版本 ID，不透明串",
     ),
 ]
+
+
+@router.patch(
+    "/template-versions/{version_id}",
+    response_model=TemplateVersion,
+    summary="编辑 draft/rejected 版本",
+    description=(
+        "权限 D-own/A。只有草稿与被退回的版本可以就地修订，其余状态 409。"
+        "改动会用引擎重验 IR/参数/绑定/约束，不自洽直接 422。"
+        "expectedRevision 校验走条件更新，并发修改只有一个能落地。"
+    ),
+)
+def update_template_version(
+    payload: VersionUpdate,
+    version_id: VersionIdPath,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(require_user),
+    _csrf: object = Depends(require_csrf),
+) -> TemplateVersion:
+    return templates.update_template_version(db, user, version_id, payload)
 
 
 @router.post(
