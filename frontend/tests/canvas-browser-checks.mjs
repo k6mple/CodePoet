@@ -1,11 +1,10 @@
 // Real browser Canvas checks; no backend substitutes or simulated HTTP responses.
 // Generate a DevTools evaluate_script function:
 // node frontend/tests/canvas-browser-checks.mjs data/canvas-check.js
-import { readFile, writeFile } from 'node:fs/promises'
-import ts from 'typescript'
+import { writeFile } from 'node:fs/promises'
+import { browserModule } from './browser-modules.mjs'
 
-const renderer = await readFile(new URL('../src/renderers/canvas/renderScene.ts', import.meta.url), 'utf8')
-const compiled = ts.transpileModule(renderer, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText
+const compiled = await browserModule(new URL('../src/renderers/canvas/renderScene.ts', import.meta.url))
 async function checks() {
   const { renderScene, sampleTimes, exportFrame } = exports
   const results = []
@@ -47,5 +46,5 @@ async function checks() {
   return results
 }
 if (!process.argv[2]) throw new Error('Pass an output JavaScript file for DevTools evaluate_script sourcePath')
-await writeFile(process.argv[2], `async () => { const exports = {};\n${compiled}\nreturn await (${checks.toString()})();\n}`, 'utf8')
+await writeFile(process.argv[2], `async () => { const exports = ${compiled};\nreturn await (${checks.toString()})();\n}`, 'utf8')
 console.log(`Wrote browser Canvas checks: ${process.argv[2]}`)
