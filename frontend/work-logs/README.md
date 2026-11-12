@@ -13,6 +13,14 @@
 
 | 日期 | 主题 | 文件 |
 | --- | --- | --- |
+| 2026-11-12 | 计划与代码衔接复核、LLM执行细化 | [计划复核](2026-11-12-plan-code-alignment.md) |
+| 2026-11-12 | 面向赛题提分的双人开发重规划 | [提分计划](2026-11-12-score-oriented-plan.md) |
+| 2026-11-12 | P1 集成验收与演示交付收尾 | [P1 集成交付](2026-11-12-p1-integration-delivery.md) |
+| 2026-11-12 | 同步 main 与最新开发进度核对 | [main 同步进度](2026-11-12-main-sync-progress.md) |
+| 2026-11-11 | main G0 与 P1 真实联调、上传恢复 | [main 联调](2026-11-11-main-integration.md) |
+| 2026-11-11 | 再次同步 main 与可推进工作核对 | [main 最新核对](2026-11-11-main-readiness-review.md) |
+| 2026-11-10 | PR #10 的 G0 与模板审核真实验收 | [G0 与模板审核](2026-11-10-g0-template-review-acceptance.md) |
+| 2026-11-10 | 同步 main 与可推进任务核对 | [main 核对](2026-11-10-main-readiness-review.md) |
 | 2026-11-09 | 最新后端合并后的 G0 阻断复验 | [后端复验](2026-11-09-g0-backend-recheck.md) |
 | 2026-11-09 | G0/P1B 成果检查与本地提交 | [成果提交](2026-11-09-g0-p1b-checkpoint.md) |
 | 2026-11-09 | P1B IR 层级树、子树草稿与时间轴本地回归 | [P1B 层级树与时间轴](2026-11-09-p1b-ir-tree-timeline.md) |

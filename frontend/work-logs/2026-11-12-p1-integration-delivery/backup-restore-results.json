@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "scope": "stopped-local-integration-sqlite-and-artifact-copy",
+  "integrityCheck": "ok",
+  "foreignKeyViolations": 0,
+  "artifactFileCount": 34,
+  "databaseArtifactCount": 34,
+  "sha256Verified": true,
+  "counts": {
+    "users": 6,
+    "templates": 7,
+    "work_versions": 20,
+    "artifacts": 34
+  },
+  "backupDirectory": ".tools\\p1-delivery-20261112\\backup-f0909da437",
+  "restoredDirectory": ".tools\\p1-delivery-20261112\\restored-p1",
+  "credentialsIncludedInEvidence": false
+}

@@ -169,27 +169,43 @@ def _artifact_missing(
     """
     expected = _loads_times(job.times_ms_json)
     rows = db.execute(
-        select(ArtifactModel.time_ms, ArtifactModel.storage_path).where(
-            ArtifactModel.render_job_id == job.id
+        select(ArtifactModel.id, ArtifactModel.time_ms, ArtifactModel.storage_path).where(
+            ArtifactModel.render_job_id == job.id, ArtifactModel.kind == "png"
         )
     ).all()
-    by_time: dict[int, str] = {}
-    for time_ms, storage_path in rows:
-        by_time.setdefault(int(time_ms), storage_path)
+    by_time: dict[int, tuple[str, str]] = {}
+    by_id = {}
+    for artifact_id, time_ms, storage_path in rows:
+        if time_ms is None:
+            continue
+        by_time.setdefault(int(time_ms), (artifact_id, storage_path))
+        by_id[artifact_id] = (int(time_ms), storage_path)
 
     if not expected:
         # 历史数据没有声明采样时刻：退化成「至少有一条产物」这种最弱判据
         expected = sorted(by_time)[:1] or [0]
 
-    for time_ms in expected:
-        storage_path = by_time.get(time_ms)
-        if not storage_path:
+    # 清单指定的产物 ID 必须仍然存在，不能用同一时刻的其他 PNG 代替。
+    if job.manifest_json:
+        frames = json.loads(job.manifest_json)["frames"]
+        if {frame["timeMs"] for frame in frames} != set(expected):
             return True
+        for frame in frames:
+            artifact = by_id.get(frame["artifactId"])
+            if artifact is None or artifact[0] != frame["timeMs"]:
+                return True
+            by_time[frame["timeMs"]] = (frame["artifactId"], artifact[1])
+
+    for time_ms in expected:
+        artifact = by_time.get(time_ms)
+        if artifact is None:
+            return True
+        storage_path = artifact[1]
         if settings is None:
             # 拿不到数据目录时只能按记录判断，明确退化为「记录齐即认为齐」
             continue
         try:
-            if not uploads.artifact_path(settings, storage_path).exists():
+            if not uploads.artifact_path(settings, storage_path).is_file():
                 return True
         except Exception:  # noqa: BLE001 —— 库路径被手工改坏时按缺失处理
             return True

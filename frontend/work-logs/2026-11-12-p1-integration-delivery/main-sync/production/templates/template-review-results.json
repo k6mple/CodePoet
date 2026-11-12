@@ -1,0 +1,967 @@
+{
+  "base": "http://127.0.0.1:13160",
+  "status": "passed",
+  "templateReviewPassed": true,
+  "checks": [
+    {
+      "name": "ui-create-template-and-draft-version-private",
+      "templateId": "tpl-eaed4975c9e746edb0021d741f252105",
+      "versionId": "tver-2f3b20b617854ac9aebbd9e00342af9c"
+    },
+    {
+      "name": "draft-preview-real-canvas-and-png-work-cannot-publish",
+      "generationId": "gen-4cbe4d1c5b9148b2b8362e0a79889cd4",
+      "workVersionId": "wv-57402be244a447ab95f951e52fa3e35c",
+      "requestId": "req-ea27cb14ebe54523be70f83e8af095fd"
+    },
+    {
+      "name": "empty-rejection-reason-blocked-in-ui",
+      "versionId": "tver-2f3b20b617854ac9aebbd9e00342af9c"
+    },
+    {
+      "name": "ui-submit-other-reviewer-reject-and-show-reason",
+      "versionId": "tver-2f3b20b617854ac9aebbd9e00342af9c"
+    },
+    {
+      "name": "ui-rejected-version-revision-saved-and-stale-write-rejected"
+    },
+    {
+      "name": "published-version-patch-is-readonly"
+    },
+    {
+      "name": "ui-approve-publishes-concrete-version",
+      "versionId": "tver-2f3b20b617854ac9aebbd9e00342af9c"
+    },
+    {
+      "name": "new-version-pending-keeps-old-public-version",
+      "oldVersionId": "tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "pendingVersionId": "tver-d23a8352cc744d3b995ba37c17ba5c94"
+    },
+    {
+      "name": "approve-new-version-switches-public-pointer",
+      "versionId": "tver-d23a8352cc744d3b995ba37c17ba5c94"
+    },
+    {
+      "name": "ui-archive-fallback-remove-from-public-and-keep-history",
+      "templateId": "tpl-eaed4975c9e746edb0021d741f252105",
+      "artifactId": "art-bafdcd7f1fe1475db288d08458d6cdda"
+    },
+    {
+      "name": "ui-and-api-block-self-review-and-developer-review",
+      "selfStatus": 403,
+      "developerStatus": 403
+    },
+    {
+      "name": "template-manager-390-no-horizontal-overflow",
+      "width": 390,
+      "document": 390
+    }
+  ],
+  "blockers": [],
+  "requests": [
+    {
+      "actor": "developer",
+      "path": "/api/v1/engine/capabilities",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-ff0baf874f464070940703bf7eee9641"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-2a72f512068d4faea7a36e3c2a7857c4"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-96fa73fbbb89427189ecd90cce5ace3b"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-088426020f844e6fb1475c28b6cbdc29"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 401,
+      "requestId": "req-081be80e9b2e42b4a141c063aadd3e42"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tv-bamboo-2",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-a58668119fa549959da9696442c8229c"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-787a893e32a14160b6974cbcef3c3314"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/login",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-ab68a247578449c788f7dc2a04e39bfb"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/generations",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-33e237a7cf964ceeb748a6169572d5fb"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-55b47d3f69e443889085d9a824471d55"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/engine/capabilities",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-cabd72539e91453d9b2665995c377178"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-b3b9c5fb8d78461db594bd17a8830e56"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 401,
+      "requestId": "req-39ebf1b61a1346fb95586253f7e73aaf"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/templates",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-57fd953438cc42a8a188f071aed842cb"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/template-versions/tv-bamboo-2",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-7dcc817b1060430685849d0e5b928c3c"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-1e4f1fb7e446413da84e339a7d04348c"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/login",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-9582aaa5337f4af7a20fb3cbba6d38b4"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-b1eb11c3032f43479faa370ebb8c4b4b"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-a74b46e5234d47fa852978a5804db00c"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-09d042ce37ee46acb8ed3cdeefd04b64"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f9d76a1c26924abcb7cfa46d2cf5457a"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-867b58e916cb40d58a978fd6f690029c"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/generations",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-f97c9aff939a4bd8b7c69558260d310e"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f19df84124184e20bcf6e3c94b14fab5"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-e52d80d753d64d46b1aa755cd9013b55"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-d69518cb40364d478213d9a0a3c13841"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-cb8ad6980bde4fa8b36f549701163419"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-2b7a666efb3b43a39782877730421176"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/engine/capabilities",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-400b91cefb0a43be903e2fc7af23e31b"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-85478f7de1154e16b603628cfbfede5f"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-050017149be44a7b94a14c8cb6eee781"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-16f91a01d8914d49b7285ebe0165d5cb"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/generations",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-454f71e48a3545c3a5a7eed2a9e56617"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/generations/gen-4cbe4d1c5b9148b2b8362e0a79889cd4",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-69f6793905b046f69cd676ddfbaa6af9"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/render-jobs",
+      "method": "POST",
+      "status": 202,
+      "requestId": "req-8eaf6b13044449998b7403c81f1a4f0d"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/render-jobs/job-e06210dca07d4b76885b66633e826b45/frames",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-64653e12a2904beab0a53689cb7914a9"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/works",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-fd0ef8468c8d445b880a65848fc9e516"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-83e5b5088d9d492fb2111d066449b49c"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/work-versions/wv-57402be244a447ab95f951e52fa3e35c/submit",
+      "method": "POST",
+      "status": 409,
+      "requestId": "req-ea27cb14ebe54523be70f83e8af095fd"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-44f0a13405f548c48a993f3da02e6c03"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-d47b0d04fa4b4673bbb6edf4353dabc3"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-515b2f184e104902bec06f08cb99c27c"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f70424f238a14c63bb23dc31c31a1409"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-05a24548f18c42dcb3dc02fd71c26d91"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c/submit",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-c13254c955524ae3aeed474f82aa7326"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-4365d593e20a4e4791a8e6933c8cf1bb"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-bcb2569188f94d26a31617b6f1f172d2"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-41c4b0e133ba4f33a28854dfff1ac7cc"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-13cac5286ddb42de9b91584c9f4b602c"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-24784e80d7984e419e5abcf621188ac0"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-9d8e496828c94f43bd7d125a9dbecced"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f423c2cdf4614eda86fa97e7254979ad"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-ae9a96601ee74b3f9ca1a353ae313f9b"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-99c37004827845ada6270bce94b0a5aa"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-808f4b09ac15419faa9746fe26f48d2f"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-938a77251b2847baa8cc0b8b496a45a9"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-7aff2fb459d54772aaec5821722fea16"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-b10e1a0015874a9295983b957472eea8"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-b33a86b2bfd94bb7bba00da5986d3e72"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-2cf79f09c078429e98626c3aa250579a"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "PATCH",
+      "status": 200,
+      "requestId": "req-b7691abbf65f4cd898fd255c32a9e4eb"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-ca8e65f50ee94e21905531e8aee058f3"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-69ec294fa853486ea53ad7c658606f2a"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-9c12c4a61a5f4053b5a9ad8c25c31af1"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f4b7f9e765b04edc809b790db4276a29"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "PATCH",
+      "status": 409,
+      "requestId": "req-3f46e54298ab4f5c9e5133a2f513d75f"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c/submit",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-3e0aa8cbf1f5421a949afd7294233525"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-9b38631fe49a4010bbbaf8df1a5a2ae9"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-ce168026d4d846fea33f5c4110daa7ea"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-9f3a82bdbfec4aacb9eab3a4a2158540"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-0c0664a508e3481987514e599f1c86f5"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-c66502b5c2d84da1a14d7309aa4f0050"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-545afb3d3cf2437782111f0f644c814f"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-97c993d63c9b422db847aa9a240a5c1e"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-d4eefb349fd647809060789bb1b8de32"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-23d9b56368ec4be1a83e5ba04c1e3018"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-87785643607e4f21a0005a4f7b9da4e0"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f3326068b92448c2afc06ed2aae32c78"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c",
+      "method": "PATCH",
+      "status": 409,
+      "requestId": "req-bbdbda9f5d024f55bf3ff1124ce4e567"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-30c6d02db1d041b9a9d492f1f762f571"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-145daf5a41d94c5cb47dd631e279ad0f"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f461d5eda25049c69d7d8e8f59d3a71f"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-33aab7af8e4e407783e3c69ab06a356d"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-caf586235ff741e9b1e8527415854855"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-a3dcdc6bbe9841e08a5731fe141959a2"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-ec83043ea2454baf8c823922aaaaba16"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-a3620bdd7af54c1b85ea0619b3fc8068"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-d23a8352cc744d3b995ba37c17ba5c94/submit",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-bf78f996fd86488699a903ce97926da7"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-5f93148c36c6451eb6861c2989460562"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-6e15a0ee441f4c36987cae03f20e1ee7"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-67c7b214bf494f6a8635e4f7652ea693"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f13a4106755d44229b38a2e5fea32537"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-7ebb3e1f933646499b7c5d538a31d85d"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-9b1a1f12585f4fca99d01428d1bf4d9a"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/template-versions/tver-d23a8352cc744d3b995ba37c17ba5c94",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-360da89e714a43c384e387256bc7cb21"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-e019bb6be6b0483386a10f8f4c423c5e"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-b2eba4379e704d97910b1a0efe3fabe2"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-5b9f487322e44adea0247bf239d090d4"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-dd44170506fe45cdb073336471f723ee"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-d097a1aeb38d4793aa69afc6cc7f39eb"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-c3a485c364c44346a9d6fb3df9566652"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-56d3fe65168f4bd39352593d1a973faf"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-d23a8352cc744d3b995ba37c17ba5c94/archive",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-1e07649fab224a3d86dcbc1202c15dd4"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-38dcd71d903b441aae7297e25cdf6760"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-3bdb7640c5d44e64b0469d7fc4089c86"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-3d8dd1d6733d4f509ca7b9406645563d"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-0f10781fe12b47358c45fd0d032f70b7"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-0379c7684e7f4228874510fd090bc160"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-e16b6f0d5362433399673115e8624e31"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-ecad91c272d14aa1b62b90bda67620a6"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/template-versions/tver-2f3b20b617854ac9aebbd9e00342af9c/archive",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-d1fd5a9bf93c487a9ea954b448ffa031"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-32fe421daf874d8ea894b038874b3a01"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/templates/tpl-eaed4975c9e746edb0021d741f252105/versions",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-ef24164e763f4476b72d2ec4204e6d49"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/work-versions/wv-57402be244a447ab95f951e52fa3e35c",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-34e5d0d79eec4971b2da9d636cef6307"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-53d5815db30c40a28cdbd90e1eadb685"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/templates",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-3b67ee258cfe4d61b9d155de21d46276"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-36d0fcda769545448968dd4f92e561e2"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/templates/tpl-adb5dd05396a4c2a90625a690ce3bb71/versions",
+      "method": "POST",
+      "status": 201,
+      "requestId": "req-718f3b8e452d456eaea1af8b228dc36c"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-f169451a8d6a45de8646834b4558f592"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/template-versions/tver-80df937d9bcb4949947c6f024c9b35bc/submit",
+      "method": "POST",
+      "status": 200,
+      "requestId": "req-005f362072894686a4688be014ebb980"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/health",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-688b43b73d5445869d8b611bc0ab4b11"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-c3b15c02266440b2a4e1f3568fa97c7d"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-a5167ddc63c44ca5a917c2aefafa570d"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-b1d8b68aa7a84d7bb91fd1b23c88c669"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/template-versions/tver-80df937d9bcb4949947c6f024c9b35bc",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-9c12c2d00e7543f1a277876613ffe8e5"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/me",
+      "method": "GET",
+      "status": 200,
+      "requestId": "req-0143a80412e547c781e7662d03826fab"
+    },
+    {
+      "actor": "expert",
+      "path": "/api/v1/reviews",
+      "method": "POST",
+      "status": 403,
+      "requestId": "req-18aa321d7e414f279cb90ebb81d9f19e"
+    },
+    {
+      "actor": "developer",
+      "path": "/api/v1/reviews",
+      "method": "GET",
+      "status": 403,
+      "requestId": "req-d7c409df6ebf4234b6c90470e6bc782c"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "draft-private-preview.png",
+    "public-version-one.png",
+    "archived-versions.png",
+    "self-review-blocked.png",
+    "template-manager-390.png"
+  ]
+}

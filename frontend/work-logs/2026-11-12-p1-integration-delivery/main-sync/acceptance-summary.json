@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "scope": "latest-main-integrated-production-main-paths",
+  "mainCommit": "15d79ff",
+  "integrationCommit": "f8542ef",
+  "migrationsApplied": "001-011",
+  "backendTests": 311,
+  "httpSmoke": "40/40",
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "suites": [
+    {
+      "result": "production/g0/g0-check-results.json",
+      "status": "passed",
+      "checks": 20
+    },
+    {
+      "result": "production/templates/template-review-results.json",
+      "status": "passed",
+      "checks": 12
+    },
+    {
+      "result": "production/p1/p1-results.json",
+      "status": "passed",
+      "checks": 13
+    },
+    {
+      "result": "production/delivery/delivery-results.json",
+      "status": "passed",
+      "checks": 9
+    }
+  ],
+  "g0Passed": true,
+  "gaMainPathsPassed": true,
+  "gbMainPathsPassed": true,
+  "publicDeploymentVerified": false,
+  "sourceSha256": {
+    "backend/app/services/import_export.py": "82752e09945dacfbe9a38d0772612b24b63fa312430ad8b2bc5eaa8f26002d0a",
+    "backend/tests/test_import_export.py": "c1a0719a97433c1d3e699d064a9d86e4e4946cf6334e82579da1829b92636534",
+    "frontend/src/components/AdminOps.tsx": "15fa3c8eaec9f9b9badef464f3cb3de295aadd9e57f8cc02d212c3b3e54b3936",
+    "frontend/tests/p1-browser-check.cjs": "a1ac3c837744292c71566bd28fac3853e31cb585e2ab404d8c6ee27188bdf3c5",
+    "frontend/tests/delivery-browser-check.cjs": "88fb4c782021b439735c0b008753677b820bd5d85df1dfcba8a79f8a13e4997b",
+    "frontend/tests/delivery-catalog-check.cjs": "9fde818a85adf4a83e77ce9b575872f31a3fc8e10aa9a04363d8f4bef58dc2f0"
+  }
+}

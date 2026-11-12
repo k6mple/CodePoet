@@ -1,0 +1,20 @@
+{
+  "source": "0440453",
+  "initialization": [
+    "migrate.py",
+    "seed.py",
+    "seed_demo.py"
+  ],
+  "firstDemoExit": 1,
+  "duplicateTemplateError": true,
+  "countsAfterFailure": {
+    "tags": 9,
+    "ontology_concepts": 8,
+    "knowledge_entities": 12,
+    "templates": 1,
+    "mapping_rules": 0
+  },
+  "secondDemoExit": 0,
+  "secondDemoSkipped": true,
+  "credentialsOmitted": true
+}

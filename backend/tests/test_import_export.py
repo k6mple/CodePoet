@@ -488,6 +488,39 @@ class ImportExportTests(unittest.TestCase):
         )
 
 
+    def test_export_requires_manifest_artifact_id_and_disk_file(self) -> None:
+        """同一时刻的其他 PNG 不能替代清单指定的帧。"""
+        from app.services import uploads
+
+        owner_id = self._login_admin()
+        self._seed_work_snapshot(owner_id)
+        self._set_job_times([0, 1000])
+        self._write_frame(owner_id, 0)
+        second_path = self._write_frame(owner_id, 1000)
+        with sqlite3.connect(self.settings.database_path) as connection:
+            rows = connection.execute(
+                "SELECT id,sha256,time_ms FROM artifacts WHERE render_job_id='job-backup' ORDER BY time_ms"
+            ).fetchall()
+        frames = [{"artifactId": row[0], "sha256": row[1], "width": 8, "height": 6, "timeMs": row[2]} for row in rows]
+        manifest = {
+            "schemaVersion": 1, "generationId": "gen-backup", "backend": "canvas2d",
+            "rendererVersion": "test-1.0", "environmentHash": "e" * 64,
+            "irHash": "d" * 64, "dependencySnapshotHash": "f" * 64,
+            "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
+            "timesMs": [0, 1000], "outputSource": "browser_upload", "frames": frames,
+        }
+        expected_id = frames[1]["artifactId"]
+        frames[1]["artifactId"] = "missing-original"
+        with sqlite3.connect(self.settings.database_path) as connection:
+            connection.execute("UPDATE render_jobs SET manifest_json=? WHERE id='job-backup'", (json.dumps(manifest),))
+        self.assertTrue(self._export_snapshot()["missingArtifacts"])
+        frames[1]["artifactId"] = expected_id
+        with sqlite3.connect(self.settings.database_path) as connection:
+            connection.execute("UPDATE render_jobs SET manifest_json=? WHERE id='job-backup'", (json.dumps(manifest),))
+        self.assertFalse(self._export_snapshot()["missingArtifacts"])
+        uploads.artifact_path(self.settings, second_path).unlink()
+        self.assertTrue(self._export_snapshot()["missingArtifacts"])
+
     def test_export_counts_match_data(self) -> None:
         """看板：导出清单与实际数量相符。"""
         self._login_admin()
