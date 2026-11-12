@@ -278,6 +278,19 @@ class SubgraphEditTests(unittest.TestCase):
         response = self._edit("gen-base", {"rootNodeId": "g1", "replacementNodes": []})
         self.assertEqual(response.status_code, 404, response.text)
 
+    def test_capability_flag_matches_endpoint(self) -> None:
+        """声明 subgraphEditing=true 就必须真能用（BE-SUBGRAPH-CAPABILITY-001）。
+
+        以前接口做好了、能力开关还是 false：前端按声明尊重能力，页面把子树
+        入口关掉了，等于白做。这条断言把「声明」和「行为」钉在一起。
+        """
+        capabilities = self.client.get(f"{API}/engine/capabilities")
+        self.assertEqual(capabilities.status_code, 200, capabilities.text)
+        self.assertTrue(
+            capabilities.json()["features"]["subgraphEditing"],
+            "接口已实现，能力声明不能还是 false",
+        )
+
 
 class ReproduceTests(unittest.TestCase):
     """P1B-04：复现任务 + 像素比较。"""

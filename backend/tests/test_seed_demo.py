@@ -160,6 +160,48 @@ class SeedDemoTests(unittest.TestCase):
         self.assertTrue(second.get("skipped"), "重复执行应跳过而不是重复插入")
         self.assertEqual(self._count("tags"), 9)
 
+    def test_seed_after_default_seed_does_not_collide(self) -> None:
+        """默认 seed.py 已写入模板时，再跑 demo 导入不能崩。
+
+        BE-DEMO-SEED-001：旧判据是「库里有没有标签」，而 seed.py 不建标签，
+        于是脚本一路插到模板才撞 ``templates.id`` 唯一键，前面几类已经
+        commit 掉，留下半套数据的库。
+        """
+        self._run_seed()
+        # 模拟脚本产物的状态：模板在，标签/概念/知识/规则不在
+        connection = sqlite3.connect(self.settings.database_path)
+        for table in ("tags", "ontology_concepts", "knowledge_entities", "mapping_rules"):
+            connection.execute(f"DELETE FROM {table}")
+        connection.commit()
+        connection.close()
+
+        second = self._run_seed()
+
+        self.assertFalse(second.get("skipped"), "缺的数据要补上，不该整体跳过")
+        self.assertEqual(second["templates"], 0, "已有模板跳过，不重复插入")
+        self.assertEqual(second["tags"], 9)
+        self.assertEqual(second["concepts"], 8)
+        self.assertEqual(second["entities"], 12)
+        self.assertEqual(second["rules"], 8)
+        self.assertEqual(self._count("templates"), 3)
+        self.assertEqual(self._count("tags"), 9)
+
+
+    def test_seed_rolls_back_when_a_stage_fails(self) -> None:
+        """后半段失败不能留下前半段已提交的脏库。"""
+        from unittest import mock
+
+        with mock.patch.object(
+            self.seed, "seed_rules", side_effect=RuntimeError("模拟导入失败")
+        ):
+            with self.assertRaises(RuntimeError):
+                self._run_seed()
+
+        self.assertEqual(self._count("tags"), 0, "失败必须整体回滚")
+        self.assertEqual(self._count("ontology_concepts"), 0)
+        self.assertEqual(self._count("knowledge_entities"), 0)
+        self.assertEqual(self._count("templates"), 0)
+
     def test_force_reseeds(self) -> None:
         self._run_seed()
         from app.db import create_database, create_session_factory

@@ -188,6 +188,43 @@ class VersionCreate(BaseModel):
         return self
 
 
+class VersionUpdate(BaseModel):
+    """就地编辑 draft/rejected 版本（契约 ``VersionUpdate``）。
+
+    「退回→修订→再送审」走的就是这条路径。没有它，作者只能新建一个版本
+    冒充修订，审核人看到的版本号和变更说明全是错位的。
+
+    ``parameterSchema`` 上限取 16 而不是契约里的 32：``TemplateVersion``
+    响应模型本身就是 16，收 32 个参数会在序列化时把自己打成 500。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    expectedRevision: int = Field(ge=1)
+    metadata: TemplateMetadata | None = None
+    irTemplate: DrawingIR | None = None
+    generatorRef: Literal["ir"] | None = None
+    parameterSchema: list[ParameterDefinition] | None = Field(default=None, max_length=16)
+    bindings: list[Binding] | None = Field(default=None, max_length=100)
+    constraints: list[Constraint] | None = Field(default=None, max_length=50)
+    supportedBackends: list[Literal["canvas2d"]] | None = Field(
+        default=None, min_length=1, max_length=1
+    )
+    # 契约允许 string|null；当前只实现 IR 模板，恒为 null
+    fragmentSource: str | None = Field(default=None, max_length=16384)
+    ontologyVersion: int | None = Field(default=None, ge=1)
+    changeNote: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def _require_some_change(self) -> "VersionUpdate":
+        changed = self.model_dump(
+            exclude_none=True, exclude={"expectedRevision"}
+        )
+        if not changed:
+            raise ValueError("至少提供一个要修改的字段")
+        return self
+
+
 class TemplateVersionPage(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -210,4 +247,5 @@ __all__ = [
     "TemplateVersionPage",
     "VersionCreate",
     "VersionStatus",
+    "VersionUpdate",
 ]
