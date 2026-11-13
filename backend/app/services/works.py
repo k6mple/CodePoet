@@ -59,8 +59,60 @@ from app.services import uploads
 from app.services.generations import build_generation_schema
 from app.settings import Settings
 
-# 依赖快照占位：P1B-04 要做真实的依赖哈希，现在用固定值避免假装精确
-_DEPENDENCY_SNAPSHOT = hashlib.sha256(b"codepoet-p0-04").hexdigest()
+def _dependency_snapshot_hash(
+    generation: GenerationModel, renderer_version: str | None
+) -> str:
+    """这次渲染依赖了什么——按真实依赖算，不是一个固定串。
+
+    之前这里写死 ``sha256(b"codepoet-p0-04")``，等于声明「所有作品的依赖完全
+    相同」。那让这个字段失去全部意义：外部事实变了、规则改版了、渲染器升级了，
+    依赖哈希都不动，复现时也就无法判断两份作品是不是同一套依赖。
+
+    ``renderer_version`` 必须是**这个任务自己记录的**那个（``row.renderer_version``），
+    **不能**读 ``capabilities.renderer_version(generation.backend)``——那是当前注册表
+    的值。两者的区别在部署升级时暴露：任务创建于旧版本、升级后才传完最后一帧，
+    manifest 记的是旧版本，依赖哈希却按新版本算，同一个任务的两份记录自相矛盾；
+    反过来，同一个历史 generation 被两个不同渲染器跑过，依赖哈希却一样。
+
+    组成（顺序由 sort_keys 固定）：
+
+    * **任务实际使用的渲染器版本**
+    * 引擎 / 本体 / 策略版本
+    * IR 内容哈希
+    * 命中的规则（id + 版本）与知识实体（id + 修订）
+    * **外部图谱快照的身份与内容哈希**（K1）——这条最关键：
+      同一实体在不同时间抓到的内容只要变了，依赖就该变。
+    """
+    provenance = json.loads(generation.provenance_json or "{}")
+    external = provenance.get("externalGraph") or None
+    payload = {
+        "rendererVersion": renderer_version or "unknown",
+        "engineVersion": provenance.get("engineVersion"),
+        "ontologyVersion": provenance.get("ontologyVersion"),
+        "policyRevision": provenance.get("policyRevision"),
+        "irHash": generation.ir_hash,
+        "rules": [
+            [item.get("ruleId"), item.get("version")]
+            for item in provenance.get("matchedRules") or []
+        ],
+        "entities": [
+            [item.get("entityId"), item.get("revision")]
+            for item in provenance.get("matchedEntities") or []
+        ],
+        "external": (
+            {
+                "sourceId": external.get("sourceId"),
+                "externalEntityId": external.get("externalEntityId"),
+                "contentHash": external.get("contentHash"),
+            }
+            if external
+            else None
+        ),
+    }
+    canonical = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 # 契约 7.1：上传任务创建后有效期 5 分钟
 UPLOAD_TTL_SECONDS = 300
@@ -564,6 +616,8 @@ def create_render_job(
         else capabilities.enabled_backends(),
     )
 
+    # 版本校验走注册表的统一入口，别在这里内联比较：内联版本会在
+    # 「渲染器尚未注册」时被 `if expected` 静默跳过，等于没校验（评审指出的）。
     capabilities.require_renderer_version(payload.backend, payload.rendererVersion)
 
     # 采样时刻必须与 IR 对得上：静态图只取 [0]；动画的完整保存必须
@@ -669,7 +723,8 @@ def _rebuild_manifest(
             (row.client_environment_json or "").encode()
         ).hexdigest(),
         irHash=generation.ir_hash,
-        dependencySnapshotHash=_DEPENDENCY_SNAPSHOT,
+        # 传**这个任务实际记录的**渲染器版本，不是当前注册值（评审 P2）
+        dependencySnapshotHash=_dependency_snapshot_hash(generation, row.renderer_version),
         viewport=viewport,
         timesMs=times,
         frames=[

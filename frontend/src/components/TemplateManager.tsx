@@ -676,7 +676,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
                       {isEditableVersion(versionView.status) && <Link
                         className="button button--secondary button--small"
-                        href={`/?draft=${encodeURIComponent(versionView.id)}`}
+                        href={`/?draft=${encodeURIComponent(versionView.id)}&backend=${encodeURIComponent(versionView.supportedBackends.find(hasBrowserRenderer) ?? versionView.supportedBackends[0])}`}
                       >在创作台私有预览默认参数</Link>}
                     </div>
                   </div>

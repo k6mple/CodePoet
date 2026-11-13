@@ -82,6 +82,34 @@ try {
       check(rejected && urls.size === 0, 'disposed operations and URLs')
       host.remove()
     }
+    // Regression: seeking a legal maximum-sized IR samples only the current frame.
+    const tracked = registry.replace('function sampleScene(ir, timeMs = 0) {',
+      'function sampleScene(ir, timeMs = 0) { globalThis.__seekSamples++;')
+    check(tracked !== registry, 'sampler instrumentation attached')
+    globalThis.__seekSamples = 0
+    const trackedFactory = (0, eval)(tracked).registry
+    const stressIR = {schemaVersion:'1.0',seed:1,canvas:{width:800,height:600,background:'#FFFFFF'},
+      viewport:{x:0,y:0,width:800,height:600},durationMs:5000,narrative:[],nodes:[],animations:[]}
+    for(let index=0;index<200;index++) {
+      stressIR.nodes.push({id:`n${index}`,parentId:null,type:'polygon',geometry:{points:[[10,10],[20,10],[15,20]]},
+        style:{fill:'#FF0000',stroke:null,strokeWidth:0,opacity:1}})
+      stressIR.animations.push({nodeId:`n${index}`,property:'opacity',from:0.2,to:1,startMs:index+1,endMs:1000+index,easing:'linear'})
+    }
+    const stressHost=document.createElement('div');document.body.append(stressHost)
+    const stressRenderer=trackedFactory.create('css',stressHost)
+    await stressRenderer.load(stressIR)
+    const timings=[]
+    for(const time of [500,2500,4000]) {
+      globalThis.__seekSamples=0
+      const begin=performance.now();await stressRenderer.seek(time)
+      timings.push(performance.now()-begin)
+      check(globalThis.__seekSamples===1,'seek must sample exactly one current frame')
+      const expected=sampleScene(stressIR,time)
+      ;[...stressHost.querySelectorAll('path')].forEach((path,index)=>
+        check(Math.abs(Number(getComputedStyle(path).opacity)-expected.nodes[index].opacity)<1e-5,'stress opacity exact'))
+    }
+    stressRenderer.dispose();stressHost.remove()
+    checks.push({name:'maximum-seek-regression',samplesPerSeek:1,nodes:200,tracks:200,timingsMs:timings})
     // Pure server state-machine checks: explicitly not a real Turtle acceptance.
     const { pollRenderJob, uploadRenderFrames } = (0, eval)(api)
     const completed={id:'canvas-job',generationId:'g',backend:'canvas2d',executionMode:'browser_upload',

@@ -32,6 +32,7 @@ from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
 from app.schemas.reproduce import Comparison, FrameComparison, ReproduceRequest
 from app.schemas.works import RenderJob as RenderJobSchema
+from app.engine import capabilities
 from app.services import audit
 from app.services import uploads
 from app.services import works as works_service

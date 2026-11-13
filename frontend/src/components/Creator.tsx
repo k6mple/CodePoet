@@ -168,6 +168,12 @@ export default function Creator() {
       .then((result) => {
         if (controller.signal.aborted) return
         if (result.status !== 'published' && !restoredTemplate.current) throw new Error('该模板版本尚未发布，请重新加载模板。')
+        // Old draft links may have no backend query. Restore a declared adapter
+        // before validating; keep the draft reference for the next effect run.
+        if (restoredTemplate.current && !result.supportedBackends.includes(backend)) {
+          const next = result.supportedBackends.find(hasBrowserRenderer) ?? result.supportedBackends[0]
+          if (next) { backendRef.current = next as Backend; setBackend(next as Backend); return }
+        }
         if (!result.supportedBackends.includes(backend)) throw new Error('该模板版本不支持当前渲染后端，请选择其他模板或后端。')
         const restoredParams = restoredTemplate.current?.params
         setParams(restoredParams ?? Object.fromEntries(result.parameterSchema.map((param) => [param.name, param.default])))

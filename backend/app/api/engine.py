@@ -33,12 +33,12 @@ _UNAVAILABLE_REASONS = {
 }
 
 
-def _unsupported(backend: str) -> Capability:
-    """未实现的后端：契约要求 maxNodes / maxFrames 至少为 1，填 1 占位。"""
+def _unsupported(backend: str, reason: str | None = None) -> Capability:
+    """不可用的后端：契约要求 maxNodes / maxFrames 至少为 1，填 1 占位。"""
     return Capability(
         backend=backend,  # type: ignore[arg-type]
         available=False,
-        unavailableReason=_UNAVAILABLE_REASONS[backend],
+        unavailableReason=reason or _UNAVAILABLE_REASONS[backend],
         rendererVersion="none",
         nodeTypes=[],
         shaderRefs=[],
@@ -91,6 +91,11 @@ def build_capabilities(settings: Settings | None = None) -> Capabilities:
             headlessRendering=False,
             selectiveExport=False,
             workSnapshotImport=False,
+            # 来源从部署配置读：配了才对外宣称可用，否则前端会显示一个
+            # 点进去就 503 的入口
+            knowledgeGraph=bool(
+                (settings.knowledge_graph_sources if settings else "").strip()
+            ),
         ),
     )
 

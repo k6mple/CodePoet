@@ -117,6 +117,20 @@ try {
   const admin=await actor('admin_demo')
   const original=await api(admin,'/templates/tpl-lotus')
   const historical=await api(admin,`/template-versions/${original.publishedVersionId}`)
+  const cssDraft=await api(admin,'/templates/tpl-lotus/versions','POST',{
+    fromVersionId:historical.id,supportedBackends:['css'],changeNote:'CSS-only private draft regression',
+  },201)
+  const creatorPage=page
+  page=admin
+  for(const suffix of ['', '&backend=css']) {
+    await page.goto(`/?draft=${cssDraft.id}${suffix}`)
+    await applied()
+    const restored=await generation()
+    assert.equal(restored.backend,'css')
+    assert.equal(restored.templateVersionId,cssDraft.id)
+  }
+  record('css-only-draft-new-and-legacy-entry',{versionId:cssDraft.id})
+  page=creatorPage
   const clone=await api(admin,'/templates/tpl-lotus/versions','POST',{
     fromVersionId:historical.id,supportedBackends:['canvas2d','css'],changeNote:'S0-A2 isolated CSS acceptance',
   },201)

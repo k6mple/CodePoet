@@ -25,6 +25,7 @@ from app.settings import Settings
 __all__ = [
     "ALL_BACKENDS",
     "require_enabled",
+    "require_renderer_version",
     "CANVAS_RENDERER_VERSION",
     "DEFAULT_ENABLED_BACKENDS",
     "SEMANTIC_ENGINE_VERSION",
@@ -45,8 +46,8 @@ SEMANTIC_ENGINE_VERSION = "p0-03.1"
 
 # 每个后端的渲染器版本。没登记的等于「还没有可执行实现」。
 RENDERER_VERSIONS: dict[str, str] = {
+    'css': 'codepoet-css-1.0.0',
     "canvas2d": CANVAS_RENDERER_VERSION,
-    "css": "codepoet-css-1.0.0",
 }
 
 # 默认只开 Canvas。CSS/WebGL 要等 R1/R2 的真实渲染验收，Turtle 要等 R3，
@@ -58,8 +59,8 @@ def enabled_backends(settings: Settings | None = None) -> frozenset[str]:
     """当前实例启用了哪些后端。
 
     隔离联调环境可以显式打开候选后端（``CODEPOET_ENABLED_BACKENDS=canvas2d,css``），
-    公共部署保持默认。只接受契约里的四个名字，其余不进入启用集合。
-    注册表仍会拦截没有可执行实现的名称。
+    公共部署保持默认。只接受契约里的四个名字，写错的名字一律忽略——
+    静默容忍拼写错误会让「我明明开了 CSS」变成一场排查。
     """
     raw = getattr(settings, "enabled_backends", "") or ""
     if not raw.strip():
@@ -82,31 +83,46 @@ def require_enabled(backend: str, enabled: frozenset[str]) -> None:
     ``details`` 按契约带 ``backend`` 与 ``unsupportedProperties``，前端据此
     禁用入口，而不是逐次试错。
     """
+    # 两个条件缺一不可，且必须与 `/engine/capabilities` 的声明同源：
+    #   a) 实例启用了它（CODEPOET_ENABLED_BACKENDS）；
+    #   b) 注册表里有它的渲染器版本，也就是**真有可执行实现**。
+    # 只看 a) 会出现「能力接口说 css 不可用，生成闸门却放行」——评审指出的那种。
     if backend in enabled and renderer_version(backend) is not None:
         return
     from app import errors  # 函数内导入：errors 不能反过来依赖本模块
 
+    executable = {name for name in enabled if renderer_version(name) is not None}
     raise errors.unsupported_capability(
         f"当前实例未启用后端 {backend}"
         f"（已启用：{'、'.join(sorted(enabled)) or '无'}）",
         details={
             "backend": backend,
-            "unsupportedProperties": sorted(set(ALL_BACKENDS) - {
-                name for name in enabled if renderer_version(name) is not None
-            }),
+            "unsupportedProperties": sorted(set(ALL_BACKENDS) - executable),
         },
     )
 
 
 def require_renderer_version(backend: str, version: str) -> None:
-    """New jobs use executable versions; historical labels are never rewritten."""
+    """客户端上报的渲染器版本必须是本实例此刻能执行的那个。
+
+    与能力声明同源：`/engine/capabilities` 报什么版本，这里就只接受什么版本。
+    历史任务里存的旧版本**不回写、不篡改**——那是当时的记录；但**新建**的任务
+    必须用可执行版本，否则 manifest 里的 rendererVersion 和实际跑的东西对不上。
+
+    与 ``require_enabled`` 分开是因为两者的失败语义不同：前者是「这个后端不让跑」，
+    这里是「后端能跑，但你报的版本不是它」。前端要分别提示。
+    """
     expected = renderer_version(backend)
     if expected is not None and version == expected:
         return
     from app import errors
 
     raise errors.unsupported_capability(
-        "渲染器版本不兼容，无法执行此任务",
-        details={"backend": backend, "rendererVersion": version,
-                 "expectedRendererVersion": expected, "unsupportedProperties": ["rendererVersion"]},
+        f"渲染器版本不兼容：能力声明 {expected or '无可执行实现'}，请求 {version}",
+        details={
+            "backend": backend,
+            "rendererVersion": version,
+            "expectedRendererVersion": expected,
+            "unsupportedProperties": ["rendererVersion"],
+        },
     )

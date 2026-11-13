@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -58,9 +59,6 @@ POLICY_REVISION = 1
 _WARNING_CODES = frozenset({"IR_OUT_OF_BOUNDS"})
 _PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
 _CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
-
-
-# ---- 工具 ----------------------------------------------------------------
 
 
 def compute_ir_hash(ir: DrawingIR) -> str:
@@ -224,8 +222,63 @@ def _prepare_from_template(
 # ---- 手工 IR 路线 --------------------------------------------------------
 
 
+CAPTION_LIMIT = 200
+
+
+def _prefer_entity_rules(db: Session, matched: list, prefer_entity_ids: list[str]) -> list:
+    """只保留「声明的 entityIds 是本目标实体子集」的规则。
+
+    起因：竹、梅 都传了单个实体，却都被 priority 90 的「四秒·清莲叙事」抢走——
+    那条规则的 entityIds 是 {lotus, bamboo}，命中任意一个就成立，于是画面主体
+    变成了莲的叙事。这里把泛化的多实体规则让开；没有专指规则时退回全部命中，
+    不改变既有语义。
+    """
+    wanted = set(prefer_entity_ids)
+    narrowed = []
+    for item in matched:
+        row = db.get(RuleModel, item.rule_id)
+        if row is None:
+            continue
+        try:
+            declared = set(json.loads(row.match_json or "{}").get("entityIds") or [])
+        except ValueError:
+            declared = set()
+        if declared and declared <= wanted:
+            narrowed.append(item)
+    return narrowed or matched
+
+
+def resolve_semantic(
+    db: Session,
+    text: str,
+    entity_ids: list[str],
+    prefer_entity_ids: list[str] | None = None,
+):
+    """匹配规则并合成叙事。
+
+    **生成与知识图谱两条路共用这一份。** 图谱要按真实 caption 长度计算事实预算，
+    如果它自己另写一遍「匹配 + 窄化 + synthesize」，两边迟早漂移；而漂移的后果
+    正是「以为装进去了、其实被 200 字符截断」——这个 bug 已经出现过一次。
+    """
+    matched = rules_service.load_matched_rules(db, text=text, entity_ids=entity_ids)
+    if prefer_entity_ids:
+        matched = _prefer_entity_rules(db, matched, prefer_entity_ids)
+    if not matched:
+        raise errors.no_semantic_match(
+            f"输入没有匹配到任何映射规则：{text[:40] or '(空文本)'}",
+            details={"text": text, "entityIds": entity_ids},
+        )
+    return matched, semantic_engine.synthesize(matched)
+
+
 def _prepare_from_semantic(
-    db: Session, user: User, payload: SemanticGeneration, enabled: frozenset[str]
+    db: Session,
+    user: User,
+    payload: SemanticGeneration,
+    enabled: frozenset[str],
+    external_graph: dict[str, Any] | None = None,
+    caption_suffix: str | None = None,
+    prefer_entity_ids: list[str] | None = None,
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     """语义生成：文字 + 实体 → 规则命中 → 图形决策 → IR。
 
@@ -235,14 +288,17 @@ def _prepare_from_semantic(
     """
     text = payload.input.text
     entity_ids = list(payload.input.entityIds or [])
-    matched = rules_service.load_matched_rules(db, text=text, entity_ids=entity_ids)
-    if not matched:
-        raise errors.no_semantic_match(
-            f"输入没有匹配到任何映射规则：{text[:40] or '(空文本)'}",
-            details={"text": text, "entityIds": entity_ids},
-        )
+    matched, synth = resolve_semantic(db, text, entity_ids, prefer_entity_ids)
 
-    synth = semantic_engine.synthesize(matched)
+    # 外部事实（K1）追加进叙事说明。**注意这是叙事联动，不是像素变化**：
+    # caption 是 IR 的叙事节点内容，当前 Canvas 渲染器并不把它绘进 PNG，
+    # 页面题记会展示它。不应该据此宣称「外部关系改变了画面」。
+    #
+    # 调用方（知识图谱）已经按这里的 200 字符预算切好片段，所以这次截断
+    # 不会丢掉任何一条已记录为「已采纳」的事实。
+    if caption_suffix:
+        caption = f"{synth.caption}｜{caption_suffix}" if synth.caption else caption_suffix
+        synth = replace(synth, caption=caption[:200])
     ir = semantic_engine.build_ir(synth, seed=payload.seed, entity_ids=entity_ids)
 
     # 语义生成不看 backend，先生成 IR 再验能力（细则 S0-A1 第 2 点）。
@@ -304,6 +360,7 @@ def _prepare_from_semantic(
         engineVersion=ENGINE_VERSION,
         ontologyVersion=ONTOLOGY_VERSION,
         policyRevision=POLICY_REVISION,
+        externalGraph=external_graph,
     )
     return ir, {}, None, provenance, False, payload.seed
 
@@ -358,6 +415,9 @@ def create_generation(
     request_id: str,
     *,
     enabled_backends: frozenset[str] | None = None,
+    external_graph: dict[str, Any] | None = None,
+    caption_suffix: str | None = None,
+    prefer_entity_ids: list[str] | None = None,
 ) -> GenerationSchema:
     """创建一份不可变快照。任何一步不合法都不落库。
 
@@ -371,7 +431,10 @@ def create_generation(
     )
     if isinstance(payload, SemanticGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_semantic(db, user, payload, enabled)
+            _prepare_from_semantic(
+                db, user, payload, enabled, external_graph, caption_suffix,
+                prefer_entity_ids,
+            )
         )
     elif isinstance(payload, TemplateGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (

@@ -518,14 +518,61 @@ class ReproduceTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 404, response.text)
 
+    # ---- 复现必须真的能被执行（评审 2026-11-13，两条 P2）----------------
+    def test_reproduce_rejects_disabled_backend(self) -> None:
+        """停用一个后端之后，旧作品仍可读，但不该还能发起新的复现任务。
+
+        否则用户以为在复现 CSS，其实没有任何执行器——任务建出来也永远传不上帧。
+        """
+        self._register("rep_disabled")
+        self._seed_ready()
+        self.app.state.settings.enabled_backends = "css"  # 不再包含 canvas2d
+        response = self._reproduce("wv-r")
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+
+    def test_reproduce_rejects_unknown_historical_renderer(self) -> None:
+        """原任务当时用的渲染器现在不可执行 → 不能复现。
+
+        否则「复现」出来的东西和原图不是同一套渲染器，像素比较没有意义。
+        """
+        self._register("rep_old_renderer")
+        self._seed_ready()
+        self._set_original_renderer("codepoet-canvas-0.9.0")
+        response = self._reproduce("wv-r")
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+
+    def test_same_unknown_version_is_not_compatible(self) -> None:
+        """两个**相同但都不认识**的版本不能算兼容。
+
+        旧实现只比较两个字符串是否相等：都写 `unknown` 就通过——拿相等当兼容，
+        等于没校验。
+        """
+        self._register("rep_unknown")
+        self._seed_ready()
+        self._set_original_renderer("unknown")
+        response = self._reproduce("wv-r", renderer_version="unknown")
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+
     # ---- 复现他人的公开作品（评审 2026-11-10，两条 P2）------------------
-    def _reproduce(self, version_id: str):
+    def _reproduce(self, version_id: str, renderer_version: str = "codepoet-canvas-1.0.0"):
         return self.client.post(
             f"{API}/work-versions/{version_id}/reproduce",
-            json={"rendererVersion": "codepoet-canvas-1.0.0",
+            json={"rendererVersion": renderer_version,
                   "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1}},
             headers={"X-CSRF-Token": self.csrf},
         )
+
+    def _set_original_renderer(self, version: str) -> None:
+        """改原任务当时记录的渲染器版本，模拟历史数据。"""
+        connection = sqlite3.connect(self.settings.database_path)
+        connection.execute(
+            "UPDATE render_jobs SET renderer_version = ? WHERE id = 'job-orig'", (version,)
+        )
+        connection.commit()
+        connection.close()
 
     def test_reproduce_others_public_work_end_to_end(self) -> None:
         """B 复现 A 的公开作品：读快照、上传帧、比较像素都要通。

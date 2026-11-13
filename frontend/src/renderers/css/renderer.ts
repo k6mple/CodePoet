@@ -15,7 +15,6 @@ export class CssRenderer implements Renderer {
   private paths: SVGPathElement[] = []
   private animations: Animation[] = []
   private pending: Promise<unknown> = Promise.resolve()
-  private opacityTimes: number[] = []
 
   constructor(host: HTMLElement) { this.host = host }
 
@@ -47,9 +46,6 @@ export class CssRenderer implements Renderer {
         background.setAttribute('fill', ir.canvas.background)
         svg.append(background)
       }
-      this.opacityTimes = [...new Set([0, ir.durationMs, ...ir.animations
-        .filter(track => track.property === 'opacity')
-        .flatMap(track => [track.startMs, track.endMs])])].sort((a, b) => a - b)
       for (const node of first.nodes) {
         const path = document.createElementNS(SVG_NS, 'path')
         path.dataset.nodeId = node.id
@@ -59,8 +55,8 @@ export class CssRenderer implements Renderer {
         svg.append(path)
         this.paths.push(path)
         // Paused WAAPI effects use the page's clock; no autonomous animation loop.
-        const animation = path.animate([{ opacity: node.opacity }, { opacity: node.opacity }], {
-          duration: Math.max(ir.durationMs, 1), fill: 'both', easing: 'linear',
+        const animation = path.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 1, fill: 'both', easing: 'linear',
         })
         animation.pause()
         this.animations.push(animation)
@@ -74,10 +70,6 @@ export class CssRenderer implements Renderer {
   private draw(timeMs: number): void {
     if (!this.ir || !this.svg) throw new Error('请先加载 IR')
     const scene = sampleScene(this.ir, timeMs)
-    const duration = Math.max(this.ir.durationMs, 1)
-    // Include the exact seek point: ancestor opacity products need not be linear.
-    const times = [...new Set([...this.opacityTimes, scene.timeMs])].sort((a, b) => a - b)
-    const samples = times.map(time => sampleScene(this.ir!, time))
     scene.nodes.forEach((node, index) => {
       const path = this.paths[index]
       const d = node.points.map(([x, y], point) => `${point ? 'L' : 'M'}${x - scene.viewport.x} ${y - scene.viewport.y}`).join(' ')
@@ -86,10 +78,9 @@ export class CssRenderer implements Renderer {
       path.setAttribute('fill', node.style.fill ?? 'none')
       path.setAttribute('stroke', (node.style.strokeWidth ?? 1) > 0 ? node.style.stroke ?? 'none' : 'none')
       path.setAttribute('stroke-width', String(node.style.strokeWidth ?? 1))
-      ;(this.animations[index].effect as KeyframeEffect).setKeyframes(samples.map((sample, step) => ({
-        offset: times[step] / duration, opacity: sample.nodes[index].opacity,
-      })))
-      this.animations[index].currentTime = scene.timeMs
+      // Reuse a fixed linear opacity effect; the shared sampler supplies the
+      // exact effective value, including products of animated ancestors.
+      this.animations[index].currentTime = node.opacity
     })
     this.scene = scene
     this.svg.dataset.timeMs = String(scene.timeMs)

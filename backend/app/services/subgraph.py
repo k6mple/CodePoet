@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+import json
+
 from collections import defaultdict
 from datetime import datetime, timezone
 from uuid import uuid4

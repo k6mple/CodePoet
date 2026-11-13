@@ -70,6 +70,7 @@ __all__ = [
 ]
 
 _PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
+_CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
 
 # ---------------------------------------------------------------------------
 # 状态机
@@ -211,7 +212,7 @@ def _revalidate_template(row: TemplateVersionModel) -> None:
             Binding.model_validate(item) for item in json.loads(row.bindings_json or "[]")
         ]
         constraints = [
-            Constraint.model_validate(item)
+            _CONSTRAINT_ADAPTER.validate_python(item)
             for item in json.loads(row.constraints_json or "[]")
         ]
         check_template_integrity(ir_template, schema, bindings, constraints)

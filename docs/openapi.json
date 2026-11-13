@@ -7300,6 +7300,68 @@
         "x-access": "O",
         "x-task-id": "P0-04"
       }
+    },
+    "/knowledge-graph/generations": {
+      "post": {
+        "tags": [
+          "知识图谱"
+        ],
+        "summary": "由外部知识图谱实体生成",
+        "description": "权限：L，写操作过 CSRF。按部署白名单里的 sourceId + externalEntityId 抓取外部实体，把属性与一跳关系映射到站内知识与规则，生成不可变快照。完整来源快照写入 provenance.externalGraph，旧作品复现只读快照、不联网。外部事实只扩充叙事说明（caption），不改变图形像素，也不改站内规则。不接受用户传 URL。",
+        "operationId": "create_generation_from_graph_api_v1_knowledge_graph_generations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GraphGenerationRequest"
+              },
+              "example": {
+                "sourceId": "wikidata",
+                "externalEntityId": "Q16528",
+                "backend": "canvas2d",
+                "seed": 42
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "成功：一份带 externalGraph 快照的不可变 Generation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422",
+            "description": "四类：请求体不合法；来源里没有该实体（KNOWLEDGE_GRAPH_ENTITY_NOT_FOUND）；映射不到站内知识条目（NO_SEMANTIC_MATCH）；后端能力未启用（UNSUPPORTED_CAPABILITY）"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503",
+            "description": "来源未配置或当前不可用（KNOWLEDGE_GRAPH_UNAVAILABLE）"
+          },
+          "504": {
+            "description": "来源在超时预算内没有响应（KNOWLEDGE_GRAPH_TIMEOUT）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10929,6 +10991,18 @@
                 "type": "null"
               }
             ]
+          },
+          "externalGraph": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalGraph"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "外部知识图谱快照（K1）。**旧作品复现只读这里，不重新联网。** 旧记录没有这个字段，按 null 读取。"
           }
         },
         "required": [
@@ -13071,24 +13145,28 @@
                 "type": "boolean"
               },
               "dslSandbox": {
-                "type": "boolean"
+                "const": false
               },
               "advancedPolicies": {
-                "type": "boolean"
+                "const": false
               },
               "headlessRendering": {
-                "type": "boolean"
+                "const": false
               },
               "selectiveExport": {
-                "type": "boolean"
+                "const": false
               },
               "workSnapshotImport": {
-                "type": "boolean"
+                "const": false
               },
               "qualityAssessment": {
                 "type": "boolean",
                 "default": false,
                 "description": "实例提供版本化Q1质量报告；缺失按false。"
+              },
+              "knowledgeGraph": {
+                "type": "boolean",
+                "default": false
               }
             },
             "required": [
@@ -14797,6 +14875,261 @@
         ],
         "title": "Assessment",
         "type": "object"
+      },
+      "GraphGenerationRequest": {
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "pattern": "^[a-z0-9_-]+$",
+            "title": "Sourceid"
+          },
+          "externalEntityId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Externalentityid"
+          },
+          "backend": {
+            "type": "string",
+            "enum": [
+              "turtle",
+              "canvas2d",
+              "webgl",
+              "css"
+            ],
+            "title": "Backend",
+            "default": "canvas2d"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 42
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sourceId",
+          "externalEntityId"
+        ],
+        "title": "GraphGenerationRequest",
+        "description": "``POST /knowledge-graph/generations`` 的请求体。"
+      },
+      "ExternalGraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourceId",
+          "externalEntityId",
+          "fetchedAt",
+          "contentHash"
+        ],
+        "description": "写进 provenance.externalGraph 的外部来源快照。**旧作品复现只读它，不重新联网**，所以它必须自包含。",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "externalEntityId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "来源不给版本号时为 null——不编一个出来"
+          },
+          "contentHash": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalEntity"
+            },
+            "maxItems": 50
+          },
+          "relations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalRelation"
+            },
+            "maxItems": 100
+          },
+          "mappingDecisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MappingDecision"
+            },
+            "maxItems": 100
+          }
+        }
+      },
+      "ExternalEntity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label"
+        ],
+        "description": "来源侧的一个实体；attributes 只放已映射、有界的事实。",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 400
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 20,
+            "description": "键形如「学名(P225)」，括号里是来源属性号，便于回溯"
+          }
+        }
+      },
+      "ExternalRelation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "fromId",
+          "toId"
+        ],
+        "description": "来源侧的一条关系：fromId --type--> toId",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "fromId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "toId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        }
+      },
+      "MappingDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "externalId",
+          "target",
+          "affects",
+          "reason"
+        ],
+        "description": "一条外部事实影响了什么。**只记录真正产生了影响的**：没进 caption 的事实不写在这里，抓回来的全集在 relations 里。",
+        "properties": {
+          "kind": {
+            "enum": [
+              "entity",
+              "relation",
+              "attribute"
+            ]
+          },
+          "externalId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "target": {
+            "enum": [
+              "knowledge-entity",
+              "rule",
+              "caption",
+              "symbols"
+            ]
+          },
+          "targetId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "affects": {
+            "enum": [
+              "rule-selection",
+              "caption",
+              "symbols",
+              "palette"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
       }
     },
     "parameters": {},

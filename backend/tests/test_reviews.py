@@ -1539,3 +1539,18 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertEqual(
             self._column("works", work_id, "working_title"), "给下一版的标题"
         )
+
+
+class ConstraintValidationTests(unittest.TestCase):
+    def test_nonempty_union_constraint_is_revalidated(self):
+        from types import SimpleNamespace
+        from app.services.reviews import _revalidate_template
+        parameters = [dict(type='integer', name=name, label=name,
+                           min=1, max=100, step=1, description=str(), default=value)
+                      for name, value in [('radius', 10), ('limit', 50)]]
+        row = SimpleNamespace(ir_template_json=template_ir(),
+                              parameter_schema_json=json.dumps(parameters),
+                              bindings_json='[]',
+                              constraints_json=json.dumps([
+                                  dict(type='lessThan', left='radius', right='limit')]))
+        _revalidate_template(row)

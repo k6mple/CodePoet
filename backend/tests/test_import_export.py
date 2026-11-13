@@ -504,7 +504,7 @@ class ImportExportTests(unittest.TestCase):
         frames = [{"artifactId": row[0], "sha256": row[1], "width": 8, "height": 6, "timeMs": row[2]} for row in rows]
         manifest = {
             "schemaVersion": 1, "generationId": "gen-backup", "backend": "canvas2d",
-            "rendererVersion": "test-1.0", "environmentHash": "e" * 64,
+            "rendererVersion": "codepoet-canvas-1.0.0", "environmentHash": "e" * 64,
             "irHash": "d" * 64, "dependencySnapshotHash": "f" * 64,
             "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
             "timesMs": [0, 1000], "outputSource": "browser_upload", "frames": frames,

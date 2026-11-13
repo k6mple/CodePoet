@@ -340,3 +340,145 @@ class RegistryTests(unittest.TestCase):
                 capabilities.renderer_version(backend),
                 f"{backend} 还没有可执行实现，不该有渲染器版本",
             )
+
+
+class CapabilityAvailabilityTests(_Base):
+    """能力声明必须与实际闸门同源（评审 P2）。
+
+    改之前 `/engine/capabilities` 硬编码 Canvas 可用、其余不可用，完全无视
+    Settings；而生成/建任务接口却按 enabled_backends 放行。两套说法不一致，
+    前端照着能力接口做判断就会做错。
+    """
+
+    enabled_backends = "canvas2d"
+
+    def _canvas(self) -> dict:
+        caps = self.client.get(f"{API}/engine/capabilities").json()
+        return next(item for item in caps["backends"] if item["backend"] == "canvas2d")
+
+    def test_canvas_available_when_enabled(self) -> None:
+        canvas = self._canvas()
+        self.assertTrue(canvas["available"])
+        self.assertIsNone(canvas["unavailableReason"])
+        self.assertEqual(canvas["rendererVersion"], "codepoet-canvas-1.0.0")
+
+    def test_canvas_unavailable_when_disabled(self) -> None:
+        # 明确只开 css：canvas2d 就该报不可用，而不是继续宣称可用
+        self.app.state.settings.enabled_backends = "css"
+        canvas = self._canvas()
+        self.assertFalse(canvas["available"], "关掉的后端不能还说自己可用")
+        self.assertIn("未启用", canvas["unavailableReason"])
+
+    def test_declared_backend_matches_gate(self) -> None:
+        """能力说不可用的后端，请求它就一定被拒；反之亦然。"""
+        self.app.state.settings.enabled_backends = "css"
+        base = self._generate_canvas_before_disable()
+        response = self.client.post(
+            f"{API}/render-jobs",
+            json={
+                "generationId": base["id"],
+                "backend": "canvas2d",
+                "timesMs": [0],
+                "executionMode": "browser_upload",
+                "rendererVersion": "codepoet-canvas-1.0.0",
+                "clientEnvironment": {"userAgent": "t", "deviceScaleFactor": 1},
+            },
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+
+    def _generate_canvas_before_disable(self) -> dict:
+        """先在 Canvas 启用时建好快照，之后再关掉——模拟运维中途调整。"""
+        self.app.state.settings.enabled_backends = "canvas2d"
+        base = self._generate_canvas()
+        self.app.state.settings.enabled_backends = "css"
+        return base
+
+
+class RenderVersionTests(_Base):
+    """建任务时校验渲染器版本（评审 P2）。"""
+
+    enabled_backends = "canvas2d"
+
+    def _job(self, version: str):
+        base = self._generate_canvas()
+        return self.client.post(
+            f"{API}/render-jobs",
+            json={
+                "generationId": base["id"],
+                "backend": "canvas2d",
+                "timesMs": [0],
+                "executionMode": "browser_upload",
+                "rendererVersion": version,
+                "clientEnvironment": {"userAgent": "t", "deviceScaleFactor": 1},
+            },
+            headers={"X-CSRF-Token": self.csrf},
+        )
+
+    def test_stale_renderer_version_rejected(self) -> None:
+        response = self._job("p0-03.1")
+        self.assertEqual(response.status_code, 422, response.text)
+        error = response.json()["error"]
+        # 与注册表的统一入口一致：版本不兼容报 UNSUPPORTED_CAPABILITY，
+        # 详请字段用 rendererVersion / expectedRendererVersion
+        self.assertEqual(error["code"], "UNSUPPORTED_CAPABILITY")
+        self.assertEqual(error["details"]["rendererVersion"], "p0-03.1")
+        self.assertEqual(error["details"]["expectedRendererVersion"], "codepoet-canvas-1.0.0")
+
+    def test_matching_renderer_version_accepted(self) -> None:
+        response = self._job("codepoet-canvas-1.0.0")
+        self.assertEqual(response.status_code, 202, response.text)
+
+
+class UnregisteredBackendTests(_Base):
+    """启用了但**没有可执行渲染器**的后端：声明与闸门必须给同一个答案（评审 P2）。
+
+    改之前是两套判据：
+    * `/engine/capabilities` 看「有没有渲染器版本」→ 说 css 不可用；
+    * 生成/建任务的闸门只看 `enabled_backends` → 放行。
+
+    于是前端按能力声明把入口关掉，直接调 API 却能成功——反过来也一样糟。
+    """
+
+    enabled_backends = "canvas2d,css"
+
+    def setUp(self):
+        super().setUp()
+        from unittest.mock import patch
+        from app.engine import capabilities
+        registered = patch.dict(capabilities.RENDERER_VERSIONS,
+                                {'canvas2d': capabilities.CANVAS_RENDERER_VERSION}, clear=True)
+        registered.start()
+        self.addCleanup(registered.stop)
+
+    def _css_capability(self) -> dict:
+        caps = self.client.get(f"{API}/engine/capabilities").json()
+        return next(item for item in caps["backends"] if item["backend"] == "css")
+
+    def test_declaration_says_unavailable(self) -> None:
+        css = self._css_capability()
+        self.assertFalse(css["available"], "没有注册渲染器却声明可用")
+        self.assertTrue(css["unavailableReason"])
+
+    def test_generation_gate_agrees_with_declaration(self) -> None:
+        """声明说不可用，生成就必须拒绝同一后端。"""
+        base = self._generate_canvas()
+        response = self.client.post(
+            f"{API}/generations",
+            json={
+                "mode": "ir",
+                "baseGenerationId": base["id"],
+                "ir": template_ir(),
+                "backend": "css",
+            },
+            headers={"X-CSRF-Token": self.csrf},
+        )
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()["error"]["code"], "UNSUPPORTED_CAPABILITY")
+        self.assertEqual(response.json()["error"]["details"]["backend"], "css")
+
+    def test_canvas_still_works(self) -> None:
+        """闸门收紧不能误伤已注册的 canvas2d。"""
+        self.assertTrue(self._css_capability() is not None)
+        self.assertIn("id", self._generate_canvas())
