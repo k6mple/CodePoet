@@ -1,0 +1,174 @@
+{
+  "scope": "real-Chrome-calibration-PNG-not-API-acceptance",
+  "rendererVersion": "codepoet-canvas-1.0.0",
+  "frames": [
+    {
+      "caseId": "normal-separated",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "normal-separated-before-0.png",
+      "sha256": "3e8f995c46b867d34fcb2a1f5845a25c1949f22bb01d0be7d285367985912f91"
+    },
+    {
+      "caseId": "normal-grouped",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "normal-grouped-before-0.png",
+      "sha256": "15b15ea41694c6af2403f7aee88ee079725ded92aa6f39a001a2b13b94f1ef8b"
+    },
+    {
+      "caseId": "normal-transformed-crop",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "normal-transformed-crop-before-0.png",
+      "sha256": "4e0c7df1d139c365752a882fb94bd127ac54c53282175073587d3f815990af22"
+    },
+    {
+      "caseId": "normal-thin-stroke",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "normal-thin-stroke-before-0.png",
+      "sha256": "c23a84bab4d28cd35e561d4182ac3f5663c2d9f572bf1f8e7c2443e96e26123c"
+    },
+    {
+      "caseId": "normal-transparent",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "normal-transparent-before-0.png",
+      "sha256": "139e459f7df5a386d307eb4919300d2dde21caae76fbd655acd20b460a637c0a"
+    },
+    {
+      "caseId": "normal-motion",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "normal-motion-before-0.png",
+      "sha256": "4fb642711c58035fbb49f23aa5e8bdaabdf0bee8cc804b97787232fa403f0b27"
+    },
+    {
+      "caseId": "normal-motion",
+      "stage": "before",
+      "timeMs": 2000,
+      "file": "normal-motion-before-2000.png",
+      "sha256": "3c37e612c67b74bd5eba919d1d2a89ebb9eeb75cbb797920bc743abf8989c17f"
+    },
+    {
+      "caseId": "normal-motion",
+      "stage": "before",
+      "timeMs": 4000,
+      "file": "normal-motion-before-4000.png",
+      "sha256": "4d4ac49883dd1c2fb2f175b64e42988ce565ca31399d02be508014fdd67f4f1d"
+    },
+    {
+      "caseId": "bad-overlap",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "bad-overlap-before-0.png",
+      "sha256": "f0bdb2510abe308141c0529bc882e5905f41af1863d17af91d378e3d165fcb76"
+    },
+    {
+      "caseId": "bad-overlap",
+      "stage": "after",
+      "timeMs": 0,
+      "file": "bad-overlap-after-0.png",
+      "sha256": "621d3172215bca1b2d8ddb4aa1d1e2d4c4614fbdbf768cd4683cbc18a8d1d8ba"
+    },
+    {
+      "caseId": "bad-palette",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "bad-palette-before-0.png",
+      "sha256": "31808d60bf7ac75f0e1b3c54e1745e9a90ffdc968dff8258f3f38e7cfef040d9"
+    },
+    {
+      "caseId": "bad-palette",
+      "stage": "after",
+      "timeMs": 0,
+      "file": "bad-palette-after-0.png",
+      "sha256": "be64e4b50d02febc7596f8e7e18500158abfa76ea3fe63ebb311c341e390a5a2"
+    },
+    {
+      "caseId": "bad-noise",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "bad-noise-before-0.png",
+      "sha256": "f87eb26467bd0916becb33745838185cd01944f31b7032dbc58eb7fef05f892a"
+    },
+    {
+      "caseId": "bad-noise",
+      "stage": "after",
+      "timeMs": 0,
+      "file": "bad-noise-after-0.png",
+      "sha256": "557ab1e95b7871e277ef45d48fb280c34fa837758467e2153329cec422e72fe9"
+    },
+    {
+      "caseId": "bad-blank",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "bad-blank-before-0.png",
+      "sha256": "974ff5f743915bc9784f71ba887878cd4f0db406986228764d68af965ca87ba1"
+    },
+    {
+      "caseId": "bad-blank",
+      "stage": "after",
+      "timeMs": 0,
+      "file": "bad-blank-after-0.png",
+      "sha256": "557ab1e95b7871e277ef45d48fb280c34fa837758467e2153329cec422e72fe9"
+    },
+    {
+      "caseId": "bad-outside",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "bad-outside-before-0.png",
+      "sha256": "974ff5f743915bc9784f71ba887878cd4f0db406986228764d68af965ca87ba1"
+    },
+    {
+      "caseId": "bad-outside",
+      "stage": "after",
+      "timeMs": 0,
+      "file": "bad-outside-after-0.png",
+      "sha256": "cafc8d2c33b46c12ed6ce1c9ee40460868cc18e29427a5fc7fc7dae95397987e"
+    },
+    {
+      "caseId": "bad-midpoint-overlap",
+      "stage": "before",
+      "timeMs": 0,
+      "file": "bad-midpoint-overlap-before-0.png",
+      "sha256": "701f170b03b48511176eb2970ded6e8677c191e0d6c96812e6fbb5dbd8f82f8e"
+    },
+    {
+      "caseId": "bad-midpoint-overlap",
+      "stage": "before",
+      "timeMs": 2000,
+      "file": "bad-midpoint-overlap-before-2000.png",
+      "sha256": "310f4243c965c234aba3d44ee08e16a75bde96d1de2fdf04f6d9eeb1b2438313"
+    },
+    {
+      "caseId": "bad-midpoint-overlap",
+      "stage": "before",
+      "timeMs": 4000,
+      "file": "bad-midpoint-overlap-before-4000.png",
+      "sha256": "c354ae4b8d72712b8dec48e0ff15c7a83ab25e35d6fd58d5a4dab113120b01a6"
+    },
+    {
+      "caseId": "bad-midpoint-overlap",
+      "stage": "after",
+      "timeMs": 0,
+      "file": "bad-midpoint-overlap-after-0.png",
+      "sha256": "701f170b03b48511176eb2970ded6e8677c191e0d6c96812e6fbb5dbd8f82f8e"
+    },
+    {
+      "caseId": "bad-midpoint-overlap",
+      "stage": "after",
+      "timeMs": 2000,
+      "file": "bad-midpoint-overlap-after-2000.png",
+      "sha256": "fd341cf9f740c7286d6774491c7aed209b1a7f39b74b9e040c3423531522b96d"
+    },
+    {
+      "caseId": "bad-midpoint-overlap",
+      "stage": "after",
+      "timeMs": 4000,
+      "file": "bad-midpoint-overlap-after-4000.png",
+      "sha256": "49a847f6edc455f9a99ffc6f247a437ecbf13409a78ce7ded05c49c16e8e2ced"
+    }
+  ]
+}

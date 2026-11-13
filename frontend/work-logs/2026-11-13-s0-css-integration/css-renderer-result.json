@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "rendererVersion": "codepoet-css-1.0.0",
+  "checks": [
+    {
+      "name": "animation_sequence.json",
+      "timeMs": 0,
+      "size": 14141,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "animation_sequence.json",
+      "timeMs": 1500,
+      "size": 14675,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "animation_sequence.json",
+      "timeMs": 3000,
+      "size": 14683,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "basic_shapes.json",
+      "timeMs": 0,
+      "size": 15762,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "basic_shapes.json",
+      "timeMs": 1000,
+      "size": 26529,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "basic_shapes.json",
+      "timeMs": 2000,
+      "size": 26633,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "canvas_probe.json",
+      "timeMs": 0,
+      "size": 15572,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "narrative_sequence.json",
+      "timeMs": 0,
+      "size": 15277,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "narrative_sequence.json",
+      "timeMs": 2000,
+      "size": 31552,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "narrative_sequence.json",
+      "timeMs": 4000,
+      "size": 30774,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    },
+    {
+      "name": "parent_child_crop.json",
+      "timeMs": 0,
+      "size": 11297,
+      "svg": true,
+      "waapi": true,
+      "stablePixels": true
+    }
+  ],
+  "serverPolling": "pure-state-tests-only",
+  "objectURLs": 0
+}

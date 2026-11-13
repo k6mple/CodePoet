@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from app.schemas.generation import Backend, Generation
 from app.schemas.ir import NodeId, Viewport
+from app.schemas.quality import Assessment
 from app.schemas.validation import Issue
 
 # ---------------------------------------------------------------------------
@@ -125,15 +126,21 @@ class QualityReport(BaseModel):
     emptyOutput: bool
     frames: list[FrameQuality] = Field(default_factory=list, max_length=12)
     issues: list[Issue] = Field(default_factory=list, max_length=100)
+    assessment: Assessment | None = None
 
 
 class RenderCreate(BaseModel):
-    """建渲染任务。契约把 backend / executionMode 都写成了 const。"""
+    """建渲染任务（仅浏览器上传模式）。
+
+    三个浏览器后端都能表达；``turtle`` 需要 ``executionMode=server``，那套
+    判别联合要到 R3 才注册，在此之前请求它会在 schema 层被明确拒绝，
+    而不是被当成浏览器任务混进来。
+    """
 
     model_config = ConfigDict(extra="forbid")
 
     generationId: NodeId
-    backend: Literal["canvas2d"]
+    backend: Literal["canvas2d", "css", "webgl"]
     timesMs: list[int] = Field(min_length=1, max_length=3)
     executionMode: Literal["browser_upload"]
     rendererVersion: str = Field(max_length=80)

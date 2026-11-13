@@ -11,7 +11,7 @@ import bambooTemplate from '../../../shared/demo/templates/bamboo.json'
 import narrativeTemplate from '../../../shared/demo/templates/narrative.json'
 import type { DrawingIR } from '@/types/core'
 import TimelinePlayer from './TimelinePlayer'
-import { exportFrame } from '@/renderers/canvas/renderScene'
+import { exportBackendFrame } from '@/renderers/export'
 import { errorMessage } from '@/api/client'
 import { InlineNotice } from './Feedback'
 import IRControls from './IRControls'
@@ -49,6 +49,7 @@ function FixtureEditor({ ir }: { ir: DrawingIR }) {
 
 export default function FixtureViewer() {
   const [name, setName] = useState('probe')
+  const [backend, setBackend] = useState('canvas2d')
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const selected = fixtures.find((item) => item.value === name) ?? fixtures[0]
@@ -58,7 +59,7 @@ export default function FixtureViewer() {
     setExporting(true)
     setError('')
     try {
-      const blob = await exportFrame(ir, ir.durationMs)
+      const blob = await exportBackendFrame(backend, ir, ir.durationMs)
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = url
@@ -83,6 +84,11 @@ export default function FixtureViewer() {
     <div className="fixture-layout">
       <aside className="fixture-controls" aria-labelledby="fixture-controls-heading">
         <h2 id="fixture-controls-heading">验证数据</h2>
+        <label className="field">本地渲染后端
+          <select aria-label="本地渲染后端" value={backend} disabled={exporting} onChange={event => setBackend(event.target.value)}>
+            <option value="canvas2d">Canvas 2D</option><option value="css">CSS / SVG</option>
+          </select>
+        </label>
         <label className="field">
           <span>IR 样例</span>
           <select value={name} onChange={(event) => { setName(event.target.value); setError('') }}>
@@ -107,7 +113,7 @@ export default function FixtureViewer() {
         <p className="fixture-badge">本地示例 · 非服务器生成</p>
         <div className="stage-mount">
           <div className="stage-surface">
-            <TimelinePlayer key={name} ir={ir} paused={exporting} />
+            <TimelinePlayer key={`${name}:${backend}`} ir={ir} backend={backend} paused={exporting} />
           </div>
           <div className="stage-caption">
             <span>{selected.label}</span>

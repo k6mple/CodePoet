@@ -8,8 +8,8 @@
   * 已执行的迁移记录在 ``schema_migrations`` 表，重复运行是安全的（幂等）。
   * 每个迁移的建表语句和「记账」写在同一个事务里，失败整体回滚，
     不会出现「表建了一半但没记账」或「记了账但表没建」。
-  * SQLite 的 ``executescript`` 会先提交当前事务，所以 BEGIN/COMMIT
-    必须写进脚本字符串内部，不能在外面用 connection.execute("BEGIN")。
+  * SQLite 的 ``executescript`` 会先提交当前事务，所以 BEGIN 必须写进脚本，
+    不能在外面用 connection.execute("BEGIN")。脚本执行后检查外键再提交。
 """
 
 from __future__ import annotations
@@ -83,19 +83,36 @@ def apply_one(connection: sqlite3.Connection, version: int, path: Path) -> None:
     applied_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     name = path.name.replace("'", "''")
 
+    # Rebuilding a referenced SQLite table requires FK enforcement to be disabled
+    # outside the transaction. Only explicitly marked migrations may do so; check
+    # every reference before committing, and restore enforcement even on failure.
+    rebuild = '-- migrate: foreign_keys_off' in sql
+    foreign_keys = connection.execute('PRAGMA foreign_keys').fetchone()[0]
+    if rebuild:
+        if connection.in_transaction:
+            raise RuntimeError('Table rebuild requires an idle connection')
+        connection.execute('PRAGMA foreign_keys=OFF')
+        sql = re.sub(r'^PRAGMA foreign_keys=(OFF|ON);\s*$', '', sql, flags=re.MULTILINE)
+
     # 建表 + 记账打包成一个事务
     script = (
         "BEGIN;\n"
         f"{sql}\n"
         "INSERT INTO schema_migrations (version, name, applied_at) "
         f"VALUES ({version}, '{name}', '{applied_at}');\n"
-        "COMMIT;"
     )
     try:
         connection.executescript(script)
+        violations = connection.execute('PRAGMA foreign_key_check').fetchall()
+        if violations:
+            raise sqlite3.IntegrityError(f'{path.name}: foreign key violations: {violations}')
+        connection.commit()
     except Exception:
         connection.rollback()
         raise
+    finally:
+        if rebuild:
+            connection.execute(f'PRAGMA foreign_keys={int(foreign_keys)}')
 
 
 def main() -> int:

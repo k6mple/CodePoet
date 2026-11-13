@@ -1,6 +1,7 @@
 // P0 view models, field names follow docs/openapi-core.json.
 export type Value = string | number | boolean
 export type Params = Record<string, Value>
+export type Backend = 'canvas2d' | 'css' | 'webgl' | 'turtle'
 
 export interface DrawingIR {
   schemaVersion: string
@@ -170,7 +171,7 @@ export interface EditorState {
   semanticInput: { text: string; entityIds: string[] }
   draftIR: DrawingIR | null
   fragmentSource: ''
-  backend: string
+  backend: Backend
   seed: number
   timelineTimeMs: number
   selectedNodeId: string | null
@@ -292,7 +293,7 @@ export interface Generation {
   createdAt?: string
   ownerId: string
   mode?: string
-  backend?: string
+  backend?: Backend
   ir: DrawingIR
   irHash: string
   params: Params
@@ -364,21 +365,54 @@ export interface Frame {
   timeMs: number
 }
 
+export type QualityStatus = 'pass' | 'warn' | 'fail' | 'not_applicable' | 'unavailable'
+export interface QualityLocation { nodeIds: string[]; timeMs?: number | null }
+export interface QualityFinding extends QualityLocation {
+  message: string
+  value?: number | null
+  details?: Record<string, string | number | null>
+}
+export interface QualityMetric {
+  name: 'parameterValidity' | 'layoutConflict' | 'colorSemantic' | 'signalNoise'
+  status: QualityStatus
+  score: number | null
+  value: number | null
+  method: string
+  evidence: QualityFinding[]
+}
+export interface QualityAssessment {
+  algorithmVersion: string
+  status?: QualityStatus
+  evaluatedTimesMs: number[]
+  thresholds: Record<string, number>
+  metrics: QualityMetric[]
+  recommendations: (QualityLocation & { code: string; message: string })[]
+  limitations?: string[]
+}
+export interface QualityReport {
+  pixelDifferenceThreshold?: number
+  nonBackgroundPixelRatio: number
+  emptyOutput: boolean
+  frames?: { timeMs: number; nonBackgroundPixelRatio: number; emptyOutput: boolean }[]
+  issues: Issue[]
+  assessment?: QualityAssessment | null
+}
+
 export interface RenderJob {
   id: string
   generationId: string
   status: string
   phase: string
   timesMs: number[]
+  backend?: Backend
+  executionMode?: 'browser_upload' | 'server'
+  clientEnvironment?: { userAgent: string; deviceScaleFactor: number } | null
+  serverEnvironment?: Record<string, unknown> | null
   rendererVersion?: string | null
   error: { code: string; message: string } | null
-  manifest: { irHash: string; frames: Frame[]; timesMs: number[] } | null
+  manifest: { irHash: string; frames: Frame[]; timesMs: number[]; backend?: Backend; rendererVersion?: string; outputSource?: 'browser_upload' | 'server' } | null
   originalJobId?: string | null
-  qualityReport?: {
-    nonBackgroundPixelRatio: number
-    emptyOutput: boolean
-    issues: Issue[]
-  } | null
+  qualityReport?: QualityReport | null
 }
 
 interface PixelMetrics {
@@ -444,8 +478,8 @@ export interface Page<T> {
 
 export interface Capabilities {
   profile: string
-  backends: { backend: string; available: boolean; executionModes: string[]; unavailableReason: string | null }[]
-  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean }
+  backends: { backend: Backend; available: boolean; executionModes: string[]; unavailableReason: string | null; rendererVersion?: string; nodeTypes?: string[]; animationProperties?: string[]; maxNodes?: number; maxFrames?: number }[]
+  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean; qualityAssessment?: boolean }
 }
 
 // P1-A knowledge, ontology and tag models. Field names follow docs/openapi-core.json.

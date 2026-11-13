@@ -26,11 +26,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import errors
+from app.engine import capabilities
 from app.models.creations import Generation as GenerationModel
 from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
 from app.schemas.reproduce import Comparison, FrameComparison, ReproduceRequest
 from app.schemas.works import RenderJob as RenderJobSchema
+from app.engine import capabilities
 from app.services import audit
 from app.services import uploads
 from app.services import works as works_service
@@ -81,6 +83,12 @@ def reproduce_version(
     original = db.get(RenderJob, version.render_job_id)
     if original is None or original.phase != "completed":
         raise errors.validation_error("原始渲染任务未完成，无法复现")
+
+    capabilities.require_enabled(original.backend, capabilities.enabled_backends(settings))
+    if original.execution_mode != "browser_upload" or original.backend != generation.backend:
+        raise errors.unsupported_capability("历史任务的后端或执行模式不兼容")
+    capabilities.require_renderer_version(original.backend, original.renderer_version or "")
+    capabilities.require_renderer_version(original.backend, payload.rendererVersion)
 
     times: list[int] = json.loads(original.times_ms_json or "[]")
     if not times:
@@ -209,6 +217,8 @@ def _compare_images(old: Image.Image, new: Image.Image) -> tuple[bool, float, fl
 def _fingerprint(db: Session, job: RenderJob) -> dict:
     env = json.loads(job.client_environment_json or "{}")
     return {
+        "backend": job.backend,
+        "executionMode": job.execution_mode,
         "rendererVersion": job.renderer_version,
         "userAgent": env.get("userAgent"),
         "deviceScaleFactor": env.get("deviceScaleFactor"),
@@ -249,6 +259,10 @@ def compare_jobs(
     reasons: list[str] = []
     new_fp = _fingerprint(db, job)
     old_fp = _fingerprint(db, original)
+    if new_fp["backend"] != old_fp["backend"]:
+        reasons.append("渲染后端不同")
+    if new_fp["executionMode"] != old_fp["executionMode"]:
+        reasons.append("执行模式不同")
     if new_fp["rendererVersion"] != old_fp["rendererVersion"]:
         reasons.append(
             f"渲染器版本不同（{old_fp['rendererVersion']} vs {new_fp['rendererVersion']}）"

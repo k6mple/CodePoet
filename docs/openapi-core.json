@@ -3,7 +3,7 @@
   "info": {
     "title": "CodePoet Core Demo API",
     "version": "1.1.0",
-    "description": "当前基础演示版必做契约，仅P0/P1-A/P1-B。Canvas/browser_upload，其他能力真实关闭。对象字段与完整契约相同，当前配置施加更小上限。"
+    "description": "Core demo 与已实现 S0/R1 契约。默认 Canvas/browser_upload；隔离部署可配置 CSS，WebGL/Turtle 仍关闭。对象字段沿用完整设计，运行时限制以 capabilities 为准。"
   },
   "servers": [
     {
@@ -4025,7 +4025,7 @@
                   0
                 ],
                 "executionMode": "browser_upload",
-                "rendererVersion": "canvas-1.0.0",
+                "rendererVersion": "codepoet-canvas-1.0.0",
                 "clientEnvironment": {
                   "userAgent": "CodePoet-demo-browser",
                   "deviceScaleFactor": 1
@@ -5744,7 +5744,7 @@
                 "$ref": "#/components/schemas/ReproduceRequest"
               },
               "example": {
-                "rendererVersion": "canvas-1.0.0",
+                "rendererVersion": "codepoet-canvas-1.0.0",
                 "clientEnvironment": {
                   "userAgent": "CodePoet-demo-browser",
                   "deviceScaleFactor": 1
@@ -6316,6 +6316,68 @@
         "x-access": "O",
         "x-task-id": "P0-04"
       }
+    },
+    "/knowledge-graph/generations": {
+      "post": {
+        "tags": [
+          "知识图谱"
+        ],
+        "summary": "由外部知识图谱实体生成",
+        "description": "权限：L，写操作过 CSRF。按部署白名单里的 sourceId + externalEntityId 抓取外部实体，把属性与一跳关系映射到站内知识与规则，生成不可变快照。完整来源快照写入 provenance.externalGraph，旧作品复现只读快照、不联网。外部事实只扩充叙事说明（caption），不改变图形像素，也不改站内规则。不接受用户传 URL。",
+        "operationId": "create_generation_from_graph_api_v1_knowledge_graph_generations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GraphGenerationRequest"
+              },
+              "example": {
+                "sourceId": "wikidata",
+                "externalEntityId": "Q16528",
+                "backend": "canvas2d",
+                "seed": 42
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "成功：一份带 externalGraph 快照的不可变 Generation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422",
+            "description": "四类：请求体不合法；来源里没有该实体（KNOWLEDGE_GRAPH_ENTITY_NOT_FOUND）；映射不到站内知识条目（NO_SEMANTIC_MATCH）；后端能力未启用（UNSUPPORTED_CAPABILITY）"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503",
+            "description": "来源未配置或当前不可用（KNOWLEDGE_GRAPH_UNAVAILABLE）"
+          },
+          "504": {
+            "description": "来源在超时预算内没有响应（KNOWLEDGE_GRAPH_TIMEOUT）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6884,6 +6946,15 @@
               },
               "workSnapshotImport": {
                 "const": false
+              },
+              "qualityAssessment": {
+                "type": "boolean",
+                "default": false,
+                "description": "实例提供版本化Q1质量报告；缺失按false。"
+              },
+              "knowledgeGraph": {
+                "type": "boolean",
+                "default": false
               }
             },
             "required": [
@@ -8253,7 +8324,7 @@
           },
           "backend": {
             "$ref": "#/components/schemas/Backend",
-            "description": "创建时用于能力校验的首选后端；其他兼容后端可渲染同一 IR，保存作品以后以 renderJob.backend 为准。"
+            "description": "生成记录使用的不可变后端；新任务 backend 必须与之相同，切后端创建新 generation。"
           },
           "ir": {
             "$ref": "#/components/schemas/DrawingIR"
@@ -8455,7 +8526,13 @@
             "$ref": "#/components/schemas/DrawingIR"
           },
           "backend": {
-            "const": "canvas2d"
+            "$ref": "#/components/schemas/Backend",
+            "enum": [
+              "canvas2d",
+              "css",
+              "webgl",
+              "turtle"
+            ]
           }
         },
         "required": [
@@ -9958,6 +10035,18 @@
                 "type": "null"
               }
             ]
+          },
+          "externalGraph": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalGraph"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "外部知识图谱快照（K1）。**旧作品复现只读这里，不重新联网。** 旧记录没有这个字段，按 null 读取。"
           }
         },
         "required": [
@@ -10009,6 +10098,17 @@
               "$ref": "#/components/schemas/Issue"
             },
             "maxItems": 100
+          },
+          "assessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QualityAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Q1可选版本化质量报告，历史缺失仍可读；score未校准为null，算法失败明确unavailable，不使成功PNG失效。"
           }
         },
         "required": [
@@ -10087,7 +10187,13 @@
             "pattern": "^[A-Za-z0-9_-]+$"
           },
           "backend": {
-            "const": "canvas2d"
+            "type": "string",
+            "enum": [
+              "canvas2d",
+              "css",
+              "webgl"
+            ],
+            "description": "必须等于 generation.backend，实例能力与可执行版本另行校验；WebGL 尚未注册。"
           },
           "timesMs": {
             "type": "array",
@@ -10105,7 +10211,8 @@
           "rendererVersion": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 80
+            "maxLength": 80,
+            "description": "浏览器任务必须匹配可执行适配器版本：Canvas codepoet-canvas-1.0.0 / CSS codepoet-css-1.0.0。拒绝未知标签，不回写历史任务。"
           },
           "clientEnvironment": {
             "$ref": "#/components/schemas/ClientEnvironment"
@@ -10322,7 +10429,8 @@
         "required": [
           "rendererVersion",
           "clientEnvironment"
-        ]
+        ],
+        "description": "读取原 generation/backend/times，原版本必须可执行；未知历史渲染版本返回 422 UNSUPPORTED_CAPABILITY，保留原 PNG。server 复现仍为 R3 待实施。"
       },
       "RestoreRequest": {
         "type": "object",
@@ -10923,7 +11031,13 @@
             "default": {}
           },
           "backend": {
-            "const": "canvas2d"
+            "$ref": "#/components/schemas/Backend",
+            "enum": [
+              "canvas2d",
+              "css",
+              "webgl",
+              "turtle"
+            ]
           },
           "seed": {
             "type": "integer",
@@ -11495,7 +11609,8 @@
               "$ref": "#/components/schemas/Backend"
             },
             "maxItems": 4,
-            "uniqueItems": true
+            "uniqueItems": true,
+            "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
           },
           "thumbnailArtifactId": {
             "anyOf": [
@@ -11603,7 +11718,13 @@
             "default": {}
           },
           "backend": {
-            "const": "canvas2d"
+            "$ref": "#/components/schemas/Backend",
+            "enum": [
+              "canvas2d",
+              "css",
+              "webgl",
+              "turtle"
+            ]
           },
           "seed": {
             "type": "integer",
@@ -11837,11 +11958,18 @@
           "supportedBackends": {
             "type": "array",
             "items": {
-              "const": "canvas2d"
+              "$ref": "#/components/schemas/Backend",
+              "enum": [
+                "canvas2d",
+                "css",
+                "webgl",
+                "turtle"
+              ]
             },
             "minItems": 1,
-            "maxItems": 1,
-            "uniqueItems": true
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
           },
           "fragmentSource": {
             "const": null
@@ -12163,11 +12291,12 @@
               "supportedBackends": {
                 "type": "array",
                 "items": {
-                  "const": "canvas2d"
+                  "$ref": "#/components/schemas/Backend"
                 },
                 "minItems": 1,
-                "maxItems": 1,
-                "uniqueItems": true
+                "maxItems": 4,
+                "uniqueItems": true,
+                "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
               },
               "fragmentSource": {
                 "const": null
@@ -12231,11 +12360,12 @@
               "supportedBackends": {
                 "type": "array",
                 "items": {
-                  "const": "canvas2d"
+                  "$ref": "#/components/schemas/Backend"
                 },
                 "minItems": 1,
-                "maxItems": 1,
-                "uniqueItems": true
+                "maxItems": 4,
+                "uniqueItems": true,
+                "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
               },
               "fragmentSource": {
                 "const": null
@@ -12297,11 +12427,18 @@
           "supportedBackends": {
             "type": "array",
             "items": {
-              "const": "canvas2d"
+              "$ref": "#/components/schemas/Backend",
+              "enum": [
+                "canvas2d",
+                "css",
+                "webgl",
+                "turtle"
+              ]
             },
             "minItems": 1,
-            "maxItems": 1,
-            "uniqueItems": true
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
           },
           "fragmentSource": {
             "const": null
@@ -12820,6 +12957,530 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          }
+        }
+      },
+      "QualityEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "maxLength": 500,
+            "title": "Message",
+            "type": "string"
+          },
+          "nodeIds": {
+            "items": {
+              "maxLength": 80,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Nodeids",
+            "type": "array"
+          },
+          "timeMs": {
+            "anyOf": [
+              {
+                "maximum": 15000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timems"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "details": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxProperties": 12,
+            "title": "Details",
+            "type": "object"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "Evidence",
+        "type": "object"
+      },
+      "QualityMetric": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "parameterValidity",
+              "layoutConflict",
+              "colorSemantic",
+              "signalNoise"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "method": {
+            "maxLength": 1000,
+            "title": "Method",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/QualityEvidence"
+            },
+            "maxItems": 25,
+            "title": "Evidence",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "status",
+          "method"
+        ],
+        "title": "Metric",
+        "type": "object"
+      },
+      "QualityRecommendation": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 80,
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 500,
+            "title": "Message",
+            "type": "string"
+          },
+          "nodeIds": {
+            "items": {
+              "maxLength": 80,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Nodeids",
+            "type": "array"
+          },
+          "timeMs": {
+            "anyOf": [
+              {
+                "maximum": 15000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timems"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "Recommendation",
+        "type": "object"
+      },
+      "QualityAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "algorithmVersion": {
+            "maxLength": 80,
+            "title": "Algorithmversion",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "evaluatedTimesMs": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "title": "Evaluatedtimesms",
+            "type": "array"
+          },
+          "thresholds": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "maxProperties": 12,
+            "title": "Thresholds",
+            "type": "object"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/QualityMetric"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Metrics",
+            "type": "array"
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/QualityRecommendation"
+            },
+            "maxItems": 20,
+            "title": "Recommendations",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Limitations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "algorithmVersion",
+          "status",
+          "evaluatedTimesMs",
+          "thresholds",
+          "metrics"
+        ],
+        "title": "Assessment",
+        "type": "object"
+      },
+      "GraphGenerationRequest": {
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "pattern": "^[a-z0-9_-]+$",
+            "title": "Sourceid"
+          },
+          "externalEntityId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Externalentityid"
+          },
+          "backend": {
+            "type": "string",
+            "enum": [
+              "turtle",
+              "canvas2d",
+              "webgl",
+              "css"
+            ],
+            "title": "Backend",
+            "default": "canvas2d"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 42
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sourceId",
+          "externalEntityId"
+        ],
+        "title": "GraphGenerationRequest",
+        "description": "``POST /knowledge-graph/generations`` 的请求体。"
+      },
+      "ExternalEntity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label"
+        ],
+        "description": "来源侧的一个实体；attributes 只放已映射、有界的事实。",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 400
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 20,
+            "description": "键形如「学名(P225)」，括号里是来源属性号，便于回溯"
+          }
+        }
+      },
+      "ExternalRelation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "fromId",
+          "toId"
+        ],
+        "description": "来源侧的一条关系：fromId --type--> toId",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "fromId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "toId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        }
+      },
+      "MappingDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "externalId",
+          "target",
+          "affects",
+          "reason"
+        ],
+        "description": "一条外部事实影响了什么。**只记录真正产生了影响的**：没进 caption 的事实不写在这里，抓回来的全集在 relations 里。",
+        "properties": {
+          "kind": {
+            "enum": [
+              "entity",
+              "relation",
+              "attribute"
+            ]
+          },
+          "externalId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "target": {
+            "enum": [
+              "knowledge-entity",
+              "rule",
+              "caption",
+              "symbols"
+            ]
+          },
+          "targetId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "affects": {
+            "enum": [
+              "rule-selection",
+              "caption",
+              "symbols",
+              "palette"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "ExternalGraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourceId",
+          "externalEntityId",
+          "fetchedAt",
+          "contentHash"
+        ],
+        "description": "写进 provenance.externalGraph 的外部来源快照。**旧作品复现只读它，不重新联网**，所以它必须自包含。",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "externalEntityId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "来源不给版本号时为 null——不编一个出来"
+          },
+          "contentHash": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalEntity"
+            },
+            "maxItems": 50
+          },
+          "relations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalRelation"
+            },
+            "maxItems": 100
+          },
+          "mappingDecisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MappingDecision"
+            },
+            "maxItems": 100
           }
         }
       }

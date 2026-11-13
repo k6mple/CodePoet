@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { errorMessage, request } from '@/api/client'
 import { browserRenderer, uploadRenderFrames } from '@/api/render'
+import { historicalBackend, reproductionUnavailable } from '@/renderers/backend'
 import type { Comparison, RenderJob, WorkDetail } from '@/types/core'
 import { InlineNotice } from './Feedback'
 
@@ -22,10 +23,13 @@ export default function WorkReproduction({ work, signedIn, onLogin }: {
   const [progress, setProgress] = useState('')
   const [result, setResult] = useState<{ comparison: Comparison; job: RenderJob } | null>(null)
   const [time, setTime] = useState(0)
+  const backend = historicalBackend(work)
+  const unavailable = reproductionUnavailable(work)
 
   useEffect(() => () => pending.current?.abort(), [])
 
   async function reproduce() {
+    if (unavailable) { setError(unavailable); return }
     if (!signedIn) { onLogin(); return }
     if (pending.current) return
     const controller = new AbortController()
@@ -40,7 +44,7 @@ export default function WorkReproduction({ work, signedIn, onLogin }: {
       const created = checkpoint.current
         ? await request<RenderJob>(`/render-jobs/${encodeURIComponent(checkpoint.current)}`, { signal })
         : await request<RenderJob>(`/work-versions/${encodeURIComponent(work.workVersion.id)}/reproduce`, {
-          method: 'POST', body: JSON.stringify(browserRenderer()), signal,
+          method: 'POST', body: JSON.stringify(work.renderJob.executionMode === 'server' || backend === 'turtle' ? {} : browserRenderer(backend)), signal,
         })
       if (created.originalJobId !== originalJobId) throw new Error('复现任务未绑定到当前历史版本。')
       checkpoint.current = created.id
@@ -76,13 +80,14 @@ export default function WorkReproduction({ work, signedIn, onLogin }: {
       <p>按历史 IR 和原采样时刻重绘。像素指标由服务端解码原始与复现 PNG 后返回。</p>
     </header>
     <div className="form-actions">
-      <button className="button button--primary button--small" type="button" onClick={() => void reproduce()} disabled={busy}>
+      <button className="button button--primary button--small" type="button" onClick={() => void reproduce()} disabled={busy || Boolean(unavailable)}>
         {busy ? '复现中…' : error && checkpoint.current ? '重试复现任务' : '复现此版本'}
       </button>
       {error && checkpoint.current && <button className="button button--secondary button--small" type="button"
         onClick={() => { checkpoint.current = null; setError(''); void reproduce() }}>新建复现任务</button>}
     </div>
     {progress && <p role="status">{progress}</p>}
+    {unavailable && <InlineNotice title="历史渲染器不可用">{unavailable}</InlineNotice>}
     {error && <InlineNotice tone="error" title="复现未完成">{error}</InlineNotice>}
     {comparison && <>
       <InlineNotice tone={comparison.compatible && comparison.exactMatch === true ? 'success' : 'info'}>

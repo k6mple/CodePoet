@@ -1,0 +1,289 @@
+{
+  "_meta": {
+    "说明": "K1 知识图谱接入的可直接对接样例。值取自本机对 Wikidata Q16528（莲）的真实抓取，IR 已裁剪到 3 个节点以便阅读，数组长度不代表实际上限。",
+    "生成时间": "2026-11-13",
+    "端点": "POST /api/v1/knowledge-graph/generations",
+    "字段约束": "以 docs/openapi-core.json 的 GraphGenerationRequest / ExternalGraph / MappingDecision 为准"
+  },
+  "request": {
+    "sourceId": "wikidata",
+    "externalEntityId": "Q16528",
+    "backend": "canvas2d",
+    "seed": 42
+  },
+  "success_201": {
+    "id": "gen-kg-0001",
+    "createdAt": "2026-11-13T06:30:00+00:00",
+    "ownerId": "user-demo",
+    "mode": "semantic",
+    "backend": "canvas2d",
+    "seed": 42,
+    "templateVersionId": null,
+    "unpublishedSource": false,
+    "irHash": "<64 位小写十六进制>",
+    "requestId": "req-kg-0001",
+    "_note": "ir 已裁剪为 3 个节点",
+    "ir": {
+      "schemaVersion": "1.0",
+      "seed": 42,
+      "canvas": {
+        "width": 800,
+        "height": 600,
+        "background": "#F7F6F0"
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 800,
+        "height": 600
+      },
+      "durationMs": 4000,
+      "nodes": [
+        {
+          "id": "n1",
+          "parentId": null,
+          "type": "group",
+          "transform": {
+            "x": 400,
+            "y": 320,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "style": {
+            "opacity": 1
+          }
+        },
+        {
+          "id": "n2",
+          "parentId": "n1",
+          "type": "circle",
+          "geometry": {
+            "cx": 0,
+            "cy": 0,
+            "r": 64
+          },
+          "style": {
+            "fill": "#D4537E",
+            "stroke": null,
+            "strokeWidth": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "n3",
+          "parentId": "n1",
+          "type": "polygon",
+          "geometry": {
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                40,
+                0
+              ],
+              [
+                20,
+                48
+              ]
+            ]
+          },
+          "style": {
+            "fill": "#EF9F27",
+            "stroke": null,
+            "strokeWidth": 0,
+            "opacity": 1
+          }
+        }
+      ],
+      "animations": [],
+      "narrative": [
+        {
+          "nodeId": "n1",
+          "caption": "莲：出淤泥而不染，濯清涟而不妖。｜Nelumbo nucifera｜种｜莲属｜分类单元：植物｜亲本：莲属"
+        }
+      ]
+    },
+    "provenance": {
+      "kind": "semantic",
+      "baseGenerationId": null,
+      "matchedEntities": [
+        {
+          "entityId": "knowledge-lotus",
+          "revision": 1,
+          "content": {
+            "id": "knowledge-lotus",
+            "name": "莲"
+          }
+        }
+      ],
+      "matchedRules": [
+        {
+          "ruleId": "rule-lotus",
+          "version": 1,
+          "content": {
+            "id": "rule-lotus",
+            "name": "莲·清正"
+          }
+        }
+      ],
+      "selectedSymbols": [
+        "lotus"
+      ],
+      "paletteDecision": {
+        "value": "#D4537E,#EF9F27",
+        "ruleIds": [
+          "rule-lotus"
+        ],
+        "reason": "取最高优先级规则命中的调色板（2 色）"
+      },
+      "compositionDecision": null,
+      "timelineDecision": null,
+      "templateSelection": null,
+      "conflicts": [],
+      "warnings": [],
+      "engineVersion": "p0-03.1",
+      "ontologyVersion": 1,
+      "policyRevision": 1,
+      "fragmentSource": null,
+      "fragmentSourceHash": null,
+      "externalGraph": {
+        "sourceId": "wikidata",
+        "externalEntityId": "Q16528",
+        "fetchedAt": "2026-11-13T06:29:58+00:00",
+        "dataVersion": null,
+        "contentHash": "<来源内容 SHA-256>",
+        "entities": [
+          {
+            "id": "Q16528",
+            "label": "莲",
+            "description": "睡莲科莲属多年生水生草本植物",
+            "attributes": {
+              "学名(P225)": "Nelumbo nucifera",
+              "分类单元(P105)": "种",
+              "亲本(P171)": "莲属"
+            }
+          }
+        ],
+        "relations": [
+          {
+            "id": "Q16528-P105-Q7432",
+            "type": "分类单元",
+            "fromId": "Q16528",
+            "toId": "Q7432",
+            "label": "植物"
+          },
+          {
+            "id": "Q16528-P171-Q191933",
+            "type": "亲本",
+            "fromId": "Q16528",
+            "toId": "Q191933",
+            "label": "莲属"
+          }
+        ],
+        "mappingDecisions": [
+          {
+            "kind": "entity",
+            "externalId": "Q16528",
+            "target": "knowledge-entity",
+            "targetId": "knowledge-lotus",
+            "affects": "rule-selection",
+            "reason": "外部标签「莲」与站内条目「莲」同名，作为规则匹配依据"
+          },
+          {
+            "kind": "attribute",
+            "externalId": "Q16528",
+            "target": "caption",
+            "targetId": null,
+            "affects": "caption",
+            "reason": "学名：写入叙事说明「Nelumbo nucifera」"
+          },
+          {
+            "kind": "relation",
+            "externalId": "Q16528-P105-Q7432",
+            "target": "caption",
+            "targetId": null,
+            "affects": "caption",
+            "reason": "植物：写入叙事说明「分类单元：植物」"
+          }
+        ]
+      }
+    },
+    "validationReport": {
+      "parameterValid": true,
+      "nodeCount": 3,
+      "outOfBoundsNodeCount": 0,
+      "issues": []
+    },
+    "warnings": []
+  },
+  "errors": {
+    "ENTITY_NOT_FOUND_422": {
+      "http": 422,
+      "body": {
+        "error": {
+          "code": "KNOWLEDGE_GRAPH_ENTITY_NOT_FOUND",
+          "message": "来源 wikidata 里没有实体 Q999999"
+        }
+      },
+      "触发": "sourceId 合法但来源侧查不到这个 ID"
+    },
+    "NO_SEMANTIC_MATCH_422": {
+      "http": 422,
+      "body": {
+        "error": {
+          "code": "NO_SEMANTIC_MATCH",
+          "message": "外部实体没有映射到任何站内知识条目",
+          "details": {
+            "externalEntityId": "Q7366",
+            "labels": [
+              "泰勒·斯威夫特"
+            ]
+          }
+        }
+      },
+      "触发": "实体抓到了，但既不在显式映射表里，标签/别名也匹配不上任何站内条目"
+    },
+    "SOURCE_UNAVAILABLE_503": {
+      "http": 503,
+      "body": {
+        "error": {
+          "code": "KNOWLEDGE_GRAPH_UNAVAILABLE",
+          "message": "当前实例未配置知识图谱来源"
+        }
+      },
+      "触发": "sourceId 不在部署白名单里，或来源整站不可用。**不会退化成伪本地生成**"
+    },
+    "TIMEOUT_504": {
+      "http": 504,
+      "body": {
+        "error": {
+          "code": "KNOWLEDGE_GRAPH_TIMEOUT",
+          "message": "来源在 10s 内没有响应"
+        }
+      },
+      "触发": "超过 CODEPOET_KNOWLEDGE_GRAPH_TIMEOUT_SECONDS"
+    },
+    "UNSUPPORTED_CAPABILITY_422": {
+      "http": 422,
+      "body": {
+        "error": {
+          "code": "UNSUPPORTED_CAPABILITY",
+          "message": "当前实例未启用后端 css",
+          "details": {
+            "backend": "css",
+            "unsupportedProperties": [
+              "canvas2d",
+              "css",
+              "webgl",
+              "turtle"
+            ]
+          }
+        }
+      },
+      "触发": "请求里的 backend 没在当前实例启用（与普通生成同一套闸门）"
+    }
+  }
+}

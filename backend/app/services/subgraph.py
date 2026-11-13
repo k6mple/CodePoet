@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+import json
+
 from collections import defaultdict
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -28,11 +30,10 @@ from app.schemas.ir import DrawingIR, IRNode, Viewport
 from app.schemas.subgraph import SubgraphEdit, SubgraphGeneration
 from app.services import audit
 from app.services.generations import (
-    ONTOLOGY_VERSION,
-    POLICY_REVISION,
     build_generation_schema,
     can_read,
     compute_ir_hash,
+    inherited_provenance,
 )
 
 __all__ = ["edit_subgraph"]
@@ -132,24 +133,10 @@ def edit_subgraph(
             details=report.model_dump(mode="json"),
         )
 
-    provenance = {
-        "kind": "subgraph_edit",
-        "baseGenerationId": base.id,
-        "matchedEntities": [],
-        "matchedRules": [],
-        "selectedSymbols": [],
-        "paletteDecision": None,
-        "compositionDecision": None,
-        "timelineDecision": None,
-        "templateSelection": None,
-        "conflicts": [],
-        "warnings": [],
-        "engineVersion": _SUBGRAPH_ENGINE_VERSION,
-        "ontologyVersion": ONTOLOGY_VERSION,
-        "policyRevision": POLICY_REVISION,
-        "fragmentSource": f"subtree:{payload.rootNodeId}",
-        "fragmentSourceHash": compute_ir_hash(ir),
-    }
+    provenance = inherited_provenance(base, 'subgraph_edit').model_dump(mode='json')
+    provenance.update(engineVersion=_SUBGRAPH_ENGINE_VERSION,
+                      fragmentSource=f'subtree:{payload.rootNodeId}',
+                      fragmentSourceHash=compute_ir_hash(ir))
 
     row = GenerationModel(
         id=f"gen-{uuid4().hex}",

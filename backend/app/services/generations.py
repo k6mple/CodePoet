@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -45,6 +46,7 @@ from app.schemas.generation import (
 )
 from app.schemas.ir import DrawingIR
 from app.schemas.validation import Issue, ValidationReport
+from app.engine import capabilities
 from app.services import knowledge as knowledge_service
 from app.services import rules as rules_service
 
@@ -53,15 +55,10 @@ ENGINE_VERSION = "p0-03.1"
 ONTOLOGY_VERSION = 1
 POLICY_REVISION = 1
 
-# 这些 code 只警告不阻断：越界的图形仍然能画出来，只是会被画布裁掉一部分。
-# 其余问题（重复 id、父引用悬空、自交多边形等）会让渲染结果不可预期，必须拒绝。
+# 越界仅警告，保留裁剪行为；其余结构问题阻断生成。
 _WARNING_CODES = frozenset({"IR_OUT_OF_BOUNDS"})
-
 _PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
 _CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
-
-
-# ---- 工具 ----------------------------------------------------------------
 
 
 def compute_ir_hash(ir: DrawingIR) -> str:
@@ -171,12 +168,15 @@ def _can_preview_template(user: User, version: TemplateVersion) -> bool:
 
 
 def _prepare_from_template(
-    db: Session, user: User, payload: TemplateGeneration
+    db: Session, user: User, payload: TemplateGeneration, enabled: frozenset[str]
 ) -> tuple[DrawingIR, dict, str, Provenance, bool, int]:
     version = db.get(TemplateVersion, payload.templateVersionId)
-    # 无权预览与不存在返回同样的 404，避免用 ID 试探出草稿存在与否
+    # 无权预览与不存在返回同样的 404，避免用 ID 试探出草稿存在与否。
+    # 顺序很重要：授权先于能力，否则 422 会泄露「这个版本是存在的」。
     if version is None or not _can_preview_template(user, version):
         raise errors.not_found("模板版本不存在")
+
+    capabilities.require_enabled(payload.backend, enabled)
 
     supported = json.loads(version.supported_backends_json)
     if payload.backend not in supported:
@@ -222,8 +222,63 @@ def _prepare_from_template(
 # ---- 手工 IR 路线 --------------------------------------------------------
 
 
+CAPTION_LIMIT = 200
+
+
+def _prefer_entity_rules(db: Session, matched: list, prefer_entity_ids: list[str]) -> list:
+    """只保留「声明的 entityIds 是本目标实体子集」的规则。
+
+    起因：竹、梅 都传了单个实体，却都被 priority 90 的「四秒·清莲叙事」抢走——
+    那条规则的 entityIds 是 {lotus, bamboo}，命中任意一个就成立，于是画面主体
+    变成了莲的叙事。这里把泛化的多实体规则让开；没有专指规则时退回全部命中，
+    不改变既有语义。
+    """
+    wanted = set(prefer_entity_ids)
+    narrowed = []
+    for item in matched:
+        row = db.get(RuleModel, item.rule_id)
+        if row is None:
+            continue
+        try:
+            declared = set(json.loads(row.match_json or "{}").get("entityIds") or [])
+        except ValueError:
+            declared = set()
+        if declared and declared <= wanted:
+            narrowed.append(item)
+    return narrowed or matched
+
+
+def resolve_semantic(
+    db: Session,
+    text: str,
+    entity_ids: list[str],
+    prefer_entity_ids: list[str] | None = None,
+):
+    """匹配规则并合成叙事。
+
+    **生成与知识图谱两条路共用这一份。** 图谱要按真实 caption 长度计算事实预算，
+    如果它自己另写一遍「匹配 + 窄化 + synthesize」，两边迟早漂移；而漂移的后果
+    正是「以为装进去了、其实被 200 字符截断」——这个 bug 已经出现过一次。
+    """
+    matched = rules_service.load_matched_rules(db, text=text, entity_ids=entity_ids)
+    if prefer_entity_ids:
+        matched = _prefer_entity_rules(db, matched, prefer_entity_ids)
+    if not matched:
+        raise errors.no_semantic_match(
+            f"输入没有匹配到任何映射规则：{text[:40] or '(空文本)'}",
+            details={"text": text, "entityIds": entity_ids},
+        )
+    return matched, semantic_engine.synthesize(matched)
+
+
 def _prepare_from_semantic(
-    db: Session, user: User, payload: SemanticGeneration
+    db: Session,
+    user: User,
+    payload: SemanticGeneration,
+    enabled: frozenset[str],
+    external_graph: dict[str, Any] | None = None,
+    caption_suffix: str | None = None,
+    prefer_entity_ids: list[str] | None = None,
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     """语义生成：文字 + 实体 → 规则命中 → 图形决策 → IR。
 
@@ -233,15 +288,23 @@ def _prepare_from_semantic(
     """
     text = payload.input.text
     entity_ids = list(payload.input.entityIds or [])
-    matched = rules_service.load_matched_rules(db, text=text, entity_ids=entity_ids)
-    if not matched:
-        raise errors.no_semantic_match(
-            f"输入没有匹配到任何映射规则：{text[:40] or '(空文本)'}",
-            details={"text": text, "entityIds": entity_ids},
-        )
+    matched, synth = resolve_semantic(db, text, entity_ids, prefer_entity_ids)
 
-    synth = semantic_engine.synthesize(matched)
+    # 外部事实（K1）追加进叙事说明。**注意这是叙事联动，不是像素变化**：
+    # caption 是 IR 的叙事节点内容，当前 Canvas 渲染器并不把它绘进 PNG，
+    # 页面题记会展示它。不应该据此宣称「外部关系改变了画面」。
+    #
+    # 调用方（知识图谱）已经按这里的 200 字符预算切好片段，所以这次截断
+    # 不会丢掉任何一条已记录为「已采纳」的事实。
+    if caption_suffix:
+        caption = f"{synth.caption}｜{caption_suffix}" if synth.caption else caption_suffix
+        synth = replace(synth, caption=caption[:200])
     ir = semantic_engine.build_ir(synth, seed=payload.seed, entity_ids=entity_ids)
+
+    # 语义生成不看 backend，先生成 IR 再验能力（细则 S0-A1 第 2 点）。
+    # 顺序不能反：规则命中失败该报 NO_SEMANTIC_MATCH，而不是先甩一个
+    # 「后端没启用」，让用户以为是后端问题。
+    capabilities.require_enabled(payload.backend, enabled)
 
     # 规则快照：记下"当时用的是第几版规则、内容是什么"。
     # 规则以后被改，旧作品的溯源仍然准确。
@@ -297,12 +360,13 @@ def _prepare_from_semantic(
         engineVersion=ENGINE_VERSION,
         ontologyVersion=ONTOLOGY_VERSION,
         policyRevision=POLICY_REVISION,
+        externalGraph=external_graph,
     )
     return ir, {}, None, provenance, False, payload.seed
 
 
 def _prepare_from_ir(
-    db: Session, user: User, payload: IRGeneration
+    db: Session, user: User, payload: IRGeneration, enabled: frozenset[str]
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     base = db.get(GenerationModel, payload.baseGenerationId)
     # 契约（接口文档 3.1）：base 可为「本人或当前公开版本可见」，新 generation
@@ -312,17 +376,25 @@ def _prepare_from_ir(
     if base is None or not can_read(db, user, base):
         raise errors.not_found("基底生成快照不存在")
 
-    provenance = Provenance(
-        kind="manual_edit",
-        baseGenerationId=base.id,
-        engineVersion=ENGINE_VERSION,
-        ontologyVersion=ONTOLOGY_VERSION,
-        policyRevision=POLICY_REVISION,
-    )
+    # 授权先于能力：无权访问一律 404，不能因为后端没启用就变成 422
+    capabilities.require_enabled(payload.backend, enabled)
+
+    provenance = inherited_provenance(base, 'manual_edit')
     # 手工编辑继承基底的未发布标记：基于草稿改出来的东西仍然是草稿
     unpublished = bool(base.unpublished_source)
     base_params = json.loads(base.params_json) if base.params_json else {}
     return payload.ir, base_params, None, provenance, unpublished, payload.ir.seed
+
+
+def inherited_provenance(base: GenerationModel, kind: str) -> Provenance:
+    """Editing geometry keeps the historical decisions used to assess its color."""
+    source = json.loads(base.provenance_json or '{}')
+    values = {key: value for key, value in source.items() if key in Provenance.model_fields}
+    values.update(kind=kind, baseGenerationId=base.id)
+    values.setdefault('engineVersion', ENGINE_VERSION)
+    values.setdefault('ontologyVersion', ONTOLOGY_VERSION)
+    values.setdefault('policyRevision', POLICY_REVISION)
+    return Provenance.model_validate(values)
 
 
 # ---- 入口 ----------------------------------------------------------------
@@ -337,20 +409,40 @@ def _split_issues(
 
 
 def create_generation(
-    db: Session, user: User, payload: GenerationCreate, request_id: str
+    db: Session,
+    user: User,
+    payload: GenerationCreate,
+    request_id: str,
+    *,
+    enabled_backends: frozenset[str] | None = None,
+    external_graph: dict[str, Any] | None = None,
+    caption_suffix: str | None = None,
+    prefer_entity_ids: list[str] | None = None,
 ) -> GenerationSchema:
-    """创建一份不可变快照。任何一步不合法都不落库。"""
+    """创建一份不可变快照。任何一步不合法都不落库。
+
+    ``enabled_backends`` 由 API 层从 Settings 读出后传入；不传时退化成注册表
+    默认值（只有 Canvas），所以既有调用点与测试的行为不变。
+    """
+    enabled = (
+        enabled_backends
+        if enabled_backends is not None
+        else capabilities.enabled_backends()
+    )
     if isinstance(payload, SemanticGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_semantic(db, user, payload)
+            _prepare_from_semantic(
+                db, user, payload, enabled, external_graph, caption_suffix,
+                prefer_entity_ids,
+            )
         )
     elif isinstance(payload, TemplateGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_template(db, user, payload)
+            _prepare_from_template(db, user, payload, enabled)
         )
     else:
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_ir(db, user, payload)
+            _prepare_from_ir(db, user, payload, enabled)
         )
 
     report = validate_ir(ir)

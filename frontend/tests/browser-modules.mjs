@@ -16,8 +16,10 @@ export async function browserModule(entry) {
     const item = { code, imports: {} }
     files.set(filename, item)
     for (const match of code.matchAll(/require\("([^"]+)"\)/g)) {
-      if (!match[1].startsWith('.')) throw new Error(`Browser check cannot load ${match[1]}`)
-      const dependency = path.resolve(path.dirname(filename), match[1] + '.ts')
+      if (!match[1].startsWith('.') && !match[1].startsWith('@/')) throw new Error(`Browser check cannot load ${match[1]}`)
+      const dependency = match[1].startsWith('@/')
+        ? fileURLToPath(new URL('../src/' + match[1].slice(2) + '.ts', import.meta.url))
+        : path.resolve(path.dirname(filename), match[1] + '.ts')
       item.imports[match[1]] = dependency
       await visit(dependency)
     }

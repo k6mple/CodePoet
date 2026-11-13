@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "scope": "real-api-production-ui",
+  "checks": [
+    {
+      "name": "clone-review-publish-without-rewriting-old-version",
+      "oldVersionId": "tver-606e34cd53874b7ab27d2cd59d0dec19",
+      "newVersionId": "tver-601bacea3f80421cb1e23f7377e1d752"
+    },
+    {
+      "name": "static-save-reopen-reproduce",
+      "versionId": "wv-4faa7951f3d24b99bd785eaa3917245b",
+      "jobId": "job-d4d1a7b697e3462db44c5336f612eb1b",
+      "times": [
+        0
+      ],
+      "hashesVerified": true,
+      "pixelsExact": true
+    },
+    {
+      "name": "animated-save-reopen-reproduce",
+      "versionId": "wv-b0728f8236174344b777bea34585458d",
+      "jobId": "job-664ad6a82242490389cbd6f94e42f50f",
+      "times": [
+        0,
+        2000,
+        4000
+      ],
+      "hashesVerified": true,
+      "pixelsExact": true
+    },
+    {
+      "name": "CSS-session-restores-backend-and-generation",
+      "sessionId": "ses-8832d8e1aba549a896908888b071d475"
+    },
+    {
+      "name": "semantic-backend-switch-creates-new-immutable-generation"
+    },
+    {
+      "name": "late-real-generation-response-cannot-overwrite-new-backend"
+    },
+    {
+      "name": "IR-backend-switch-creates-new-generation"
+    }
+  ],
+  "pageErrors": []
+}
