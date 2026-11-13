@@ -10,8 +10,13 @@
 * 数组顺序（group 出现在子节点之后，验证不是深度优先）
 * 圆（64 段）/ 多边形 / 折线三种图元
 
-**负缩放构造不出来**：`Transform.scaleX/scaleY` 在 schema 上就是 `ge=0.1`，
-负值进不了 IR。用 `rotation=180` 表达翻转是等价效果，单列一组并在文档里说明。
+**负缩放构造不出来，而且旋转不能替代它**：`Transform.scaleX/scaleY` 在 schema
+上就是 `ge=0.1`，负值进不了 IR。`rotation=180` 是把**两个轴同时取反**
+（等价于 `scaleX=-1` 且 `scaleY=-1`），**不等于单轴负缩放**——后者会让图形
+沿一个方向镜像翻转，画序和绕向都不同。
+
+所以本契约**不支持负缩放**，fixture 里的 `rotation-180-as-flip` 只是旋转样例，
+不计入负缩放覆盖。要支持它得先改 schema，那是新契约。
 """
 
 from __future__ import annotations
@@ -150,7 +155,8 @@ CASES: list[dict] = [
     },
     {
         "id": "rotation-180-as-flip",
-        "note": "负缩放 schema 不允许（scaleX ge=0.1），用 180° 旋转表达翻转",
+        "note": "仅覆盖旋转 180°。**这不是负缩放**：旋转 180° 等价于双轴同时取反，"
+                "单轴负缩放（镜像翻转）本契约不支持，因为 schema 里 scaleX/scaleY 是 ge=0.1",
         "ir": ir([
             node("p1", "polygon",
                  geometry={"points": [[0, 0], [40, 0], [40, 10]]},

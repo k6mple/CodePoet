@@ -477,7 +477,7 @@
     },
     {
       "id": "rotation-180-as-flip",
-      "note": "负缩放 schema 不允许（scaleX ge=0.1），用 180° 旋转表达翻转",
+      "note": "仅覆盖旋转 180°。**这不是负缩放**：旋转 180° 等价于双轴同时取反，单轴负缩放（镜像翻转）本契约不支持，因为 schema 里 scaleX/scaleY 是 ge=0.1",
       "ir": {
         "schemaVersion": "1.0",
         "seed": 7,

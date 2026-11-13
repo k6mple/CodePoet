@@ -15,8 +15,10 @@
 重新生成期望值的方式见 `scripts/gen_sample_expected.mjs` 头部说明（需要 Node
 与 tsc，CI 里不跑，所以期望值是提交进仓库的）。
 
-**负缩放构造不出来**：`Transform.scaleX/scaleY` 的 schema 是 `ge=0.1`，
-负值进不了 IR。用 `rotation=180` 表达翻转是等价效果，fixture 里单列了一组。
+**负缩放构造不出来，旋转也不等价**：`Transform.scaleX/scaleY` 的 schema 是
+`ge=0.1`，负值进不了 IR。`rotation=180` 是双轴同时取反，**不是单轴负缩放**
+（镜像翻转的画序与绕向都不同）。本契约不支持负缩放；fixture 里那组旋转样例
+只覆盖旋转，不能算作负缩放覆盖。
 """
 
 from __future__ import annotations
