@@ -388,7 +388,7 @@ def build_version(row: VersionModel) -> TemplateVersion:
         parameterSchema=schema,
         bindings=bindings,
         constraints=constraints,
-        supportedBackends=["canvas2d"],
+        supportedBackends=_supported_backends(row.supported_backends_json),
         ontologyVersion=row.ontology_version,
         changeNote=row.change_note or "",
         submittedAt=_parse_dt_optional(row.submitted_at),
@@ -677,7 +677,10 @@ def create_template_version(
             [item.model_dump(mode="json") for item in bindings], ensure_ascii=False
         ),
         constraints_json=_dump_constraints(list(constraints)),
-        supported_backends_json='["canvas2d"]',
+        # 版本自己声明的支持集合；没声明就沿用 Canvas
+        supported_backends_json=json.dumps(
+            payload.supportedBackends or ["canvas2d"], ensure_ascii=False
+        ),
         fragment_source=None,
         ontology_version=ontology_version,
         change_note=change_note,
@@ -765,7 +768,7 @@ def update_template_version(
         else row.constraints_json
     )
     supported_backends_json = (
-        '["canvas2d"]'
+        json.dumps(payload.supportedBackends, ensure_ascii=False)
         if payload.supportedBackends is not None
         else row.supported_backends_json
     )

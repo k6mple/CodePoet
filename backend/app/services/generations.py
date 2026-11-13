@@ -45,6 +45,7 @@ from app.schemas.generation import (
 )
 from app.schemas.ir import DrawingIR
 from app.schemas.validation import Issue, ValidationReport
+from app.engine import capabilities
 from app.services import knowledge as knowledge_service
 from app.services import rules as rules_service
 
@@ -59,9 +60,6 @@ _WARNING_CODES = frozenset({"IR_OUT_OF_BOUNDS"})
 
 _PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
 _CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
-
-
-# ---- 工具 ----------------------------------------------------------------
 
 
 def compute_ir_hash(ir: DrawingIR) -> str:
@@ -171,12 +169,15 @@ def _can_preview_template(user: User, version: TemplateVersion) -> bool:
 
 
 def _prepare_from_template(
-    db: Session, user: User, payload: TemplateGeneration
+    db: Session, user: User, payload: TemplateGeneration, enabled: frozenset[str]
 ) -> tuple[DrawingIR, dict, str, Provenance, bool, int]:
     version = db.get(TemplateVersion, payload.templateVersionId)
-    # 无权预览与不存在返回同样的 404，避免用 ID 试探出草稿存在与否
+    # 无权预览与不存在返回同样的 404，避免用 ID 试探出草稿存在与否。
+    # 顺序很重要：授权先于能力，否则 422 会泄露「这个版本是存在的」。
     if version is None or not _can_preview_template(user, version):
         raise errors.not_found("模板版本不存在")
+
+    capabilities.require_enabled(payload.backend, enabled)
 
     supported = json.loads(version.supported_backends_json)
     if payload.backend not in supported:
@@ -223,7 +224,7 @@ def _prepare_from_template(
 
 
 def _prepare_from_semantic(
-    db: Session, user: User, payload: SemanticGeneration
+    db: Session, user: User, payload: SemanticGeneration, enabled: frozenset[str]
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     """语义生成：文字 + 实体 → 规则命中 → 图形决策 → IR。
 
@@ -242,6 +243,11 @@ def _prepare_from_semantic(
 
     synth = semantic_engine.synthesize(matched)
     ir = semantic_engine.build_ir(synth, seed=payload.seed, entity_ids=entity_ids)
+
+    # 语义生成不看 backend，先生成 IR 再验能力（细则 S0-A1 第 2 点）。
+    # 顺序不能反：规则命中失败该报 NO_SEMANTIC_MATCH，而不是先甩一个
+    # 「后端没启用」，让用户以为是后端问题。
+    capabilities.require_enabled(payload.backend, enabled)
 
     # 规则快照：记下"当时用的是第几版规则、内容是什么"。
     # 规则以后被改，旧作品的溯源仍然准确。
@@ -302,7 +308,7 @@ def _prepare_from_semantic(
 
 
 def _prepare_from_ir(
-    db: Session, user: User, payload: IRGeneration
+    db: Session, user: User, payload: IRGeneration, enabled: frozenset[str]
 ) -> tuple[DrawingIR, dict, None, Provenance, bool, int]:
     base = db.get(GenerationModel, payload.baseGenerationId)
     # 契约（接口文档 3.1）：base 可为「本人或当前公开版本可见」，新 generation
@@ -311,6 +317,9 @@ def _prepare_from_ir(
     # B 能读 A 的公开快照，却无法据此派生自己的。
     if base is None or not can_read(db, user, base):
         raise errors.not_found("基底生成快照不存在")
+
+    # 授权先于能力：无权访问一律 404，不能因为后端没启用就变成 422
+    capabilities.require_enabled(payload.backend, enabled)
 
     provenance = Provenance(
         kind="manual_edit",
@@ -337,20 +346,34 @@ def _split_issues(
 
 
 def create_generation(
-    db: Session, user: User, payload: GenerationCreate, request_id: str
+    db: Session,
+    user: User,
+    payload: GenerationCreate,
+    request_id: str,
+    *,
+    enabled_backends: frozenset[str] | None = None,
 ) -> GenerationSchema:
-    """创建一份不可变快照。任何一步不合法都不落库。"""
+    """创建一份不可变快照。任何一步不合法都不落库。
+
+    ``enabled_backends`` 由 API 层从 Settings 读出后传入；不传时退化成注册表
+    默认值（只有 Canvas），所以既有调用点与测试的行为不变。
+    """
+    enabled = (
+        enabled_backends
+        if enabled_backends is not None
+        else capabilities.enabled_backends()
+    )
     if isinstance(payload, SemanticGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_semantic(db, user, payload)
+            _prepare_from_semantic(db, user, payload, enabled)
         )
     elif isinstance(payload, TemplateGeneration):
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_template(db, user, payload)
+            _prepare_from_template(db, user, payload, enabled)
         )
     else:
         ir, params, template_version_id, provenance, unpublished, seed = (
-            _prepare_from_ir(db, user, payload)
+            _prepare_from_ir(db, user, payload, enabled)
         )
 
     report = validate_ir(ir)

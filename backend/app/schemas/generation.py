@@ -221,8 +221,9 @@ class TemplateGeneration(BaseModel):
     mode: Literal["template"]
     templateVersionId: NodeId
     params: dict[str, ParameterValue] = Field(default_factory=dict, max_length=16)
-    # 契约把输入侧 backend 写死 canvas2d，其他后端在能力层就拒绝
-    backend: Literal["canvas2d"]
+    # 输入侧接受契约里的四个后端；能不能跑由能力层判定（S0-A1）。
+    # 模板分支还要额外落在该版本的 supportedBackends 里，那是服务层的事。
+    backend: Backend
     seed: int = Field(default=42, ge=0, le=2_147_483_647)
 
 
@@ -249,7 +250,7 @@ class SemanticGeneration(BaseModel):
     mode: Literal["semantic"]
     input: SemanticInput
     params: dict[str, ParameterValue] = Field(default_factory=dict, max_length=16)
-    backend: Literal["canvas2d"]
+    backend: Backend
     seed: int = Field(default=42, ge=0, le=2_147_483_647)
 
 
@@ -262,7 +263,7 @@ class IRGeneration(BaseModel):
     # 手工修改必须挂在某个已有快照上，不能凭空造
     baseGenerationId: NodeId
     ir: DrawingIR
-    backend: Literal["canvas2d"]
+    backend: Backend
 
 
 GenerationCreate = Annotated[

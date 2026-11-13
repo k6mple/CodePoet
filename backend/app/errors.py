@@ -70,8 +70,12 @@ def revision_conflict(expected: int, actual: int) -> ApiError:
     )
 
 
-def validation_error(message: str, field_errors: list[dict[str, str]] | None = None) -> ApiError:
-    return ApiError(422, "VALIDATION_ERROR", message, field_errors)
+def validation_error(
+    message: str,
+    field_errors: list[dict[str, str]] | None = None,
+    details: Any = None,
+) -> ApiError:
+    return ApiError(422, "VALIDATION_ERROR", message, field_errors, details)
 
 
 def ir_invalid(message: str, details: Any = None) -> ApiError:
@@ -79,9 +83,13 @@ def ir_invalid(message: str, details: Any = None) -> ApiError:
     return ApiError(422, "IR_INVALID", message, details=details)
 
 
-def unsupported_capability(message: str) -> ApiError:
-    """请求的能力还没实现。契约要求明确拒绝，不许假装成功。"""
-    return ApiError(422, "UNSUPPORTED_CAPABILITY", message)
+def unsupported_capability(message: str, details: Any = None) -> ApiError:
+    """请求的能力还没实现或当前实例没启用。
+
+    契约要求 422 + ``details`` 里带上 ``backend`` / ``unsupportedProperties``，
+    前端据此决定是禁用入口还是提示换后端。绝不静默 fallback 到 Canvas。
+    """
+    return ApiError(422, "UNSUPPORTED_CAPABILITY", message, details=details)
 
 
 # ---- P1A 分类体系（标签 / 本体）------------------------------------------

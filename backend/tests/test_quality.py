@@ -138,7 +138,7 @@ class QualityTests(unittest.TestCase):
         return self.client.post(
             f"{API}/render-jobs",
             json={"generationId": gen_id, "backend": "canvas2d", "timesMs": times,
-                  "executionMode": "browser_upload", "rendererVersion": "canvas-1.0.0",
+                  "executionMode": "browser_upload", "rendererVersion": "codepoet-canvas-1.0.0",
                   "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1}},
             headers={"X-CSRF-Token": self.csrf},
         )

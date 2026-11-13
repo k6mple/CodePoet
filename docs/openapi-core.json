@@ -8455,7 +8455,7 @@
             "$ref": "#/components/schemas/DrawingIR"
           },
           "backend": {
-            "const": "canvas2d"
+            "enum": ["canvas2d", "css", "webgl", "turtle"]
           }
         },
         "required": [
@@ -10087,7 +10087,7 @@
             "pattern": "^[A-Za-z0-9_-]+$"
           },
           "backend": {
-            "const": "canvas2d"
+            "enum": ["canvas2d", "css", "webgl", "turtle"]
           },
           "timesMs": {
             "type": "array",
@@ -10923,7 +10923,7 @@
             "default": {}
           },
           "backend": {
-            "const": "canvas2d"
+            "enum": ["canvas2d", "css", "webgl", "turtle"]
           },
           "seed": {
             "type": "integer",
@@ -11603,7 +11603,7 @@
             "default": {}
           },
           "backend": {
-            "const": "canvas2d"
+            "enum": ["canvas2d", "css", "webgl", "turtle"]
           },
           "seed": {
             "type": "integer",
@@ -11837,10 +11837,10 @@
           "supportedBackends": {
             "type": "array",
             "items": {
-              "const": "canvas2d"
+              "enum": ["canvas2d", "css", "webgl", "turtle"]
             },
             "minItems": 1,
-            "maxItems": 1,
+            "maxItems": 4,
             "uniqueItems": true
           },
           "fragmentSource": {
@@ -12163,7 +12163,7 @@
               "supportedBackends": {
                 "type": "array",
                 "items": {
-                  "const": "canvas2d"
+                  "enum": ["canvas2d", "css", "webgl", "turtle"]
                 },
                 "minItems": 1,
                 "maxItems": 1,
@@ -12231,7 +12231,7 @@
               "supportedBackends": {
                 "type": "array",
                 "items": {
-                  "const": "canvas2d"
+                  "enum": ["canvas2d", "css", "webgl", "turtle"]
                 },
                 "minItems": 1,
                 "maxItems": 1,
@@ -12297,10 +12297,10 @@
           "supportedBackends": {
             "type": "array",
             "items": {
-              "const": "canvas2d"
+              "enum": ["canvas2d", "css", "webgl", "turtle"]
             },
             "minItems": 1,
-            "maxItems": 1,
+            "maxItems": 4,
             "uniqueItems": true
           },
           "fragmentSource": {

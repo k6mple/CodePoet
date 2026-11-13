@@ -53,6 +53,7 @@ from app.schemas.works import (
 )
 from app.services import audit
 from app.services import permissions
+from app.engine import capabilities
 from app.services import quality as quality_service
 from app.services import uploads
 from app.services.generations import build_generation_schema
@@ -544,11 +545,28 @@ def reserve_upload_slot(db: Session, owner_id: str) -> None:
 
 
 def create_render_job(
-    db: Session, user: User, payload: RenderCreate
+    db: Session,
+    user: User,
+    payload: RenderCreate,
+    *,
+    enabled_backends: frozenset[str] | None = None,
 ) -> RenderJobSchema:
     generation = _require_owned_generation(db, user, payload.generationId)
     if payload.backend != generation.backend:
         raise validation_error(f"快照的后端是 {generation.backend}，与请求的 {payload.backend} 不一致")
+
+    # 快照能生成不代表这个实例现在还能渲染它：启用集合是可以被运维调整的，
+    # 关掉 CSS 之后旧快照仍然读得到，但不该还能发起新的 CSS 渲染任务。
+    capabilities.require_enabled(
+        payload.backend,
+        enabled_backends
+        if enabled_backends is not None
+        else capabilities.enabled_backends(),
+    )
+
+    # 版本校验走注册表的统一入口，别在这里内联比较：内联版本会在
+    # 「渲染器尚未注册」时被 `if expected` 静默跳过，等于没校验（评审指出的）。
+    capabilities.require_renderer_version(payload.backend, payload.rendererVersion)
 
     # 采样时刻必须与 IR 对得上：静态图只取 [0]；动画的完整保存必须
     # 恰好是 [0, floor(duration/2), duration]（契约 7.1）。否则会存下一份
