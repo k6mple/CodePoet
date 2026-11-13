@@ -20,6 +20,7 @@ from app.models.users import AuthSession, User as UserModel
 from app.schemas.generation import Generation as GenerationSchema
 from app.schemas.generation import GenerationCreate
 from app.schemas.subgraph import SubgraphEdit, SubgraphGeneration
+from app.engine import capabilities
 from app.services import generations
 from app.services import subgraph as subgraph_service
 
@@ -48,7 +49,14 @@ def create_generation(
     # 直接读它，不要在这里另造一个 —— 否则响应体的 requestId
     # 和响应头 X-Request-Id 会对不上，排查时无法关联。
     request_id = getattr(request.state, "request_id", "req-unknown")
-    return generations.create_generation(db, user, payload, request_id)
+    # 能力集合从实例配置读，服务层不自己猜环境
+    return generations.create_generation(
+        db,
+        user,
+        payload,
+        request_id,
+        enabled_backends=capabilities.enabled_backends(request.app.state.settings),
+    )
 
 
 @router.get(

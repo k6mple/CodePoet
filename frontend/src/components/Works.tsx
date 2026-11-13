@@ -7,6 +7,7 @@ import type { FavoriteResult, Page, Work, WorkDetail, WorkVersion } from '@/type
 import { formatDateTime, paddedIndex, workStatusLabel } from '@/utils/format'
 import { reviewDecisionLabel } from '@/utils/template'
 import TimelinePlayer from './TimelinePlayer'
+import { historicalBackend, backendLabel, reproductionUnavailable } from '@/renderers/backend'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { GenerationEvidence, QualityEvidence } from './GenerationEvidence'
 import { useSession } from './SessionProvider'
@@ -430,7 +431,7 @@ export function WorkViewer({ id }: { id: string }) {
                   <dd>{reviewDecisionLabel(data.workVersion.lastReview.decision)}：{data.workVersion.lastReview.reason || '未填写理由'}</dd>
                 </div>}
               </dl>
-              <p className="work-label__note">服务器保存的 PNG 来自浏览器 Canvas 的真实绘制与上传；服务端验证了帧、尺寸和生成记录的一致性。</p>
+              <p className="work-label__note">服务器保存的 PNG 来自 {backendLabel(historicalBackend(data))}；服务端验证了帧、尺寸和生成记录的一致性。</p>
               {user && currentWork?.id === currentWorkId && currentWork && <button type="button"
                 className="button button--secondary button--small" aria-pressed={currentWork.isFavorite}
                 disabled={favoriteBusy} onClick={() => void toggleFavorite()}>
@@ -455,7 +456,9 @@ export function WorkViewer({ id }: { id: string }) {
               <p>此预览由当前浏览器按保存的 IR 重新绘制，可播放和定位采样时刻；不是服务器保存的 PNG。</p>
             </header>
             <div className="ir-preview__frame">
-              <TimelinePlayer ir={data.generation.ir} linkEntities entities={data.generation.provenance?.matchedEntities} />
+              {reproductionUnavailable(data)
+                ? <InlineNotice title="历史渲染器不可用">{reproductionUnavailable(data)}</InlineNotice>
+                : <TimelinePlayer ir={data.generation.ir} backend={historicalBackend(data)} linkEntities entities={data.generation.provenance?.matchedEntities} />}
             </div>
           </section>
 

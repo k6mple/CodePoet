@@ -36,6 +36,7 @@ from app.schemas.reproduce import Comparison
 from app.schemas.works import RenderCreate, RenderJob
 from app.services import reproduce as reproduce_service
 from app.services import uploads
+from app.engine import capabilities
 from app.services import works as works_service
 from app.settings import Settings
 
@@ -59,11 +60,18 @@ def _settings(request: Request) -> Settings:
 )
 def create_render_job(
     payload: RenderCreate,
+    request: Request,
     db: Session = Depends(get_db),
     user: UserModel = Depends(require_user),
     _csrf: object = Depends(require_csrf),
 ) -> RenderJob:
-    return works_service.create_render_job(db, user, payload)
+    # 启用集合来自实例配置：关掉某个后端之后，旧快照仍可读，但不能发起新的渲染
+    return works_service.create_render_job(
+        db,
+        user,
+        payload,
+        enabled_backends=capabilities.enabled_backends(request.app.state.settings),
+    )
 
 
 @router.get("/render-jobs/{job_id}", response_model=RenderJob, summary="任务状态与帧清单")

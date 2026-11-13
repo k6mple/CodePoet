@@ -8,8 +8,12 @@ import type { KnowledgeEntity, Page, SearchQuery, Template } from '@/types/core'
 import { entityStatusLabel, knowledgeTypeLabel, symbolLabel } from '@/utils/format'
 import { parseIdList, SYMBOL_OPTIONS } from '@/utils/template'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
+import { useCapabilities } from '@/hooks/useCapabilities'
+import { backendLabel } from '@/renderers/backend'
+import { hasBrowserRenderer } from '@/renderers/registry'
 
 export default function SearchView({ initial }: { initial: SearchQuery }) {
+  const capabilities = useCapabilities()
   const router = useRouter()
   const [q, setQ] = useState(initial.q)
   const [entityIdsText, setEntityIdsText] = useState(initial.entityIds.join(', '))
@@ -46,7 +50,7 @@ export default function SearchView({ initial }: { initial: SearchQuery }) {
           for (const symbol of initial.symbols) params.append('symbols', symbol)
           const data = await request<Page<Template>>(`/templates?${params.toString()}`, { signal: controller.signal })
           if (controller.signal.aborted) return
-          setTemplates(data.items.filter((item) => item.publishedVersionId && item.supportedBackends.includes('canvas2d')))
+          setTemplates(data.items.filter((item) => item.publishedVersionId && (!initial.backend || item.supportedBackends.includes(initial.backend))))
           setTotal(data.total)
         } else {
           const params = new URLSearchParams({ page: String(initial.page), pageSize: '20' })
@@ -132,7 +136,8 @@ export default function SearchView({ initial }: { initial: SearchQuery }) {
         <label className="field">
           <span>渲染后端</span>
           <select value={backend} onChange={(event) => setBackend(event.target.value)}>
-            <option value="canvas2d">Canvas 2D（当前可用）</option>
+            {capabilities?.backends.filter(item => item.available && hasBrowserRenderer(item.backend)).map(item =>
+              <option key={item.backend} value={item.backend}>{backendLabel(item.backend)}</option>)}
             <option value="">全部后端</option>
           </select>
         </label>
@@ -151,7 +156,7 @@ export default function SearchView({ initial }: { initial: SearchQuery }) {
         <button type="submit" className="button button--primary button--small">检索</button>
         <button type="button" className="button button--secondary button--small" onClick={clearFilters}>清除条件</button>
       </div>
-      <p className="field-note">同一维度内多个值按 OR 组合，跨维度按 AND 组合。符号和后端只作用于模板；知识检索使用关键词、实体、标签和时间主题。当前只启用 Canvas 2D。</p>
+      <p className="field-note">同一维度内多个值按 OR 组合，跨维度按 AND 组合。符号和后端只作用于模板；知识检索使用关键词、实体、标签和时间主题。</p>
     </form>
 
     {error
@@ -187,7 +192,7 @@ export default function SearchView({ initial }: { initial: SearchQuery }) {
                         ? template.metadata.symbols.map((symbol) => <span className="tag-chip" key={symbol}>{symbolLabel(symbol)}</span>)
                         : <span className="muted-text">未标注符号</span>}
                       {template.metadata.timeTheme && <span className="tag-chip">{template.metadata.timeTheme}</span>}
-                      <span className="mono">Canvas 2D</span>
+                      <span className="mono">{template.supportedBackends.map(backendLabel).join(' / ')}</span>
                     </div>
                   </div>
                   <div className="manager-row__side">

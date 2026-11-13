@@ -9,14 +9,15 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from app.settings import Settings
 
 from app.schemas.generation import (
     Capabilities,
     Capability,
     CapabilityFeatureFlags,
 )
-from app.services.generations import ENGINE_VERSION
+from app.engine import capabilities
 
 router = APIRouter(tags=["引擎"])
 
@@ -25,9 +26,10 @@ _ANIMATION_PROPS = ["x", "y", "rotation", "opacity"]
 _NODE_TYPES = ["group", "circle", "polygon", "polyline"]
 
 _UNAVAILABLE_REASONS = {
-    "turtle": "基础版只实现 Canvas 2D，Turtle 后端未实现",
+    "canvas2d": "当前实例未启用 Canvas 2D",
+    "turtle": "Turtle 后端尚未实现",
     "webgl": "基础版不做 GLSL 与 WebGL，未实现",
-    "css": "基础版不做 CSS 渲染，未实现",
+    "css": "当前实例未启用 CSS",
 }
 
 
@@ -48,27 +50,28 @@ def _unsupported(backend: str) -> Capability:
     )
 
 
-def build_capabilities() -> Capabilities:
+def build_capabilities(settings: Settings | None = None) -> Capabilities:
+    enabled = capabilities.enabled_backends(settings)
+
+    def entry(backend: str) -> Capability:
+        version = capabilities.renderer_version(backend)
+        if backend not in enabled or version is None:
+            item = _unsupported(backend)
+            if version is not None:
+                item.rendererVersion = version
+                item.unavailableReason = "当前实例未启用此后端"
+            return item
+        return Capability(
+            backend=backend, available=True, unavailableReason=None,
+            rendererVersion=version, nodeTypes=_NODE_TYPES, shaderRefs=["flat"],
+            animationProperties=_ANIMATION_PROPS, supportsContinuousPlayback=True,
+            maxNodes=200, maxFrames=3, executionModes=["browser_upload"],
+        )
+
     return Capabilities(
         schemaVersion="1.0",
         backends=[
-            Capability(
-                backend="canvas2d",
-                available=True,
-                unavailableReason=None,
-                rendererVersion=ENGINE_VERSION,
-                nodeTypes=_NODE_TYPES,  # type: ignore[arg-type]
-                shaderRefs=["flat"],
-                animationProperties=_ANIMATION_PROPS,  # type: ignore[arg-type]
-                supportsContinuousPlayback=True,
-                maxNodes=200,
-                # 帧采样属 P1B，这里给演示够用的保守值，不夸大成 12
-                maxFrames=6,
-                executionModes=["browser_upload"],
-            ),
-            _unsupported("turtle"),
-            _unsupported("webgl"),
-            _unsupported("css"),
+            entry("canvas2d"), entry("turtle"), entry("webgl"), entry("css"),
         ],
         maxDurationMs=5000,
         maxCanvasSize=800,
@@ -97,5 +100,5 @@ def build_capabilities() -> Capabilities:
     summary="引擎能力与运行可用性",
     description="返回 profile、四个后端的可用性与限制、以及功能开关。公开可读。",
 )
-def read_capabilities() -> Capabilities:
-    return build_capabilities()
+def read_capabilities(request: Request) -> Capabilities:
+    return build_capabilities(request.app.state.settings)

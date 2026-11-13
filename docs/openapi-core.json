@@ -3,7 +3,7 @@
   "info": {
     "title": "CodePoet Core Demo API",
     "version": "1.1.0",
-    "description": "当前基础演示版必做契约，仅P0/P1-A/P1-B。Canvas/browser_upload，其他能力真实关闭。对象字段与完整契约相同，当前配置施加更小上限。"
+    "description": "Core demo 与已实现 S0/R1 契约。默认 Canvas/browser_upload；隔离部署可配置 CSS，WebGL/Turtle 仍关闭。对象字段沿用完整设计，运行时限制以 capabilities 为准。"
   },
   "servers": [
     {
@@ -4025,7 +4025,7 @@
                   0
                 ],
                 "executionMode": "browser_upload",
-                "rendererVersion": "canvas-1.0.0",
+                "rendererVersion": "codepoet-canvas-1.0.0",
                 "clientEnvironment": {
                   "userAgent": "CodePoet-demo-browser",
                   "deviceScaleFactor": 1
@@ -5744,7 +5744,7 @@
                 "$ref": "#/components/schemas/ReproduceRequest"
               },
               "example": {
-                "rendererVersion": "canvas-1.0.0",
+                "rendererVersion": "codepoet-canvas-1.0.0",
                 "clientEnvironment": {
                   "userAgent": "CodePoet-demo-browser",
                   "deviceScaleFactor": 1
@@ -8253,7 +8253,7 @@
           },
           "backend": {
             "$ref": "#/components/schemas/Backend",
-            "description": "创建时用于能力校验的首选后端；其他兼容后端可渲染同一 IR，保存作品以后以 renderJob.backend 为准。"
+            "description": "生成记录使用的不可变后端；新任务 backend 必须与之相同，切后端创建新 generation。"
           },
           "ir": {
             "$ref": "#/components/schemas/DrawingIR"
@@ -8455,7 +8455,7 @@
             "$ref": "#/components/schemas/DrawingIR"
           },
           "backend": {
-            "const": "canvas2d"
+            "$ref": "#/components/schemas/Backend"
           }
         },
         "required": [
@@ -10087,7 +10087,13 @@
             "pattern": "^[A-Za-z0-9_-]+$"
           },
           "backend": {
-            "const": "canvas2d"
+            "type": "string",
+            "enum": [
+              "canvas2d",
+              "css",
+              "webgl"
+            ],
+            "description": "必须等于 generation.backend，实例能力与可执行版本另行校验；WebGL 尚未注册。"
           },
           "timesMs": {
             "type": "array",
@@ -10105,7 +10111,8 @@
           "rendererVersion": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 80
+            "maxLength": 80,
+            "description": "浏览器任务必须匹配可执行适配器版本：Canvas codepoet-canvas-1.0.0 / CSS codepoet-css-1.0.0。拒绝未知标签，不回写历史任务。"
           },
           "clientEnvironment": {
             "$ref": "#/components/schemas/ClientEnvironment"
@@ -10322,7 +10329,8 @@
         "required": [
           "rendererVersion",
           "clientEnvironment"
-        ]
+        ],
+        "description": "读取原 generation/backend/times，原版本必须可执行；未知历史渲染版本返回 422 UNSUPPORTED_CAPABILITY，保留原 PNG。server 复现仍为 R3 待实施。"
       },
       "RestoreRequest": {
         "type": "object",
@@ -10923,7 +10931,7 @@
             "default": {}
           },
           "backend": {
-            "const": "canvas2d"
+            "$ref": "#/components/schemas/Backend"
           },
           "seed": {
             "type": "integer",
@@ -11495,7 +11503,8 @@
               "$ref": "#/components/schemas/Backend"
             },
             "maxItems": 4,
-            "uniqueItems": true
+            "uniqueItems": true,
+            "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
           },
           "thumbnailArtifactId": {
             "anyOf": [
@@ -11603,7 +11612,7 @@
             "default": {}
           },
           "backend": {
-            "const": "canvas2d"
+            "$ref": "#/components/schemas/Backend"
           },
           "seed": {
             "type": "integer",
@@ -11837,11 +11846,12 @@
           "supportedBackends": {
             "type": "array",
             "items": {
-              "const": "canvas2d"
+              "$ref": "#/components/schemas/Backend"
             },
             "minItems": 1,
-            "maxItems": 1,
-            "uniqueItems": true
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
           },
           "fragmentSource": {
             "const": null
@@ -12163,11 +12173,12 @@
               "supportedBackends": {
                 "type": "array",
                 "items": {
-                  "const": "canvas2d"
+                  "$ref": "#/components/schemas/Backend"
                 },
                 "minItems": 1,
-                "maxItems": 1,
-                "uniqueItems": true
+                "maxItems": 4,
+                "uniqueItems": true,
+                "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
               },
               "fragmentSource": {
                 "const": null
@@ -12231,11 +12242,12 @@
               "supportedBackends": {
                 "type": "array",
                 "items": {
-                  "const": "canvas2d"
+                  "$ref": "#/components/schemas/Backend"
                 },
                 "minItems": 1,
-                "maxItems": 1,
-                "uniqueItems": true
+                "maxItems": 4,
+                "uniqueItems": true,
+                "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
               },
               "fragmentSource": {
                 "const": null
@@ -12297,11 +12309,12 @@
           "supportedBackends": {
             "type": "array",
             "items": {
-              "const": "canvas2d"
+              "$ref": "#/components/schemas/Backend"
             },
             "minItems": 1,
-            "maxItems": 1,
-            "uniqueItems": true
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "新建/修改只声明已实现后端（canvas2d/css）；生成时仍检查实例启用集合，发布版本不可原地修改。"
           },
           "fragmentSource": {
             "const": null

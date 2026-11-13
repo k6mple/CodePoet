@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-13",
+  "branch": "feat/s0-b2-css-renderer-20261113",
+  "baseCommit": "0dc1e54",
+  "commitState": "working-tree-at-validation",
+  "deployment": "isolated-local-production-build",
+  "defaultBackends": [
+    "canvas2d"
+  ],
+  "candidateBackends": [
+    "canvas2d",
+    "css"
+  ],
+  "checks": {
+    "canvas": {
+      "status": "passed",
+      "count": 12
+    },
+    "cssBrowser": {
+      "status": "passed",
+      "count": 11
+    },
+    "cssAPI": {
+      "status": "passed",
+      "count": 7
+    },
+    "g0": {
+      "status": "passed",
+      "count": 20
+    },
+    "p1": {
+      "status": "passed-selected-paths",
+      "count": 13
+    },
+    "templateReview": {
+      "status": "passed",
+      "count": 12
+    },
+    "backend": {
+      "status": "OK",
+      "tests": 334,
+      "exitCode": 0,
+      "warning": "Existing temporary SQLite finalizers can report WinError32 during cleanup."
+    },
+    "build": {
+      "status": "passed",
+      "typescript": true
+    },
+    "controls": {
+      "status": "passed",
+      "count": 17
+    }
+  }
+}

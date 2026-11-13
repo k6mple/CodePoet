@@ -217,7 +217,9 @@ def build_template(
         workingMetadata=working,
         publishedVersionId=row.published_version_id,
         latestVersionId=row.latest_version_id,
-        supportedBackends=_supported_backends(row.supported_backends_json),
+        supportedBackends=_supported_backends(
+            published.supported_backends_json if published is not None else row.supported_backends_json
+        ),
         thumbnailArtifactId=row.thumbnail_artifact_id,
         permissions=_permissions_for_template(is_owner=is_owner, is_admin=is_admin),
     )
@@ -388,7 +390,7 @@ def build_version(row: VersionModel) -> TemplateVersion:
         parameterSchema=schema,
         bindings=bindings,
         constraints=constraints,
-        supportedBackends=["canvas2d"],
+        supportedBackends=_supported_backends(row.supported_backends_json),
         ontologyVersion=row.ontology_version,
         changeNote=row.change_note or "",
         submittedAt=_parse_dt_optional(row.submitted_at),
@@ -585,6 +587,17 @@ def _dump_constraints(items: list) -> str:
     )
 
 
+def _validate_backend_declarations(backends: list[Backend]) -> None:
+    from app.engine import capabilities
+    if len(set(backends)) != len(backends):
+        raise errors.validation_error('supportedBackends 不能重复')
+    missing = [backend for backend in backends if capabilities.renderer_version(backend) is None]
+    if missing:
+        raise errors.unsupported_capability('模板声明了尚未实现的后端', details={
+            'backend': missing[0], 'unsupportedProperties': missing,
+        })
+
+
 def create_template_version(
     db: Session, actor: User, template_id: str, payload: VersionCreate
 ) -> TemplateVersion:
@@ -663,6 +676,8 @@ def create_template_version(
             ],
         )
 
+    supported = payload.supportedBackends if payload.supportedBackends is not None else source.supportedBackends
+    _validate_backend_declarations(supported)
     now = _now_iso()
     version = VersionModel(
         id=f"tver-{uuid4().hex}",
@@ -677,7 +692,10 @@ def create_template_version(
             [item.model_dump(mode="json") for item in bindings], ensure_ascii=False
         ),
         constraints_json=_dump_constraints(list(constraints)),
-        supported_backends_json='["canvas2d"]',
+        # 显式声明优先，克隆未覆盖时保留来源版本的支持集合。
+        supported_backends_json=json.dumps(
+            supported, ensure_ascii=False
+        ),
         fragment_source=None,
         ontology_version=ontology_version,
         change_note=change_note,
@@ -764,8 +782,10 @@ def update_template_version(
         if payload.constraints is not None
         else row.constraints_json
     )
+    if payload.supportedBackends is not None:
+        _validate_backend_declarations(payload.supportedBackends)
     supported_backends_json = (
-        '["canvas2d"]'
+        json.dumps(payload.supportedBackends, ensure_ascii=False)
         if payload.supportedBackends is not None
         else row.supported_backends_json
     )

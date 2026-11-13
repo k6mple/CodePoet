@@ -9,6 +9,9 @@ import { SYMBOL_OPTIONS } from '@/utils/template'
 import CanvasPreview from './CanvasPreview'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
+import { useCapabilities } from '@/hooks/useCapabilities'
+import { backendLabel } from '@/renderers/backend'
+import { hasBrowserRenderer } from '@/renderers/registry'
 
 const PAGE_SIZE = 12
 
@@ -44,6 +47,8 @@ function TemplatePlate({ template }: { template: Template }) {
 }
 
 export function TemplateLibrary() {
+  const capabilities = useCapabilities()
+  const [backend, setBackend] = useState('')
   const [templates, setTemplates] = useState<Template[] | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -62,14 +67,15 @@ export function TemplateLibrary() {
     setLoading(true)
     setError('')
     setTemplates(null)
-    const params = new URLSearchParams({ backend: 'canvas2d', page: String(page), pageSize: String(PAGE_SIZE) })
+    const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) })
+    if (backend) params.set('backend', backend)
     if (query) params.set('q', query)
     if (timeTheme) params.set('timeTheme', timeTheme)
     for (const symbol of symbols) params.append('symbols', symbol)
     request<Page<Template>>(`/templates?${params.toString()}`, { signal: controller.signal })
       .then((data) => {
         if (controller.signal.aborted) return
-        setTemplates(data.items.filter((item) => item.publishedVersionId && item.supportedBackends.includes('canvas2d')))
+        setTemplates(data.items.filter((item) => item.publishedVersionId && (!backend || item.supportedBackends.includes(backend))))
         setTotal(data.total)
       })
       .catch((cause) => {
@@ -79,7 +85,7 @@ export function TemplateLibrary() {
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [page, query, timeTheme, symbolKey, attempt])
+  }, [page, query, timeTheme, symbolKey, attempt, backend])
 
   function toggleSymbol(symbol: string) {
     setSymbols((old) => old.includes(symbol) ? old.filter((item) => item !== symbol) : [...old, symbol])
@@ -111,6 +117,11 @@ export function TemplateLibrary() {
           <span>时间主题</span>
           <input value={timeThemeInput} placeholder="可选" maxLength={40} onChange={(event) => setTimeThemeInput(event.target.value)} />
         </label>
+        <label className="field">渲染后端<select value={backend} onChange={event => { setBackend(event.target.value); setPage(1) }}>
+          <option value="">全部后端</option>
+          {capabilities?.backends.filter(item => item.available && hasBrowserRenderer(item.backend)).map(item =>
+            <option key={item.backend} value={item.backend}>{backendLabel(item.backend)}</option>)}
+        </select></label>
         <button type="submit" className="button button--secondary button--small">搜索</button>
       </form>
       <button type="button" className="button button--secondary button--small" disabled={loading} onClick={() => setAttempt((value) => value + 1)}>刷新</button>
@@ -188,6 +199,7 @@ function parameterSummary(parameter: Parameter) {
 }
 
 export function TemplateViewer({ id }: { id: string }) {
+  const [previewBackend, setPreviewBackend] = useState('')
   const { user } = useSession()
   const [template, setTemplate] = useState<Template | null>(null)
   const [version, setVersion] = useState<TemplateVersion | null>(null)
@@ -204,6 +216,7 @@ export function TemplateViewer({ id }: { id: string }) {
     setError('')
     setTemplate(null)
     setVersion(null)
+    setPreviewBackend('')
     async function load() {
       try {
         const detail = await request<Template>(`/templates/${encodeURIComponent(id)}`, { signal: controller.signal })
@@ -268,7 +281,7 @@ export function TemplateViewer({ id }: { id: string }) {
             : <div className="template-detail-layout">
               <div className="template-stage">
                 <div className="template-preview">
-                  <CanvasPreview ir={version.irTemplate} timeMs={version.irTemplate.durationMs} />
+                  <CanvasPreview ir={version.irTemplate} backend={previewBackend || version.supportedBackends[0]} timeMs={version.irTemplate.durationMs} />
                 </div>
                 <p className="plate-caption">模板原始 IR 预览 · 未应用参数与绑定 · {version.irTemplate.viewport.width} × {version.irTemplate.viewport.height}</p>
               </div>
@@ -282,7 +295,10 @@ export function TemplateViewer({ id }: { id: string }) {
                   <div><dt>符号</dt><dd>{publishedMetadata?.symbols?.map(symbolLabel).join(' · ') || '—'}</dd></div>
                   <div><dt>时间主题</dt><dd>{publishedMetadata?.timeTheme || '—'}</dd></div>
                 </dl>
-                <Link className="button button--primary template-use" href={`/?template=${encodeURIComponent(template.id)}`}>使用此模板创作</Link>
+                <label className="field">模板预览后端<select value={previewBackend || version.supportedBackends[0]} onChange={event => setPreviewBackend(event.target.value)}>
+                  {version.supportedBackends.map(backend => <option key={backend} value={backend} disabled={!hasBrowserRenderer(backend)}>{backendLabel(backend)}</option>)}
+                </select></label>
+                <Link className="button button--primary template-use" href={`/?template=${encodeURIComponent(template.id)}&backend=${encodeURIComponent(previewBackend || version.supportedBackends[0])}`}>使用此模板创作</Link>
                 {canManage && <Link className="button button--secondary button--small" href={`/manage/templates/${encodeURIComponent(template.id)}`}>进入模板管理</Link>}
               </aside>
             </div>}
