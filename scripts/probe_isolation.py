@@ -11,8 +11,8 @@
 
 所以这一版给每一组都配**同负载无约束对照组**，并读取 **Job 完成端口通知**：
 
-1. **对照组**：同样的负载、不挂任何限额。它证明「这个负载本身不会自己提前退出」。
-   有了这个前提，实验组的「提前 + 非零」才只能归因于限额。
+1. **对照组**：同样的负载、不挂任何限额，用来排除「这个负载自己就会提前退出」。
+   实验组与对照组的**负载时长完全一致**，比时长才有意义。
 2. **Job 通知**：内核会明确告诉你进程是 NORMAL_EXIT 还是 ABNORMAL_EXIT，
    还是触发了 PROCESS_MEMORY_LIMIT / END_OF_PROCESS_TIME。这比猜退出码可靠。
 3. **进度输出**：内存负载每分配一块就打印序号。对照组跑到 N 块，实验组只跑到
@@ -414,8 +414,10 @@ def run_memory(chunks: int, limit_bytes: int | None, label: str) -> dict:
 def main() -> int:
     note(f"# 探针环境：Python {sys.version.split()[0]}｜pid {os.getpid()}")
     note("")
-    note("判据说明：每一组都先跑**同负载无约束对照组**。对照组若正常完成，就证明")
-    note("「这个负载本身不会自己提前退出」；此时实验组的提前非零退出只能归因于限额。")
+    note("判据说明：**判定只认内核 Job 通知**（PROCESS_MEMORY_LIMIT / END_OF_PROCESS_TIME）。")
+    note("「提前退出 + 耗时短」这类行为证据只作旁证——普通异常退出、外部终止同样符合，")
+    note("拿它判定就会把「程序自己崩了」当成「限额生效」。取不到通知时标「未能判定」。")
+    note("每一组另配同负载无约束对照组，负载时长与实验组完全一致。")
     note("")
 
     problems: list[str] = []
@@ -433,34 +435,42 @@ def main() -> int:
     #   a) 内核明确发了 PROCESS_MEMORY_LIMIT 通知；
     #   b) 实验组没跑完、分配块数少于对照组、且比对照组早退。
     # 只靠「非零 + 短」不算数——那正是评审指出的误判来源。
-    memory_killed = control_ok and (
-        has_mem_evidence
-        or (
-            not limit["finished"]
-            and limit["progressed"] < control["progressed"]
-            and limit["cost"] < control["cost"]
-        )
+    # 行为像熔断**不能**当成熔断：普通异常退出、外部终止同样是「提前 + 分配到一半」。
+    # 判定只认一种证据——**内核明确发了 PROCESS_MEMORY_LIMIT 通知**。
+    # 行为证据只写进报告做旁证，不参与判定；拿不到通知就标「未能判定」。
+    memory_killed = control_ok and has_mem_evidence
+    memory_looks_like_kill = (
+        not limit["finished"]
+        and limit["progressed"] < control["progressed"]
+        and limit["cost"] < control["cost"]
     )
     note(
         f"  判定：对照组{'跑完' if control_ok else '未跑完（对照无效）'}；"
         f"实验组分配 {limit['progressed']}/{control['progressed']} 块"
         f"（{limit['progressed'] / max(control['progressed'], 1):.0%}）"
     )
-    note(
-        f"  → {'资源熔断生效' if memory_killed else '未能判定'}"
-        f"{'（并有 PROCESS_MEMORY_LIMIT 通知佐证）' if has_mem_evidence else ''}"
-    )
-    if not memory_killed:
+    if memory_killed:
+        note("  → 资源熔断生效（依据：内核 PROCESS_MEMORY_LIMIT 通知）")
+    elif memory_looks_like_kill:
+        note(
+            "  → **未能判定**：行为上像被限额拦住，但没收到内核通知，"
+            "不排除普通异常退出。不用行为反推原因。"
+        )
+        problems.append("内存限额：无内核通知，未能判定")
+    else:
+        note("  → 未生效（对照组跑完、实验组也没被拦住）")
         problems.append("内存限额判据不成立")
 
     # ---- 2. CPU：对照组 vs 限额组 ----
     note("")
-    note("## 2. CPU 时间上限（负载 3s 忙循环，限额 0.5s CPU）")
-    control_cpu = spawn(BUSY_LOAD % 3)
+    note("## 2. CPU 时间上限（对照与实验同一份 12s 忙循环，限额 0.5s CPU）")
+    # 对照组必须用**同样时长**的负载：3s 对照 vs 12s 实验时，「实验比对照早结束」
+    # 本身不说明任何问题——负载长度不同，比时长没有意义。
+    control_cpu = spawn(BUSY_LOAD % 12)
     start = time.perf_counter()
     control_cpu.wait(timeout=30)
     control_cost = time.perf_counter() - start
-    note(f"  对照（无约束）：退出码 {control_cpu.returncode}／耗时 {control_cost:.2f}s（应正常跑完 3s）")
+    note(f"  对照（无约束）：退出码 {control_cpu.returncode}／耗时 {control_cost:.2f}s（应正常跑完 12s）")
     note("")
     note("  —— 实验组 ——")
 
@@ -493,18 +503,24 @@ def main() -> int:
     # 同样两条独立证据，都要求对照组有效（对照组 3s 负载正常完成）：
     #   a) 内核发了 END_OF_PROCESS_TIME；
     #   b) 没被我们超时杀掉，且耗时远小于负载自述的 12s。
-    cpu_killed = control_cpu.returncode == 0 and (
-        cpu_time_notice or (not timed_out and cpu_cost < 10)
-    )
+    # 同样只认内核通知。「没被超时杀掉 + 耗时短」在普通异常退出下（0.1s 崩溃）
+    # 同样成立，而且旧判据连退出码都没看——这是评审实测出来的漏洞。
+    cpu_killed = control_cpu.returncode == 0 and cpu_time_notice
+    cpu_looks_like_kill = not timed_out and cpu_cost < control_cost - 2
     note(
-        f"  判定：对照组 {'正常完成 3s 负载' if control_cpu.returncode == 0 else '异常'}"
+        f"  判定：对照组 {'正常完成 12s 负载' if control_cpu.returncode == 0 else '异常'}"
         f"；实验组 {cpu_cost:.2f}s 退出，负载本应 12s"
     )
-    note(
-        f"  → {'CPU 熔断生效' if cpu_killed else '未能判定'}"
-        f"{'（并有 END_OF_PROCESS_TIME 通知佐证）' if any('PROCESS_TIME' in m for m in cpu_hits) else ''}"
-    )
-    if not cpu_killed:
+    if cpu_killed:
+        note("  → CPU 熔断生效（依据：内核 END_OF_PROCESS_TIME 通知）")
+    elif cpu_looks_like_kill:
+        note(
+            "  → **未能判定**：比对照早结束，但没收到内核通知，"
+            f"退出码 {proc.returncode} 也可能是自身崩溃。不用行为反推原因。"
+        )
+        problems.append("CPU 限额：无内核通知，未能判定")
+    else:
+        note("  → 未生效")
         problems.append("CPU 限额判据不成立")
 
     # ---- 3. 墙钟超时：只 kill 父进程 → 孙进程残留 ----
@@ -592,12 +608,14 @@ def main() -> int:
     note("")
     note("| | 上一版 | 本版 |")
     note("| --- | --- | --- |")
-    note("| 内存/CPU 熔断 | 只看「非零 + 耗时短」 | 同负载无约束对照组 + 进度块数 + Job 通知 |")
+    note("| 内存/CPU 熔断 | 只看「非零 + 耗时短」 | **只认内核通知**；行为证据仅作旁证 |")
     note("| 退出原因 | 由退出码反推 | 读 Job 完成端口消息（LIMIT / ABNORMAL_EXIT 可区分） |")
     note("| 进程树回收 | 只验证「kill 会残留」 | 补 `TerminateJobObject` + 活跃进程数归零 |")
     note("")
-    note("上一版的误判路径已被对照组堵住：普通异常退出（退出码 1、0.24s）会在")
-    note("**对照组**里表现为「该负载根本不这么跑」，因此不会被当成熔断。")
+    note("判据只认内核通知，所以「普通异常退出 / 外部终止」不可能被判成熔断——")
+    note("它们拿不到 PROCESS_MEMORY_LIMIT 或 END_OF_PROCESS_TIME，只会落到「未能判定」。")
+    note("代价是：某些环境取不到 Job 通知时，只能诚实地说「没能判定」，不拿行为猜结论。")
+    note("这个代价是刻意的。")
 
     OUT.joinpath("report.md").write_text("\n".join(report), encoding="utf-8")
     OUT.joinpath("result.json").write_text(
