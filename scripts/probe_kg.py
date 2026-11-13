@@ -59,23 +59,64 @@ def entity(qid: str) -> dict:
     return data["entities"][qid]
 
 
-def relations(qid: str, limit: int = 25) -> list[dict]:
-    """一跳关系：谁指向我 / 我指向谁，只要实体类目标。"""
+# 固定属性白名单：只取和「视觉决策」有关的事实，不做全量抓取。
+# 105 个 claims 里绝大部分与画面无关，有界读取也是细则的硬要求。
+ATTRIBUTES = {
+    "P225": "学名",
+    "P105": "分类单元",
+    "P171": "亲本",
+    "P31": "实例于",
+    "P279": "子类",
+    "P1034": "模式种",
+    "P610": "最高分类单元",
+    "P366": "用途",
+    "P1343": "记载于",
+    "P18": "图片",
+}
+
+
+def facts_from_claims(claims: dict) -> tuple[list[tuple[str, str, str]], list[tuple[str, str, str]]]:
+    """从 claims 里解析事实。
+
+    **一跳关系不用 SPARQL**：``datavalue.type == "wikibase-entityid"`` 的属性本身
+    就是指向其他实体的关系。SPARQL 查询服务在故障限流期（1 req/min），靠它这份
+    探针就跑不出稳定结论。
+    """
+    relations: list[tuple[str, str, str]] = []
+    strings: list[tuple[str, str, str]] = []
+    for pid, values in claims.items():
+        label = ATTRIBUTES.get(pid)
+        if label is None:
+            continue
+        for value in values:
+            snak = value.get("mainsnak", {})
+            if snak.get("snaktype") != "value":
+                continue
+            datavalue = snak.get("datavalue", {})
+            if datavalue.get("type") == "wikibase-entityid":
+                relations.append((label, pid, datavalue["value"]["id"]))
+            elif datavalue.get("type") == "string":
+                strings.append((label, pid, str(datavalue["value"])[:50]))
+    return relations, strings
+
+
+def sparql_relations(qid: str, limit: int = 25) -> list[dict]:
+    """可选的 SPARQL 增强；被限流时返回空，不影响判定。"""
     sparql = f"""
-SELECT ?prop ?propLabel ?target ?targetLabel WHERE {{
-  {{ wd:{qid} ?prop ?target . }}
-  UNION
-  {{ ?target ?prop wd:{qid} . }}
+SELECT ?prop ?target WHERE {{
+  wd:{qid} ?prop ?target .
   FILTER(STRSTARTS(STR(?prop), "http://www.wikidata.org/prop/direct/"))
   FILTER(STRSTARTS(STR(?target), "http://www.wikidata.org/entity/Q"))
-  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "zh,en". }}
 }}
 LIMIT {limit}
 """
     url = "https://query.wikidata.org/sparql?" + urllib.parse.urlencode(
         {"query": sparql, "format": "json"}
     )
-    data = fetch_json(url)
+    try:
+        data = fetch_json(url)
+    except Exception:  # noqa: BLE001 —— 限流/故障时静默降级
+        return []
     return data["results"]["bindings"]
 
 
@@ -120,47 +161,31 @@ def main() -> int:
         claims = data.get("claims", {})
         note(f"  标签：zh={zh_label!r} en={en_label!r}")
         note(f"  描述：{(desc or '')[:80]}")
-        note(f"  claims 属性数：{len(claims)}")
+        note(f"  claims 总数：{len(claims)}")
 
-        # 挑几个对我们有意义的属性：分类学、象征、用途
-        interesting = []
-        for pid, values in claims.items():
-            for value in values:
-                mainsnak = value.get("mainsnak", {})
-                if mainsnak.get("snaktype") != "value":
-                    continue
-                datavalue = mainsnak.get("datavalue", {})
-                if datavalue.get("type") == "wikibase-entityid":
-                    interesting.append((pid, datavalue["value"]["id"]))
-                elif datavalue.get("type") == "string":
-                    interesting.append((pid, str(datavalue["value"])[:40]))
-        note(f"  有值 claims：{len(interesting)} 条，前 8：{interesting[:8]}")
+        relations, strings = facts_from_claims(claims)
+        note(f"  白名单事实：关系 {len(relations)} 条，字符串 {len(strings)} 条")
+        for label, pid, target in relations[:6]:
+            note(f"    {label}({pid}) → {target}")
+        for label, pid, value in strings[:3]:
+            note(f"    {label}({pid}) = {value}")
 
-        try:
-            rels = relations(qid)
-        except Exception as exc:  # noqa: BLE001
-            note(f"  SPARQL 关系失败：{type(exc).__name__}: {exc}")
-            rels = []
-        note(f"  一跳关系：{len(rels)} 条")
-        for rel in rels[:5]:
-            note(
-                f"    {rel.get('propLabel', {}).get('value', rel['prop']['value'].rsplit('/', 1)[-1])}"
-                f" → {rel.get('targetLabel', {}).get('value', rel['target']['value'].rsplit('/', 1)[-1])}"
-            )
+        extra = sparql_relations(qid)
+        note(f"  SPARQL 补充：{len(extra)} 条（限流时为空，不影响判定）")
 
-        summary.append((term, len(claims), len(interesting), len(rels), "ok"))
+        summary.append((term, len(claims), len(strings), len(relations), "ok"))
         note()
 
     note("## 汇总")
-    note("| 关键词 | claims | 有值 | 一跳关系 | 结论 |")
+    note("| 关键词 | claims | 字符串事实 | 一跳关系 | 结论 |")
     note("| --- | --- | --- | --- | --- |")
     for term, claims_count, values_count, rel_count, status in summary:
         note(f"| {term} | {claims_count} | {values_count} | {rel_count} | {status} |")
 
-    ok = [row for row in summary if row[4] == "ok" and row[2] >= 5 and row[3] >= 5]
+    ok = [row for row in summary if row[4] == "ok" and row[3] >= 5]
     note()
     if len(ok) >= 3:
-        note("## 判定：来源可用（3 个实体都有 ≥5 条有值 claim 与 ≥5 条一跳关系）")
+        note("## 判定：来源可用（3 个实体都有 ≥5 条一跳关系，全部来自 claims）")
         note("门槛通过条件：3 实体 + 2 关系端到端；这里已有 3 实体 × 多关系。")
         verdict = 0
     else:
