@@ -130,15 +130,20 @@ class QualityReport(BaseModel):
 class RenderCreate(BaseModel):
     """建渲染任务（仅浏览器上传模式）。
 
-    三个浏览器后端都能表达；``turtle`` 需要 ``executionMode=server``，那套
-    判别联合要到 R3 才注册，在此之前请求它会在 schema 层被明确拒绝，
-    而不是被当成浏览器任务混进来。
+    只接受 ``canvas2d``。虽然能力层已经能表达四个后端、闸门也能判定，
+    但 ``render_jobs`` 的数据库约束仍是 ``CHECK (backend = 'canvas2d')``
+    （``migrations/004_works.sql``）。在这里放开等于让 INSERT 撞约束变成 500——
+    **API 不该承诺存储层还不支持的东西**。
+
+    放开它的迁移（含 css/webgl 的真实渲染接入）随 S0-B2 一起上，届时这里
+    改成三浏览器后端、并补对应迁移。``turtle`` 需要 ``executionMode=server``，
+    那套判别联合要到 R3 才注册。
     """
 
     model_config = ConfigDict(extra="forbid")
 
     generationId: NodeId
-    backend: Literal["canvas2d", "css", "webgl"]
+    backend: Literal["canvas2d"]
     timesMs: list[int] = Field(min_length=1, max_length=3)
     executionMode: Literal["browser_upload"]
     rendererVersion: str = Field(max_length=80)

@@ -31,6 +31,7 @@ from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
 from app.schemas.reproduce import Comparison, FrameComparison, ReproduceRequest
 from app.schemas.works import RenderJob as RenderJobSchema
+from app.engine import capabilities
 from app.services import audit
 from app.services import uploads
 from app.services import works as works_service
@@ -81,6 +82,25 @@ def reproduce_version(
     original = db.get(RenderJob, version.render_job_id)
     if original is None or original.phase != "completed":
         raise errors.validation_error("原始渲染任务未完成，无法复现")
+
+    # 复现不是「随便拿旧快照重跑一遍」，它要能**真的被执行**。三道校验缺一不可：
+    #
+    # 1) 原任务的后端现在还得启用，并且有可执行渲染器。停用一个后端之后，
+    #    旧作品仍可读（历史记录不许篡改），但不该还能发起新的渲染任务——
+    #    否则用户以为在复现 CSS，实际没有任何执行器。
+    capabilities.require_enabled(
+        original.backend, capabilities.enabled_backends(settings)
+    )
+    # 2) 原任务当时用的渲染器版本，现在必须仍可执行。否则「复现」出来的东西
+    #    和原图不是同一套渲染器，像素比较没有意义。
+    capabilities.require_renderer_version(
+        original.backend, original.renderer_version or ""
+    )
+    # 3) 客户端此刻上报的版本也必须可执行。
+    #
+    # 旧实现只比较「两个版本字符串是否相等」：两个**相同但都不认识**的版本
+    # （比如都写 "unknown"）会被判成兼容——那是拿相等当兼容，等于没校验。
+    capabilities.require_renderer_version(original.backend, payload.rendererVersion)
 
     times: list[int] = json.loads(original.times_ms_json or "[]")
     if not times:

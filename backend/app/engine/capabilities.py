@@ -25,6 +25,7 @@ from app.settings import Settings
 __all__ = [
     "ALL_BACKENDS",
     "require_enabled",
+    "require_renderer_version",
     "CANVAS_RENDERER_VERSION",
     "DEFAULT_ENABLED_BACKENDS",
     "SEMANTIC_ENGINE_VERSION",
@@ -81,15 +82,46 @@ def require_enabled(backend: str, enabled: frozenset[str]) -> None:
     ``details`` 按契约带 ``backend`` 与 ``unsupportedProperties``，前端据此
     禁用入口，而不是逐次试错。
     """
-    if backend in enabled:
+    # 两个条件缺一不可，且必须与 `/engine/capabilities` 的声明同源：
+    #   a) 实例启用了它（CODEPOET_ENABLED_BACKENDS）；
+    #   b) 注册表里有它的渲染器版本，也就是**真有可执行实现**。
+    # 只看 a) 会出现「能力接口说 css 不可用，生成闸门却放行」——评审指出的那种。
+    if backend in enabled and renderer_version(backend) is not None:
         return
     from app import errors  # 函数内导入：errors 不能反过来依赖本模块
 
+    executable = {name for name in enabled if renderer_version(name) is not None}
     raise errors.unsupported_capability(
         f"当前实例未启用后端 {backend}"
         f"（已启用：{'、'.join(sorted(enabled)) or '无'}）",
         details={
             "backend": backend,
-            "unsupportedProperties": sorted(set(ALL_BACKENDS) - enabled),
+            "unsupportedProperties": sorted(set(ALL_BACKENDS) - executable),
+        },
+    )
+
+
+def require_renderer_version(backend: str, version: str) -> None:
+    """客户端上报的渲染器版本必须是本实例此刻能执行的那个。
+
+    与能力声明同源：`/engine/capabilities` 报什么版本，这里就只接受什么版本。
+    历史任务里存的旧版本**不回写、不篡改**——那是当时的记录；但**新建**的任务
+    必须用可执行版本，否则 manifest 里的 rendererVersion 和实际跑的东西对不上。
+
+    与 ``require_enabled`` 分开是因为两者的失败语义不同：前者是「这个后端不让跑」，
+    这里是「后端能跑，但你报的版本不是它」。前端要分别提示。
+    """
+    expected = renderer_version(backend)
+    if expected is not None and version == expected:
+        return
+    from app import errors
+
+    raise errors.unsupported_capability(
+        f"渲染器版本不兼容：能力声明 {expected or '无可执行实现'}，请求 {version}",
+        details={
+            "backend": backend,
+            "rendererVersion": version,
+            "expectedRendererVersion": expected,
+            "unsupportedProperties": ["rendererVersion"],
         },
     )

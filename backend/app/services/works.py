@@ -59,8 +59,52 @@ from app.services import uploads
 from app.services.generations import build_generation_schema
 from app.settings import Settings
 
-# 依赖快照占位：P1B-04 要做真实的依赖哈希，现在用固定值避免假装精确
-_DEPENDENCY_SNAPSHOT = hashlib.sha256(b"codepoet-p0-04").hexdigest()
+def _dependency_snapshot_hash(generation: GenerationModel) -> str:
+    """这次渲染依赖了什么——按真实依赖算，不是一个固定串。
+
+    之前这里写死 ``sha256(b"codepoet-p0-04")``，等于声明「所有作品的依赖完全
+    相同」。那让这个字段失去全部意义：外部事实变了、规则改版了、渲染器升级了，
+    依赖哈希都不动，复现时也就无法判断两份作品是不是同一套依赖。
+
+    组成（顺序由 sort_keys 固定）：
+
+    * 渲染器版本（能力声明里的那个）
+    * 引擎 / 本体 / 策略版本
+    * IR 内容哈希
+    * 命中的规则（id + 版本）与知识实体（id + 修订）
+    * **外部图谱快照的身份与内容哈希**（K1）——这条最关键：
+      同一实体在不同时间抓到的内容只要变了，依赖就该变。
+    """
+    provenance = json.loads(generation.provenance_json or "{}")
+    external = provenance.get("externalGraph") or None
+    payload = {
+        "rendererVersion": capabilities.renderer_version(generation.backend) or "unknown",
+        "engineVersion": provenance.get("engineVersion"),
+        "ontologyVersion": provenance.get("ontologyVersion"),
+        "policyRevision": provenance.get("policyRevision"),
+        "irHash": generation.ir_hash,
+        "rules": [
+            [item.get("ruleId"), item.get("version")]
+            for item in provenance.get("matchedRules") or []
+        ],
+        "entities": [
+            [item.get("entityId"), item.get("revision")]
+            for item in provenance.get("matchedEntities") or []
+        ],
+        "external": (
+            {
+                "sourceId": external.get("sourceId"),
+                "externalEntityId": external.get("externalEntityId"),
+                "contentHash": external.get("contentHash"),
+            }
+            if external
+            else None
+        ),
+    }
+    canonical = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 # 契约 7.1：上传任务创建后有效期 5 分钟
 UPLOAD_TTL_SECONDS = 300
@@ -564,21 +608,9 @@ def create_render_job(
         else capabilities.enabled_backends(),
     )
 
-    # 客户端上报的渲染器版本必须与能力声明一致。前端读的是同一个
-    # `/engine/capabilities`，当前报 codepoet-canvas-1.0.0，所以这里不会挡住
-    # 正常请求；不一致说明客户端拿的是过期声明（或绕过了能力接口），
-    # 存下来的帧和它自称的渲染器就对不上了。
-    expected_version = capabilities.renderer_version(payload.backend)
-    if expected_version and payload.rendererVersion != expected_version:
-        raise validation_error(
-            f"渲染器版本不匹配：能力声明 {expected_version}，"
-            f"请求 {payload.rendererVersion}",
-            details={
-                "backend": payload.backend,
-                "expected": expected_version,
-                "received": payload.rendererVersion,
-            },
-        )
+    # 版本校验走注册表的统一入口，别在这里内联比较：内联版本会在
+    # 「渲染器尚未注册」时被 `if expected` 静默跳过，等于没校验（评审指出的）。
+    capabilities.require_renderer_version(payload.backend, payload.rendererVersion)
 
     # 采样时刻必须与 IR 对得上：静态图只取 [0]；动画的完整保存必须
     # 恰好是 [0, floor(duration/2), duration]（契约 7.1）。否则会存下一份
@@ -683,7 +715,7 @@ def _rebuild_manifest(
             (row.client_environment_json or "").encode()
         ).hexdigest(),
         irHash=generation.ir_hash,
-        dependencySnapshotHash=_DEPENDENCY_SNAPSHOT,
+        dependencySnapshotHash=_dependency_snapshot_hash(generation),
         viewport=viewport,
         timesMs=times,
         frames=[
