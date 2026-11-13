@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+import json
+
 from collections import defaultdict
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -149,6 +151,9 @@ def edit_subgraph(
         "policyRevision": POLICY_REVISION,
         "fragmentSource": f"subtree:{payload.rootNodeId}",
         "fragmentSourceHash": compute_ir_hash(ir),
+        # 外部图谱快照随子树派生保留（细则 K1：「派生改变内容新增本次决策而
+        # 不篡改旧来源」）。这一层没有新增外部事实，所以原样继承。
+        "externalGraph": json.loads(base.provenance_json or "{}").get("externalGraph"),
     }
 
     row = GenerationModel(

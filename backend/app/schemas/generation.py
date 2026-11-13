@@ -317,6 +317,12 @@ class Provenance(BaseModel):
     engineVersion: str = Field(max_length=80)
     ontologyVersion: int = Field(ge=1)
     policyRevision: int = Field(ge=1)
+    # 外部知识图谱快照（K1）。这里用 dict 而不是 ExternalGraph 模型：
+    # schemas.knowledge_graph 为了复用 Backend 会 import 本模块，直接引用类型
+    # 会成环。JSON 形状由 services.knowledge_graph 保证符合
+    # schemas.knowledge_graph.ExternalGraph。
+    # 旧记录的字段缺失按 null 读取，不改旧快照内容。
+    externalGraph: dict[str, Any] | None = None
     fragmentSource: str | None = Field(default=None, max_length=16384)
     fragmentSourceHash: str | None = Field(default=None, max_length=64)
 
@@ -363,6 +369,9 @@ class CapabilityFeatureFlags(BaseModel):
     headlessRendering: Literal[False]
     selectiveExport: Literal[False]
     workSnapshotImport: Literal[False]
+    #: 本实例是否配了知识图谱来源。false 时 `POST /knowledge-graph/generations`
+    #: 一律 503，前端据此关闭入口——而不是让用户点了才看到报错。
+    knowledgeGraph: bool = False
 
 
 class Capability(BaseModel):
