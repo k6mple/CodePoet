@@ -150,3 +150,25 @@ def execution_busy(
     前端也很难判断该把哪一帧交给哪个任务。
     """
     return ApiError(429, "EXECUTION_BUSY", message, details=details)
+
+
+# ---- K1 知识图谱（外部来源）----------------------------------------------
+
+
+def knowledge_graph_unavailable(message: str, details: Any = None) -> ApiError:
+    """503：缺配置或来源当前不可用。
+
+    契约要求这种情况**明确失败**，绝不返回一个「伪本地生成」的成功结果——
+    那会让来源快照记下一个其实没发生过的抓取。
+    """
+    return ApiError(503, "KNOWLEDGE_GRAPH_UNAVAILABLE", message, details=details)
+
+
+def knowledge_graph_timeout(message: str, details: Any = None) -> ApiError:
+    """504：来源在超时预算内没有响应。"""
+    return ApiError(504, "KNOWLEDGE_GRAPH_TIMEOUT", message, details=details)
+
+
+def knowledge_graph_entity_not_found(message: str, details: Any = None) -> ApiError:
+    """422：来源里没有这个实体。"""
+    return ApiError(422, "KNOWLEDGE_GRAPH_ENTITY_NOT_FOUND", message, details=details)

@@ -18,6 +18,7 @@ from app.api.auth import router as auth_router
 from app.api.creation import router as creation_router
 from app.api.engine import router as engine_router
 from app.api.knowledge import router as knowledge_router
+from app.api.knowledge_graph import router as knowledge_graph_router
 from app.api.render import router as render_router
 from app.api.reviews import router as reviews_router
 from app.api.rules import router as rules_router
@@ -157,6 +158,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(creation_router, prefix="/api/v1")
     application.include_router(engine_router, prefix="/api/v1")
     application.include_router(knowledge_router, prefix="/api/v1")
+    application.include_router(knowledge_graph_router, prefix="/api/v1")
     application.include_router(templates_router, prefix="/api/v1")
     application.include_router(works_router, prefix="/api/v1")
     application.include_router(render_router, prefix="/api/v1")

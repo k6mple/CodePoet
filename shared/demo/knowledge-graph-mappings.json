@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "note": "外部图谱实体 → 站内知识条目的显式映射。人工确认过，服务端照表走；未列入的再退回精确同名匹配。不做字符串相似度猜测——「竹亚科」和「竹」、「梅」和「墨梅」这类差异靠猜会错，靠表才对得上。",
+  "sources": {
+    "wikidata": {
+      "Q16528": {
+        "knowledgeId": "knowledge-lotus",
+        "reason": "Wikidata 中文标签「莲」与站内条目同名"
+      },
+      "Q670887": {
+        "knowledgeId": "knowledge-bamboo",
+        "reason": "Wikidata 把「竹」归到竹亚科（Bambusoideae），站内条目叫「竹」；生物分类上同一对象"
+      },
+      "Q157763": {
+        "knowledgeId": "knowledge-plum",
+        "reason": "Wikidata 的物种实体是「梅」（Prunus mume），站内条目是「墨梅」；后者以此物种为主题"
+      }
+    }
+  }
+}

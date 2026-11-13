@@ -111,6 +111,11 @@ def build_capabilities(settings: Settings | None = None) -> Capabilities:
             headlessRendering=False,
             selectiveExport=False,
             workSnapshotImport=False,
+            # 来源从部署配置读：配了才对外宣称可用，否则前端会显示一个
+            # 点进去就 503 的入口
+            knowledgeGraph=bool(
+                (settings.knowledge_graph_sources if settings else "").strip()
+            ),
         ),
     )
 
