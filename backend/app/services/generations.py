@@ -322,17 +322,22 @@ def _prepare_from_ir(
     # 授权先于能力：无权访问一律 404，不能因为后端没启用就变成 422
     capabilities.require_enabled(payload.backend, enabled)
 
-    provenance = Provenance(
-        kind="manual_edit",
-        baseGenerationId=base.id,
-        engineVersion=ENGINE_VERSION,
-        ontologyVersion=ONTOLOGY_VERSION,
-        policyRevision=POLICY_REVISION,
-    )
+    provenance = inherited_provenance(base, 'manual_edit')
     # 手工编辑继承基底的未发布标记：基于草稿改出来的东西仍然是草稿
     unpublished = bool(base.unpublished_source)
     base_params = json.loads(base.params_json) if base.params_json else {}
     return payload.ir, base_params, None, provenance, unpublished, payload.ir.seed
+
+
+def inherited_provenance(base: GenerationModel, kind: str) -> Provenance:
+    """Editing geometry keeps the historical decisions used to assess its color."""
+    source = json.loads(base.provenance_json or '{}')
+    values = {key: value for key, value in source.items() if key in Provenance.model_fields}
+    values.update(kind=kind, baseGenerationId=base.id)
+    values.setdefault('engineVersion', ENGINE_VERSION)
+    values.setdefault('ontologyVersion', ONTOLOGY_VERSION)
+    values.setdefault('policyRevision', POLICY_REVISION)
+    return Provenance.model_validate(values)
 
 
 # ---- 入口 ----------------------------------------------------------------

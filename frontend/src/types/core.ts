@@ -365,6 +365,39 @@ export interface Frame {
   timeMs: number
 }
 
+export type QualityStatus = 'pass' | 'warn' | 'fail' | 'not_applicable' | 'unavailable'
+export interface QualityLocation { nodeIds: string[]; timeMs?: number | null }
+export interface QualityFinding extends QualityLocation {
+  message: string
+  value?: number | null
+  details?: Record<string, string | number | null>
+}
+export interface QualityMetric {
+  name: 'parameterValidity' | 'layoutConflict' | 'colorSemantic' | 'signalNoise'
+  status: QualityStatus
+  score: number | null
+  value: number | null
+  method: string
+  evidence: QualityFinding[]
+}
+export interface QualityAssessment {
+  algorithmVersion: string
+  status?: QualityStatus
+  evaluatedTimesMs: number[]
+  thresholds: Record<string, number>
+  metrics: QualityMetric[]
+  recommendations: (QualityLocation & { code: string; message: string })[]
+  limitations?: string[]
+}
+export interface QualityReport {
+  pixelDifferenceThreshold?: number
+  nonBackgroundPixelRatio: number
+  emptyOutput: boolean
+  frames?: { timeMs: number; nonBackgroundPixelRatio: number; emptyOutput: boolean }[]
+  issues: Issue[]
+  assessment?: QualityAssessment | null
+}
+
 export interface RenderJob {
   id: string
   generationId: string
@@ -379,11 +412,7 @@ export interface RenderJob {
   error: { code: string; message: string } | null
   manifest: { irHash: string; frames: Frame[]; timesMs: number[]; backend?: Backend; rendererVersion?: string; outputSource?: 'browser_upload' | 'server' } | null
   originalJobId?: string | null
-  qualityReport?: {
-    nonBackgroundPixelRatio: number
-    emptyOutput: boolean
-    issues: Issue[]
-  } | null
+  qualityReport?: QualityReport | null
 }
 
 interface PixelMetrics {
@@ -450,7 +479,7 @@ export interface Page<T> {
 export interface Capabilities {
   profile: string
   backends: { backend: Backend; available: boolean; executionModes: string[]; unavailableReason: string | null; rendererVersion?: string; nodeTypes?: string[]; animationProperties?: string[]; maxNodes?: number; maxFrames?: number }[]
-  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean }
+  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean; qualityAssessment?: boolean }
 }
 
 // P1-A knowledge, ontology and tag models. Field names follow docs/openapi-core.json.

@@ -6,7 +6,7 @@ import type { DrawingIR, Provenance } from '@/types/core'
 import CanvasPreview from './CanvasPreview'
 import { hasBrowserRenderer } from '@/renderers/registry'
 
-export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities = false, paused = false, initialTime = 0, onTimeChange, entities = [] }: {
+export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities = false, paused = false, initialTime = 0, onTimeChange, entities = [], seekRequest, focusNodeIds }: {
   ir: DrawingIR
   backend?: string
   linkEntities?: boolean
@@ -14,6 +14,8 @@ export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities 
   initialTime?: number
   onTimeChange?: (timeMs: number) => void
   entities?: Provenance['matchedEntities']
+  seekRequest?: {timeMs:number}
+  focusNodeIds?: string[]
 }) {
   const timeRef = useRef(Math.max(0, Math.min(initialTime, ir.durationMs)))
   const [time, setTime] = useState(timeRef.current)
@@ -37,6 +39,14 @@ export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities 
   useEffect(() => {
     if (paused) setPlaying(false)
   }, [paused])
+
+  useEffect(() => {
+    if (!seekRequest) return
+    setPlaying(false)
+    const next=Math.max(0,Math.min(ir.durationMs,seekRequest.timeMs))
+    timeRef.current=next
+    setTime(next)
+  },[seekRequest,ir.durationMs])
 
   useEffect(() => {
     onTimeChange?.(Math.round(time))
@@ -85,7 +95,7 @@ export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities 
 
   return <div className="timeline-player">
     <div className="timeline-canvas-frame">
-      <CanvasPreview ir={ir} timeMs={time} backend={backend} />
+      <CanvasPreview ir={ir} timeMs={time} backend={backend} focusNodeIds={focusNodeIds} />
     </div>
     {ir.durationMs > 0
       ? <>

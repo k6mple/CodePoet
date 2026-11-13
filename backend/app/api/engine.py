@@ -85,6 +85,7 @@ def build_capabilities(settings: Settings | None = None) -> Capabilities:
             # 空替换即删除、越界 ID 冲突、悬空父引用、viewport 覆盖、他人快照 404）。
             # 接口能用却声明 false，前端按声明尊重能力，页面就把入口关掉了。
             subgraphEditing=True,
+            qualityAssessment=True,
             dslSandbox=False,
             advancedPolicies=False,
             headlessRendering=False,

@@ -762,7 +762,9 @@ def upload_frame(
         # 帧齐了才谈质量：一张全白的 PNG 能通过所有结构校验、能存成作品，
         # 但它上面什么都没画——只有看像素才发现
         quality = quality_service.build_quality_report(
-            db, settings, row.id, generation.ir_json, times
+            db, settings, row.id, generation.ir_json, times,
+            provenance_json=generation.provenance_json,
+            validation_json=generation.validation_report_json,
         )
         row.quality_report_json = quality.model_dump_json()
         row.status = "succeeded"

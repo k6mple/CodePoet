@@ -358,6 +358,7 @@ class CapabilityFeatureFlags(BaseModel):
 
     semanticGeneration: bool
     subgraphEditing: bool
+    qualityAssessment: bool = False
     dslSandbox: Literal[False]
     advancedPolicies: Literal[False]
     headlessRendering: Literal[False]

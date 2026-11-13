@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from app.schemas.generation import Backend, Generation
 from app.schemas.ir import NodeId, Viewport
+from app.schemas.quality import Assessment
 from app.schemas.validation import Issue
 
 # ---------------------------------------------------------------------------
@@ -125,6 +126,7 @@ class QualityReport(BaseModel):
     emptyOutput: bool
     frames: list[FrameQuality] = Field(default_factory=list, max_length=12)
     issues: list[Issue] = Field(default_factory=list, max_length=100)
+    assessment: Assessment | None = None
 
 
 class RenderCreate(BaseModel):
