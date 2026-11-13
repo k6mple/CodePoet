@@ -1,0 +1,144 @@
+{
+  "base": "http://127.0.0.1:13170",
+  "scope": "selected-p1-real-ui-and-api",
+  "status": "passed-selected-paths",
+  "gaPassed": false,
+  "gbPassed": false,
+  "checks": [
+    {
+      "name": "two-saves-restore-appends-history-and-resumes",
+      "sessionId": "ses-ecfc12a65fcb465fab9fd69c0362ac7e",
+      "snapshotCount": 4,
+      "crossAccountStatus": 404
+    },
+    {
+      "name": "favorite-persists-on-reload-and-personal-space"
+    },
+    {
+      "name": "work-two-versions-history-unchanged-and-anonymous-pending-404",
+      "workId": "work-53a7e71915cf4fd7a54b79fcd7f3d235",
+      "firstVersion": "wv-05c4b43a0ce34bd48881827d3c6c2088",
+      "secondVersion": "wv-4f9fedcd073144b98d71be2c3473d9f6",
+      "publicPointerPassed": true
+    },
+    {
+      "name": "role-approval-refresh-and-profile-persistence",
+      "userId": "usr-1aeef00389b74a8480d416324843b0c3",
+      "roleBefore": "creator",
+      "roleAfter": "developer"
+    },
+    {
+      "name": "concept-ui-create-and-server-cycle-rejection",
+      "conceptId": "concept-762bd21348394d1ab5669b698fcb273c",
+      "code": "ONTOLOGY_CYCLE"
+    },
+    {
+      "name": "knowledge-ui-write-inheritance-and-taxonomy-constraints",
+      "entityId": "kn-80c2b2c8b0b149ddbf357433f30eab94",
+      "inheritedTag": "tag-eee0f1210f794801b25662ed750bb04f",
+      "cycleCode": "VALIDATION_ERROR",
+      "conflictCode": "TAG_CONFLICT",
+      "fixturePreparation": "real API tags"
+    },
+    {
+      "name": "lotus-bamboo-real-semantic-difference",
+      "lotus": "gen-e61d58a5a9864e6fae9a9166a682aca1",
+      "bamboo": "gen-f81637987dc84674b25d42558c997add",
+      "lotusRules": [
+        "rule-a5a963214da745aaaa4117048413d9b3"
+      ],
+      "bambooRules": [
+        "rule-410545bae1b14b328268784fa416d077"
+      ]
+    },
+    {
+      "name": "unmatched-text-retains-previous-generation",
+      "code": "NO_SEMANTIC_MATCH"
+    },
+    {
+      "name": "narrative-knowledge-link-and-three-real-png-frames",
+      "versionId": "wv-5ce5efb131524a89afe96f3c15763b6e",
+      "timesMs": [
+        0,
+        1000,
+        2000
+      ],
+      "qualityReport": {
+        "pixelDifferenceThreshold": 8,
+        "nonBackgroundPixelRatio": 0.12487,
+        "emptyOutput": false,
+        "frames": [
+          {
+            "timeMs": 0,
+            "nonBackgroundPixelRatio": 0.075331,
+            "emptyOutput": false
+          },
+          {
+            "timeMs": 1000,
+            "nonBackgroundPixelRatio": 0.148888,
+            "emptyOutput": false
+          },
+          {
+            "timeMs": 2000,
+            "nonBackgroundPixelRatio": 0.15039,
+            "emptyOutput": false
+          }
+        ],
+        "issues": []
+      }
+    },
+    {
+      "name": "historical-ir-reproduces-after-rule-change",
+      "originalJobId": "job-3ee058ad4258401ea1f49823e963be71",
+      "changedRule": "rule-40961e4bb6f541969b8d59504f5bbf96",
+      "newRuleVersion": 2,
+      "regeneratedId": "gen-b3fdbd22800c496db809ad43447bc7ed"
+    },
+    {
+      "name": "four-second-template-play-pause-and-three-frame-save-reopen",
+      "versionId": "wv-53b1e796bb9546f78c2807157e1d2df6",
+      "timesMs": [
+        0,
+        2000,
+        4000
+      ]
+    },
+    {
+      "name": "combined-search-and-url-reload",
+      "impossibleTotal": 0,
+      "matchedTotal": 1
+    },
+    {
+      "name": "invalid-import-no-partial-write-valid-import-and-audit",
+      "exportedCounts": {
+        "concepts": 10,
+        "tags": 13,
+        "entities": 13,
+        "rules": 8,
+        "templates": 3,
+        "workSnapshots": 4
+      },
+      "invalidCodes": [
+        "MISSING_REFERENCE"
+      ],
+      "importId": "imp-aaa9936e91a6445eb88d8bf29b973da1",
+      "auditActions": [
+        "import.validate",
+        "import.apply",
+        "work.reproduce",
+        "rule.update",
+        "knowledge.update",
+        "knowledge.create",
+        "review.decide"
+      ]
+    }
+  ],
+  "blockers": [],
+  "failures": [],
+  "pageErrors": [],
+  "sharedExcerpt": true,
+  "omittedSections": [
+    "screenshots",
+    "requests"
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "base": "http://127.0.0.1:13170",
+  "diagnostic": false,
+  "status": "passed",
+  "g0Passed": true,
+  "checks": [
+    {
+      "name": "register-login-default-generation",
+      "generationId": "gen-4a10dd9813b94b1499d4f37a8c44d83a"
+    },
+    {
+      "name": "parameter-changes-real-canvas"
+    },
+    {
+      "name": "invalid-number-retains-canvas-and-disables-save"
+    },
+    {
+      "name": "real-cross-field-422",
+      "code": "VALIDATION_ERROR",
+      "requestId": "req-f32dbe1bdfb54a63ab05b626bd8c1f8e"
+    },
+    {
+      "name": "real-401-relogin-preserves-generation"
+    },
+    {
+      "name": "late-real-response-cannot-overwrite-newer-generation",
+      "generationId": "gen-c3d5bfe7eca84c00974439cb6e9cf346",
+      "radius": 34
+    },
+    {
+      "name": "creator-390-no-horizontal-overflow",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "name": "network-failure-retains-generation-without-false-save"
+    },
+    {
+      "name": "create-real-upload-job",
+      "id": "job-c00459c1d4b74b4396fe7489da231dee",
+      "status": "running",
+      "phase": "awaiting_frames",
+      "createdAt": "2026-11-12T15:40:00Z",
+      "expiresAt": "2026-11-12T15:45:00Z",
+      "uploadLifetimeMs": 300000,
+      "requestId": "req-dfdecc60e47e449588e7223e4f521267"
+    },
+    {
+      "name": "save-private-work",
+      "assisted": false,
+      "versionId": "wv-c80acd49b8cf48c6bee3f54eee71e470",
+      "workId": "work-c204228059a3459c8313f84e6be98cdc",
+      "generationId": "gen-c3d5bfe7eca84c00974439cb6e9cf346",
+      "jobId": "job-c00459c1d4b74b4396fe7489da231dee",
+      "artifactId": "art-f98be9d38c43432e8fbfe7022b0bf56e"
+    },
+    {
+      "name": "reopen-new-tab-real-png",
+      "versionId": "wv-c80acd49b8cf48c6bee3f54eee71e470"
+    },
+    {
+      "name": "reopen-refresh-real-png",
+      "versionId": "wv-c80acd49b8cf48c6bee3f54eee71e470"
+    },
+    {
+      "name": "server-png-hash-matches-manifest",
+      "bytes": 29340,
+      "sha256": "78bc18e3aa64433660c3a102d8675a518b6a0b36b613369512bb43cae93bc559"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/works/work-c204228059a3459c8313f84e6be98cdc",
+      "requestId": "req-af66bef759af49368b71b090867d945e"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/work-versions/wv-c80acd49b8cf48c6bee3f54eee71e470",
+      "requestId": "req-8c4d9f3c745f4d569dca4aa4e8ccc776"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/generations/gen-c3d5bfe7eca84c00974439cb6e9cf346",
+      "requestId": "req-f245b4d3b2ea4fbcacbea44bc475c43a"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/render-jobs/job-c00459c1d4b74b4396fe7489da231dee",
+      "requestId": "req-6cdb9a1f431149039233de1d02116e4a"
+    },
+    {
+      "name": "other-user-private-resource-404",
+      "path": "/artifacts/art-f98be9d38c43432e8fbfe7022b0bf56e",
+      "requestId": "req-f8ce104aad804d82b6b15c27987abbd7"
+    },
+    {
+      "name": "other-user-page-does-not-expose-private-png"
+    },
+    {
+      "name": "no-authentication-in-web-storage",
+      "local": [],
+      "session": []
+    }
+  ],
+  "blockers": [],
+  "pageErrors": [],
+  "sharedExcerpt": true,
+  "omittedSections": [
+    "screenshots",
+    "requests"
+  ]
+}
