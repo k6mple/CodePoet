@@ -59,52 +59,8 @@ from app.services import uploads
 from app.services.generations import build_generation_schema
 from app.settings import Settings
 
-def _dependency_snapshot_hash(generation: GenerationModel) -> str:
-    """这次渲染依赖了什么——按真实依赖算，不是一个固定串。
-
-    之前这里写死 ``sha256(b"codepoet-p0-04")``，等于声明「所有作品的依赖完全
-    相同」。那让这个字段失去全部意义：外部事实变了、规则改版了、渲染器升级了，
-    依赖哈希都不动，复现时也就无法判断两份作品是不是同一套依赖。
-
-    组成（顺序由 sort_keys 固定）：
-
-    * 渲染器版本（能力声明里的那个）
-    * 引擎 / 本体 / 策略版本
-    * IR 内容哈希
-    * 命中的规则（id + 版本）与知识实体（id + 修订）
-    * **外部图谱快照的身份与内容哈希**（K1）——这条最关键：
-      同一实体在不同时间抓到的内容只要变了，依赖就该变。
-    """
-    provenance = json.loads(generation.provenance_json or "{}")
-    external = provenance.get("externalGraph") or None
-    payload = {
-        "rendererVersion": capabilities.renderer_version(generation.backend) or "unknown",
-        "engineVersion": provenance.get("engineVersion"),
-        "ontologyVersion": provenance.get("ontologyVersion"),
-        "policyRevision": provenance.get("policyRevision"),
-        "irHash": generation.ir_hash,
-        "rules": [
-            [item.get("ruleId"), item.get("version")]
-            for item in provenance.get("matchedRules") or []
-        ],
-        "entities": [
-            [item.get("entityId"), item.get("revision")]
-            for item in provenance.get("matchedEntities") or []
-        ],
-        "external": (
-            {
-                "sourceId": external.get("sourceId"),
-                "externalEntityId": external.get("externalEntityId"),
-                "contentHash": external.get("contentHash"),
-            }
-            if external
-            else None
-        ),
-    }
-    canonical = json.dumps(
-        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-    )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+# 依赖快照占位：P1B-04 要做真实的依赖哈希，现在用固定值避免假装精确
+_DEPENDENCY_SNAPSHOT = hashlib.sha256(b"codepoet-p0-04").hexdigest()
 
 # 契约 7.1：上传任务创建后有效期 5 分钟
 UPLOAD_TTL_SECONDS = 300
@@ -715,7 +671,7 @@ def _rebuild_manifest(
             (row.client_environment_json or "").encode()
         ).hexdigest(),
         irHash=generation.ir_hash,
-        dependencySnapshotHash=_dependency_snapshot_hash(generation),
+        dependencySnapshotHash=_DEPENDENCY_SNAPSHOT,
         viewport=viewport,
         timesMs=times,
         frames=[
