@@ -325,7 +325,7 @@ class ReproduceTests(unittest.TestCase):
         self.csrf = login.json()["csrfToken"]
 
     def _job_with_frame(self, job_id: str, gen_id: str, png: bytes,
-                        *, renderer: str = "canvas-1.0.0") -> str:
+                        *, renderer: str = "codepoet-canvas-1.0.0") -> str:
         """造一个已完成的渲染任务 + 一帧真实产物。"""
         stored = uploads.store_frame(self.settings, self.user_id, png, 0)
         connection = sqlite3.connect(self.settings.database_path)
@@ -409,7 +409,7 @@ class ReproduceTests(unittest.TestCase):
 
         response = self.client.post(
             f"{API}/work-versions/wv-r/reproduce",
-            json={"rendererVersion": "canvas-1.0.0",
+            json={"rendererVersion": "codepoet-canvas-1.0.0",
                   "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1}},
             headers={"X-CSRF-Token": self.csrf},
         )
@@ -478,7 +478,7 @@ class ReproduceTests(unittest.TestCase):
             " client_environment_json, revision, created_at, updated_at)"
             " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             ("job-pending", self.user_id, "gen-r", "canvas2d", "browser_upload",
-             "running", "awaiting_frames", "[0]", 1, "canvas-1.0.0",
+             "running", "awaiting_frames", "[0]", 1, "codepoet-canvas-1.0.0",
              '{"userAgent":"test/1.0","deviceScaleFactor":1}', 1, NOW, NOW),
         )
         connection.commit()
@@ -506,7 +506,7 @@ class ReproduceTests(unittest.TestCase):
     def _reproduce(self, version_id: str):
         return self.client.post(
             f"{API}/work-versions/{version_id}/reproduce",
-            json={"rendererVersion": "canvas-1.0.0",
+            json={"rendererVersion": "codepoet-canvas-1.0.0",
                   "clientEnvironment": {"userAgent": "test/1.0", "deviceScaleFactor": 1}},
             headers={"X-CSRF-Token": self.csrf},
         )

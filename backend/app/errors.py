@@ -70,8 +70,12 @@ def revision_conflict(expected: int, actual: int) -> ApiError:
     )
 
 
-def validation_error(message: str, field_errors: list[dict[str, str]] | None = None) -> ApiError:
-    return ApiError(422, "VALIDATION_ERROR", message, field_errors)
+def validation_error(
+    message: str,
+    field_errors: list[dict[str, str]] | None = None,
+    details: Any = None,
+) -> ApiError:
+    return ApiError(422, "VALIDATION_ERROR", message, field_errors, details)
 
 
 def ir_invalid(message: str, details: Any = None) -> ApiError:

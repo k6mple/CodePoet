@@ -54,6 +54,13 @@ ENGINE_VERSION = "p0-03.1"
 ONTOLOGY_VERSION = 1
 POLICY_REVISION = 1
 
+# 这些 code 只警告不阻断：越界的图形仍然能画出来，只是会被画布裁掉一部分。
+# 其余问题（重复 id、父引用悬空、自交多边形等）会让渲染结果不可预期，必须拒绝。
+_WARNING_CODES = frozenset({"IR_OUT_OF_BOUNDS"})
+
+_PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
+_CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
+
 
 def compute_ir_hash(ir: DrawingIR) -> str:
     """内容哈希。同一份 IR 无论序列化顺序如何，都得到同一个值。

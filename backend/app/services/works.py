@@ -564,6 +564,22 @@ def create_render_job(
         else capabilities.enabled_backends(),
     )
 
+    # 客户端上报的渲染器版本必须与能力声明一致。前端读的是同一个
+    # `/engine/capabilities`，当前报 codepoet-canvas-1.0.0，所以这里不会挡住
+    # 正常请求；不一致说明客户端拿的是过期声明（或绕过了能力接口），
+    # 存下来的帧和它自称的渲染器就对不上了。
+    expected_version = capabilities.renderer_version(payload.backend)
+    if expected_version and payload.rendererVersion != expected_version:
+        raise validation_error(
+            f"渲染器版本不匹配：能力声明 {expected_version}，"
+            f"请求 {payload.rendererVersion}",
+            details={
+                "backend": payload.backend,
+                "expected": expected_version,
+                "received": payload.rendererVersion,
+            },
+        )
+
     # 采样时刻必须与 IR 对得上：静态图只取 [0]；动画的完整保存必须
     # 恰好是 [0, floor(duration/2), duration]（契约 7.1）。否则会存下一份
     # "动画"却只画了开头一帧，回放时看不出问题但内容其实缺了 2/3
