@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageStat
@@ -27,6 +28,8 @@ from app.schemas.validation import Issue
 from app.schemas.works import FrameQuality, QualityReport
 from app.services import uploads
 from app.settings import Settings
+from app.engine.assessment import assess, unavailable
+from app.schemas.ir import DrawingIR
 
 __all__ = ["build_quality_report", "EMPTY_RATIO", "PIXEL_THRESHOLD"]
 
@@ -64,7 +67,8 @@ def _coverage(image: Image.Image, background: tuple[int, int, int]) -> float:
 
 
 def build_quality_report(
-    db: Session, settings: Settings, job_id: str, ir_json: str, times_ms: list[int]
+    db: Session, settings: Settings, job_id: str, ir_json: str, times_ms: list[int],
+    *, provenance_json: str | None = None, validation_json: str | None = None,
 ) -> QualityReport:
     """按已上传的帧算质量报告。缺帧的时刻跳过，不编造数据。"""
     background = _background_color(ir_json)
@@ -76,6 +80,7 @@ def build_quality_report(
     by_time = {row.time_ms: row for row in rows}
 
     frames: list[FrameQuality] = []
+    images: dict[int, Image.Image] = {}
     for time_ms in times_ms:
         artifact = by_time.get(time_ms)
         if artifact is None:
@@ -86,6 +91,7 @@ def build_quality_report(
         try:
             with Image.open(path) as image:
                 coverage = _coverage(image.convert("RGBA"), background)
+                images[time_ms] = image.convert('RGBA')
         except OSError:
             continue
         frames.append(
@@ -111,6 +117,7 @@ def build_quality_report(
                     nodeIds=[],
                 )
             ],
+            assessment=unavailable([]),
         )
 
     average = round(
@@ -128,6 +135,20 @@ def build_quality_report(
             )
         )
 
+    try:
+        if set(images) != set(times_ms):
+            assessment = unavailable([])
+            issues.append(Issue(code='QUALITY_UNAVAILABLE', message='部分帧无法读取，版本化质量分析不可用', path=None, nodeIds=[]))
+        else:
+            assessment = assess(DrawingIR.model_validate_json(ir_json), images,
+                                json.loads(provenance_json or '{}'), json.loads(validation_json or '{}'))
+    except Exception:
+        # An algorithm failure must not invalidate an already verified PNG upload.
+        logging.getLogger(__name__).exception('Quality assessment unavailable for render job %s', job_id)
+        assessment = unavailable(list(images))
+    finally:
+        for image in images.values():
+            image.close()
     return QualityReport(
         pixelDifferenceThreshold=PIXEL_THRESHOLD,
         nonBackgroundPixelRatio=average,
@@ -135,4 +156,5 @@ def build_quality_report(
         emptyOutput=bool(empty_frames),
         frames=frames,
         issues=issues,
+        assessment=assessment,
     )

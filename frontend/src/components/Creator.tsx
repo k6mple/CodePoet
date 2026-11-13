@@ -7,12 +7,13 @@ import { renderRequest, uploadRenderFrames, cancelRenderJob } from '@/api/render
 import { backendLabel, generationBackend } from '@/renderers/backend'
 import { hasBrowserRenderer, rendererVersion } from '@/renderers/registry'
 import type {
-  Backend, Capabilities, CreationSession, DrawingIR, EditorState, Generation, Page, Parameter, Params, RenderJob, SemanticInput, Template, TemplateVersion, Work, WorkDetail, WorkVersion,
+  Backend, Capabilities, CreationSession, DrawingIR, EditorState, Generation, Page, Parameter, Params, QualityLocation, RenderJob, SemanticInput, Template, TemplateVersion, Work, WorkDetail, WorkVersion,
 } from '@/types/core'
 import { sampleTimes } from '@/renderers/canvas/renderScene'
 import { parameterValueLabel, shortId, symbolLabel } from '@/utils/format'
 import CanvasPreview from './CanvasPreview'
-import { GenerationEvidence, QualityEvidence } from './GenerationEvidence'
+import { GenerationEvidence } from './GenerationEvidence'
+import QualityEvidence from './QualityEvidence'
 import IRControls, { parseIR } from './IRControls'
 import TimelinePlayer from './TimelinePlayer'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
@@ -56,6 +57,7 @@ export default function Creator() {
   const [restoreAttempt, setRestoreAttempt] = useState(0)
   const [templateRequest, setTemplateRequest] = useState(0)
   const [quality, setQuality] = useState<RenderJob['qualityReport']>()
+  const [qualityFocus, setQualityFocus] = useState<{nodeIds:string[];timeMs:number}>()
   const manualLock = useRef(false)
   const manualController = useRef<AbortController | null>(null)
   const saveController = useRef<AbortController | null>(null)
@@ -318,6 +320,14 @@ export default function Creator() {
           setMode('ir')
           setEditWork(work)
           setTitle(work.title)
+          if (query.has('qualityTime')) {
+            const time=Number(query.get('qualityTime'))
+            const node=query.get('qualityNode')
+            setQuality(detail.renderJob.qualityReport)
+            setQualityFocus({nodeIds:node?[node]:[],timeMs:Number.isFinite(time)?Math.max(0,Math.min(time,detail.generation.ir.durationMs)):0})
+            setNodeId(node)
+            setDirty(true)
+          }
         }
         loadedQuery.current = restoreKey
       } catch (cause) {
@@ -333,6 +343,7 @@ export default function Creator() {
   function acceptGeneration(result: Generation, expectedBackend?: Backend) {
     if (expectedBackend && generationBackend(result) !== expectedBackend) throw new Error('生成结果的渲染后端与本次请求不一致。')
     setGeneration(result)
+    setQualityFocus(undefined)
     setDraft(JSON.stringify(result.ir, null, 2))
     setNodeId(null)
     setTimelineTime(0)
@@ -699,8 +710,8 @@ export default function Creator() {
               ? generation.ir.durationMs > 0
                 ? <TimelinePlayer key={generation.id} ir={generation.ir} backend={generationBackend(generation)} linkEntities
                   entities={generation.provenance?.matchedEntities} paused={saving}
-                  initialTime={initialTimelineTime} onTimeChange={setTimelineTime} />
-                : <CanvasPreview ir={generation.ir} timeMs={0} backend={generationBackend(generation)} />
+                  initialTime={initialTimelineTime} onTimeChange={setTimelineTime} seekRequest={qualityFocus} focusNodeIds={qualityFocus?.nodeIds} />
+                : <CanvasPreview ir={generation.ir} timeMs={0} backend={generationBackend(generation)} focusNodeIds={qualityFocus?.nodeIds} />
               : <EmptyCanvas
                 busy={loading || versionLoading}
                 label={loading ? '正在载入模板' : versionLoading ? '正在载入参数' : undefined}
@@ -730,7 +741,17 @@ export default function Creator() {
         </details>}
         {generation && generation.ownerId === userId && <>
           <GenerationEvidence generation={generation} />
-          <QualityEvidence generation={generation} report={quality} />
+          {qualityFocus && <p role="status" className="quality-target">已定位：{qualityFocus.nodeIds.join('、')||'整帧'} · {qualityFocus.timeMs}ms；定位框不进入PNG。</p>}
+          {quality && dirty && <p className="quality-note">下方报告属于上次已应用的生成；当前草稿修改尚未评估。</p>}
+          <QualityEvidence key={generation.id} generation={generation} report={quality}
+            onLocate={!saving && !pending ? location=>{
+              setQualityFocus({nodeIds:location.nodeIds,timeMs:location.timeMs??0})
+              if(location.nodeIds[0]) setNodeId(location.nodeIds[0])
+            }:undefined}
+            onImprove={!saving && !pending ? (location:QualityLocation)=>{
+              setMode('ir');setDirty(true)
+              if(location.nodeIds[0])setNodeId(location.nodeIds[0])
+            }:undefined} />
         </>}
       </section>
 

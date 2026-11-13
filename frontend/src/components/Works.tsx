@@ -9,7 +9,8 @@ import { reviewDecisionLabel } from '@/utils/template'
 import TimelinePlayer from './TimelinePlayer'
 import { historicalBackend, backendLabel, reproductionUnavailable } from '@/renderers/backend'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
-import { GenerationEvidence, QualityEvidence } from './GenerationEvidence'
+import { GenerationEvidence } from './GenerationEvidence'
+import QualityEvidence from './QualityEvidence'
 import { useSession } from './SessionProvider'
 import WorkReproduction from './WorkReproduction'
 
@@ -244,6 +245,7 @@ export function WorkViewer({ id }: { id: string }) {
   const [attempt, setAttempt] = useState(0)
   const [frames, setFrames] = useState<{ url: string; time: number }[]>([])
   const [selected, setSelected] = useState(0)
+  const [qualityFocus,setQualityFocus]=useState<{nodeIds:string[];timeMs:number}>()
   const [submitBusy, setSubmitBusy] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submitNotice, setSubmitNotice] = useState('')
@@ -270,6 +272,7 @@ export function WorkViewer({ id }: { id: string }) {
     const controller = new AbortController()
     const created: string[] = []
     setData(null)
+    setQualityFocus(undefined)
     setError('')
     setErrorStatus(null)
     setFrameError('')
@@ -458,7 +461,8 @@ export function WorkViewer({ id }: { id: string }) {
             <div className="ir-preview__frame">
               {reproductionUnavailable(data)
                 ? <InlineNotice title="历史渲染器不可用">{reproductionUnavailable(data)}</InlineNotice>
-                : <TimelinePlayer ir={data.generation.ir} backend={historicalBackend(data)} linkEntities entities={data.generation.provenance?.matchedEntities} />}
+                : <TimelinePlayer ir={data.generation.ir} backend={historicalBackend(data)} linkEntities entities={data.generation.provenance?.matchedEntities} seekRequest={qualityFocus} focusNodeIds={qualityFocus?.nodeIds} />}
+              {qualityFocus && <p role="status">已定位：{qualityFocus.nodeIds.join('、')||'整帧'} · {qualityFocus.timeMs}ms；定位框不进入PNG。</p>}
             </div>
           </section>
 
@@ -469,7 +473,17 @@ export function WorkViewer({ id }: { id: string }) {
             <h2 id="technical-heading">技术档案</h2>
             <WorkHistory key={id} version={data.workVersion} canEdit={Boolean(user && user.id === data.workVersion.createdBy)} />
             <GenerationEvidence generation={data.generation} />
-            <QualityEvidence generation={data.generation} report={data.renderJob.qualityReport} />
+            <QualityEvidence key={data.generation.id} generation={data.generation} report={data.renderJob.qualityReport}
+              onLocate={location=>{
+                setQualityFocus({nodeIds:location.nodeIds,timeMs:location.timeMs??0})
+                const index=data.renderJob.manifest?.frames.findIndex(frame=>frame.timeMs===(location.timeMs??0))
+                if(index!=null && index>=0)setSelected(index)
+              }}
+              onImprove={user?.id===data.workVersion.createdBy?location=>{
+                const query=new URLSearchParams({work:data.workVersion.workId,from:data.workVersion.id,qualityTime:String(location.timeMs??0)})
+                if(location.nodeIds[0])query.set('qualityNode',location.nodeIds[0])
+                window.location.assign(`/?${query}`)
+              }:undefined} />
             <details className="tech-details">
               <summary>生成与渲染记录</summary>
               <pre>{JSON.stringify({ generation: data.generation, renderJob: data.renderJob }, null, 2)}</pre>

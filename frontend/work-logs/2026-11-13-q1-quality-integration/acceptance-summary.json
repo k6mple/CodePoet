@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-13",
+  "baseCommit": "16beb6f",
+  "branch": "feat/q1b-quality-20261113",
+  "commitState": "working-tree-at-validation",
+  "algorithmVersion": "codepoet-quality-1.0.0",
+  "scope": "isolated-local-production-build-not-public-deployment",
+  "backend": {
+    "tests": 357,
+    "status": "OK",
+    "exitCode": 0,
+    "warning": "Existing temporary SQLite finalizer WinError32 cleanup warnings"
+  },
+  "build": {
+    "production": true,
+    "passed": true
+  },
+  "calibration": {
+    "cases": 12,
+    "labelledBad": 6,
+    "correctedVersions": 6,
+    "pngFrames": 24,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "generalizationVerified": false
+  },
+  "checks": {
+    "q1": {
+      "status": "passed",
+      "count": 4
+    },
+    "canvas": {
+      "status": "passed",
+      "count": 12
+    },
+    "g0": {
+      "status": "passed",
+      "count": 20
+    },
+    "p1": {
+      "status": "passed-selected-paths",
+      "count": 13
+    },
+    "css": {
+      "status": "passed",
+      "count": 7
+    },
+    "controls": {
+      "status": "passed",
+      "count": 17
+    }
+  }
+}

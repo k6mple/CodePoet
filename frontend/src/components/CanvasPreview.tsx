@@ -5,6 +5,7 @@ import type { DrawingIR } from '@/types/core'
 import { renderScene } from '@/renderers/canvas/renderScene'
 import { registry, hasBrowserRenderer } from '@/renderers/registry'
 import type { Renderer } from '@/renderers/types'
+import QualityFocus from './QualityFocus'
 
 function CssPreview({ ir, timeMs }: { ir: DrawingIR; timeMs: number }) {
   const host = useRef<HTMLDivElement>(null)
@@ -54,7 +55,10 @@ function CanvasFrame({ ir, timeMs = 0 }: { ir: DrawingIR; timeMs?: number }) {
   </div>
 }
 
-export default function CanvasPreview({ ir, timeMs = 0, backend = 'canvas2d' }: { ir: DrawingIR; timeMs?: number; backend?: string }) {
+export default function CanvasPreview({ ir, timeMs = 0, backend = 'canvas2d', focusNodeIds }: { ir: DrawingIR; timeMs?: number; backend?: string; focusNodeIds?: string[] }) {
   if (!hasBrowserRenderer(backend)) return <p role="status">当前浏览器没有 {backend} 适配器，无法重绘；服务器保存的 PNG 仍可查看。</p>
-  return backend === 'css' ? <CssPreview ir={ir} timeMs={timeMs} /> : <CanvasFrame ir={ir} timeMs={timeMs} />
+  return <div className="render-preview" style={{maxWidth:ir.viewport.width}}>
+    {backend === 'css' ? <CssPreview ir={ir} timeMs={timeMs} /> : <CanvasFrame ir={ir} timeMs={timeMs} />}
+    {focusNodeIds?.length ? <QualityFocus ir={ir} timeMs={timeMs} nodeIds={focusNodeIds} /> : null}
+  </div>
 }

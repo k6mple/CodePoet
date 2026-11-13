@@ -11803,6 +11803,17 @@
               "$ref": "#/components/schemas/Issue"
             },
             "maxItems": 100
+          },
+          "assessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QualityAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Q1可选版本化质量报告，历史缺失仍可读；score未校准为null，算法失败明确unavailable，不使成功PNG失效。"
           }
         },
         "required": [
@@ -13073,6 +13084,11 @@
               },
               "workSnapshotImport": {
                 "type": "boolean"
+              },
+              "qualityAssessment": {
+                "type": "boolean",
+                "default": false,
+                "description": "实例提供版本化Q1质量报告；缺失按false。"
               }
             },
             "required": [
@@ -14512,6 +14528,275 @@
           "data"
         ],
         "description": "基础版导入包：每类最多100条，workSnapshots必须为空；作品IR只导出，不恢复成品。"
+      },
+      "QualityEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "maxLength": 500,
+            "title": "Message",
+            "type": "string"
+          },
+          "nodeIds": {
+            "items": {
+              "maxLength": 80,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Nodeids",
+            "type": "array"
+          },
+          "timeMs": {
+            "anyOf": [
+              {
+                "maximum": 15000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timems"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "details": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxProperties": 12,
+            "title": "Details",
+            "type": "object"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "Evidence",
+        "type": "object"
+      },
+      "QualityMetric": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "parameterValidity",
+              "layoutConflict",
+              "colorSemantic",
+              "signalNoise"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "method": {
+            "maxLength": 1000,
+            "title": "Method",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/QualityEvidence"
+            },
+            "maxItems": 25,
+            "title": "Evidence",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "status",
+          "method"
+        ],
+        "title": "Metric",
+        "type": "object"
+      },
+      "QualityRecommendation": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 80,
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 500,
+            "title": "Message",
+            "type": "string"
+          },
+          "nodeIds": {
+            "items": {
+              "maxLength": 80,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Nodeids",
+            "type": "array"
+          },
+          "timeMs": {
+            "anyOf": [
+              {
+                "maximum": 15000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timems"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "Recommendation",
+        "type": "object"
+      },
+      "QualityAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "algorithmVersion": {
+            "maxLength": 80,
+            "title": "Algorithmversion",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "evaluatedTimesMs": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "title": "Evaluatedtimesms",
+            "type": "array"
+          },
+          "thresholds": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "maxProperties": 12,
+            "title": "Thresholds",
+            "type": "object"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/QualityMetric"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Metrics",
+            "type": "array"
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/QualityRecommendation"
+            },
+            "maxItems": 20,
+            "title": "Recommendations",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Limitations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "algorithmVersion",
+          "status",
+          "evaluatedTimesMs",
+          "thresholds",
+          "metrics"
+        ],
+        "title": "Assessment",
+        "type": "object"
       }
     },
     "parameters": {},
