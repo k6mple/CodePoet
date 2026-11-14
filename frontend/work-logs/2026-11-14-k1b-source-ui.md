@@ -1,7 +1,7 @@
 # 交接：K1-B 外部图谱入口与来源快照展示
 
 日期 / 任务 ID：2026-11-14 / 2026-11-14-k1b-source-ui
-代码基线：`origin/pr-23` `d6e92d3` + 本分支 R2/K1 前端提交（本地提交，未 push）。
+代码基线：`origin/pr-23` `d6e92d3` + 本分支 R2/K1 前端提交。已 push 并开 PR [#27](https://github.com/k6mple/CodePoet/pull/27)，未合并。
 当前状态：**前端入口与来源快照展示已实现；真实外部来源生成/3实体2关系未联调**（本机没有配置 `CODEPOET_KNOWLEDGE_GRAPH_SOURCES` 的可用来源）。不把 fixture 渲染当作真实 K1 验收。
 
 ## 前端变化
@@ -24,4 +24,4 @@
 - 前端（B）：真实来源可用后验证 Creator 入口、错误码（503/504/422/NO_SEMANTIC_MATCH）展示、作品详情来源快照与重开复现；如来源键不是 `wikidata`，确认外链回退为纯文本。
 - 集成负责人：K1-B 仍按 C 类条件项记录；未完成真实来源验收前不要把 `knowledgeGraph` 声明为已闭环。
 
-本轮未修改 `backend/`、未 push；K1-B 的真实来源验收按职责交由 A/部署负责人。
+本轮未修改 `backend/`；已 push 分支并开 PR #27，未合并；K1-B 的真实来源验收按职责交由 A/部署负责人。
