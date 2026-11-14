@@ -20,6 +20,11 @@ import { hasBrowserRenderer } from '@/renderers/registry'
 import { backendLabel } from '@/renderers/backend'
 
 const PAGE_SIZE = 20
+// Prefer a backend the current browser can actually draw; a draft may declare
+// turtle/webgl before the browser adapter exists.
+function previewBackend(backends: string[]) {
+  return backends.find(hasBrowserRenderer) ?? backends[0] ?? 'unavailable'
+}
 const canManageTemplates = (permissions: string[]) => permissions.some((permission) =>
   permission === 'templates.create' || permission === 'templates.editOwn' || permission === 'templates.editAny')
 
@@ -665,7 +670,7 @@ export function TemplateEditor({ id }: { id: string }) {
                     {versionView.lastReview.decision === 'approve' ? '审核通过' : '审核退回'}：{versionView.lastReview.reason || '未填写理由'}
                   </InlineNotice>}
                   <div className="version-view-grid">
-                    <div className="version-preview"><CanvasPreview ir={versionView.irTemplate} backend={versionView.supportedBackends[0]} timeMs={versionView.irTemplate.durationMs} /></div>
+                    <div className="version-preview"><CanvasPreview ir={versionView.irTemplate} backend={previewBackend(versionView.supportedBackends)} timeMs={versionView.irTemplate.durationMs} /></div>
                     <div>
                       <dl className="label-list">
                         <div><dt>变更说明</dt><dd>{versionView.changeNote || '—'}</dd></div>
@@ -676,7 +681,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
                       {isEditableVersion(versionView.status) && <Link
                         className="button button--secondary button--small"
-                        href={`/?draft=${encodeURIComponent(versionView.id)}&backend=${encodeURIComponent(versionView.supportedBackends.find(hasBrowserRenderer) ?? versionView.supportedBackends[0])}`}
+                        href={`/?draft=${encodeURIComponent(versionView.id)}&backend=${encodeURIComponent(previewBackend(versionView.supportedBackends))}`}
                       >在创作台私有预览默认参数</Link>}
                     </div>
                   </div>
@@ -730,7 +735,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       </label>
                     </div>
                     {parsedIr
-                      ? <div className="version-preview"><CanvasPreview ir={parsedIr} backend={editor.draft.supportedBackends[0] ?? 'unavailable'} timeMs={parsedIr.durationMs} /><p className="plate-caption">模板原始 IR 预览 · {backendLabel(editor.draft.supportedBackends[0] ?? '')} · 未应用参数与绑定</p></div>
+                      ? <div className="version-preview"><CanvasPreview ir={parsedIr} backend={previewBackend(editor.draft.supportedBackends)} timeMs={parsedIr.durationMs} /><p className="plate-caption">模板原始 IR 预览 · {backendLabel(previewBackend(editor.draft.supportedBackends))} · 未应用参数与绑定</p></div>
                       : <p className="field-note">IR JSON 尚未解析为带 nodes 数组的对象，暂时无法预览。</p>}
                     {parameterErrors.length > 0
                       ? <InlineNotice tone="error" title="参数 schema 校验未通过">{parameterErrors.join('\n')}</InlineNotice>

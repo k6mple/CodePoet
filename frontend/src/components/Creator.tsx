@@ -507,7 +507,9 @@ export default function Creator() {
     manualLock.current = false
     setPending(false)
     backendRef.current = next
-    restoredTemplate.current = null
+    // A restored draft keeps its version reference across backend switches.
+    // The version effect reloads the same draft and falls back to a declared
+    // browser backend if the new backend is not supported by that draft.
     setBackend(next)
     setVersion(null)
     setTemplates([])
