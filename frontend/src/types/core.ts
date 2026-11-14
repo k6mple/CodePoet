@@ -328,6 +328,42 @@ export interface Provenance {
   engineVersion: string
   ontologyVersion: number
   policyRevision: number
+  externalGraph?: ExternalGraph | null
+}
+
+export interface ExternalEntity {
+  id: string
+  label: string
+  description: string | null
+  attributes: Record<string, string>
+}
+
+export interface ExternalRelation {
+  id: string
+  type: string
+  fromId: string
+  toId: string
+  label: string | null
+}
+
+export interface MappingDecision {
+  kind: 'entity' | 'relation' | 'attribute'
+  externalId: string
+  target: 'knowledge-entity' | 'rule' | 'caption' | 'symbols'
+  targetId: string | null
+  affects: 'rule-selection' | 'caption' | 'symbols' | 'palette'
+  reason: string
+}
+
+export interface ExternalGraph {
+  sourceId: string
+  externalEntityId: string
+  fetchedAt: string
+  dataVersion: string | null
+  contentHash: string
+  entities: ExternalEntity[]
+  relations: ExternalRelation[]
+  mappingDecisions: MappingDecision[]
 }
 
 interface Decision {
@@ -479,7 +515,7 @@ export interface Page<T> {
 export interface Capabilities {
   profile: string
   backends: { backend: Backend; available: boolean; executionModes: string[]; unavailableReason: string | null; rendererVersion?: string; nodeTypes?: string[]; animationProperties?: string[]; maxNodes?: number; maxFrames?: number }[]
-  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean; qualityAssessment?: boolean }
+  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean; qualityAssessment?: boolean; knowledgeGraph?: boolean }
 }
 
 // P1-A knowledge, ontology and tag models. Field names follow docs/openapi-core.json.
