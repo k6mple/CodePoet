@@ -16,7 +16,9 @@ const FRAGMENT_SHADER = `
 precision mediump float;
 uniform vec4 u_color;
 void main() {
-  gl_FragColor = u_color;
+  // Premultiplied output: the drawing buffer is premultiplied, matching the
+  // WebGL default and keeping transparent-background colors correct.
+  gl_FragColor = vec4(u_color.rgb * u_color.a, u_color.a);
 }
 `
 
@@ -157,7 +159,7 @@ export class WebglRenderer implements Renderer {
       antialias: true,
       depth: false,
       stencil: false,
-      premultipliedAlpha: false,
+      premultipliedAlpha: true,
       preserveDrawingBuffer: true,
     })
     if (!gl) throw new Error('当前浏览器不支持 WebGL')
@@ -189,10 +191,9 @@ export class WebglRenderer implements Renderer {
     gl.enableVertexAttribArray(positionLocation)
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
     gl.enable(gl.BLEND)
-    // Straight-alpha source-over for RGB, while keeping destination alpha at 1
-    // for the opaque IR background. Using the same factors for alpha would
-    // make the canvas semi-transparent after the first translucent node.
-    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+    // Source-over with premultiplied source colors; alpha stays
+    // source-over as well so a transparent canvas preserves exact coverage.
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
     gl.disable(gl.DEPTH_TEST)
     gl.disable(gl.CULL_FACE)
 

@@ -1,15 +1,17 @@
 // Real Chromium WebGL geometry, transparency, animation, crop and lifecycle
 // checks. No API fixtures: the renderer is exercised directly in the browser.
-import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { browserModule } from './browser-modules.mjs'
 
 const { chromium } = createRequire(import.meta.url)('playwright')
 if (!process.argv[2]) throw new Error('Pass an output directory under frontend/local-work-logs')
 const out = path.resolve(process.argv[2])
-if (!out.includes(`${path.sep}local-work-logs${path.sep}`)) {
+const localRoot = path.resolve(fileURLToPath(new URL('../local-work-logs/', import.meta.url)))
+const relative = path.relative(localRoot, out)
+if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) {
   throw new Error('Output directory must be under frontend/local-work-logs')
 }
 await mkdir(out, { recursive: true })
@@ -102,6 +104,22 @@ const cases = [
     ],
   },
   {
+    name: 'parent-scaled-stroke',
+    capture: true,
+    ir: ir({
+      nodes: [
+        { id: 'g', parentId: null, type: 'group', transform: { x: 0, y: 0, rotation: 0, scaleX: 2, scaleY: 2 }, style: { opacity: 1 } },
+        { id: 'line', parentId: 'g', type: 'polyline', geometry: { points: [[100, 150], [350, 150]] }, style: { fill: null, stroke: '#0000FF', strokeWidth: 20, opacity: 1 } },
+      ],
+    }),
+    times: [0],
+    samples: [
+      { label: 'scaled geometry center', x: 400, y: 300, expected: BLUE, tolerance: 4 },
+      { label: 'logical half width', x: 400, y: 309, expected: BLUE, tolerance: 4 },
+      { label: 'stroke width must not scale', x: 400, y: 315, expected: WHITE, tolerance: 2 },
+    ],
+  },
+  {
     name: 'stroked-polygon-opacity',
     capture: true,
     ir: ir({
@@ -176,10 +194,13 @@ const cases = [
 ]
 
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
+let result
+const pageErrors = []
 try {
   const page = await browser.newPage({ viewport: { width: 1100, height: 900 }, deviceScaleFactor: 1 })
+  page.on('pageerror', error => pageErrors.push(error.message))
   await page.goto('about:blank')
-  const result = await page.evaluate(async ({ registry, exporter, cases }) => {
+  const evaluated = await page.evaluate(async ({ registry, exporter, cases }) => {
     const check = (value, message) => { if (!value) throw new Error(message) }
     const { registry: factory } = (0, eval)(registry)
     const { exportBackendFrame } = (0, eval)(exporter)
@@ -211,6 +232,62 @@ try {
       const tolerance = sample.tolerance ?? 3
       check(sample.expected.every((channel, index) => Math.abs(channel - actual[index]) <= tolerance),
         `${name} ${sample.label}: expected ${sample.expected.join(',')} got ${actual.join(',')}`)
+    }
+    const rejects = async (operation, message) => {
+      let rejected = false
+      try { await operation() } catch { rejected = true }
+      check(rejected, message)
+    }
+    const eventOnce = (target, type) => new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`${type} timeout`)), 3000)
+      target.addEventListener(type, () => { clearTimeout(timer); resolve() }, { once: true })
+    })
+    const compareCrossBackend = async (name, sourceIr) => {
+      const [canvasBlob, webglBlob] = await Promise.all([
+        exportBackendFrame('canvas2d', sourceIr, 0),
+        exportBackendFrame('webgl', sourceIr, 0),
+      ])
+      const [canvasImage, webglImage] = await Promise.all([pixels(canvasBlob), pixels(webglBlob)])
+      check(canvasImage.width === webglImage.width && canvasImage.height === webglImage.height, `${name}: cross-backend dimensions`)
+      const width = canvasImage.width, height = canvasImage.height
+      const foreground = new Uint8Array(width * height)
+      for (let index = 0; index < width * height; index += 1) {
+        const offset = index * 4
+        if (Math.max(Math.abs(canvasImage.data[offset] - 255), Math.abs(canvasImage.data[offset + 1] - 255), Math.abs(canvasImage.data[offset + 2] - 255)) > 12) {
+          foreground[index] = 1
+        }
+      }
+      const edge = new Uint8Array(width * height)
+      for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+          const index = y * width + x
+          if (!foreground[index]) continue
+          for (let dy = -1; dy <= 1; dy += 1) {
+            for (let dx = -1; dx <= 1; dx += 1) {
+              const nx = x + dx, ny = y + dy
+              if (nx >= 0 && nx < width && ny >= 0 && ny < height) edge[ny * width + nx] = 1
+            }
+          }
+        }
+      }
+      let differentPixels = 0, edgeBandDiffPixels = 0, interiorDiffPixels = 0, sumDelta = 0, maxChannelDelta = 0
+      for (let index = 0; index < width * height; index += 1) {
+        const offset = index * 4
+        let different = false
+        for (let channel = 0; channel < 4; channel += 1) {
+          const delta = Math.abs(canvasImage.data[offset + channel] - webglImage.data[offset + channel])
+          sumDelta += delta
+          maxChannelDelta = Math.max(maxChannelDelta, delta)
+          if (delta > 0) different = true
+        }
+        if (different) {
+          differentPixels += 1
+          if (edge[index]) edgeBandDiffPixels += 1
+          else interiorDiffPixels += 1
+        }
+      }
+      check(interiorDiffPixels === 0, `${name}: non-edge cross-backend mismatch ${interiorDiffPixels}`)
+      return { name, width, height, differentPixels, differentRatio: differentPixels / (width * height), edgeBandDiffPixels, interiorDiffPixels, mae: sumDelta / (width * height * 4), maxChannelDelta }
     }
 
     for (const testCase of cases) {
@@ -249,32 +326,63 @@ try {
       check(canvas.width === 0 && canvas.height === 0, `${testCase.name}: dispose releases backing store`)
     }
 
-    // Context loss must reject operations, restore the same renderer, and redraw.
+    // Context loss must reject operations, restore the same renderer, and redraw identically.
     const lossCanvas = document.createElement('canvas')
     document.body.append(lossCanvas)
     const lossRenderer = factory.create('webgl', lossCanvas)
     await lossRenderer.load(cases[0].ir)
+    const beforeImage = await pixels(await lossRenderer.toPNG())
     const gl = lossCanvas.getContext('webgl')
     const extension = gl?.getExtension('WEBGL_lose_context')
     check(Boolean(extension), 'WEBGL_lose_context unavailable')
-    let lost = false
-    let restored = false
-    lossCanvas.addEventListener('webglcontextlost', () => { lost = true }, { once: true })
-    lossCanvas.addEventListener('webglcontextrestored', () => { restored = true }, { once: true })
+    const lostEvent = eventOnce(lossCanvas, 'webglcontextlost')
+    const restoredEvent = eventOnce(lossCanvas, 'webglcontextrestored')
     extension.loseContext()
+    await lostEvent
+    await rejects(() => lossRenderer.seek(0), 'seek while context lost must reject')
+    await rejects(() => lossRenderer.toPNG(), 'toPNG while context lost must reject')
+    // Chrome wants the loss event to settle before restoreContext().
     await wait(80)
-    check(lost || gl.isContextLost(), 'context lost event')
-    let rejectedWhileLost = false
-    try { await lossRenderer.seek(0) } catch { rejectedWhileLost = true }
-    check(rejectedWhileLost, 'seek while context lost must reject')
     extension.restoreContext()
-    await wait(150)
-    check(restored, 'context restored event')
+    await restoredEvent
     await lossRenderer.seek(0)
-    const restoredBlob = await lossRenderer.toPNG()
-    check(restoredBlob.type === 'image/png' && restoredBlob.size > 0, 'PNG after context restore')
+    const afterImage = await pixels(await lossRenderer.toPNG())
+    check(beforeImage.data.every((value, index) => value === afterImage.data[index]), 'post-restore frame equals pre-loss frame')
     lossRenderer.dispose()
     lossRenderer.dispose()
+    check(lossCanvas.width === 0 && lossCanvas.height === 0, 'dispose zeroes WebGL backing store')
+    await rejects(() => lossRenderer.seek(0), 'seek after dispose must reject')
+    await rejects(() => lossRenderer.toPNG(), 'toPNG after dispose must reject')
+    await rejects(() => lossRenderer.load(cases[0].ir), 'load after dispose must reject')
+
+    // Transparent background: compare the WebGL PNG against the Canvas2D
+    // straight-alpha PNG at the same pixel, not against a hard-coded color.
+    const transparentIr = {
+      ...cases[1].ir,
+      canvas: { ...cases[1].ir.canvas, background: null },
+      nodes: [
+        { id: 't', parentId: null, type: 'circle', geometry: { cx: 400, cy: 300, r: 80 }, style: { fill: '#FF0000', stroke: null, strokeWidth: 0, opacity: 0.5 } },
+      ],
+      animations: [],
+      durationMs: 0,
+    }
+    const transparentCanvas = await exportBackendFrame('canvas2d', transparentIr, 0)
+    const transparentWebgl = await exportBackendFrame('webgl', transparentIr, 0)
+    const [transparentCanvasImage, transparentWebglImage] = await Promise.all([pixels(transparentCanvas), pixels(transparentWebgl)])
+    const transparentOffset = (300 * transparentCanvasImage.width + 400) * 4
+    const transparentCanvasPixel = Array.from(transparentCanvasImage.data.slice(transparentOffset, transparentOffset + 4))
+    const transparentWebglPixel = Array.from(transparentWebglImage.data.slice(transparentOffset, transparentOffset + 4))
+    check(transparentCanvasPixel.every((channel, index) => Math.abs(channel - transparentWebglPixel[index]) <= 2),
+      `transparent background differs: canvas ${transparentCanvasPixel.join(',')} webgl ${transparentWebglPixel.join(',')}`)
+    images.push({ name: 'transparent-canvas.png', base64: await base64(transparentCanvas), width: transparentCanvasImage.width, height: transparentCanvasImage.height, size: transparentCanvas.size })
+    images.push({ name: 'transparent-webgl.png', base64: await base64(transparentWebgl), width: transparentWebglImage.width, height: transparentWebglImage.height, size: transparentWebgl.size })
+
+    // Cross-backend differences are reported, not used as a hash pass/fail:
+    // edges may differ by anti-aliasing, interiors must match.
+    const crossBackend = [
+      await compareCrossBackend('concave-polygon', cases[1].ir),
+      await compareCrossBackend('thick-stroke-crop', cases[3].ir),
+    ]
 
     // exportBackendFrame must create a canvas host for WebGL and return a PNG.
     const exported = await exportBackendFrame('webgl', cases[3].ir, 0)
@@ -282,14 +390,28 @@ try {
     check(exported.type === 'image/png' && exportedImage.width === 800 && exportedImage.height === 600, 'exportBackendFrame webgl')
     checkColor('exportBackendFrame', exportedImage, cases[3].samples[0])
 
-    return { status: 'passed', checks, images, protocol: ['real-webgl-context', 'viewport-size-and-crop', 'fill-orders-and-concave', 'stroke-width-and-clip', 'parent-child-animation', 'serial-seek-export', 'context-loss-and-restore', 'dispose', 'exportBackendFrame'] }
+    return {
+      status: 'passed',
+      checks,
+      images,
+      crossBackend,
+      transparentBackend: { canvas: transparentCanvasPixel, webgl: transparentWebglPixel },
+      protocol: ['real-webgl-context', 'viewport-size-and-crop', 'fill-orders-and-concave', 'stroke-width-and-clip', 'stroke-width-not-scaled', 'parent-child-animation', 'serial-seek-export', 'context-loss-and-restore', 'dispose', 'transparent-background', 'cross-backend-aa-report', 'exportBackendFrame'],
+    }
   }, { registry, exporter, cases })
-  for (const image of result.images) {
-    await writeFile(path.join(out, image.name), Buffer.from(image.base64, 'base64'))
-    delete image.base64
-  }
-  await writeFile(path.join(out, 'webgl-results.json'), JSON.stringify(result, null, 2) + '\n')
-  console.log(JSON.stringify({ status: result.status, checks: result.checks.length, images: result.images.length }, null, 2))
+  if (pageErrors.length) throw new Error(`page errors: ${pageErrors.join(' | ')}`)
+  result = { ...evaluated, pageErrors }
+} catch (error) {
+  result = { status: 'failed', failure: error.stack || error.message, pageErrors, checks: [], images: [], protocol: [] }
+  process.exitCode = 1
 } finally {
+  if (result) {
+    for (const image of result.images) {
+      await writeFile(path.join(out, image.name), Buffer.from(image.base64, 'base64'))
+      delete image.base64
+    }
+    await writeFile(path.join(out, 'webgl-results.json'), JSON.stringify(result, null, 2) + '\n')
+    console.log(JSON.stringify({ status: result.status, checks: result.checks.length, images: result.images.length }, null, 2))
+  }
   await browser.close()
 }

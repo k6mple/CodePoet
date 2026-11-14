@@ -30,6 +30,13 @@
       "size": 11871
     },
     {
+      "name": "parent-scaled-stroke",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11874
+    },
+    {
       "name": "stroked-polygon-opacity",
       "timeMs": 0,
       "width": 800,
@@ -102,6 +109,13 @@
       "size": 11871
     },
     {
+      "name": "parent-scaled-stroke-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11874
+    },
+    {
       "name": "stroked-polygon-opacity-0.png",
       "timeMs": 0,
       "width": 800,
@@ -142,17 +156,71 @@
       "width": 400,
       "height": 300,
       "size": 3845
+    },
+    {
+      "name": "transparent-canvas.png",
+      "width": 800,
+      "height": 600,
+      "size": 15055
+    },
+    {
+      "name": "transparent-webgl.png",
+      "width": 800,
+      "height": 600,
+      "size": 13901
     }
   ],
+  "crossBackend": [
+    {
+      "name": "concave-polygon",
+      "width": 800,
+      "height": 600,
+      "differentPixels": 0,
+      "differentRatio": 0,
+      "edgeBandDiffPixels": 0,
+      "interiorDiffPixels": 0,
+      "mae": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "name": "thick-stroke-crop",
+      "width": 800,
+      "height": 600,
+      "differentPixels": 0,
+      "differentRatio": 0,
+      "edgeBandDiffPixels": 0,
+      "interiorDiffPixels": 0,
+      "mae": 0,
+      "maxChannelDelta": 0
+    }
+  ],
+  "transparentBackend": {
+    "canvas": [
+      255,
+      0,
+      0,
+      128
+    ],
+    "webgl": [
+      255,
+      0,
+      0,
+      127
+    ]
+  },
   "protocol": [
     "real-webgl-context",
     "viewport-size-and-crop",
     "fill-orders-and-concave",
     "stroke-width-and-clip",
+    "stroke-width-not-scaled",
     "parent-child-animation",
     "serial-seek-export",
     "context-loss-and-restore",
     "dispose",
+    "transparent-background",
+    "cross-backend-aa-report",
     "exportBackendFrame"
-  ]
+  ],
+  "pageErrors": []
 }
