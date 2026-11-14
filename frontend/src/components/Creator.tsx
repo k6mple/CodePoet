@@ -4,8 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { errorMessage, request } from '@/api/client'
 import { renderRequest, uploadRenderFrames, cancelRenderJob } from '@/api/render'
-import { backendLabel, generationBackend } from '@/renderers/backend'
-import { hasBrowserRenderer, rendererVersion } from '@/renderers/registry'
+import { backendLabel, backendExecutable, capabilityReason, generationBackend } from '@/renderers/backend'
 import type {
   Backend, Capabilities, CreationSession, DrawingIR, EditorState, Generation, Page, Parameter, Params, QualityLocation, RenderJob, SemanticInput, Template, TemplateVersion, Work, WorkDetail, WorkVersion,
 } from '@/types/core'
@@ -24,15 +23,6 @@ function EmptyCanvas({ busy, label }: { busy: boolean; label?: string }) {
     <p className="empty-canvas__title">{busy ? (label ?? '正在载入') : '画布尚未生成'}</p>
     <p className="empty-canvas__hint">{busy ? '请稍候。' : '选择模板后，作品会在这里出现。'}</p>
   </div>
-}
-
-function supportsBackend(caps: Capabilities | undefined, backend: Backend): boolean {
-  const item = caps?.backends.find(entry => entry.backend === backend)
-  if (!item?.available) return false
-  if (backend === 'turtle') return item.executionModes.includes('server')
-  return hasBrowserRenderer(backend) && item.executionModes.includes('browser_upload')
-    && (!item.rendererVersion || item.rendererVersion === rendererVersion(backend)
-      || (backend === 'canvas2d' && item.rendererVersion === 'p0-03.1'))
 }
 
 export default function Creator() {
@@ -73,6 +63,7 @@ export default function Creator() {
   const [generation, setGeneration] = useState<Generation | null>(null)
   const [capability, setCapability] = useState(false)
   const [loadError, setLoadError] = useState('')
+  const [capabilityNotice, setCapabilityNotice] = useState('')
   const [versionError, setVersionError] = useState('')
   const [generateError, setGenerateError] = useState('')
   const [saveError, setSaveError] = useState('')
@@ -119,14 +110,15 @@ export default function Creator() {
     const controller = new AbortController()
     setLoading(true)
     setLoadError('')
+    setCapabilityNotice('')
     setCapability(false)
     request<Capabilities>('/engine/capabilities', { signal: controller.signal }).then((caps) => {
       if (controller.signal.aborted) return
       setFeatures(caps.features)
       setCapabilities(caps)
-      const available = caps.profile === 'core-demo' && supportsBackend(caps, backend)
+      const available = caps.profile === 'core-demo' && backendExecutable(caps, backend)
       setCapability(available)
-      if (!available) setLoadError(`当前 ${backendLabel(backend)} 能力或适配器版本未就绪，生成与保存暂不可用。`)
+      setCapabilityNotice(available ? '' : capabilityReason(caps, backend) || '当前后端能力未就绪。')
     }).catch((cause) => {
       if (!controller.signal.aborted) setLoadError(errorMessage(cause))
     })
@@ -173,8 +165,8 @@ export default function Creator() {
         // Old draft links may have no backend query. Restore a declared adapter
         // before validating; keep the draft reference for the next effect run.
         if (restoredTemplate.current && !result.supportedBackends.includes(backend)) {
-          const next = result.supportedBackends.find(hasBrowserRenderer) ?? result.supportedBackends[0]
-          if (next) { backendRef.current = next as Backend; setBackend(next as Backend); return }
+          const next = result.supportedBackends.find(item => backendExecutable(capabilities, item as Backend)) as Backend | undefined
+          if (next) { backendRef.current = next; setBackend(next); return }
         }
         if (!result.supportedBackends.includes(backend)) throw new Error('该模板版本不支持当前渲染后端，请选择其他模板或后端。')
         const restoredParams = restoredTemplate.current?.params
@@ -186,7 +178,7 @@ export default function Creator() {
         if (!controller.signal.aborted) setVersionLoading(false)
       })
     return () => controller.abort()
-  }, [selected, templates, mode, initializing, templateRequest, backend])
+  }, [selected, templates, mode, initializing, templateRequest, backend, capabilities])
 
   useEffect(() => {
     if (mode !== 'template') return
@@ -523,7 +515,7 @@ export default function Creator() {
   }
 
   function switchBackend(next: Backend) {
-    if (next === backend || saveLock.current || sessionBusy || !supportsBackend(capabilities, next)) return
+    if (next === backend || saveLock.current || sessionBusy || !backendExecutable(capabilities, next)) return
     generationSequence.current++
     manualController.current?.abort()
     manualController.current = null
@@ -667,8 +659,8 @@ export default function Creator() {
 
     <label className="field">渲染后端
       <select aria-label="渲染后端" value={backend} disabled={initializing || saving || sessionBusy} onChange={event => switchBackend(event.target.value as Backend)}>
-        {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!supportsBackend(capabilities, item)}>
-          {backendLabel(item)}{supportsBackend(capabilities, item) ? '' : '（未就绪）'}
+        {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!backendExecutable(capabilities, item)}>
+          {backendLabel(item)}{backendExecutable(capabilities, item) ? '' : '（未就绪）'}
         </option>)}
       </select>
     </label>
@@ -682,6 +674,14 @@ export default function Creator() {
         </details>
         <div className="notice__actions">
           <button type="button" className="button button--secondary button--small" onClick={() => setAttempt((value) => value + 1)}>重新加载</button>
+        </div>
+      </InlineNotice>
+    </div>}
+    {capabilityNotice && <div className="creator-alert">
+      <InlineNotice tone="info" title={`${backendLabel(backend)} 未就绪`}>
+        {capabilityNotice}
+        <div className="notice__actions">
+          <button type="button" className="button button--secondary button--small" onClick={() => setAttempt((value) => value + 1)}>重新检查能力</button>
         </div>
       </InlineNotice>
     </div>}
@@ -863,15 +863,15 @@ export default function Creator() {
         {mode === 'ir' && (generation && generation.ownerId === userId
           ? <IRControls key={generation.id} ir={generation.ir} draft={draft} selected={nodeId}
             onSelect={setNodeId} disabled={saving || pending || initializing || !capability}
-            subgraph={Boolean(features?.subgraphEditing)}
+            subgraph={Boolean(features?.subgraphEditing) && generationBackend(generation) === backend}
             onDraft={(value) => { setDraft(value); setDirty(true) }}
             onApply={(ir) => void runManual('/generations', {
               mode: 'ir', baseGenerationId: generation.id, ir, backend,
             })}
-            onSubgraph={(edit) => void runManual(`/generations/${encodeURIComponent(generation.id)}/subgraph`, edit, true)}
+            onSubgraph={(edit) => void runManual(`/generations/${encodeURIComponent(generation.id)}/subgraph`, edit, true, generationBackend(generation))}
           />
           : <p className="rail-lead">先生成一个作品，再以其 IR 为编辑基础。</p>)}
-        {generateError && <InlineNotice tone="error" title="修改未应用">{generateError}</InlineNotice>}
+        {generateError && <InlineNotice tone="error" title={mode === 'semantic' ? '生成未完成' : '修改未应用'}>{generateError}</InlineNotice>}
       </aside>
 
       <section className="archive" aria-labelledby="archive-heading">

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { DrawingIR } from '@/types/core'
 import { renderScene } from '@/renderers/canvas/renderScene'
-import { registry, hasBrowserRenderer } from '@/renderers/registry'
+import { registry, browserSupportsRenderer } from '@/renderers/registry'
 import type { Renderer } from '@/renderers/types'
 import QualityFocus from './QualityFocus'
 
@@ -42,9 +42,14 @@ function WebglFrame({ ir, timeMs }: { ir: DrawingIR; timeMs: number }) {
     const instance = registry.create('webgl', canvas)
     renderer.current = instance
     void instance.load(ir).catch(cause => {
-      if (renderer.current === instance) setError(cause instanceof Error ? cause.message : '绘制失败')
+      if (renderer.current === instance) {
+        setError(cause instanceof Error ? cause.message : '绘制失败')
+        // Do not let the follow-up seek replace the real load failure with
+        // the generic "请先加载 IR" error.
+        renderer.current = null
+      }
     })
-    return () => { renderer.current = null; instance.dispose() }
+    return () => { renderer.current = null; instance.dispose(false) }
   }, [ir])
   useEffect(() => {
     const instance = renderer.current
@@ -86,7 +91,7 @@ function CanvasFrame({ ir, timeMs = 0 }: { ir: DrawingIR; timeMs?: number }) {
 }
 
 export default function CanvasPreview({ ir, timeMs = 0, backend = 'canvas2d', focusNodeIds }: { ir: DrawingIR; timeMs?: number; backend?: string; focusNodeIds?: string[] }) {
-  if (!hasBrowserRenderer(backend)) return <p role="status">当前浏览器没有 {backend} 适配器，无法重绘；服务器保存的 PNG 仍可查看。</p>
+  if (!browserSupportsRenderer(backend)) return <p role="status">当前浏览器没有 {backend} 适配器，无法重绘；服务器保存的 PNG 仍可查看。</p>
   return <div className="render-preview" style={{maxWidth:ir.viewport.width}}>
     {backend === 'css' ? <CssPreview ir={ir} timeMs={timeMs} />
       : backend === 'webgl' ? <WebglFrame ir={ir} timeMs={timeMs} />

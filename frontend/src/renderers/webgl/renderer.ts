@@ -1,7 +1,7 @@
 import type { DrawingIR } from '../../types/core'
 import { sampleScene } from '../scene'
 import type { Renderer } from '../types'
-import { rgb, strokeTriangles, triangulate, type Point } from './geometry'
+import { polylineSelfIntersects, rgb, strokeTriangles, triangulate, type Point } from './geometry'
 
 export const WEBGL_RENDERER_VERSION = 'codepoet-webgl-1.0.0'
 
@@ -33,6 +33,8 @@ export class WebglRenderer implements Renderer {
   private buffer: WebGLBuffer | null = null
   private positionLocation = -1
   private colorLocation: WebGLUniformLocation | null = null
+  private stencilAvailable = false
+  private selfIntersectCache = new Map<string, boolean>()
   private ir: DrawingIR | null = null
   private lastTime = 0
   private pending: Promise<unknown> = Promise.resolve()
@@ -83,9 +85,10 @@ export class WebglRenderer implements Renderer {
       if (!canvas) throw new Error('Renderer 已释放')
       canvas.width = ir.viewport.width
       canvas.height = ir.viewport.height
-      this.ir = ir
       this.restoreError = null
+      this.selfIntersectCache.clear()
       this.initContext()
+      this.ir = ir
       this.render(0)
     })
   }
@@ -121,7 +124,7 @@ export class WebglRenderer implements Renderer {
     })
   }
 
-  dispose(): void {
+  dispose(releaseContext = true): void {
     const canvas = this.canvas
     this.canvas = null
     this.ir = null
@@ -134,7 +137,10 @@ export class WebglRenderer implements Renderer {
     if (this.gl) {
       if (this.program) this.gl.deleteProgram(this.program)
       if (this.buffer) this.gl.deleteBuffer(this.buffer)
-      this.gl.getExtension('WEBGL_lose_context')?.loseContext()
+      // CanvasPreview reuses its canvas for the next IR, so it passes false.
+      // Export/test callers discard the canvas and release the context to
+      // avoid exhausting the browser's WebGL context limit.
+      if (releaseContext) this.gl.getExtension('WEBGL_lose_context')?.loseContext()
     }
     this.gl = null
     this.program = null
@@ -158,7 +164,7 @@ export class WebglRenderer implements Renderer {
       alpha: true,
       antialias: true,
       depth: false,
-      stencil: false,
+      stencil: true,
       premultipliedAlpha: true,
       preserveDrawingBuffer: true,
     })
@@ -196,6 +202,10 @@ export class WebglRenderer implements Renderer {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
     gl.disable(gl.DEPTH_TEST)
     gl.disable(gl.CULL_FACE)
+    gl.disable(gl.STENCIL_TEST)
+    gl.clearStencil(0)
+    gl.stencilMask(0xFF)
+    this.stencilAvailable = gl.getParameter(gl.STENCIL_BITS) > 0
 
     this.gl = gl
     this.program = program
@@ -218,12 +228,13 @@ export class WebglRenderer implements Renderer {
   }
 
   private render(timeMs: number): void {
+    if (this.contextLost) throw new Error('WebGL 上下文已丢失，正在恢复')
+    if (this.restoreError) throw new Error(this.restoreError)
     const gl = this.gl
     const canvas = this.canvas
     const ir = this.ir
     if (!gl || !canvas || !ir) throw new Error('请先加载 IR')
-    if (this.contextLost || gl.isContextLost()) throw new Error('WebGL 上下文已丢失，正在恢复')
-    if (this.restoreError) throw new Error(this.restoreError)
+    if (gl.isContextLost()) throw new Error('WebGL 上下文已丢失，正在恢复')
 
     const scene = sampleScene(ir, timeMs)
     this.lastTime = scene.timeMs
@@ -235,11 +246,19 @@ export class WebglRenderer implements Renderer {
     for (const node of scene.nodes) {
       if (node.opacity <= 0) continue
       if (node.style.fill != null) {
+        if (node.type === 'polyline') {
+          let selfIntersecting = this.selfIntersectCache.get(node.id)
+          if (selfIntersecting === undefined) {
+            selfIntersecting = polylineSelfIntersects(node.points)
+            this.selfIntersectCache.set(node.id, selfIntersecting)
+          }
+          if (selfIntersecting) throw new Error('WebGL 渲染器暂不支持自交折线填充')
+        }
         this.draw(triangulate(node.points), node.style.fill, node.opacity, scene.viewport)
       }
       const strokeWidth = node.style.strokeWidth ?? 1
       if (node.style.stroke != null && strokeWidth > 0) {
-        this.draw(
+        this.drawStroke(
           strokeTriangles(node.points, node.type !== 'polyline', strokeWidth),
           node.style.stroke,
           node.opacity,
@@ -247,6 +266,46 @@ export class WebglRenderer implements Renderer {
         )
       }
     }
+  }
+
+  // Stroke triangles can overlap (small circles, backtracks, bevels). A
+  // stencil pass makes each covered pixel blend exactly once, matching the
+  // single Canvas stroke path instead of stacking translucent layers.
+  private drawStroke(triangles: Point[], color: string, opacity: number, viewport: Viewport): void {
+    const gl = this.gl
+    if (!gl || !this.stencilAvailable) {
+      this.draw(triangles, color, opacity, viewport)
+      return
+    }
+    if (triangles.length === 0) return
+    gl.clearStencil(0)
+    gl.stencilMask(0xFF)
+    gl.clear(gl.STENCIL_BUFFER_BIT)
+    gl.enable(gl.STENCIL_TEST)
+    gl.stencilFunc(gl.ALWAYS, 1, 0xFF)
+    gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE)
+    gl.colorMask(false, false, false, false)
+    try {
+      this.draw(triangles, color, opacity, viewport)
+    } finally {
+      gl.colorMask(true, true, true, true)
+    }
+    gl.stencilFunc(gl.EQUAL, 1, 0xFF)
+    gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP)
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (const point of triangles) {
+      minX = Math.min(minX, point[0])
+      minY = Math.min(minY, point[1])
+      maxX = Math.max(maxX, point[0])
+      maxY = Math.max(maxY, point[1])
+    }
+    const quad: Point[] = [
+      [minX, minY], [maxX, minY], [maxX, maxY],
+      [minX, minY], [maxX, maxY], [minX, maxY],
+    ]
+    this.draw(quad, color, opacity, viewport)
+    gl.disable(gl.STENCIL_TEST)
   }
 
   private draw(triangles: Point[], color: string, opacity: number, viewport: Viewport): void {

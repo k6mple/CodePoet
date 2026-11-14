@@ -3,15 +3,14 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { errorMessage, request } from '@/api/client'
-import type { Page, Parameter, Template, TemplateVersion } from '@/types/core'
+import type { Backend, Page, Parameter, Template, TemplateVersion } from '@/types/core'
 import { formatDateTime, parameterTypeLabel, parameterValueLabel, symbolLabel } from '@/utils/format'
 import { SYMBOL_OPTIONS } from '@/utils/template'
 import CanvasPreview from './CanvasPreview'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 import { useCapabilities } from '@/hooks/useCapabilities'
-import { backendLabel, preferredBrowserBackend } from '@/renderers/backend'
-import { hasBrowserRenderer } from '@/renderers/registry'
+import { backendLabel, backendExecutable, preferredBrowserBackend } from '@/renderers/backend'
 
 const PAGE_SIZE = 12
 
@@ -119,7 +118,7 @@ export function TemplateLibrary() {
         </label>
         <label className="field">渲染后端<select value={backend} onChange={event => { setBackend(event.target.value); setPage(1) }}>
           <option value="">全部后端</option>
-          {capabilities?.backends.filter(item => item.available && hasBrowserRenderer(item.backend)).map(item =>
+          {capabilities?.backends.filter(item => backendExecutable(capabilities, item.backend)).map(item =>
             <option key={item.backend} value={item.backend}>{backendLabel(item.backend)}</option>)}
         </select></label>
         <button type="submit" className="button button--secondary button--small">搜索</button>
@@ -199,6 +198,7 @@ function parameterSummary(parameter: Parameter) {
 }
 
 export function TemplateViewer({ id }: { id: string }) {
+  const capabilities = useCapabilities()
   const [previewBackend, setPreviewBackend] = useState('')
   const { user } = useSession()
   const [template, setTemplate] = useState<Template | null>(null)
@@ -296,7 +296,7 @@ export function TemplateViewer({ id }: { id: string }) {
                   <div><dt>时间主题</dt><dd>{publishedMetadata?.timeTheme || '—'}</dd></div>
                 </dl>
                 <label className="field">模板预览后端<select value={previewBackend || preferredBrowserBackend(version.supportedBackends)} onChange={event => setPreviewBackend(event.target.value)}>
-                  {version.supportedBackends.map(backend => <option key={backend} value={backend} disabled={!hasBrowserRenderer(backend)}>{backendLabel(backend)}</option>)}
+                  {version.supportedBackends.map(backend => <option key={backend} value={backend} disabled={!backendExecutable(capabilities, backend as Backend)}>{backendLabel(backend)}</option>)}
                 </select></label>
                 <Link className="button button--primary template-use" href={`/?template=${encodeURIComponent(template.id)}&backend=${encodeURIComponent(previewBackend || preferredBrowserBackend(version.supportedBackends))}`}>使用此模板创作</Link>
                 {canManage && <Link className="button button--secondary button--small" href={`/manage/templates/${encodeURIComponent(template.id)}`}>进入模板管理</Link>}

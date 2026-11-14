@@ -9,6 +9,13 @@
       "size": 12290
     },
     {
+      "name": "colored-background",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 13931
+    },
+    {
       "name": "concave-polygon",
       "timeMs": 0,
       "width": 800,
@@ -20,14 +27,14 @@
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 12905
+      "size": 12922
     },
     {
       "name": "thick-stroke-crop",
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 11871
+      "size": 11875
     },
     {
       "name": "parent-scaled-stroke",
@@ -41,14 +48,35 @@
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 11908
+      "size": 11906
+    },
+    {
+      "name": "stroke-caps-and-miter",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11875
     },
     {
       "name": "fill-and-stroke-opacity",
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 17998
+      "size": 17848
+    },
+    {
+      "name": "stroke-self-overlap",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12195
+    },
+    {
+      "name": "stroke-backtrack",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11878
     },
     {
       "name": "parent-child-animation",
@@ -88,6 +116,13 @@
       "size": 12290
     },
     {
+      "name": "colored-background-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 13931
+    },
+    {
       "name": "concave-polygon-0.png",
       "timeMs": 0,
       "width": 800,
@@ -99,14 +134,14 @@
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 12905
+      "size": 12922
     },
     {
       "name": "thick-stroke-crop-0.png",
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 11871
+      "size": 11875
     },
     {
       "name": "parent-scaled-stroke-0.png",
@@ -120,14 +155,35 @@
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 11908
+      "size": 11906
+    },
+    {
+      "name": "stroke-caps-and-miter-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11875
     },
     {
       "name": "fill-and-stroke-opacity-0.png",
       "timeMs": 0,
       "width": 800,
       "height": 600,
-      "size": 17998
+      "size": 17848
+    },
+    {
+      "name": "stroke-self-overlap-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12195
+    },
+    {
+      "name": "stroke-backtrack-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11878
     },
     {
       "name": "parent-child-animation-0.png",
@@ -170,28 +226,72 @@
       "size": 13901
     }
   ],
+  "webglContext": {
+    "available": true,
+    "vendor": "Google Inc. (NVIDIA)",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Laptop GPU (0x00002D59) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "version": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+  },
   "crossBackend": [
     {
-      "name": "concave-polygon",
+      "name": "transparent-overlap",
+      "timeMs": 0,
       "width": 800,
       "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 0,
+      "foregroundSymmetricDifferenceRatio": 0,
       "differentPixels": 0,
-      "differentRatio": 0,
-      "edgeBandDiffPixels": 0,
-      "interiorDiffPixels": 0,
+      "mae": 0.1640625,
+      "maxChannelDelta": 1
+    },
+    {
+      "name": "concave-polygon",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 0,
+      "foregroundSymmetricDifferenceRatio": 0,
+      "differentPixels": 0,
       "mae": 0,
       "maxChannelDelta": 0
     },
     {
-      "name": "thick-stroke-crop",
+      "name": "parent-trs",
+      "timeMs": 0,
       "width": 800,
       "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 20,
+      "foregroundSymmetricDifferenceRatio": 0.000041666666666666665,
+      "differentPixels": 232,
+      "mae": 0.0081625,
+      "maxChannelDelta": 31
+    },
+    {
+      "name": "thick-stroke-crop",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 0,
+      "foregroundSymmetricDifferenceRatio": 0,
       "differentPixels": 0,
-      "differentRatio": 0,
-      "edgeBandDiffPixels": 0,
-      "interiorDiffPixels": 0,
       "mae": 0,
       "maxChannelDelta": 0
+    },
+    {
+      "name": "parent-child-animation@2000",
+      "timeMs": 2000,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 20,
+      "foregroundSymmetricDifferenceRatio": 0.000041666666666666665,
+      "differentPixels": 176,
+      "mae": 0.0037625,
+      "maxChannelDelta": 62
     }
   ],
   "transparentBackend": {

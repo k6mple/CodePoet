@@ -8,13 +8,13 @@
 
 - Creator 语义模式新增“外部知识图谱”表单：来源键（默认 `wikidata`，可改）+ 外部实体 ID（如 `Q16528`），调用既有 `POST /knowledge-graph/generations`；入口受 `capabilities.features.knowledgeGraph` 控制，未配置来源时禁用并提示。
 - 生成结果沿用现有 `acceptGeneration`，因此来源快照进入 `generation.provenance.externalGraph`；不新增后端接口或字段。
-- `GenerationEvidence` 增加外部来源快照展示：来源键、外部实体、抓取时间、数据版本、内容哈希、实体/属性、一跳关系、`mappingDecisions` 实际采纳事实。
+- `GenerationEvidence` 增加外部来源快照展示：来源键、外部实体、抓取时间、数据版本、内容哈希、实体/属性、一跳关系、`mappingDecisions` 实际采纳事实；旧/不完整快照缺失数组或属性时按空数组处理，不让证据面板崩溃。
 - 外部 ID 不写入站内 `entityIds`，也不伪装成 `/knowledge/{id}` 链接；仅 `sourceId=wikidata` 且 ID 形如 `Q\d+` 时提供受控的 `https://www.wikidata.org/wiki/...` 外链，其他来源保持纯文本。
 - 明确文案：属性/关系影响叙事、规则或符号，**不承诺改变 PNG 像素**。`Provenance.externalGraph` 与 `Capabilities.features.knowledgeGraph` 已补前端类型。
 
 ## 证据与验证边界
 
-- `npm run typecheck`、production build 通过（临时 fixture 页面构建后已删除，最终构建只含正式路由）。
+- `npm run typecheck`、production build 通过（临时 fixture 页面构建后已删除，最终构建只含正式路由）；缺陷修复后再次用临时 dev 页面 SSR 渲染确认来源快照/实体/关系/mappingDecisions/受控外链仍存在。
 - 用临时 SSR fixture 页面渲染 `GenerationEvidence`，确认来源键、`Q16528`、实体/属性、关系、`mappingDecisions`、受控 Wikidata 外链及“不承诺改变 PNG 像素”均出现；截图/HTML 见 [K1 fixture 截图](2026-11-14-k1b-source-ui/k1-fixture.png) 与 [HTML](2026-11-14-k1b-source-ui/k1-fixture.html)。
 - **未执行**：真实 `POST /knowledge-graph/generations`、真实来源（3 实体/2 关系）、作品保存/重开/断网复现、审核/权限链路。fixture 不是真实 API 响应，不能替代 K1-B 验收。
 

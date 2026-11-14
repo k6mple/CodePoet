@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { errorMessage, request } from '@/api/client'
-import type { DrawingIR, Page, Parameter, Template, TemplateVersion, VersionCreateInput } from '@/types/core'
+import type { Backend, DrawingIR, Page, Parameter, Template, TemplateVersion, VersionCreateInput } from '@/types/core'
 import { formatDateTime, parameterTypeLabel, parameterValueLabel, symbolLabel } from '@/utils/format'
 import {
   diffTemplateVersions, draftToMetadata, isEditableVersion, metadataToDraft, prettyJson,
@@ -16,8 +16,7 @@ import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 import TemplateMetadataForm from './TemplateMetadataForm'
 import { useCapabilities } from '@/hooks/useCapabilities'
-import { hasBrowserRenderer } from '@/renderers/registry'
-import { backendLabel, preferredBrowserBackend } from '@/renderers/backend'
+import { backendLabel, backendExecutable, preferredBrowserBackend } from '@/renderers/backend'
 
 const PAGE_SIZE = 20
 const canManageTemplates = (permissions: string[]) => permissions.some((permission) =>
@@ -376,7 +375,7 @@ export function TemplateEditor({ id }: { id: string }) {
 
   function startNewVersion() {
     const next = newVersionState()
-    const available = capabilities?.backends.find(item => item.available && hasBrowserRenderer(item.backend))
+    const available = capabilities?.backends.find(item => backendExecutable(capabilities, item.backend))
     if (available) next.draft.supportedBackends = [available.backend]
     setEditor(next)
     setVersionView(null)
@@ -416,8 +415,7 @@ export function TemplateEditor({ id }: { id: string }) {
     event.preventDefault()
     if (!editor || savingVersion || !template) return
     if (!editor.draft.supportedBackends.length || editor.draft.supportedBackends.some(backend =>
-      !editor.version?.supportedBackends.includes(backend) && !capabilities?.backends.some(item =>
-        item.backend === backend && item.available && hasBrowserRenderer(backend)))) {
+      !editor.version?.supportedBackends.includes(backend) && !backendExecutable(capabilities, backend as Backend))) {
       setEditorError('请选择至少一个当前已启用且有浏览器适配器的后端。')
       return
     }
@@ -703,7 +701,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       <legend>版本支持的渲染后端</legend>
                       {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(backend => <label className="check" key={backend}>
                         <input type="checkbox" checked={editor.draft.supportedBackends.includes(backend)}
-                          disabled={!capabilities?.backends.some(item => item.backend === backend && item.available && hasBrowserRenderer(backend))}
+                          disabled={!backendExecutable(capabilities, backend)}
                           onChange={event => setEditor({ ...editor, draft: { ...editor.draft, supportedBackends: event.target.checked
                             ? [...editor.draft.supportedBackends, backend] : editor.draft.supportedBackends.filter(item => item !== backend) } })} />
                         {backendLabel(backend)}

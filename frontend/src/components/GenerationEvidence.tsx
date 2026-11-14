@@ -23,6 +23,11 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
   const source = generation.provenance
   if (!source) return null
   const external = source.externalGraph
+  // externalGraph is stored as a JSON dict on the backend, so old/malformed
+  // snapshots must not crash the evidence panel.
+  const externalEntities = external?.entities ?? []
+  const externalRelations = external?.relations ?? []
+  const externalDecisions = external?.mappingDecisions ?? []
   const decisions = [
     ['色板', source.paletteDecision],
     ['构图', source.compositionDecision],
@@ -57,26 +62,26 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
         <div><dt>数据版本</dt><dd>{external.dataVersion ?? '来源未提供'}</dd></div>
         <div><dt>内容哈希</dt><dd className="mono">{external.contentHash}</dd></div>
       </dl>
-      {external.entities.length > 0 && <ul className="issue-list">
-        {external.entities.slice(0, 12).map((entity) => <li key={entity.id}>
+      {externalEntities.length > 0 && <ul className="issue-list">
+        {externalEntities.slice(0, 12).map((entity) => <li key={entity.id}>
           {externalEntityHref(external.sourceId, entity.id)
             ? <a href={externalEntityHref(external.sourceId, entity.id)!} target="_blank" rel="noreferrer">{entity.label}</a>
             : entity.label}
           {' · '}<code>{entity.id}</code>
           {entity.description && <> · {entity.description}</>}
-          {Object.keys(entity.attributes).length > 0 && <> · {Object.entries(entity.attributes).slice(0, 6).map(([key, value]) => `${key}=${value}`).join('；')}</>}
+          {Object.keys(entity.attributes ?? {}).length > 0 && <> · {Object.entries(entity.attributes ?? {}).slice(0, 6).map(([key, value]) => `${key}=${value}`).join('；')}</>}
         </li>)}
       </ul>}
-      {external.relations.length > 0 && <ul className="issue-list">
-        {external.relations.slice(0, 12).map((relation) => <li key={relation.id}>
+      {externalRelations.length > 0 && <ul className="issue-list">
+        {externalRelations.slice(0, 12).map((relation) => <li key={relation.id}>
           <code>{relation.fromId}</code> --{relation.type}--&gt; <code>{relation.toId}</code>
           {relation.label && <> · {relation.label}</>}
         </li>)}
       </ul>}
-      {external.mappingDecisions.length > 0 && <div>
+      {externalDecisions.length > 0 && <div>
         <h5>实际采纳的外部事实</h5>
         <ul className="issue-list">
-          {external.mappingDecisions.slice(0, 20).map((decision, index) => <li key={`${decision.externalId}:${decision.affects}:${index}`}>
+          {externalDecisions.slice(0, 20).map((decision, index) => <li key={`${decision.externalId}:${decision.affects}:${index}`}>
             {decision.kind} · <code>{decision.externalId}</code> · 影响 {decision.affects}（{decision.target}{decision.targetId ? ` ${decision.targetId}` : ''}） · {decision.reason}
           </li>)}
         </ul>

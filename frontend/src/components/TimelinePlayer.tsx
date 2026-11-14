@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { DrawingIR, Provenance } from '@/types/core'
 import CanvasPreview from './CanvasPreview'
-import { hasBrowserRenderer } from '@/renderers/registry'
+import { browserSupportsRenderer } from '@/renderers/registry'
 
 export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities = false, paused = false, initialTime = 0, onTimeChange, entities = [], seekRequest, focusNodeIds }: {
   ir: DrawingIR
@@ -53,7 +53,7 @@ export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities 
   }, [time, onTimeChange])
 
   useEffect(() => {
-    if (!playing || paused || ir.durationMs <= 0 || !hasBrowserRenderer(backend)) return
+    if (!playing || paused || ir.durationMs <= 0 || !browserSupportsRenderer(backend)) return
     const duration = ir.durationMs
     const startTime = timeRef.current
     const startWall = performance.now()
@@ -99,7 +99,7 @@ export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities 
     </div>
     {ir.durationMs > 0
       ? <>
-        <fieldset className="timeline-controls" disabled={paused || !hasBrowserRenderer(backend)} aria-label="时间轴播放控制">
+        <fieldset className="timeline-controls" disabled={paused || !browserSupportsRenderer(backend)} aria-label="时间轴播放控制">
           <button type="button" className="button button--secondary button--small" onClick={togglePlay}>{playing ? '暂停' : '播放'}</button>
           <button type="button" className="button button--secondary button--small" disabled={time <= 0} onClick={() => seek(0)}>回到开始</button>
           <input

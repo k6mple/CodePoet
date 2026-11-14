@@ -9,8 +9,7 @@ import { entityStatusLabel, knowledgeTypeLabel, symbolLabel } from '@/utils/form
 import { parseIdList, SYMBOL_OPTIONS } from '@/utils/template'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useCapabilities } from '@/hooks/useCapabilities'
-import { backendLabel } from '@/renderers/backend'
-import { hasBrowserRenderer } from '@/renderers/registry'
+import { backendLabel, backendExecutable } from '@/renderers/backend'
 
 export default function SearchView({ initial }: { initial: SearchQuery }) {
   const capabilities = useCapabilities()
@@ -136,7 +135,7 @@ export default function SearchView({ initial }: { initial: SearchQuery }) {
         <label className="field">
           <span>渲染后端</span>
           <select value={backend} onChange={(event) => setBackend(event.target.value)}>
-            {capabilities?.backends.filter(item => item.available && hasBrowserRenderer(item.backend)).map(item =>
+            {capabilities?.backends.filter(item => backendExecutable(capabilities, item.backend)).map(item =>
               <option key={item.backend} value={item.backend}>{backendLabel(item.backend)}</option>)}
             <option value="">全部后端</option>
           </select>

@@ -186,14 +186,25 @@ export function strokeTriangles(points: Point[], closed: boolean, width: number,
     }
     const miter = normalize(miterCandidate)
     const denominator = miter[0] * previousNormal[0] + miter[1] * previousNormal[1]
-    // Canvas miter limit is miterLength / lineWidth; here denominator is
-    // sin(half angle), so 1 / denominator is that ratio.
-    if (denominator <= EPSILON || 1 / denominator > miterLimit) {
+    const absolute = Math.abs(denominator)
+    if (absolute <= EPSILON) {
+      // 180-degree reversal has no stable inner/outer side.
+      pushRing(center, previousNormal)
+      pushRing(center, nextNormal)
+      continue
+    }
+    // Canvas miter limit is miterLength / lineWidth; here |denominator| is
+    // sin(half angle), so 1 / |denominator| is that ratio.
+    if (1 / absolute > miterLimit) {
+      // A bevel join connects the two offset points on each side. Do not use
+      // the inner miter intersection here: for a near reversal it is far
+      // outside the stroke and creates a long spike (verified against Canvas).
       pushRing(center, previousNormal)
       pushRing(center, nextNormal)
     } else {
-      const offset = scale(miter, half / denominator)
-      rings.push([add(center, offset), add(center, scale(offset, -1))])
+      const miterOffset = scale(miter, half / absolute)
+      // Keep the same side order at every join so the strip does not twist.
+      rings.push([add(center, miterOffset), add(center, scale(miterOffset, -1))])
     }
   }
 
@@ -205,6 +216,42 @@ export function strokeTriangles(points: Point[], closed: boolean, width: number,
     triangles.push(left[0], right[0], right[1], left[0], right[1], left[1])
   }
   return triangles
+}
+
+// Self-intersecting fills are valid for PolylineNode in the IR schema, but
+// ear clipping cannot represent them. The renderer fails loudly instead of
+// silently drawing nothing; a nonzero-winding tessellator is future work.
+export function polylineSelfIntersects(points: Point[]): boolean {
+  const polygon = cleanPoints(points, true)
+  const count = polygon.length
+  if (count < 4) return false
+  const orientation = (a: Point, b: Point, c: Point) =>
+    (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+  const onSegment = (a: Point, b: Point, p: Point) =>
+    Math.min(a[0], b[0]) - EPSILON <= p[0] && p[0] <= Math.max(a[0], b[0]) + EPSILON
+    && Math.min(a[1], b[1]) - EPSILON <= p[1] && p[1] <= Math.max(a[1], b[1]) + EPSILON
+  const intersects = (a: Point, b: Point, c: Point, d: Point) => {
+    const first = orientation(a, b, c)
+    const second = orientation(a, b, d)
+    const third = orientation(c, d, a)
+    const fourth = orientation(c, d, b)
+    if (((first > EPSILON && second < -EPSILON) || (first < -EPSILON && second > EPSILON))
+      && ((third > EPSILON && fourth < -EPSILON) || (third < -EPSILON && fourth > EPSILON))) return true
+    return (Math.abs(first) <= EPSILON && onSegment(a, b, c))
+      || (Math.abs(second) <= EPSILON && onSegment(a, b, d))
+      || (Math.abs(third) <= EPSILON && onSegment(c, d, a))
+      || (Math.abs(fourth) <= EPSILON && onSegment(c, d, b))
+  }
+  for (let first = 0; first < count; first += 1) {
+    const firstNext = (first + 1) % count
+    for (let second = first + 1; second < count; second += 1) {
+      if (second === first || second === firstNext) continue
+      const secondNext = (second + 1) % count
+      if (secondNext === first) continue
+      if (intersects(polygon[first], polygon[firstNext], polygon[second], polygon[secondNext])) return true
+    }
+  }
+  return false
 }
 
 export function rgb(hex: string): [number, number, number] {
