@@ -17,6 +17,7 @@ from app.schemas.generation import (
     CapabilityFeatureFlags,
 )
 from app.engine import capabilities
+from app.services import sandbox
 from app.settings import Settings
 from app.services.generations import ENGINE_VERSION
 
@@ -106,8 +107,11 @@ def build_capabilities(settings: Settings | None = None) -> Capabilities:
             # 空替换即删除、越界 ID 冲突、悬空父引用、viewport 覆盖、他人快照 404）。
             # 接口能用却声明 false，前端按声明尊重能力，页面就把入口关掉了。
             subgraphEditing=True,
-            dslSandbox=False,
-            advancedPolicies=False,
+            # S1 的两项声明必须是实测结果，不能凭「代码写了」就写 true：
+            # dslSandbox 要能真拉起隔离 worker，否则前端会显示一个点了就 503
+            # 的入口。probe 结果在进程内缓存，只有第一次调用付启动代价。
+            dslSandbox=sandbox.is_available(),
+            advancedPolicies=True,
             headlessRendering=False,
             selectiveExport=False,
             workSnapshotImport=False,
