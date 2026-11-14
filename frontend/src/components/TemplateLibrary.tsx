@@ -10,7 +10,7 @@ import CanvasPreview from './CanvasPreview'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 import { useCapabilities } from '@/hooks/useCapabilities'
-import { backendLabel } from '@/renderers/backend'
+import { backendLabel, preferredBrowserBackend } from '@/renderers/backend'
 import { hasBrowserRenderer } from '@/renderers/registry'
 
 const PAGE_SIZE = 12
@@ -281,7 +281,7 @@ export function TemplateViewer({ id }: { id: string }) {
             : <div className="template-detail-layout">
               <div className="template-stage">
                 <div className="template-preview">
-                  <CanvasPreview ir={version.irTemplate} backend={previewBackend || version.supportedBackends[0]} timeMs={version.irTemplate.durationMs} />
+                  <CanvasPreview ir={version.irTemplate} backend={previewBackend || preferredBrowserBackend(version.supportedBackends)} timeMs={version.irTemplate.durationMs} />
                 </div>
                 <p className="plate-caption">模板原始 IR 预览 · 未应用参数与绑定 · {version.irTemplate.viewport.width} × {version.irTemplate.viewport.height}</p>
               </div>
@@ -295,10 +295,10 @@ export function TemplateViewer({ id }: { id: string }) {
                   <div><dt>符号</dt><dd>{publishedMetadata?.symbols?.map(symbolLabel).join(' · ') || '—'}</dd></div>
                   <div><dt>时间主题</dt><dd>{publishedMetadata?.timeTheme || '—'}</dd></div>
                 </dl>
-                <label className="field">模板预览后端<select value={previewBackend || version.supportedBackends[0]} onChange={event => setPreviewBackend(event.target.value)}>
+                <label className="field">模板预览后端<select value={previewBackend || preferredBrowserBackend(version.supportedBackends)} onChange={event => setPreviewBackend(event.target.value)}>
                   {version.supportedBackends.map(backend => <option key={backend} value={backend} disabled={!hasBrowserRenderer(backend)}>{backendLabel(backend)}</option>)}
                 </select></label>
-                <Link className="button button--primary template-use" href={`/?template=${encodeURIComponent(template.id)}&backend=${encodeURIComponent(previewBackend || version.supportedBackends[0])}`}>使用此模板创作</Link>
+                <Link className="button button--primary template-use" href={`/?template=${encodeURIComponent(template.id)}&backend=${encodeURIComponent(previewBackend || preferredBrowserBackend(version.supportedBackends))}`}>使用此模板创作</Link>
                 {canManage && <Link className="button button--secondary button--small" href={`/manage/templates/${encodeURIComponent(template.id)}`}>进入模板管理</Link>}
               </aside>
             </div>}

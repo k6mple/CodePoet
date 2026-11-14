@@ -1,0 +1,158 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "transparent-overlap",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12290
+    },
+    {
+      "name": "concave-polygon",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11871
+    },
+    {
+      "name": "parent-trs",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12905
+    },
+    {
+      "name": "thick-stroke-crop",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11871
+    },
+    {
+      "name": "stroked-polygon-opacity",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11908
+    },
+    {
+      "name": "fill-and-stroke-opacity",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 17998
+    },
+    {
+      "name": "parent-child-animation",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12645
+    },
+    {
+      "name": "parent-child-animation",
+      "timeMs": 2000,
+      "width": 800,
+      "height": 600,
+      "size": 12687
+    },
+    {
+      "name": "parent-child-animation",
+      "timeMs": 4000,
+      "width": 800,
+      "height": 600,
+      "size": 12679
+    },
+    {
+      "name": "viewport-crop-offset",
+      "timeMs": 0,
+      "width": 400,
+      "height": 300,
+      "size": 3845
+    }
+  ],
+  "images": [
+    {
+      "name": "transparent-overlap-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12290
+    },
+    {
+      "name": "concave-polygon-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11871
+    },
+    {
+      "name": "parent-trs-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12905
+    },
+    {
+      "name": "thick-stroke-crop-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11871
+    },
+    {
+      "name": "stroked-polygon-opacity-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11908
+    },
+    {
+      "name": "fill-and-stroke-opacity-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 17998
+    },
+    {
+      "name": "parent-child-animation-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12645
+    },
+    {
+      "name": "parent-child-animation-2000.png",
+      "timeMs": 2000,
+      "width": 800,
+      "height": 600,
+      "size": 12687
+    },
+    {
+      "name": "parent-child-animation-4000.png",
+      "timeMs": 4000,
+      "width": 800,
+      "height": 600,
+      "size": 12679
+    },
+    {
+      "name": "viewport-crop-offset-0.png",
+      "timeMs": 0,
+      "width": 400,
+      "height": 300,
+      "size": 3845
+    }
+  ],
+  "protocol": [
+    "real-webgl-context",
+    "viewport-size-and-crop",
+    "fill-orders-and-concave",
+    "stroke-width-and-clip",
+    "parent-child-animation",
+    "serial-seek-export",
+    "context-loss-and-restore",
+    "dispose",
+    "exportBackendFrame"
+  ]
+}

@@ -7,7 +7,7 @@ import type { Page, ReviewCreateInput, ReviewQueueItem, TemplateVersion, WorkDet
 import { formatDateTime, parameterTypeLabel, parameterValueLabel, shortId } from '@/utils/format'
 import { reviewDecisionLabel, reviewQueueStatusLabel, reviewTargetLabel } from '@/utils/template'
 import CanvasPreview from './CanvasPreview'
-import { historicalBackend } from '@/renderers/backend'
+import { historicalBackend, preferredBrowserBackend } from '@/renderers/backend'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 
@@ -249,7 +249,7 @@ export default function ReviewDesk() {
                             : templateTarget
                               ? <div className="review-target">
                                 <p className="review-target__name">{templateTarget.metadata.name} · v{templateTarget.versionNumber}</p>
-                                <div className="version-preview"><CanvasPreview ir={templateTarget.irTemplate} backend={templateTarget.supportedBackends[0]} timeMs={templateTarget.irTemplate.durationMs} /></div>
+                                <div className="version-preview"><CanvasPreview ir={templateTarget.irTemplate} backend={preferredBrowserBackend(templateTarget.supportedBackends)} timeMs={templateTarget.irTemplate.durationMs} /></div>
                                 <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
                                 <dl className="label-list">
                                   <div><dt>变更说明</dt><dd>{templateTarget.changeNote || '—'}</dd></div>
