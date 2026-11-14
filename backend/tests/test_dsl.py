@@ -16,7 +16,10 @@ from __future__ import annotations
 import json
 import unittest
 
+from pydantic import TypeAdapter
+
 from app.engine import dsl
+from app.schemas.generation import Binding, ParameterDefinition
 from app.schemas.ir import DrawingIR
 
 
@@ -115,13 +118,26 @@ class AuditTests(unittest.TestCase):
         self.assertRejected(source({"op": "circle", "cx": 0, "cy": 0, "r": 10, "stroke": "#FFF"}))
 
     def test_polygon_needs_three_points(self) -> None:
-        # 审计阶段只卡 2~512，3 点的要求留给构造时——但这里要确认 2 点也进不来
-        program = dsl.compile_program(
-            source({"op": "polygon", "points": [[0, 0], [10, 0]], "fill": "#112233"})
-        )
+        """polygon 的 3 点下限必须在 **compile** 阶段就拒。
+
+        以前这里只卡 2~512，3 点要求拖到 run 阶段，与「所有不合规都在 compile
+        阶段拒绝」的约定不符——同一类错误在不同阶段报出来，调用方要写两套处理。
+        """
         with self.assertRaises(dsl.DslError) as ctx:
-            dsl.run(program, base_ir(), run_id="run-abc")
+            dsl.compile_program(
+                source({"op": "polygon", "points": [[0, 0], [10, 0]], "fill": "#112233"})
+            )
         self.assertEqual(ctx.exception.code, "DSL_AUDIT_REJECTED")
+        self.assertEqual(ctx.exception.rule, dsl.RULE_NUMERIC_RANGE)
+        self.assertIn("3~512", ctx.exception.message)
+
+    def test_polyline_still_accepts_two_points(self) -> None:
+        """下限按 op 区分：折线 2 点是合法的最小线段，不能跟着 polygon 一起卡 3。"""
+        program = dsl.compile_program(
+            source({"op": "polyline", "points": [[0, 0], [10, 0]], "stroke": "#112233"})
+        )
+        outcome = dsl.run(program, base_ir(), run_id="run-abc")
+        self.assertEqual(outcome.draw_calls, 1)
 
     def test_points_must_be_pairs(self) -> None:
         self.assertRejected(source({"op": "polyline", "points": [[0, 0, 0], [1, 1]]}))
@@ -328,7 +344,64 @@ class BudgetTests(unittest.TestCase):
 
 
 class SetParamTests(unittest.TestCase):
-    """set_param 只有在模板上下文齐备时才允许。"""
+    """set_param 只有在模板上下文齐备时才允许。
+
+    这一组覆盖的是**参数真正生效**的路径，而不只是「没上下文就拒」。
+    上一版只有后者，结果 ``issue.code`` 那处 AttributeError 从缺口里漏了出去——
+    未知参数名、越界值、约束冲突都会走到同一行。
+    """
+
+    def context(self) -> dsl.ParamContext:
+        """一份最小但真实的模板上下文：一个半径可调的花瓣圆。"""
+        template = DrawingIR.model_validate(
+            {
+                "schemaVersion": "1.0",
+                "seed": 42,
+                "canvas": {"width": 800, "height": 600, "background": "#FFFFFF"},
+                "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
+                "durationMs": 0,
+                "nodes": [
+                    {
+                        "id": "petal",
+                        "parentId": None,
+                        "type": "circle",
+                        "geometry": {"cx": 400, "cy": 300, "r": 60},
+                        "style": {
+                            "fill": "#E8A0A0",
+                            "stroke": "#8B3A3A",
+                            "strokeWidth": 2,
+                            "opacity": 1,
+                        },
+                    }
+                ],
+                "animations": [],
+                "narrative": [],
+            }
+        )
+        schema = [
+            TypeAdapter(ParameterDefinition).validate_python(
+                {
+                    "name": "petalRadius",
+                    "label": "花瓣半径",
+                    "description": "",
+                    "type": "integer",
+                    "default": 60,
+                    "min": 10,
+                    "max": 200,
+                    "step": 1,
+                }
+            )
+        ]
+        bindings = [
+            Binding(parameter="petalRadius", nodeId="petal", property="geometry.r")
+        ]
+        return dsl.ParamContext(
+            template_ir=template,
+            parameter_schema=schema,
+            bindings=bindings,
+            constraints=[],
+            provided={},
+        )
 
     def test_without_context_is_invalid_base(self) -> None:
         program = dsl.compile_program(
@@ -341,6 +414,121 @@ class SetParamTests(unittest.TestCase):
             dsl.run(program, base_ir(), run_id="run-abc")
         self.assertEqual(ctx.exception.code, "DSL_INVALID_BASE")
         self.assertEqual(ctx.exception.details["reason"], "no-template-context")
+        self.assertEqual(ctx.exception.rule, dsl.RULE_SET_PARAM_BASE)
+
+    def test_override_takes_effect(self) -> None:
+        """成功路径：覆盖值必须真的改写绑定的那个属性。"""
+        program = dsl.compile_program(
+            source(
+                {"op": "set_param", "name": "petalRadius", "value": 120},
+                {"op": "circle", "cx": 100, "cy": 100, "r": 10},
+            )
+        )
+        outcome = dsl.run(
+            program, base_ir(), run_id="run-abc", param_context=self.context()
+        )
+        petal = next(n for n in outcome.ir.nodes if n.id == "petal")
+        self.assertEqual(petal.geometry.r, 120)
+        # 追加的图元也在
+        self.assertEqual(outcome.draw_calls, 1)
+
+    def test_unknown_param_is_invalid_base(self) -> None:
+        """未知参数名：必须是 DSL_INVALID_BASE，不能是 AttributeError。
+
+        这条就是评审指出的 P1。``ParameterIssue`` 只有 path / message，
+        早期代码读了 ``issue.code``，于是这整条分支抛 AttributeError，
+        被 worker 的通用 except 兜成 DSL_EXECUTION_FAILED——用户看到
+        「沙箱内部错误」，而真实原因是「参数名写错了」。
+        """
+        program = dsl.compile_program(
+            source({"op": "set_param", "name": "nope", "value": 1})
+        )
+        with self.assertRaises(dsl.DslError) as ctx:
+            dsl.run(program, base_ir(), run_id="run-abc", param_context=self.context())
+        self.assertEqual(ctx.exception.code, "DSL_INVALID_BASE")
+        self.assertEqual(ctx.exception.rule, dsl.RULE_SET_PARAM_BASE)
+        issues = ctx.exception.details["issues"]
+        self.assertTrue(issues, "必须给出参数级问题")
+        # 只有 path / message 两个字段，没有 code
+        self.assertEqual(set(issues[0]), {"path", "message"})
+        self.assertIn("nope", json.dumps(issues, ensure_ascii=False))
+
+    def test_out_of_range_value_is_invalid_base(self) -> None:
+        """越界值走同一条分支，同样不能被吞成内部错误。"""
+        program = dsl.compile_program(
+            source({"op": "set_param", "name": "petalRadius", "value": 9999})
+        )
+        with self.assertRaises(dsl.DslError) as ctx:
+            dsl.run(program, base_ir(), run_id="run-abc", param_context=self.context())
+        self.assertEqual(ctx.exception.code, "DSL_INVALID_BASE")
+        self.assertEqual(set(ctx.exception.details["issues"][0]), {"path", "message"})
+
+    def test_set_param_after_draw_is_rejected(self) -> None:
+        """set_param 必须在绘图之前：换顺序就是另一张图，不能事后改。"""
+        with self.assertRaises(dsl.DslError) as ctx:
+            dsl.compile_program(
+                source(
+                    {"op": "circle", "cx": 10, "cy": 10, "r": 5},
+                    {"op": "set_param", "name": "petalRadius", "value": 80},
+                )
+            )
+        self.assertEqual(ctx.exception.rule, dsl.RULE_SET_PARAM_BASE)
+
+
+class RuleIdTests(unittest.TestCase):
+    """每条拒绝都要能说出「是哪条规则拒的」，且与策略清单同一套名字。"""
+
+    def test_rule_ids_match_policy_catalogue(self) -> None:
+        from app.engine import dsl as engine_dsl
+        from app.services import policy
+
+        listed = {rule.ruleId for rule in policy.AUDIT_RULES}
+        for name in (
+            "RULE_DOCUMENT_SHAPE",
+            "RULE_OP_WHITELIST",
+            "RULE_FIELD_WHITELIST",
+            "RULE_NUMERIC_RANGE",
+            "RULE_NODE_ID_UNIQUE",
+            "RULE_BASE_UNMODIFIED",
+            "RULE_SET_PARAM_BASE",
+            "RULE_BUDGET_LIMIT",
+        ):
+            self.assertIn(getattr(engine_dsl, name), listed, name)
+
+    def test_rejections_carry_distinct_rules(self) -> None:
+        """不同类型的问题要报不同的规则，而不是全都 DSL_AUDIT_REJECTED。"""
+        cases = {
+            "unknown op": (
+                source({"op": "shell", "cmd": "ls"}),
+                dsl.RULE_OP_WHITELIST,
+            ),
+            "unknown field": (
+                source({"op": "circle", "cx": 1, "cy": 1, "r": 1, "class": "x"}),
+                dsl.RULE_FIELD_WHITELIST,
+            ),
+            "bad radius": (
+                source({"op": "circle", "cx": 1, "cy": 1, "r": 99999}),
+                dsl.RULE_NUMERIC_RANGE,
+            ),
+            "bad document": ("[]", dsl.RULE_DOCUMENT_SHAPE),
+        }
+        for label, (text, expected) in cases.items():
+            with self.assertRaises(dsl.DslError) as ctx:
+                dsl.compile_program(text)
+            self.assertEqual(ctx.exception.rule, expected, label)
+            # code 仍然是契约里的那个，不受 rule 影响
+            self.assertEqual(ctx.exception.code, "DSL_AUDIT_REJECTED", label)
+
+    def test_error_location_points_at_the_op(self) -> None:
+        """details.index 要能换算成指令序号：0 基下标 → 1 基行号。"""
+        with self.assertRaises(dsl.DslError) as ctx:
+            dsl.compile_program(
+                source(
+                    {"op": "circle", "cx": 10, "cy": 10, "r": 5},
+                    {"op": "bogus"},
+                )
+            )
+        self.assertEqual(ctx.exception.location, 1)
 
 
 if __name__ == "__main__":

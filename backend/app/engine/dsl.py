@@ -48,6 +48,13 @@ __all__ = [
     "DEFAULT_LIMITS",
     "DSL_VERSION",
     "MAX_SOURCE_BYTES",
+    "RULE_BASE_UNMODIFIED",
+    "RULE_BUDGET_LIMIT",
+    "RULE_FIELD_WHITELIST",
+    "RULE_NODE_ID_UNIQUE",
+    "RULE_NUMERIC_RANGE",
+    "RULE_OP_WHITELIST",
+    "RULE_SET_PARAM_BASE",
     "DslError",
     "DslLimits",
     "DslOutcome",
@@ -56,6 +63,40 @@ __all__ = [
     "compile_program",
     "run",
 ]
+
+# ---------------------------------------------------------------------------
+# 审计规则 ID
+# ---------------------------------------------------------------------------
+#
+# 这些字符串是**审计发现与策略清单的公共词表**：
+#
+# * 每次拒绝时 ``DslError.rule`` 给的就是这里的值，worker 直接写进
+#   ``auditFindings[].ruleId``；
+# * ``services/policy.AUDIT_RULES`` 用同一批常量列给管理员看。
+#
+# 放在 engine 层而不是 services 层，是因为 engine 不该反向 import services。
+# 两边共用一个常量，就不会出现「清单里叫 DSL_OP_WHITELIST、错误里报
+# DSL_AUDIT_REJECTED」这种对不上的情况。
+
+RULE_OP_WHITELIST = "DSL_OP_WHITELIST"
+RULE_FIELD_WHITELIST = "DSL_FIELD_WHITELIST"
+RULE_NUMERIC_RANGE = "DSL_NUMERIC_RANGE"
+RULE_NODE_ID_UNIQUE = "DSL_NODE_ID_UNIQUE"
+RULE_BASE_UNMODIFIED = "DSL_BASE_UNMODIFIED"
+RULE_SET_PARAM_BASE = "DSL_SET_PARAM_BASE"
+#: 预算类（步数/调用/顶点/节点数）。契约的审计清单里没有这一条，
+#: 但熔断时的 finding 需要一个能对上号的名字，不能借用某个静态规则的 ID。
+RULE_BUDGET_LIMIT = "DSL_BUDGET_LIMIT"
+#: 文档形状（合法 JSON、顶层是对象、version=1、ops 非空数组、无多余字段）。
+#: 这一类比「某个 op 写错了」更早发生，分开报才能告诉用户“先把结构改对”。
+RULE_DOCUMENT_SHAPE = "DSL_DOCUMENT_SHAPE"
+
+#: 没指定规则时按错误码退化，保证 ``rule`` 永远非空
+_RULE_BY_CODE = {
+    "DSL_INVALID_BASE": RULE_SET_PARAM_BASE,
+    "DSL_STEP_LIMIT": RULE_BUDGET_LIMIT,
+    "DSL_CALL_LIMIT": RULE_BUDGET_LIMIT,
+}
 
 #: 源码上限，与契约 ``SandboxCreate.source`` 的 maxLength 一致
 MAX_SOURCE_BYTES = 16384
@@ -94,13 +135,36 @@ _NODE_PREFIX = "n"
 
 
 class DslError(Exception):
-    """DSL 阶段的失败。``code`` 直接对应契约里的 run.error.code。"""
+    """DSL 阶段的失败。
 
-    def __init__(self, code: str, message: str, details: dict[str, Any] | None = None):
+    ``code`` 是 ``run.error.code``；``rule`` 是**哪条审计规则拒绝的**，
+    写进 ``auditFindings[].ruleId``。两者分开是因为语义不同：
+    同一个 ``DSL_AUDIT_REJECTED`` 可能来自 op 白名单、字段白名单或数值范围，
+    前端要据 rule 才能告诉用户该改哪里。
+    """
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        details: dict[str, Any] | None = None,
+        rule: str | None = None,
+    ):
         super().__init__(message)
         self.code = code
         self.message = message
         self.details = details or {}
+        self.rule = rule or _RULE_BY_CODE.get(code, "DSL_AUDIT_REJECTED")
+
+    @property
+    def location(self) -> int:
+        """源码里的定位线索：ops 的下标（0 基）。取不到时为 -1。
+
+        源码是 JSON，没有真正意义上的行列；给指令序号比恒填 0 有用——
+        前端可以据此高亮第几条 op。
+        """
+        index = self.details.get("index")
+        return int(index) if isinstance(index, int) else -1
 
 
 @dataclass(frozen=True)
@@ -173,25 +237,33 @@ def compile_program(source: str, limits: DslLimits | None = None) -> DslProgram:
     limits = limits or DEFAULT_LIMITS
 
     if not isinstance(source, str) or not source.strip():
-        raise DslError("DSL_AUDIT_REJECTED", "源码为空")
+        raise DslError(
+            "DSL_AUDIT_REJECTED", "源码为空", rule=RULE_DOCUMENT_SHAPE
+        )
     if len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"源码超过 {MAX_SOURCE_BYTES} 字节上限",
             {"maxBytes": MAX_SOURCE_BYTES},
+            rule=RULE_DOCUMENT_SHAPE,
         )
 
     try:
         document = json.loads(source)
     except json.JSONDecodeError as exc:
+        # JSON 解析器知道真实行列，这是整条链路里唯一能给出准确位置的地方。
+        # 契约的 AuditFinding 要求 line/column，拿它填比恒填 0 有意义。
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"源码不是合法 JSON：{exc.msg}",
             {"line": exc.lineno, "column": exc.colno},
+            rule=RULE_DOCUMENT_SHAPE,
         ) from exc
 
     if not isinstance(document, dict):
-        raise DslError("DSL_AUDIT_REJECTED", "顶层必须是对象")
+        raise DslError(
+            "DSL_AUDIT_REJECTED", "顶层必须是对象", rule=RULE_DOCUMENT_SHAPE
+        )
     extra = set(document) - {"version", "ops"}
     if extra:
         # 多余字段一律拒绝：这是「夹带」最容易被忽略的入口
@@ -199,22 +271,27 @@ def compile_program(source: str, limits: DslLimits | None = None) -> DslProgram:
             "DSL_AUDIT_REJECTED",
             f"顶层出现未支持字段：{sorted(extra)}",
             {"unknownFields": sorted(extra)},
+            rule=RULE_FIELD_WHITELIST,
         )
     if document.get("version") != DSL_VERSION:
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"只支持 version={DSL_VERSION}",
             {"version": document.get("version"), "supported": DSL_VERSION},
+            rule=RULE_DOCUMENT_SHAPE,
         )
 
     ops = document.get("ops")
     if not isinstance(ops, list) or not ops:
-        raise DslError("DSL_AUDIT_REJECTED", "ops 必须是非空数组")
+        raise DslError(
+            "DSL_AUDIT_REJECTED", "ops 必须是非空数组", rule=RULE_DOCUMENT_SHAPE
+        )
     if len(ops) > limits.max_ast_nodes:
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"ops 数量 {len(ops)} 超过上限 {limits.max_ast_nodes}",
             {"count": len(ops), "max": limits.max_ast_nodes},
+            rule=RULE_BUDGET_LIMIT,
         )
 
     audited: list[dict[str, Any]] = []
@@ -231,6 +308,7 @@ def compile_program(source: str, limits: DslLimits | None = None) -> DslProgram:
                     "DSL_AUDIT_REJECTED",
                     f"ops[{index}] set_param 出现在绘图调用之后",
                     {"index": index},
+                    rule=RULE_SET_PARAM_BASE,
                 )
             set_param.append(op)
         else:
@@ -242,7 +320,12 @@ def compile_program(source: str, limits: DslLimits | None = None) -> DslProgram:
 
 def _audit_op(index: int, raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
-        raise DslError("DSL_AUDIT_REJECTED", f"ops[{index}] 必须是对象", {"index": index})
+        raise DslError(
+            "DSL_AUDIT_REJECTED",
+            f"ops[{index}] 必须是对象",
+            {"index": index},
+            rule=RULE_FIELD_WHITELIST,
+        )
 
     name = raw.get("op")
     if not isinstance(name, str) or name not in _OP_FIELDS:
@@ -250,6 +333,7 @@ def _audit_op(index: int, raw: Any) -> dict[str, Any]:
             "DSL_AUDIT_REJECTED",
             f"ops[{index}] 的 op 不受支持：{name!r}",
             {"index": index, "op": name, "supported": sorted(_OP_FIELDS)},
+            rule=RULE_OP_WHITELIST,
         )
 
     allowed = _OP_FIELDS[name]
@@ -259,6 +343,7 @@ def _audit_op(index: int, raw: Any) -> dict[str, Any]:
             "DSL_AUDIT_REJECTED",
             f"ops[{index}]（{name}）出现未支持字段：{sorted(unknown)}",
             {"index": index, "unknownFields": sorted(unknown)},
+            rule=RULE_FIELD_WHITELIST,
         )
 
     if name == "set_param":
@@ -269,7 +354,7 @@ def _audit_op(index: int, raw: Any) -> dict[str, Any]:
         _require_number(index, raw, "cy", -_COORD_LIMIT, _COORD_LIMIT)
         _require_number(index, raw, "r", _RADIUS_MIN, _RADIUS_MAX)
     else:
-        _audit_points(index, raw.get("points"))
+        _audit_points(index, name, raw.get("points"))
 
     _audit_style(index, raw)
     return dict(raw)
@@ -278,28 +363,52 @@ def _audit_op(index: int, raw: Any) -> dict[str, Any]:
 def _audit_set_param(index: int, raw: dict[str, Any]) -> dict[str, Any]:
     name = raw.get("name")
     if not isinstance(name, str) or not name:
-        raise DslError("DSL_AUDIT_REJECTED", f"ops[{index}] set_param 缺 name", {"index": index})
+        raise DslError(
+            "DSL_AUDIT_REJECTED",
+            f"ops[{index}] set_param 缺 name",
+            {"index": index},
+            rule=RULE_FIELD_WHITELIST,
+        )
     value = raw.get("value")
-    if not isinstance(value, (int, float, str, bool)) or isinstance(value, bool) and not isinstance(value, bool):
+    # 允许 int / float / str / bool。bool 是 int 的子类，所以不需要额外分支；
+    # 原先那句 ``isinstance(value, bool) and not isinstance(value, bool)`` 恒为假，
+    # 是一句永远不会抛的死人条件。
+    if not isinstance(value, (int, float, str, bool)):
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"ops[{index}] set_param 的 value 只能是数字/字符串/布尔",
             {"index": index},
+            rule=RULE_NUMERIC_RANGE,
         )
     if isinstance(value, float) and not math.isfinite(value):
-        raise DslError("DSL_AUDIT_REJECTED", f"ops[{index}] set_param 的 value 不是有限数", {"index": index})
+        raise DslError(
+            "DSL_AUDIT_REJECTED",
+            f"ops[{index}] set_param 的 value 不是有限数",
+            {"index": index},
+            rule=RULE_NUMERIC_RANGE,
+        )
     return dict(raw)
 
 
-def _audit_points(index: int, points: Any) -> None:
+def _audit_points(index: int, op: str, points: Any) -> None:
     if not isinstance(points, list):
-        raise DslError("DSL_AUDIT_REJECTED", f"ops[{index}] 的 points 必须是数组", {"index": index})
-    # polygon 至少 3 点、polyline 至少 2 点；上限与 IR schema 一致为 512
-    if len(points) < 2 or len(points) > 512:
         raise DslError(
             "DSL_AUDIT_REJECTED",
-            f"ops[{index}] 的 points 数量 {len(points)} 不在 2~512",
-            {"index": index, "count": len(points)},
+            f"ops[{index}] 的 points 必须是数组",
+            {"index": index},
+            rule=RULE_FIELD_WHITELIST,
+        )
+    # 下限按 op 区分：polygon 至少 3 点、polyline 至少 2 点。
+    # 以前这里统一卡 2 点，polygon 的 3 点下限拖到 run 阶段才拒，
+    # 与「所有不合规都在 compile 阶段拒绝」的约定不一致——
+    # 结果是同一类错误在不同阶段报出来，调用方要写两套处理。
+    minimum = 3 if op == "polygon" else 2
+    if len(points) < minimum or len(points) > 512:
+        raise DslError(
+            "DSL_AUDIT_REJECTED",
+            f"ops[{index}]（{op}）的 points 数量 {len(points)} 不在 {minimum}~512",
+            {"index": index, "count": len(points), "min": minimum},
+            rule=RULE_NUMERIC_RANGE,
         )
     for point_index, point in enumerate(points):
         if not isinstance(point, (list, tuple)) or len(point) != 2:
@@ -307,6 +416,7 @@ def _audit_points(index: int, points: Any) -> None:
                 "DSL_AUDIT_REJECTED",
                 f"ops[{index}] 的 points[{point_index}] 必须是 [x, y]",
                 {"index": index, "pointIndex": point_index},
+                rule=RULE_NUMERIC_RANGE,
             )
         for axis, value in enumerate(point):
             if not isinstance(value, (int, float)) or isinstance(value, bool):
@@ -314,12 +424,14 @@ def _audit_points(index: int, points: Any) -> None:
                     "DSL_AUDIT_REJECTED",
                     f"ops[{index}] 的 points[{point_index}][{axis}] 不是数字",
                     {"index": index, "pointIndex": point_index},
+                    rule=RULE_NUMERIC_RANGE,
                 )
             if not math.isfinite(float(value)) or abs(float(value)) > _COORD_LIMIT:
                 raise DslError(
                     "DSL_AUDIT_REJECTED",
                     f"ops[{index}] 的 points[{point_index}][{axis}] 超出 ±{_COORD_LIMIT}",
                     {"index": index, "pointIndex": point_index, "value": value},
+                    rule=RULE_NUMERIC_RANGE,
                 )
 
 
@@ -333,6 +445,7 @@ def _audit_style(index: int, raw: dict[str, Any]) -> None:
                 "DSL_AUDIT_REJECTED",
                 f"ops[{index}] 的 {key} 必须是 #RRGGBB",
                 {"index": index, "field": key, "value": value},
+                rule=RULE_NUMERIC_RANGE,
             )
     if "strokeWidth" in raw:
         _require_number(index, raw, "strokeWidth", _STROKE_MIN, _STROKE_MAX)
@@ -347,6 +460,7 @@ def _require_number(index: int, raw: dict[str, Any], key: str, low: float, high:
             "DSL_AUDIT_REJECTED",
             f"ops[{index}] 的 {key} 必须是数字",
             {"index": index, "field": key},
+            rule=RULE_NUMERIC_RANGE,
         )
     number = float(value)
     if not math.isfinite(number):
@@ -354,12 +468,14 @@ def _require_number(index: int, raw: dict[str, Any], key: str, low: float, high:
             "DSL_AUDIT_REJECTED",
             f"ops[{index}] 的 {key} 不是有限数",
             {"index": index, "field": key, "value": str(value)},
+            rule=RULE_NUMERIC_RANGE,
         )
     if number < low or number > high:
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"ops[{index}] 的 {key}={number} 超出 {low}~{high}",
             {"index": index, "field": key, "value": number, "min": low, "max": high},
+            rule=RULE_NUMERIC_RANGE,
         )
 
 
@@ -402,6 +518,7 @@ def run(
             "DSL_AUDIT_REJECTED",
             f"新 root group 的 ID「{root_id}」与 base 节点冲突",
             {"runId": run_id, "nodeId": root_id},
+            rule=RULE_NODE_ID_UNIQUE,
         )
 
     appended: list[str] = []
@@ -437,7 +554,8 @@ def run(
                 raise DslError(
                     "DSL_AUDIT_REJECTED",
                     f"顶点总数 {total_vertices} 超过全图上限 2000",
-                    {"vertices": total_vertices, "max": 2000},
+                    {"vertices": total_vertices, "max": 2000, "index": index},
+                    rule=RULE_BUDGET_LIMIT,
                 )
 
         draw_calls += 1
@@ -453,7 +571,8 @@ def run(
             raise DslError(
                 "DSL_AUDIT_REJECTED",
                 f"节点 ID「{node_id}」重复",
-                {"nodeId": node_id},
+                {"nodeId": node_id, "index": index},
+                rule=RULE_NODE_ID_UNIQUE,
             )
         existing_ids.add(node_id)
         appended.append(node_id)
@@ -465,6 +584,7 @@ def run(
                 "DSL_AUDIT_REJECTED",
                 f"节点总数 {len(nodes)} 超过全图上限 200",
                 {"nodes": len(nodes), "max": 200},
+                rule=RULE_BUDGET_LIMIT,
             )
         nodes.append(
             {
@@ -476,9 +596,33 @@ def run(
             }
         )
 
+    # 组装结果前，先确认「base 一点没动」。
+    #
+    # 这条不是形式主义：节点是从 base 深拷贝出来的副本，理论上循环里改坏了
+    # 也不会影响 base 对象本身，但结果里就会少一个圆或多改一个颜色——
+    # 而且没人会发现（图还是能渲染出来）。所以把「基底原样保留」做成一条
+    # 可验证的规则，而不是靠「代码应该写对」。清单里的 RULE_BASE_UNMODIFIED 就是它。
+    base_dump = working.model_dump(mode="json")
+    base_nodes = base_dump.get("nodes") or []
+    for offset, original in enumerate(base_nodes):
+        current = nodes[offset] if offset < len(nodes) else None
+        # nodes 里既有 pydantic 对象（base 副本），也可能有后面 append 的 dict
+        current_dump = (
+            current.model_dump(mode="json")
+            if hasattr(current, "model_dump")
+            else current
+        )
+        if current_dump != original:
+            raise DslError(
+                "DSL_AUDIT_REJECTED",
+                f"base 的节点「{original.get('id')}」在结果里被改动了",
+                {"nodeId": original.get("id"), "offset": offset},
+                rule=RULE_BASE_UNMODIFIED,
+            )
+
     ir = DrawingIR.model_validate(
         {
-            **working.model_dump(mode="json"),
+            **base_dump,
             "nodes": nodes,
         }
     )
@@ -524,15 +668,21 @@ def _instantiate_for_params(
         provided,
     )
     if not outcome.ok:
+        # ``ParameterIssue`` 只有 path / message 两个字段，没有 code。
+        # 早期这里写了 ``issue.code``，只要走到这条分支（未知参数名、越界值、
+        # 类型不符、约束冲突）就抛 AttributeError——worker 的通用 except 会把它
+        # 报成 DSL_EXECUTION_FAILED，而契约承诺的是 DSL_INVALID_BASE。
+        # 参数问题本来就该带上参数路径，让前端能定位到表单字段。
         raise DslError(
             "DSL_INVALID_BASE",
             "参数无法在模板既有绑定下实例化",
             {
                 "issues": [
-                    {"code": issue.code, "message": issue.message, "path": issue.path}
+                    {"path": issue.path, "message": issue.message}
                     for issue in outcome.issues
                 ]
             },
+            rule=RULE_SET_PARAM_BASE,
         )
     return outcome.ir
 
@@ -563,10 +713,13 @@ def _build_node(op: dict[str, Any], run_id: str, index: int, root_id: str) -> di
         }
     points = [[float(point[0]), float(point[1])] for point in op["points"]]
     if op["op"] == "polygon" and len(points) < 3:
+        # compile 阶段已经按 op 卡过点数，这里是防御性的第二道：
+        # `_build_node` 是公开给内部调用的，不能假定调用方一定先过了审计。
         raise DslError(
             "DSL_AUDIT_REJECTED",
             f"polygon 至少需要 3 个点，实际 {len(points)}",
             {"index": index},
+            rule=RULE_NUMERIC_RANGE,
         )
     return {
         **base,
@@ -594,7 +747,12 @@ def _sanitize(raw: str) -> str:
     """
     cleaned = re.sub(r"[^A-Za-z0-9_-]", "-", str(raw))
     if not _NODE_ID.match(cleaned):
-        raise DslError("DSL_AUDIT_REJECTED", f"runId 不合法：{raw!r}", {"runId": str(raw)})
+        raise DslError(
+            "DSL_AUDIT_REJECTED",
+            f"runId 不合法：{raw!r}",
+            {"runId": str(raw)},
+            rule=RULE_NODE_ID_UNIQUE,
+        )
     return cleaned[:40]
 
 
