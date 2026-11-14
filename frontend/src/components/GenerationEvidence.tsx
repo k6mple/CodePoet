@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Generation, Issue } from '@/types/core'
-import { symbolLabel } from '@/utils/format'
+import { formatDateTime, symbolLabel } from '@/utils/format'
 
 export function IssueList({ issues }: { issues: Issue[] }) {
   return issues.length > 0 && <ul className="issue-list">
@@ -11,9 +11,18 @@ export function IssueList({ issues }: { issues: Issue[] }) {
   </ul>
 }
 
+function externalEntityHref(sourceId: string, entityId: string): string | null {
+  // Only a controlled, known source gets a link. Other deployment source keys
+  // stay plain text; never turn an external id into a site knowledge link.
+  return sourceId === 'wikidata' && /^Q\d+$/.test(entityId)
+    ? `https://www.wikidata.org/wiki/${entityId}`
+    : null
+}
+
 export function GenerationEvidence({ generation }: { generation: Generation }) {
   const source = generation.provenance
   if (!source) return null
+  const external = source.externalGraph
   const decisions = [
     ['色板', source.paletteDecision],
     ['构图', source.compositionDecision],
@@ -35,6 +44,45 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
         </dd>
       </div>)}
     </dl>
+    {external && <section className="external-source" aria-label="外部知识图谱来源快照">
+      <h4>外部知识图谱来源快照</h4>
+      <dl className="tech-list">
+        <div><dt>来源键</dt><dd>{external.sourceId}</dd></div>
+        <div><dt>外部实体</dt><dd>
+          {externalEntityHref(external.sourceId, external.externalEntityId)
+            ? <a href={externalEntityHref(external.sourceId, external.externalEntityId)!} target="_blank" rel="noreferrer">{external.externalEntityId}</a>
+            : <code>{external.externalEntityId}</code>}
+        </dd></div>
+        <div><dt>抓取时间</dt><dd>{formatDateTime(external.fetchedAt)}</dd></div>
+        <div><dt>数据版本</dt><dd>{external.dataVersion ?? '来源未提供'}</dd></div>
+        <div><dt>内容哈希</dt><dd className="mono">{external.contentHash}</dd></div>
+      </dl>
+      {external.entities.length > 0 && <ul className="issue-list">
+        {external.entities.slice(0, 12).map((entity) => <li key={entity.id}>
+          {externalEntityHref(external.sourceId, entity.id)
+            ? <a href={externalEntityHref(external.sourceId, entity.id)!} target="_blank" rel="noreferrer">{entity.label}</a>
+            : entity.label}
+          {' · '}<code>{entity.id}</code>
+          {entity.description && <> · {entity.description}</>}
+          {Object.keys(entity.attributes).length > 0 && <> · {Object.entries(entity.attributes).slice(0, 6).map(([key, value]) => `${key}=${value}`).join('；')}</>}
+        </li>)}
+      </ul>}
+      {external.relations.length > 0 && <ul className="issue-list">
+        {external.relations.slice(0, 12).map((relation) => <li key={relation.id}>
+          <code>{relation.fromId}</code> --{relation.type}--&gt; <code>{relation.toId}</code>
+          {relation.label && <> · {relation.label}</>}
+        </li>)}
+      </ul>}
+      {external.mappingDecisions.length > 0 && <div>
+        <h5>实际采纳的外部事实</h5>
+        <ul className="issue-list">
+          {external.mappingDecisions.slice(0, 20).map((decision, index) => <li key={`${decision.externalId}:${decision.affects}:${index}`}>
+            {decision.kind} · <code>{decision.externalId}</code> · 影响 {decision.affects}（{decision.target}{decision.targetId ? ` ${decision.targetId}` : ''}） · {decision.reason}
+          </li>)}
+        </ul>
+      </div>}
+      <p className="quality-note">外部 ID 只保留在来源快照中，不是站内知识链接；属性/关系影响叙事、规则或符号，不承诺改变 PNG 像素。</p>
+    </section>}
     {source.matchedEntities.length > 0 && <ul className="issue-list">
       {source.matchedEntities.map((entity) => <li key={entity.entityId}>
         <Link href={`/knowledge/${encodeURIComponent(entity.entityId)}`}>

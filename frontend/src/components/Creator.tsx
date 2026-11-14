@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { errorMessage, request } from '@/api/client'
 import { renderRequest, uploadRenderFrames, cancelRenderJob } from '@/api/render'
@@ -45,6 +45,8 @@ export default function Creator() {
   const [features, setFeatures] = useState<Capabilities['features']>()
   const [semantic, setSemantic] = useState<SemanticInput>({ text: '', entityIds: [] })
   const [semanticIdsText, setSemanticIdsText] = useState('')
+  const [graphSourceId, setGraphSourceId] = useState('wikidata')
+  const [graphEntityId, setGraphEntityId] = useState('')
   const [templateSeed, setTemplateSeed] = useState(42)
   const [draft, setDraft] = useState('')
   const [nodeId, setNodeId] = useState<string | null>(null)
@@ -364,6 +366,27 @@ export default function Creator() {
     setQuality(null)
   }
 
+  function generateFromGraph(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!user) {
+      openLogin('登录后即可从外部知识图谱生成。')
+      return
+    }
+    const sourceId = graphSourceId.trim()
+    const externalEntityId = graphEntityId.trim()
+    if (!/^[a-z0-9_-]+$/.test(sourceId)) {
+      setGenerateError('来源键只能使用小写字母、数字、下划线和短横线，例如 wikidata。')
+      return
+    }
+    if (!/^[A-Za-z0-9_-]+$/.test(externalEntityId)) {
+      setGenerateError('外部实体 ID 只能使用字母、数字、下划线和短横线，例如 Q16528。')
+      return
+    }
+    void runManual('/knowledge-graph/generations', {
+      sourceId, externalEntityId, backend, seed: templateSeed,
+    }, false, backend)
+  }
+
   async function runManual(path: string, payload: object, subgraph = false, requestedBackend = backendRef.current) {
     if (!userId || initializing || saveLock.current || manualLock.current) return
     manualLock.current = true
@@ -507,7 +530,9 @@ export default function Creator() {
     manualLock.current = false
     setPending(false)
     backendRef.current = next
-    restoredTemplate.current = null
+    // A restored draft keeps its version reference across backend switches.
+    // The version effect reloads the same draft and falls back to a declared
+    // browser backend if the new backend is not supported by that draft.
     setBackend(next)
     setVersion(null)
     setTemplates([])
@@ -815,6 +840,25 @@ export default function Creator() {
               disabled={!semantic.text.trim() && !semantic.entityIds.length}>{pending ? '正在生成…' : '按语义生成'}</button>
           </fieldset>
           {!features?.semanticGeneration && <p className="rail-lead">当前后端尚未启用语义生成。</p>}
+        </form>}
+        {mode === 'semantic' && <form className="graph-form" onSubmit={generateFromGraph}>
+          <fieldset disabled={saving || pending || initializing || !capability || !features?.knowledgeGraph}>
+            <legend>外部知识图谱</legend>
+            <p className="rail-lead">按部署配置的来源键取一个外部实体。外部 ID 只进入来源快照，不作为站内知识链接。</p>
+            <label className="field">来源键
+              <input value={graphSourceId} maxLength={40} placeholder="wikidata"
+                onChange={(event) => setGraphSourceId(event.target.value)} />
+            </label>
+            <label className="field">外部实体 ID
+              <input value={graphEntityId} maxLength={80} placeholder="Q16528"
+                onChange={(event) => setGraphEntityId(event.target.value)} />
+            </label>
+            <button type="submit" className="button button--secondary button--small"
+              disabled={!graphSourceId.trim() || !graphEntityId.trim()}>
+              {pending ? '正在生成…' : '从外部图谱生成'}
+            </button>
+          </fieldset>
+          {!features?.knowledgeGraph && <p className="rail-lead">当前部署未启用知识图谱来源；配置后才会显示入口。</p>}
         </form>}
         {mode === 'ir' && (generation && generation.ownerId === userId
           ? <IRControls key={generation.id} ir={generation.ir} draft={draft} selected={nodeId}

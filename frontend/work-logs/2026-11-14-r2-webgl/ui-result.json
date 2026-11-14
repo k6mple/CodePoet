@@ -1,0 +1,11 @@
+{
+  "probe": {
+    "ok": true,
+    "width": 400,
+    "height": 300,
+    "colored": 16304
+  },
+  "errorText": [],
+  "errors": [],
+  "switchedBackends": true
+}

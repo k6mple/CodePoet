@@ -32,6 +32,36 @@ function CssPreview({ ir, timeMs }: { ir: DrawingIR; timeMs: number }) {
   </div>
 }
 
+function WebglFrame({ ir, timeMs }: { ir: DrawingIR; timeMs: number }) {
+  const ref = useRef<HTMLCanvasElement>(null)
+  const renderer = useRef<Renderer | null>(null)
+  const [error, setError] = useState('')
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const instance = registry.create('webgl', canvas)
+    renderer.current = instance
+    void instance.load(ir).catch(cause => {
+      if (renderer.current === instance) setError(cause instanceof Error ? cause.message : '绘制失败')
+    })
+    return () => { renderer.current = null; instance.dispose() }
+  }, [ir])
+  useEffect(() => {
+    const instance = renderer.current
+    void instance?.seek(timeMs).then(() => {
+      if (renderer.current === instance) setError('')
+    }).catch(cause => {
+      if (renderer.current === instance) setError(cause instanceof Error ? cause.message : '绘制失败')
+    })
+  }, [ir, timeMs])
+  return <div className="canvas-wrap">
+    <canvas ref={ref} width={ir.viewport.width} height={ir.viewport.height} role="img" aria-label="WebGL 作品预览">
+      当前浏览器不支持 WebGL。
+    </canvas>
+    {error && <p className="error" role="alert">绘制失败：{error}</p>}
+  </div>
+}
+
 function CanvasFrame({ ir, timeMs = 0 }: { ir: DrawingIR; timeMs?: number }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const [error, setError] = useState('')
@@ -58,7 +88,9 @@ function CanvasFrame({ ir, timeMs = 0 }: { ir: DrawingIR; timeMs?: number }) {
 export default function CanvasPreview({ ir, timeMs = 0, backend = 'canvas2d', focusNodeIds }: { ir: DrawingIR; timeMs?: number; backend?: string; focusNodeIds?: string[] }) {
   if (!hasBrowserRenderer(backend)) return <p role="status">当前浏览器没有 {backend} 适配器，无法重绘；服务器保存的 PNG 仍可查看。</p>
   return <div className="render-preview" style={{maxWidth:ir.viewport.width}}>
-    {backend === 'css' ? <CssPreview ir={ir} timeMs={timeMs} /> : <CanvasFrame ir={ir} timeMs={timeMs} />}
+    {backend === 'css' ? <CssPreview ir={ir} timeMs={timeMs} />
+      : backend === 'webgl' ? <WebglFrame ir={ir} timeMs={timeMs} />
+        : <CanvasFrame ir={ir} timeMs={timeMs} />}
     {focusNodeIds?.length ? <QualityFocus ir={ir} timeMs={timeMs} nodeIds={focusNodeIds} /> : null}
   </div>
 }

@@ -3,6 +3,12 @@ import { hasBrowserRenderer, rendererVersion } from './registry'
 
 export const backendLabel = (backend: string) => ({ canvas2d: 'Canvas 2D', css: 'CSS / SVG', webgl: 'WebGL', turtle: 'Turtle' })[backend] ?? backend
 
+// Prefer a backend the current browser can actually draw; a template version
+// may declare turtle/webgl before the browser adapter or capability exists.
+export function preferredBrowserBackend(backends: readonly string[]): string {
+  return backends.find(hasBrowserRenderer) ?? backends[0] ?? 'unavailable'
+}
+
 // Missing backend is supported only for legacy Canvas responses.
 export const generationBackend = (generation: Generation): Backend => generation.backend ?? 'canvas2d'
 export const historicalBackend = (work: WorkDetail): Backend => work.renderJob.backend ?? generationBackend(work.generation)
