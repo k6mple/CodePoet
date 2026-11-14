@@ -172,3 +172,32 @@ def knowledge_graph_timeout(message: str, details: Any = None) -> ApiError:
 def knowledge_graph_entity_not_found(message: str, details: Any = None) -> ApiError:
     """422：来源里没有这个实体。"""
     return ApiError(422, "KNOWLEDGE_GRAPH_ENTITY_NOT_FOUND", message, details=details)
+
+
+# ---- S1 DSL 沙箱与执行策略 ------------------------------------------------
+
+
+def sandbox_unavailable(message: str, details: Any = None) -> ApiError:
+    """503：本实例的隔离执行环境不可用。
+
+    契约要求这种情况**明确失败**，绝不退化成「在当前进程里跑一下试试」——
+    那等于把用户源码放进 API 进程，隔离就从这里开始不存在了。
+    """
+    return ApiError(503, "SANDBOX_UNAVAILABLE", message, details=details)
+
+
+def policy_field_read_only(fields: list[str]) -> ApiError:
+    """422：试图修改本期只读的策略字段。
+
+    单独一个错误码，而不是笼统的 VALIDATION_ERROR：前端要靠它把「这个输入框
+    本来就不该能改」和「这个值填错了」区分开。细则里点名了这个码，不能改。
+    """
+    return ApiError(
+        422,
+        "POLICY_FIELD_READ_ONLY",
+        f"以下策略字段本期只读，不能修改：{', '.join(fields)}",
+        field_errors=[
+            {"path": f"values.{name}", "message": "该字段本期只读"} for name in fields
+        ],
+        details={"readOnlyFields": fields},
+    )

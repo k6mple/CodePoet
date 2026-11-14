@@ -20,7 +20,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from sqlalchemy import func, select, text, true, update
+from sqlalchemy import func, select, true, update
 from sqlalchemy.orm import Session
 
 from app.errors import (
@@ -52,6 +52,7 @@ from app.schemas.works import (
     WorkUpdate,
 )
 from app.services import audit
+from app.services import locking
 from app.services import permissions
 from app.engine import capabilities
 from app.services import quality as quality_service
@@ -549,17 +550,12 @@ def _mark_expired_if_due(row: RenderJob, now: datetime) -> bool:
 def _begin_immediate(db: Session) -> None:
     """在当前 Session 上开一个**独占写事务**。
 
-    SQLite 默认是 DEFERRED 事务：先读后写时，写锁要等到 INSERT 那一刻才
-    升级，中间那段窗口里别的连接也能读到同样的 COUNT，于是两个并发请求
-    各自看到"还有名额"、然后各插一条——上限就这么被突破了，而 429 只挡得住
-    串行的第二次请求。IMMEDIATE 在事务一开始就拿写锁，COUNT 与 INSERT
-    之间插不进任何人。
+    实现在 ``services.locking.begin_immediate``：沙箱的并发配额也要靠同一份
+    机制，两处各写一遍迟早会漂——而这里漂移的后果是限流失效，不是报错。
 
-    调用前必须没有未提交的改动：这里先 commit 一次，把前面只读的事务
-    收干净，再显式开 IMMEDIATE。
+    这里保留这个私有名只是为了不动既有调用点。
     """
-    db.commit()
-    db.execute(text("BEGIN IMMEDIATE"))
+    locking.begin_immediate(db)
 
 
 def reserve_upload_slot(db: Session, owner_id: str) -> None:

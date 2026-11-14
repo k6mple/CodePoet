@@ -22,12 +22,15 @@ from app.api.knowledge_graph import router as knowledge_graph_router
 from app.api.render import router as render_router
 from app.api.reviews import router as reviews_router
 from app.api.rules import router as rules_router
+from app.api.sandbox import router as sandbox_router
 from app.api.sessions import router as sessions_router
 from app.api.templates import router as templates_router
 from app.api.works import router as works_router
 from app.db import create_database, create_session_factory
 from app.errors import ApiError
 from app.schemas.health import Health
+from app.services import sandbox as sandbox_service
+from app.services.sandbox import SandboxExecutor
 from app.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -54,11 +57,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         engine = create_database(config)
         application.state.engine = engine
         application.state.sessions = create_session_factory(engine)
+        # 隔离执行器：进程内线程池，单并发。真正的执行体是独立子进程
+        # （engine/dsl_worker.py），这里只负责排队与在事务中落库。
+        executor = SandboxExecutor(application.state.sessions)
+        application.state.sandbox_executor = executor
         try:
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
+            # 上次进程没跑完的 run 永远不会有执行线程接手，启动时标成失败，
+            # 否则用户的配额会被僵尸任务一直占着。
+            #
+            # 容错：迁移还没跑（新库/旧库）时这张表不存在。清理失败不该阻止
+            # 服务启动——健康检查会照常报数据库状态，而启动直接崩掉会让
+            # 「该跑迁移了」这个真实原因被一堆堆栈埋掉。
+            try:
+                with application.state.sessions() as session:
+                    sandbox_service.recover_orphans(session)
+            except SQLAlchemyError:
+                # 只留一行，不打堆栈：这个分支在「新库还没迁移」「测试先起
+                # 应用再建表」时是正常现象，一堆 traceback 会把真正的错误埋掉。
+                logger.warning(
+                    "跳过沙箱孤儿任务清理：sandbox_runs 表不存在，请先跑迁移"
+                )
             yield
         finally:
+            executor.shutdown()
             engine.dispose()
 
     application = FastAPI(
@@ -165,6 +188,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(reviews_router, prefix="/api/v1")
     application.include_router(sessions_router, prefix="/api/v1")
     application.include_router(rules_router, prefix="/api/v1")
+    application.include_router(sandbox_router, prefix="/api/v1")
 
     return application
 
