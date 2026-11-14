@@ -16,6 +16,7 @@ PY = BACKEND / ".venv" / "Scripts" / "python.exe"
 SANDBOX = BACKEND / "app" / "services" / "sandbox.py"
 POLICY = BACKEND / "app" / "services" / "policy.py"
 WORKER = BACKEND / "app" / "engine" / "dsl_worker.py"
+DSL = BACKEND / "app" / "engine" / "dsl.py"
 
 CASES = [
     (
@@ -26,11 +27,11 @@ CASES = [
         "tests.test_sandbox.ExecuteTests.test_disabled_function_is_rejected",
     ),
     (
-        "base 授权检查",
+        "base 必须是本人拥有（不是「可读」）",
         SANDBOX,
-        "    if base is None or not can_read(db, user, base):",
+        "    if base is None or base.owner_id != user.id:",
         "    if base is None:",  # 退化：只判存在
-        "tests.test_sandbox.AcceptTests.test_other_users_base_is_404",
+        "tests.test_sandbox.OwnershipTests.test_base_must_be_owned_not_merely_readable",
     ),
     (
         "策略硬上限",
@@ -47,11 +48,18 @@ CASES = [
         "tests.test_policy.WriteTests.test_read_only_field_is_rejected",
     ),
     (
-        "并发配额",
+        "并发配额（独占写事务）",
         SANDBOX,
-        "    if _active_count(db, user.id) >= MAX_ACTIVE_RUNS_PER_USER:",
-        "    if False:  # 退化：不判配额",
-        "tests.test_sandbox.QuotaTests.test_third_active_run_is_429",
+        "    locking.begin_immediate(db)\n    try:\n        active = _active_count(db, user.id)",
+        "    try:  # 退化：不开独占写事务\n        active = _active_count(db, user.id)",
+        "tests.test_sandbox.ConcurrencyTests.test_create_run_opens_exclusive_transaction",
+    ),
+    (
+        "策略乐观锁（条件进 WHERE）",
+        POLICY,
+        "        .where(\n            PolicyModel.id == 1,\n            PolicyModel.revision == payload.expectedRevision,\n        )",
+        "        .where(PolicyModel.id == 1)  # 退化：只按主键更新",
+        "tests.test_sandbox.ConcurrencyTests.test_policy_patch_rejects_stale_identity_map",
     ),
     (
         "run 绑定提交时快照",
@@ -62,6 +70,14 @@ CASES = [
         "test_run_keeps_policy_snapshot_taken_at_submission",
     ),
     (
+        "源码不出现在 provenance",
+        SANDBOX,
+        "        fragmentSource=None,",
+        "        fragmentSource=row.source_json,  # 退化：把源码写进 provenance",
+        "tests.test_sandbox.OwnershipTests."
+        "test_source_never_leaks_through_generation_provenance",
+    ),
+    (
         "内存退出码归入内存超限",
         SANDBOX,
         "def is_memory_exit(returncode: int) -> bool:\n"
@@ -70,7 +86,22 @@ CASES = [
         "    return False  # 退化：不认任何内存退出码",
         "tests.test_sandbox.BudgetTests.test_memory_watchdog_kills_worker",
     ),
+    (
+        "parameter issue 不再读 .code（P1）",
+        DSL,
+        "                    {\"path\": issue.path, \"message\": issue.message}",
+        "                    {\"code\": issue.code, \"message\": issue.message, \"path\": issue.path}",
+        "tests.test_dsl.SetParamTests.test_unknown_param_is_invalid_base",
+    ),
+    (
+        "finding 用规则 ID 而不是错误码",
+        WORKER,
+        '                    "ruleId": (rule or code)[:80],',
+        '                    "ruleId": code[:80],  # 退化：拿错误码当规则 ID',
+        "tests.test_sandbox.ExecuteTests.test_static_rejection_still_leaves_a_run",
+    ),
 ]
+
 
 
 def run(test_id: str) -> bool:

@@ -74,7 +74,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 with application.state.sessions() as session:
                     sandbox_service.recover_orphans(session)
             except SQLAlchemyError:
-                logger.warning("跳过沙箱孤儿任务清理：数据库尚未迁移", exc_info=True)
+                # 只留一行，不打堆栈：这个分支在「新库还没迁移」「测试先起
+                # 应用再建表」时是正常现象，一堆 traceback 会把真正的错误埋掉。
+                logger.warning(
+                    "跳过沙箱孤儿任务清理：sandbox_runs 表不存在，请先跑迁移"
+                )
             yield
         finally:
             executor.shutdown()

@@ -24,10 +24,11 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app import errors
+from app.engine import dsl
 from app.models.sandbox import Policy as PolicyModel
 from app.models.users import User
 from app.schemas.sandbox import (
@@ -119,35 +120,49 @@ READ_ONLY_FIELDS = frozenset(PolicyValues.model_fields) - WRITABLE_FIELDS
 
 #: 固定审计规则。``enabled`` 恒为 true——这些是 AST 安全边界本身，
 #: 「关掉某条必需规则」不是一个应当存在的操作，所以没有对应的写入口。
+#:
+#: 规则 ID 直接取自 ``engine.dsl`` 的常量，而不是在这里另写一遍字符串：
+#: 拒绝时写进 finding 的 ``ruleId`` 必须和这份清单对得上，否则前端拿到一个
+#: 在清单里查不到的规则名，既没法展示说明也没法做「点这条规则看详情」。
 AUDIT_RULES: tuple[AuditRule, ...] = (
     AuditRule(
-        ruleId="DSL_OP_WHITELIST",
+        ruleId=dsl.RULE_DOCUMENT_SHAPE,
+        description="源码必须是合法 JSON 对象，version=1，ops 是非空数组",
+        enabled=True,
+    ),
+    AuditRule(
+        ruleId=dsl.RULE_OP_WHITELIST,
         description="只解释 circle / polygon / polyline / set_param 四种操作",
         enabled=True,
     ),
     AuditRule(
-        ruleId="DSL_FIELD_WHITELIST",
+        ruleId=dsl.RULE_FIELD_WHITELIST,
         description="每个操作只允许固定字段，多一个字段整份拒绝",
         enabled=True,
     ),
     AuditRule(
-        ruleId="DSL_NUMERIC_RANGE",
+        ruleId=dsl.RULE_NUMERIC_RANGE,
         description="坐标、半径、描边、透明度必须落在 IR schema 范围内，拒绝 NaN/Infinity",
         enabled=True,
     ),
     AuditRule(
-        ruleId="DSL_NODE_ID_UNIQUE",
+        ruleId=dsl.RULE_NODE_ID_UNIQUE,
         description="生成节点 ID 不得与 base 既有节点冲突",
         enabled=True,
     ),
     AuditRule(
-        ruleId="DSL_BASE_UNMODIFIED",
+        ruleId=dsl.RULE_BASE_UNMODIFIED,
         description="base 的节点、动画、叙事原样保留，新增图元只挂在末尾 root group 下",
         enabled=True,
     ),
     AuditRule(
-        ruleId="DSL_SET_PARAM_BASE",
-        description="set_param 只用于「有模板来源、未手改、未子图派生」的 base",
+        ruleId=dsl.RULE_SET_PARAM_BASE,
+        description="set_param 只用于「有模板来源、未手改、未子图派生」的 base，且必须先于绘图调用",
+        enabled=True,
+    ),
+    AuditRule(
+        ruleId=dsl.RULE_BUDGET_LIMIT,
+        description="绘图调用数、解释步数、AST 节点数、全图顶点数不得超过策略限额",
         enabled=True,
     ),
 )
@@ -292,10 +307,30 @@ def update_policies(
         )
 
     before = current.model_dump(mode="json")
-    row.values_json = _dumps(payload.values)
-    row.revision = row.revision + 1
-    row.updated_at = _now_iso()
-    row.updated_by = actor.id
+    # 乐观锁必须是**原子**的。
+    #
+    # 原先写的是「先比 expectedRevision，再赋值提交」：两个并发 PATCH 都读到
+    # revision=N，比较都能过，后提交者直接覆盖前者——客户端拿不到 409，
+    # 还会以为自己那版生效了。条件放进 UPDATE 的 WHERE 之后，数据库保证只有
+    # 一个请求能把 N 推到 N+1，另一个 rowcount=0 就是 409。
+    # 这与 works.create_version 的修法是同一套（那边踩过同样的坑）。
+    affected = db.execute(
+        update(PolicyModel)
+        .where(
+            PolicyModel.id == 1,
+            PolicyModel.revision == payload.expectedRevision,
+        )
+        .values(
+            values_json=_dumps(payload.values),
+            revision=payload.expectedRevision + 1,
+            updated_at=_now_iso(),
+            updated_by=actor.id,
+        )
+    ).rowcount
+    if affected != 1:
+        db.rollback()
+        actual = db.scalar(select(PolicyModel.revision).where(PolicyModel.id == 1)) or 0
+        raise errors.revision_conflict(payload.expectedRevision, actual)
 
     # 审计跟随业务事务：预算改了什么、谁改的、从哪版到哪版，必须和改动同生共死
     audit.record(
@@ -307,14 +342,19 @@ def update_policies(
         input_summary={
             "changedFields": sorted(changed),
             "fromRevision": payload.expectedRevision,
-            "toRevision": row.revision,
+            "toRevision": payload.expectedRevision + 1,
         },
         before={"revision": payload.expectedRevision, "values": before},
-        after={"revision": row.revision, "values": payload.values.model_dump(mode="json")},
+        after={
+            "revision": payload.expectedRevision + 1,
+            "values": payload.values.model_dump(mode="json"),
+        },
         request_id=request_id,
     )
     db.commit()
-    db.refresh(row)
+    # UPDATE 语句绕过了 ORM，identity map 里那一行的属性已经陈旧；
+    # 不 expire 的话 get_policies 会命中缓存对象、返回旧的 revision。
+    db.expire_all()
     return get_policies(db)
 
 

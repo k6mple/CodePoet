@@ -261,6 +261,11 @@ def main() -> int:
         assert generation["mode"] == "fragment"
         assert generation["provenance"]["kind"] == "fragment"
         assert generation["provenance"]["baseGenerationId"] == generation_id
+        # 源码不能经 provenance 流出：作品公开后 provenance 是匿名可读的
+        assert generation["provenance"]["fragmentSource"] is None, "provenance 不该带源码"
+        assert (
+            generation["provenance"]["fragmentSourceHash"] == final["sourceHash"]
+        ), "hash 必须留得住，否则没法溯源到那条 run"
 
         print("10) AST 违规必须留痕但不产出 generation")
         status, rejected = client.request(
@@ -279,11 +284,19 @@ def main() -> int:
             if final["status"] in {"succeeded", "failed", "timed_out", "cancelled"}:
                 break
             time.sleep(0.2)
-        print(f"   status={final['status']} code={(final.get('error') or {}).get('code')} "
-              f"generationId={final['generationId']}")
+        findings = final.get("auditFindings") or []
+        print(
+            f"   status={final['status']} code={(final.get('error') or {}).get('code')} "
+            f"rule={(findings[0]['ruleId'] if findings else None)} "
+            f"generationId={final['generationId']}"
+        )
         assert final["status"] == "failed"
         assert final["error"]["code"] == "DSL_AUDIT_REJECTED"
         assert final["generationId"] is None
+        # finding 的 ruleId 必须是审计规则 ID，不是错误码
+        assert findings, "静态拒绝必须给出一条审计发现"
+        assert findings[0]["ruleId"] == "DSL_OP_WHITELIST", findings
+        assert findings[0]["line"] >= 0
 
         print("\n冒烟通过：受理 → 隔离执行 → 落库 → 违规留痕，全部符合契约")
         return 0

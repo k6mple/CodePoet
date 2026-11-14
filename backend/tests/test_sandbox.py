@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -188,6 +189,16 @@ class SandboxTestBase(unittest.TestCase):
         self.assertEqual(body.json()["status"], row.status)
         return body.json()
 
+    def _as_admin(self, username: str) -> str:
+        """建号 → 改 role → 重新登录，返回新的 CSRF。
+
+        重新登录是必须的：登录会换一个新会话，旧 token 立刻失效。
+        """
+        self._new_user(username)
+        self._login(username)
+        self._set_admin(username)
+        return self._login(username)
+
     def _set_admin(self, username: str) -> None:
         """直接改库把角色提成 admin：测试不该依赖审批流。"""
         connection = sqlite3.connect(self.settings.database_path)
@@ -349,9 +360,12 @@ class ExecuteTests(SandboxTestBase):
         self.assertIsNone(body["generationId"])
         self.assertEqual(body["error"]["code"], "DSL_AUDIT_REJECTED")
         self.assertIsNotNone(body["finishedAt"])
-        # 静态拒绝也要给一条可定位的审计发现
+        # 静态拒绝也要给一条可定位的审计发现，且 ruleId 是**规则 ID**
+        # 而不是错误码——两者语义不同，前端要据 rule 才知道该改哪里
         self.assertGreaterEqual(len(body["auditFindings"]), 1)
-        self.assertEqual(body["auditFindings"][0]["ruleId"], "DSL_AUDIT_REJECTED")
+        finding = body["auditFindings"][0]
+        self.assertEqual(finding["ruleId"], "DSL_OP_WHITELIST")
+        self.assertNotEqual(finding["ruleId"], "DSL_AUDIT_REJECTED")
 
     def test_invalid_json_source_is_audit_rejected(self) -> None:
         self._new_user("runner3")
@@ -419,6 +433,59 @@ class OwnershipTests(SandboxTestBase):
         response = self.client.get(f"{API}/sandbox-runs/{run['id']}")
         self.assertEqual(response.status_code, 404, response.text)
         self.assertEqual(response.json()["error"]["code"], "RESOURCE_NOT_FOUND")
+
+    def test_base_must_be_owned_not_merely_readable(self) -> None:
+        """administrator 能读别人的快照，但不该能拿它跑 DSL。
+
+        OpenAPI 的 POST /sandbox-runs 写的是「基础 generation 必须本人拥有」。
+        上一版用 ``can_read``，管理员（以及任何能读公开作品的人）都能拿别人的
+        快照当 base——产出的 fragment 归自己，来源链却写成「我改了别人的图」。
+        """
+        self._new_user("author")
+        self._login("author")
+        base = self._seed_generation(self._user_id(), gen_id="gen-author")
+
+        self._new_user("boss")
+        csrf_boss = self._login("boss")
+        self._set_admin("boss")
+        csrf_boss = self._login("boss")
+
+        response = self._post_run(csrf_boss, base, source(circle()))
+        self.assertEqual(response.status_code, 404, response.text)
+        # 不是 403：不告诉管理员「这条快照存在但不是你的」
+        self.assertEqual(response.json()["error"]["code"], "RESOURCE_NOT_FOUND")
+
+    def test_source_never_leaks_through_generation_provenance(self) -> None:
+        """源码不能经 provenance 暴露给公开读者。
+
+        provenance 会随 ``GET /generations/{id}`` 返回，而作品一旦发布，
+        ``GET /work-versions/{id}`` 是匿名可读的、详情里原样带着 provenance。
+        把 source 写进 provenance，等于作品公开的一刻源码就对所有人可见。
+        """
+        self._new_user("leak")
+        csrf = self._login("leak")
+        base = self._seed_generation(self._user_id())
+
+        # 用一段特征明显的源码，便于断言「它没有出现在任何响应里」
+        marker = "#LEAKCANARY"
+        src = source({"op": "circle", "cx": 10, "cy": 10, "r": 5, "fill": "#ABCDEF"})
+        body = self._run_and_wait(csrf, base, src)
+        self.assertEqual(body["status"], "succeeded", body.get("error"))
+
+        generation = self.client.get(f"{API}/generations/{body['generationId']}")
+        self.assertEqual(generation.status_code, 200, generation.text)
+        provenance = generation.json()["provenance"]
+        self.assertIsNone(
+            provenance["fragmentSource"],
+            "provenance 不该带源码，公开作品会连带把源码公开",
+        )
+        # 但要留得住溯源：hash 还在，且与 run 的一致
+        self.assertEqual(provenance["fragmentSourceHash"], body["sourceHash"])
+
+        # 响应里也不该出现源码文本本身
+        self.assertNotIn(marker, generation.text)
+        run_response = self.client.get(f"{API}/sandbox-runs/{body['id']}")
+        self.assertNotIn("source", run_response.json())
 
 
 class BudgetTests(SandboxTestBase):
@@ -584,6 +651,169 @@ class QuotaTests(SandboxTestBase):
         response = self._post_run(csrf, base, source(circle()))
         self.assertEqual(response.status_code, 202, response.text)
         self._wait(response.json()["id"])
+
+
+class ConcurrencyTests(SandboxTestBase):
+    """两处并发防护。
+
+    配额那条是**概率性**验证：串行执行时也会得到「2 成功 2 拒绝」，
+    所以它只能证明不超限，证明不了原子性——原子性由 ``BEGIN IMMEDIATE``
+    保证，见 ``test_create_run_opens_exclusive_transaction``。
+    乐观锁那条是确定性的，见 ``test_policy_patch_rejects_stale_identity_map``。
+    """
+
+    def test_create_run_opens_exclusive_transaction(self) -> None:
+        """计数与插入必须在同一个 IMMEDIATE 事务里。
+
+        这里的判据是「create_run 期间出现了一次 BEGIN IMMEDIATE」，
+        而不是「并发时没超限」——后者要复现竞态窗口，单机测试不可靠。
+        """
+        self._new_user("txn")
+        csrf = self._login("txn")
+        base = self._seed_generation(self._user_id())
+        statements: list[str] = []
+
+        with self.sessions() as db:
+            from sqlalchemy import event
+
+            from app.models.users import User as UserModel
+
+            def record(conn, cursor, statement, params, context, executemany):
+                statements.append(statement)
+
+            event.listen(self.engine, "before_cursor_execute", record)
+            try:
+                user = db.get(UserModel, self._user_id())
+                sandbox_service.create_run(
+                    db,
+                    user,
+                    SandboxCreate(baseGenerationId=base, source=source(circle())),
+                    "req-test",
+                )
+            finally:
+                event.remove(self.engine, "before_cursor_execute", record)
+
+        self.assertTrue(
+            any("BEGIN IMMEDIATE" in item for item in statements),
+            "配额检查没有开独占写事务，并发时会突破上限",
+        )
+        # 顺序也要对：先拿锁、再 COUNT、最后 INSERT
+        lock_at = next(i for i, s in enumerate(statements) if "BEGIN IMMEDIATE" in s)
+        count_at = next(i for i, s in enumerate(statements) if "count(" in s.lower())
+        insert_at = next(
+            i for i, s in enumerate(statements) if s.lstrip().upper().startswith("INSERT")
+        )
+        self.assertLess(lock_at, count_at)
+        self.assertLess(count_at, insert_at)
+
+    def test_concurrent_submissions_do_not_exceed_quota(self) -> None:
+        self._new_user("race")
+        self._login("race")
+        base = self._seed_generation(self._user_id())
+        owner = self._user_id()
+
+        from typing import Any
+
+        from app.errors import ApiError
+        from app.models.users import User as UserModel
+
+        outcomes: list[Any] = []
+        guard = threading.Lock()
+        start = threading.Barrier(4)
+
+        def submit() -> None:
+            db = self.sessions()
+            try:
+                user = db.get(UserModel, owner)
+                start.wait(timeout=10)
+                run = sandbox_service.create_run(
+                    db,
+                    user,
+                    SandboxCreate(baseGenerationId=base, source=source(circle())),
+                    "req-test",
+                )
+                with guard:
+                    outcomes.append(("ok", run.id))
+            except ApiError as exc:
+                with guard:
+                    outcomes.append((exc.code, None))
+            except Exception as exc:  # noqa: BLE001 - 锁等待超时也要让测试说清楚
+                with guard:
+                    outcomes.append(("error", type(exc).__name__))
+            finally:
+                db.close()
+
+        threads = [threading.Thread(target=submit) for _ in range(4)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+
+        accepted = [item for item in outcomes if item[0] == "ok"]
+        rejected = [item for item in outcomes if item[0] == "EXECUTION_BUSY"]
+        self.assertEqual(len(accepted) + len(rejected), 4, outcomes)
+        self.assertLessEqual(len(accepted), sandbox_service.MAX_ACTIVE_RUNS_PER_USER)
+        # 库里未完成的数量不能超过上限——这才是真正要保的不变式
+        with self.sessions() as db:
+            active = db.scalar(
+                text(
+                    "SELECT COUNT(*) FROM sandbox_runs "
+                    "WHERE status IN ('queued','running')"
+                )
+            )
+        self.assertLessEqual(active, sandbox_service.MAX_ACTIVE_RUNS_PER_USER)
+
+    def test_policy_patch_rejects_stale_identity_map(self) -> None:
+        """乐观锁条件必须在 UPDATE 的 WHERE 里，不能只在 Python 里比较。
+
+        这个用例必须直接调服务层、并且**复用同一个 Session**，否则测不出东西：
+
+        上一版走 HTTP，PATCH 用的是全新 Session，``db.get`` 会从库里读到
+        revision=2，于是前置的「1 != 2」比较就返回 409 了——退化掉 WHERE 条件
+        测试照样通过，等于什么都没验。
+
+        真正需要区分的是「本 Session 已经缓存了旧值」这种情况：
+
+        * 条件放进 WHERE：UPDATE ... WHERE revision=1 影响 0 行 → 409；
+        * 「先比较再赋值」：缓存里还是 1，比较能过，接着把别人的改动覆盖掉
+          并返回 200——客户端以为自己的改动生效了，实际抹掉了别人那一版。
+        """
+        from app.errors import ApiError
+        from app.models.sandbox import Policy as PolicyModel
+        from app.models.users import User as UserModel
+        from app.schemas.sandbox import PolicyUpdate
+
+        self._as_admin("locker")
+        admin_id = self._login_body["user"]["id"]
+
+        with self.sessions() as stale:
+            row = stale.get(PolicyModel, 1)
+            self.assertEqual(row.revision, 1)
+
+            # 另一条连接先把 revision 推到 2（模拟别人抢先改了一版）
+            with self.sessions() as other:
+                other.execute(text("UPDATE policies SET revision = 2 WHERE id = 1"))
+                other.commit()
+
+            # 本 Session 的 identity map 里仍然是 revision=1
+            self.assertEqual(stale.get(PolicyModel, 1).revision, 1)
+
+            actor = stale.get(UserModel, admin_id)
+            payload = PolicyUpdate(
+                expectedRevision=1,
+                values=policy_service.DEFAULT_VALUES.model_copy(
+                    update={"dslMaxDrawCalls": 500}
+                ),
+            )
+            with self.assertRaises(ApiError) as ctx:
+                policy_service.update_policies(stale, actor, payload, "req-test")
+
+        self.assertEqual(ctx.exception.status_code, 409)
+        self.assertEqual(ctx.exception.code, "REVISION_CONFLICT")
+        # 库里仍是 2，且值没被这次提交覆盖
+        current = self.client.get(f"{API}/admin/policies").json()
+        self.assertEqual(current["revision"], 2)
+        self.assertEqual(current["values"]["dslMaxDrawCalls"], 1000)
 
 
 class SnapshotBindingTests(SandboxTestBase):

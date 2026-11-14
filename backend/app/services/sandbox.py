@@ -69,12 +69,12 @@ from app.schemas.sandbox import (
     SandboxRun,
 )
 from app.services import audit
+from app.services import locking
 from app.services import policy as policy_service
 from app.services.generations import (
     ENGINE_VERSION,
     ONTOLOGY_VERSION,
     _WARNING_CODES,
-    can_read,
     compute_ir_hash,
 )
 
@@ -591,14 +591,24 @@ def create_run(
 
     这里**不执行任何用户源码**，连 JSON 解析都不做——静态审计也在 worker 里。
     控制器调用方拿到返回值后再把它扔给执行器。
+
+    顺序是有讲究的：``probe()`` 先跑（它会起一个子进程，绝不能包在写事务里），
+    然后才拿独占写锁做「数配额 + 插入」。反过来的话，一次几秒钟的环境自检
+    会把整张表的写锁攥在手里。
     """
     available, reason = probe()
     if not available:
         raise errors.sandbox_unavailable(reason or "隔离执行环境不可用")
 
     base = db.get(GenerationModel, payload.baseGenerationId)
-    # 授权先于一切：读不到就 404，不因为「后端没启用」「配额满了」泄露它存在
-    if base is None or not can_read(db, user, base):
+    # 授权先于一切：读不到就 404，不因为「配额满了」泄露它存在。
+    #
+    # 这里是 **ownership** 而不是 can_read，与 OpenAPI 的
+    # 「baseGenerationId 基础 generation 必须本人拥有」一致。
+    # 用 can_read 会放开两条不该有的路：管理员能拿别人的快照跑 DSL；
+    # 任何人能拿公开作品的快照当 base。后者尤其糟——产出的 fragment 归我，
+    # 但来源链会写成「我改了别人的图」，而原作者的授权范围里没有这一项。
+    if base is None or base.owner_id != user.id:
         raise errors.not_found("基底生成快照不存在")
 
     source_bytes = len(payload.source.encode("utf-8"))
@@ -609,51 +619,63 @@ def create_run(
             details={"bytes": source_bytes, "maxBytes": dsl.MAX_SOURCE_BYTES},
         )
 
-    if _active_count(db, user.id) >= MAX_ACTIVE_RUNS_PER_USER:
-        raise errors.execution_busy(
-            f"未完成的执行任务已达上限（{MAX_ACTIVE_RUNS_PER_USER} 个），请等待旧任务结束",
-            details={"maxActiveRuns": MAX_ACTIVE_RUNS_PER_USER},
-        )
-
     revision, values = policy_service.snapshot(db)
     snapshot = policy_service.to_snapshot(revision, values)
     source_hash = _sha256(payload.source)
 
-    row = SandboxRunModel(
-        id=_new_run_id(),
-        owner_id=user.id,
-        base_generation_id=base.id,
-        status="queued",
-        policy_revision=revision,
-        policy_snapshot_json=snapshot.model_dump_json(),
-        source_hash=source_hash,
-        source_json=payload.source,
-        generation_id=None,
-        metrics_json=None,
-        error_json=None,
-        audit_findings_json="[]",
-        request_id=request_id,
-        created_at=_now_iso(),
-        started_at=None,
-        finished_at=None,
-    )
-    db.add(row)
-    # 审计只落 hash 与关联 ID，不落源码
-    audit.record(
-        db,
-        actor=user,
-        action="sandbox.run.created",
-        target_type="sandbox_run",
-        target_id=row.id,
-        input_summary={
-            "baseGenerationId": base.id,
-            "sourceHash": source_hash,
-            "sourceBytes": source_bytes,
-            "policyRevision": revision,
-        },
-        request_id=request_id,
-    )
-    db.commit()
+    # 「数配额 → 插入」必须在同一个独占写事务里。分成两步的话，两个并发
+    # POST 都能数到 1/2，然后各插一条，上限就破了——而串行重试的第二次
+    # 会被正常拦下，单线程测试永远发现不了。
+    locking.begin_immediate(db)
+    try:
+        active = _active_count(db, user.id)
+        if active >= MAX_ACTIVE_RUNS_PER_USER:
+            raise errors.execution_busy(
+                f"未完成的执行任务已达上限（{MAX_ACTIVE_RUNS_PER_USER} 个），请等待旧任务结束",
+                details={"maxActiveRuns": MAX_ACTIVE_RUNS_PER_USER, "activeRuns": active},
+            )
+
+        row = SandboxRunModel(
+            id=_new_run_id(),
+            owner_id=user.id,
+            base_generation_id=base.id,
+            status="queued",
+            policy_revision=revision,
+            policy_snapshot_json=snapshot.model_dump_json(),
+            source_hash=source_hash,
+            source_json=payload.source,
+            generation_id=None,
+            metrics_json=None,
+            error_json=None,
+            audit_findings_json="[]",
+            request_id=request_id,
+            created_at=_now_iso(),
+            started_at=None,
+            finished_at=None,
+        )
+        db.add(row)
+        # 审计只落 hash 与关联 ID，不落源码
+        audit.record(
+            db,
+            actor=user,
+            action="sandbox.run.created",
+            target_type="sandbox_run",
+            target_id=row.id,
+            input_summary={
+                "baseGenerationId": base.id,
+                "sourceHash": source_hash,
+                "sourceBytes": source_bytes,
+                "policyRevision": revision,
+            },
+            request_id=request_id,
+        )
+        db.commit()
+    except Exception:
+        # IMMEDIATE 已经拿到写锁；不回滚的话锁要挂到 Session 清理才放开，
+        # 并发请求会干等到超时，429 变成 500。
+        db.rollback()
+        raise
+
     db.refresh(row)
     return _to_schema(row)
 
@@ -827,7 +849,16 @@ def _finish_succeeded(
         policyRevision=row.policy_revision,
         # 外部图谱快照随派生保留（细则 K1：经 DSL 后仍在）
         externalGraph=base_provenance.get("externalGraph"),
-        fragmentSource=row.source_json,
+        # **只留 hash，不留源码**。
+        #
+        # provenance 会随 `GET /generations/{id}` 返回，而作品一旦发布，
+        # `GET /work-versions/{id}` 是匿名可读的——provenance 原样出现在详情里。
+        # 把 source 写进 provenance，等于作品公开的一刻源码就对所有人可见，
+        # 与「响应不暴露敏感信息」直接冲突。
+        #
+        # 源码留在 sandbox_runs.source_json，随归属授权读取；想溯源的人拿到
+        # sourceHash 就能对上那条 run，权限也由 run 的归属决定。
+        fragmentSource=None,
         fragmentSourceHash=row.source_hash,
     )
     warnings = [item for item in report.issues if item.code in _WARNING_CODES]

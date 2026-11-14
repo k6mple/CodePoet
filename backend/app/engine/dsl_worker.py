@@ -205,12 +205,23 @@ def _emit(payload: dict[str, Any]) -> None:
     sys.stdout.flush()
 
 
-def _fail(code: str, message: str, details: dict[str, Any] | None = None) -> int:
+def _fail(
+    code: str,
+    message: str,
+    details: dict[str, Any] | None = None,
+    *,
+    rule: str | None = None,
+    line: int = 0,
+    column: int = 0,
+) -> int:
     """业务失败：给出错误码，同时留一条审计发现。
 
-    为什么失败也要有 finding：``auditFindings`` 是「静态审计发现了什么」的
-    结构化输出，前端用它把提示定位到源码位置。只给一个 error.code 的话，
-    用户看到「被拒绝了」却不知道是哪条规则、改哪里。
+    ``auditFindings`` 的 ``ruleId`` 用 ``DslError.rule``（规则 ID），
+    不是错误码。两者语义不同：同为 ``DSL_AUDIT_REJECTED``，
+    可能是 op 白名单、字段白名单或数值范围拒绝的，前端要据 rule 才能
+    告诉用户该改哪里。
+
+    位置信息优先用真实行列（JSON 解析错误能给出），其次用 ops 下标换算。
     """
     _emit(
         {
@@ -220,15 +231,34 @@ def _fail(code: str, message: str, details: dict[str, Any] | None = None) -> int
             "metrics": None,
             "auditFindings": [
                 {
-                    "ruleId": code[:80],
-                    "line": 0,
-                    "column": 0,
+                    "ruleId": (rule or code)[:80],
+                    "line": max(0, line),
+                    "column": max(0, column),
                     "message": message[:300],
                 }
             ],
         }
     )
     return EXIT_OK
+
+
+def _locate(details: dict[str, Any]) -> tuple[int, int]:
+    """从错误 details 里推出 (line, column)。
+
+    源码是 JSON，没有统一的「第几行」概念，所以按可信度依次退让：
+
+    1. JSON 解析错误自带真实行列；
+    2. op 级错误带 ``index``，换算成「第几条指令」——比恒填 0 更能指路；
+    3. 什么都没有就给 0，并保持 0 而不是编一个位置。
+    """
+    line = details.get("line")
+    column = details.get("column")
+    if isinstance(line, int) and isinstance(column, int):
+        return line, column
+    index = details.get("index")
+    if isinstance(index, int):
+        return index + 1, 0
+    return 0, 0
 
 
 def _read_payload() -> dict[str, Any]:
@@ -259,12 +289,14 @@ def _check_enabled_functions(program: Any, enabled: list[str]) -> None:
                 "DSL_AUDIT_REJECTED",
                 f"当前策略未开启该操作：{op['op']}",
                 {"op": op["op"], "enabledDslFunctions": sorted(allowed)},
+                rule=dsl.RULE_OP_WHITELIST,
             )
     if program.set_param and "set_param" not in allowed:
         raise dsl.DslError(
             "DSL_AUDIT_REJECTED",
             "当前策略未开启 set_param",
             {"enabledDslFunctions": sorted(allowed)},
+            rule=dsl.RULE_OP_WHITELIST,
         )
 
 
@@ -326,7 +358,15 @@ def main() -> int:
         )
     except dsl.DslError as exc:
         watchdog.stop()
-        return _fail(exc.code, exc.message, exc.details)
+        line, column = _locate(exc.details)
+        return _fail(
+            exc.code,
+            exc.message,
+            exc.details,
+            rule=exc.rule,
+            line=line,
+            column=column,
+        )
     except Exception as exc:  # noqa: BLE001 - 未预期异常也不能把堆栈抛给用户
         watchdog.stop()
         # 这里刻意只报类型，不回显 repr(exc)：异常消息里可能带本机路径
