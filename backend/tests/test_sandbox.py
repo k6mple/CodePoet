@@ -466,8 +466,6 @@ class OwnershipTests(SandboxTestBase):
         csrf = self._login("leak")
         base = self._seed_generation(self._user_id())
 
-        # 用一段特征明显的源码，便于断言「它没有出现在任何响应里」
-        marker = "#LEAKCANARY"
         src = source({"op": "circle", "cx": 10, "cy": 10, "r": 5, "fill": "#ABCDEF"})
         body = self._run_and_wait(csrf, base, src)
         self.assertEqual(body["status"], "succeeded", body.get("error"))
@@ -482,10 +480,22 @@ class OwnershipTests(SandboxTestBase):
         # 但要留得住溯源：hash 还在，且与 run 的一致
         self.assertEqual(provenance["fragmentSourceHash"], body["sourceHash"])
 
-        # 响应里也不该出现源码文本本身
-        self.assertNotIn(marker, generation.text)
-        run_response = self.client.get(f"{API}/sandbox-runs/{body['id']}")
-        self.assertNotIn("source", run_response.json())
+        # 源码确实在库里（证明上面那条不是空转：如果根本没存源码，
+        # fragmentSource 为 None 就成了「因为压根没有」而不是「因为不外泄」）。
+        #
+        # 这里刻意不做「响应文本里搜不到某段源码」的断言：DSL 只接受
+        # #RRGGBB、数字和固定 op 名，源码里没有一个既能通过审计、又不会
+        # 在 IR 里复现的字符串标识。搜一个实际上不在响应里的词，只会得到
+        # 一条永远通过的空断言。
+        with self.sessions() as db:
+            row = db.get(SandboxRunModel, body["id"])
+            self.assertEqual(row.source_json, src)
+            self.assertEqual(row.source_hash, body["sourceHash"])
+
+        # run 的响应体里不该有源码字段
+        run_body = self.client.get(f"{API}/sandbox-runs/{body['id']}").json()
+        self.assertNotIn("source", run_body)
+        self.assertNotIn("source_json", run_body)
 
 
 class BudgetTests(SandboxTestBase):

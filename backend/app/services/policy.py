@@ -152,7 +152,10 @@ AUDIT_RULES: tuple[AuditRule, ...] = (
     ),
     AuditRule(
         ruleId=dsl.RULE_BASE_UNMODIFIED,
-        description="base 的节点、动画、叙事原样保留，新增图元只挂在末尾 root group 下",
+        description=(
+            "base 的节点原样保留，新增图元只挂在末尾 root group 下"
+            "（动画与叙事由 base 快照展开保证，不参与逐节点比对）"
+        ),
         enabled=True,
     ),
     AuditRule(

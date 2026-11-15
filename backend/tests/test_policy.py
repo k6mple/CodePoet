@@ -150,6 +150,27 @@ class DefaultsTests(PolicyTestBase):
         self.assertEqual(hard.dslCpuTimeSeconds, 1)
         self.assertEqual(hard.dslMemoryMiB, 256)
 
+    def test_audit_rule_ids_match_engine_constants(self) -> None:
+        """清单里的 ruleId 必须与 ``engine.dsl`` 抛出的规则是同一批字符串。
+
+        这条对应关系放在这里而不是 #25：``services.policy`` 是本 PR 才有的模块，
+        #25 如果 import 它，单独合入 main 之后 ``test_dsl`` 会 ImportError。
+
+        前端拿到 finding 的 ruleId 会去清单里查说明；两边对不上，用户就只能看到
+        一串他没见过的大写词。
+        """
+        from app.engine import dsl as engine_dsl
+
+        listed = {rule.ruleId for rule in policy_service.AUDIT_RULES}
+        names = [
+            name
+            for name in dir(engine_dsl)
+            if name.startswith("RULE_") and isinstance(getattr(engine_dsl, name), str)
+        ]
+        self.assertEqual(len(listed), len(names))
+        for name in names:
+            self.assertIn(getattr(engine_dsl, name), listed, name)
+
 
 class AdminOnlyTests(PolicyTestBase):
     def test_creator_cannot_read(self) -> None:

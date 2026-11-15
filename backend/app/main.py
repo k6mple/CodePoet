@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
 from app.api.admin import router as admin_router
@@ -73,9 +73,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             try:
                 with application.state.sessions() as session:
                     sandbox_service.recover_orphans(session)
-            except SQLAlchemyError:
-                # 只留一行，不打堆栈：这个分支在「新库还没迁移」「测试先起
-                # 应用再建表」时是正常现象，一堆 traceback 会把真正的错误埋掉。
+            except OperationalError as exc:
+                # 只放过「表还不存在」这一种情况：新库还没迁移、或者测试先起
+                # 应用再建表。除此之外的 OperationalError（数据库锁、磁盘满、
+                # 文件损坏）必须原样抛出去——把它们统一报成「请先跑迁移」
+                # 会让人查错方向，而这类错误恰恰是最需要看清原话的。
+                if "no such table" not in str(exc).lower():
+                    raise
                 logger.warning(
                     "跳过沙箱孤儿任务清理：sandbox_runs 表不存在，请先跑迁移"
                 )
