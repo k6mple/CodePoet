@@ -364,8 +364,12 @@ class CapabilityFeatureFlags(BaseModel):
 
     semanticGeneration: bool
     subgraphEditing: bool
-    dslSandbox: Literal[False]
-    advancedPolicies: Literal[False]
+    #: S1 通过隔离执行、三档预算与静态审计验证后打开。为 true 的前提是
+    #: 本实例真能拉起隔离 worker（``services.sandbox.probe()`` 实测）。
+    dslSandbox: bool
+    #: S1 的 /admin/policies 真实生效：改限额立刻影响后续 run，
+    #: 只读字段与硬上限都有真实防护。
+    advancedPolicies: bool
     headlessRendering: Literal[False]
     selectiveExport: Literal[False]
     workSnapshotImport: Literal[False]
