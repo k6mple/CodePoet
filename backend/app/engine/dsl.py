@@ -596,12 +596,17 @@ def run(
             }
         )
 
-    # 组装结果前，先确认「base 一点没动」。
+    # 组装结果前，先确认「base 的节点一点没动」。
     #
     # 这条不是形式主义：节点是从 base 深拷贝出来的副本，理论上循环里改坏了
     # 也不会影响 base 对象本身，但结果里就会少一个圆或多改一个颜色——
-    # 而且没人会发现（图还是能渲染出来）。所以把「基底原样保留」做成一条
-    # 可验证的规则，而不是靠「代码应该写对」。清单里的 RULE_BASE_UNMODIFIED 就是它。
+    # 而且没人会发现（图还是能渲染出来）。所以把「节点原样保留」做成一条
+    # 可验证的规则，而不是靠「代码应该写对」。
+    #
+    # 为什么只比节点、不比 animations / narrative：结果字典是
+    # ``{**base_dump, "nodes": nodes}`` 展开出来的，后两者**结构上不可能被改写**
+    # （本次执行只替换 nodes 这一项）。为它们加一句 ``x == x`` 的检查属于假测试，
+    # 所以规则描述也只声称节点——描述要与真实判据一致，不能反过来为了描述去凑检查。
     base_dump = working.model_dump(mode="json")
     base_nodes = base_dump.get("nodes") or []
     for offset, original in enumerate(base_nodes):

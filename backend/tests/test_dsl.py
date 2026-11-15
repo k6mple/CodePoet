@@ -476,24 +476,26 @@ class SetParamTests(unittest.TestCase):
 
 
 class RuleIdTests(unittest.TestCase):
-    """每条拒绝都要能说出「是哪条规则拒的」，且与策略清单同一套名字。"""
+    """每条拒绝都要能说出「是哪条规则拒的」。
 
-    def test_rule_ids_match_policy_catalogue(self) -> None:
-        from app.engine import dsl as engine_dsl
-        from app.services import policy
+    这里**只测 engine 自己的常量**，不 import ``app.services``：
+    ``services.policy`` 是 #26 才有的模块，如果本 PR 去引用它，
+    #25 单独合入 main 之后 ``test_dsl`` 会一直 ImportError 到 #26 落地。
+    规则清单与 engine 常量的对应关系放在 #26 的 ``test_policy`` 里验——
+    那才是清单和被引用的常量同时存在的地方。
+    """
 
-        listed = {rule.ruleId for rule in policy.AUDIT_RULES}
-        for name in (
-            "RULE_DOCUMENT_SHAPE",
-            "RULE_OP_WHITELIST",
-            "RULE_FIELD_WHITELIST",
-            "RULE_NUMERIC_RANGE",
-            "RULE_NODE_ID_UNIQUE",
-            "RULE_BASE_UNMODIFIED",
-            "RULE_SET_PARAM_BASE",
-            "RULE_BUDGET_LIMIT",
-        ):
-            self.assertIn(getattr(engine_dsl, name), listed, name)
+    def test_rule_constants_are_distinct_and_nonempty(self) -> None:
+        names = [
+            n
+            for n in dir(dsl)
+            if n.startswith("RULE_") and isinstance(getattr(dsl, n), str)
+        ]
+        self.assertEqual(len(names), 8, names)
+        values = [getattr(dsl, n) for n in names]
+        self.assertEqual(len(set(values)), len(values), "规则 ID 不能重复")
+        for value in values:
+            self.assertTrue(value.startswith("DSL_"), value)
 
     def test_rejections_carry_distinct_rules(self) -> None:
         """不同类型的问题要报不同的规则，而不是全都 DSL_AUDIT_REJECTED。"""
