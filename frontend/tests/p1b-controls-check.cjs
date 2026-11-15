@@ -177,9 +177,10 @@ async function main() {
     await page.evaluate(() => { HTMLCanvasElement.prototype.toBlob = window.__nativeToBlob; delete window.__nativeToBlob })
     record('export-pauses-clock-and-restores-controls')
 
-    const renderer = compile(fs.readFileSync(path.resolve(__dirname, '../src/renderers/canvas/renderScene.ts'), 'utf8'))
+    const { browserModule } = await import('./browser-modules.mjs')
+    const renderer = await browserModule(path.resolve(__dirname, '../src/renderers/canvas/renderScene.ts'))
     const ir = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../shared/demo/fixtures/narrative_sequence.json'), 'utf8'))
-    const frames = await page.evaluate(`(async () => { const exports = {}; ${renderer}
+    const frames = await page.evaluate(`(async () => { const exports = ${renderer};
       const ir = ${JSON.stringify(ir)}; const results = [];
       for (const time of exports.sampleTimes(ir)) {
         const blob = await exports.exportFrame(ir, time); const bytes = await blob.arrayBuffer();

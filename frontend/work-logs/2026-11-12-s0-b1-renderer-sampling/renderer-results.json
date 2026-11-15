@@ -1,0 +1,368 @@
+{
+  "status": "passed",
+  "scope": "pure-sampling-and-real-browser-renderer-only",
+  "baselineRef": "a90faf1",
+  "baselineSourceSha256": "8e813d77dbc949afbab3ae8450f6568699f6f531b3467bf1196c380f28e61bdd",
+  "checks": [
+    {
+      "name": "pure-world-TRS-and-ancestor-opacity"
+    },
+    {
+      "name": "child-before-parent-and-interleaved-array-order"
+    },
+    {
+      "name": "negative-and-nonuniform-scale"
+    },
+    {
+      "name": "animation-boundaries-and-static-animated-sample-times"
+    },
+    {
+      "name": "sampling-does-not-mutate-or-alias-source"
+    },
+    {
+      "name": "missing-parent-cycle-and-unsupported-material-rejected"
+    },
+    {
+      "name": "pre-refactor-pixel-and-real-PNG-regression",
+      "frames": [
+        {
+          "name": "trs",
+          "timeMs": 0,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "trs",
+          "timeMs": 1000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "trs",
+          "timeMs": 2000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "trs",
+          "timeMs": -1,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "trs",
+          "timeMs": 2001,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "array-order",
+          "timeMs": 0,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "array-order",
+          "timeMs": 1000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "array-order",
+          "timeMs": 2000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "array-order",
+          "timeMs": -1,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "array-order",
+          "timeMs": 2001,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "negative-scale",
+          "timeMs": 0,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "negative-scale",
+          "timeMs": 1000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "negative-scale",
+          "timeMs": 2000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "negative-scale",
+          "timeMs": -1,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "negative-scale",
+          "timeMs": 2001,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "animation-boundaries",
+          "timeMs": 0,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "animation-boundaries",
+          "timeMs": 1000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "animation-boundaries",
+          "timeMs": 2000,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "animation-boundaries",
+          "timeMs": -1,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "animation-boundaries",
+          "timeMs": 2001,
+          "width": 200,
+          "height": 160,
+          "exactPixels": true
+        },
+        {
+          "name": "animation_sequence.json",
+          "timeMs": 0,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "animation_sequence.json",
+          "timeMs": 1500,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "animation_sequence.json",
+          "timeMs": 3000,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "animation_sequence.json",
+          "timeMs": -1,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "animation_sequence.json",
+          "timeMs": 3001,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "basic_shapes.json",
+          "timeMs": 0,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "basic_shapes.json",
+          "timeMs": 1000,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "basic_shapes.json",
+          "timeMs": 2000,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "basic_shapes.json",
+          "timeMs": -1,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "basic_shapes.json",
+          "timeMs": 2001,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "canvas_probe.json",
+          "timeMs": 0,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "canvas_probe.json",
+          "timeMs": -1,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "canvas_probe.json",
+          "timeMs": 1,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "narrative_sequence.json",
+          "timeMs": 0,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "narrative_sequence.json",
+          "timeMs": 2000,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "narrative_sequence.json",
+          "timeMs": 4000,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "narrative_sequence.json",
+          "timeMs": -1,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "narrative_sequence.json",
+          "timeMs": 4001,
+          "width": 800,
+          "height": 600,
+          "exactPixels": true
+        },
+        {
+          "name": "parent_child_crop.json",
+          "timeMs": 0,
+          "width": 400,
+          "height": 300,
+          "exactPixels": true
+        },
+        {
+          "name": "parent_child_crop.json",
+          "timeMs": -1,
+          "width": 400,
+          "height": 300,
+          "exactPixels": true
+        },
+        {
+          "name": "parent_child_crop.json",
+          "timeMs": 1,
+          "width": 400,
+          "height": 300,
+          "exactPixels": true
+        },
+        {
+          "name": "overlap-crop-stroke",
+          "timeMs": 0,
+          "width": 90,
+          "height": 70,
+          "exactPixels": true
+        },
+        {
+          "name": "overlap-crop-stroke",
+          "timeMs": 1000,
+          "width": 90,
+          "height": 70,
+          "exactPixels": true
+        },
+        {
+          "name": "overlap-crop-stroke",
+          "timeMs": 2000,
+          "width": 90,
+          "height": 70,
+          "exactPixels": true
+        },
+        {
+          "name": "overlap-crop-stroke",
+          "timeMs": -1,
+          "width": 90,
+          "height": 70,
+          "exactPixels": true
+        },
+        {
+          "name": "overlap-crop-stroke",
+          "timeMs": 2001,
+          "width": 90,
+          "height": 70,
+          "exactPixels": true
+        }
+      ]
+    },
+    {
+      "name": "serial-seek-export"
+    },
+    {
+      "name": "private-export-preserves-preview"
+    },
+    {
+      "name": "encode-failure-recovery"
+    },
+    {
+      "name": "dispose-and-no-resurrection"
+    },
+    {
+      "name": "unloaded-and-unavailable-rejected"
+    }
+  ]
+}

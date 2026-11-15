@@ -19,6 +19,9 @@ htmlcov/
 # 冒烟脚本的隔离数据目录（scripts/smoke_integration.py 默认写这里）
 .smoke/
 
+# 本地前端过程日志（共享交接保留在 frontend/work-logs/）
+/frontend/local-work-logs/
+
 # 前端依赖与构建产物
 node_modules/
 .tools/
