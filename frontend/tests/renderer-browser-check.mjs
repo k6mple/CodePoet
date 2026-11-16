@@ -165,7 +165,7 @@ try {
     const stopped = rejects(() => pending, 'pending encode survived dispose')
     while (!captured) await new Promise(resolve => setTimeout(resolve, 1))
     delayed.dispose(); captured(); await stopped
-    await rejects(() => Promise.resolve(factory.create('css', document.createElement('div'))), 'unimplemented CSS accepted')
+    await rejects(() => Promise.resolve(factory.create('webgl', document.createElement('div'))), 'unimplemented WebGL accepted')
     unloaded.dispose()
     return { frames: results, protocol: ['serial-seek-export', 'private-export-preserves-preview', 'encode-failure-recovery', 'dispose-and-no-resurrection', 'unloaded-and-unavailable-rejected'] }
   }, { legacy, current, registry, cases })

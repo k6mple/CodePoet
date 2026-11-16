@@ -16,12 +16,12 @@
  *        --cases shared/demo/sample-cases.json \
  *        --out backend/tests/fixtures/sample-expected.json
  *
- * 依赖：`frontend/node_modules/.bin/tsc`（前端已装 typescript）。
+ * 依赖：前端 TypeScript 转译器；实际模块图在无 DOM 的 VM 中执行，不使用 any 类型替身。
  */
 
-import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
+import vm from 'node:vm';
+import { browserModule } from '../frontend/tests/browser-modules.mjs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -35,29 +35,7 @@ function arg(name, fallback) {
 const scenePath = resolve(ROOT, arg('scene', 'frontend/src/renderers/scene.ts'));
 const casesPath = resolve(ROOT, arg('cases', 'shared/demo/sample-cases.json'));
 const outPath = resolve(ROOT, arg('out', 'backend/tests/fixtures/sample-expected.json'));
-const tsc = resolve(ROOT, arg('tsc', 'frontend/node_modules/.bin/tsc'));
-
-const work = mkdtempSync(join(tmpdir(), 'sample-gen-'));
-// 保持相对结构：scene.ts 里 import '../types/core'，用一个 any 声明顶掉它
-mkdirSync(join(work, 'renderers'), { recursive: true });
-mkdirSync(join(work, 'types'), { recursive: true });
-cpSync(scenePath, join(work, 'renderers', 'scene.ts'));
-writeFileSync(
-  join(work, 'types', 'core.d.ts'),
-  'export type DrawingIR = any\nexport type DrawingIRNode = any\nexport type IRNode = any\n',
-);
-
-execFileSync(tsc, [
-  join(work, 'renderers', 'scene.ts'),
-  '--target', 'es2020',
-  '--module', 'commonjs',
-  '--outDir', join(work, 'out'),
-  '--skipLibCheck',
-], { stdio: 'inherit', cwd: work });
-
-const { sampleScene, sampleTimes } = await import(
-  pathToFileURL(join(work, 'out', 'scene.js')).href
-);
+const { sampleScene, sampleTimes } = vm.runInNewContext(await browserModule(scenePath));
 
 const fixture = JSON.parse(readFileSync(casesPath, 'utf8'));
 const results = [];

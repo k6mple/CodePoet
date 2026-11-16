@@ -364,6 +364,7 @@ class CapabilityFeatureFlags(BaseModel):
 
     semanticGeneration: bool
     subgraphEditing: bool
+    qualityAssessment: bool = False
     #: S1 通过隔离执行、三档预算与静态审计验证后打开。为 true 的前提是
     #: 本实例真能拉起隔离 worker（``services.sandbox.probe()`` 实测）。
     dslSandbox: bool

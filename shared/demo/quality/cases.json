@@ -1,0 +1,1051 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "manually-labelled-calibration-not-benchmark",
+  "thresholds": {
+    "overlapRatio": 0.12,
+    "paletteDistance": 0.12,
+    "noiseRatio": 0.02
+  },
+  "cases": [
+    {
+      "id": "normal-separated",
+      "label": "独立主体分离",
+      "bad": false,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 200,
+              "cy": 300,
+              "r": 60
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          },
+          {
+            "id": "b",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 600,
+              "cy": 300,
+              "r": 60
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "两个独立主体没有交叠，填充属于历史色板。"
+    },
+    {
+      "id": "normal-grouped",
+      "label": "同组设计交叠",
+      "bad": false,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "flower",
+            "parentId": null,
+            "type": "group",
+            "style": {
+              "opacity": 1
+            }
+          },
+          {
+            "id": "petal-a",
+            "parentId": "flower",
+            "type": "circle",
+            "geometry": {
+              "cx": 370,
+              "cy": 300,
+              "r": 70
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          },
+          {
+            "id": "petal-b",
+            "parentId": "flower",
+            "type": "circle",
+            "geometry": {
+              "cx": 430,
+              "cy": 300,
+              "r": 70
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "同一顶层子树内的设计交叠不计主体冲突；不能据此证明组内绝无缺陷。"
+    },
+    {
+      "id": "normal-transformed-crop",
+      "label": "父子变换和裁剪",
+      "bad": false,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 100,
+          "y": 100,
+          "width": 600,
+          "height": 400
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "flower",
+            "parentId": null,
+            "type": "group",
+            "style": {
+              "opacity": 1
+            },
+            "transform": {
+              "x": 400,
+              "y": 300,
+              "rotation": 35,
+              "scaleX": 1.3,
+              "scaleY": 0.8
+            }
+          },
+          {
+            "id": "leaf",
+            "parentId": "flower",
+            "type": "circle",
+            "geometry": {
+              "cx": 0,
+              "cy": 0,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "世界采样后映射viewport；一组旋转缩放图元仍只算一个主体。"
+    },
+    {
+      "id": "normal-thin-stroke",
+      "label": "细线和描边排除",
+      "bad": false,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "line",
+            "parentId": null,
+            "type": "polyline",
+            "geometry": {
+              "points": [
+                [
+                  100,
+                  180
+                ],
+                [
+                  400,
+                  300
+                ],
+                [
+                  700,
+                  180
+                ]
+              ]
+            },
+            "style": {
+              "fill": null,
+              "stroke": "#151515",
+              "strokeWidth": 0.5,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "not_applicable",
+        "signalNoise": "pass"
+      },
+      "reason": "无填充可评估，描边不按色板判违规；几何mask至少覆盖一格。"
+    },
+    {
+      "id": "normal-transparent",
+      "label": "透明填充",
+      "bad": false,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 300,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": null,
+              "strokeWidth": 0,
+              "opacity": 0.45
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "透明填充按当前有效透明度在背景上合成允许色后比较。"
+    },
+    {
+      "id": "normal-motion",
+      "label": "四秒无冲突动画",
+      "bad": false,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 4000,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 200,
+              "cy": 260,
+              "r": 60
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [
+          {
+            "nodeId": "a",
+            "property": "x",
+            "from": 0,
+            "to": 400,
+            "startMs": 0,
+            "endMs": 4000,
+            "easing": "linear"
+          }
+        ],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "0/2000/4000ms主体都在视口内，没有其他主体产生交叠。"
+    },
+    {
+      "id": "bad-overlap",
+      "label": "独立主体重叠",
+      "bad": true,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 380,
+              "cy": 300,
+              "r": 90
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          },
+          {
+            "id": "b",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 420,
+              "cy": 300,
+              "r": 90
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "warn",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "两个独立顶层圆的交叠明显超过0.12；修正为分离。",
+      "afterIR": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 220,
+              "cy": 300,
+              "r": 90
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          },
+          {
+            "id": "b",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 580,
+              "cy": 300,
+              "r": 90
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      }
+    },
+    {
+      "id": "bad-palette",
+      "label": "历史色板外的蓝色",
+      "bad": true,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 300,
+              "r": 100
+            },
+            "style": {
+              "fill": "#0000FF",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "warn",
+        "signalNoise": "pass"
+      },
+      "reason": "蓝色与固定历史色板距离较大；只改填充色，不把深色描边判成违规。",
+      "afterIR": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 300,
+              "r": 100
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      }
+    },
+    {
+      "id": "bad-noise",
+      "label": "几何外的PNG杂点",
+      "bad": true,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 280,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "noise",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "warn"
+      },
+      "reason": "上传PNG在预期几何外加入固定杂点；IR本身合法。",
+      "afterIR": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 280,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      }
+    },
+    {
+      "id": "bad-blank",
+      "label": "合法IR但上传空白PNG",
+      "bad": true,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 280,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "blank",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "fail"
+      },
+      "reason": "实际PNG为空白，即使N=0也必须失败，不能靠SNR高分冒充好图。",
+      "afterIR": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "a",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 280,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "expectedAfter": {
+        "signalNoise": "pass"
+      }
+    },
+    {
+      "id": "bad-outside",
+      "label": "图元完全出界",
+      "bad": true,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "outside",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 1800,
+              "cy": 300,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "warn",
+        "layoutConflict": "pass",
+        "colorSemantic": "not_applicable",
+        "signalNoise": "fail"
+      },
+      "reason": "出界允许生成但产生警告，PNG无内容；修正节点位置。",
+      "afterIR": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 0,
+        "nodes": [
+          {
+            "id": "outside",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 400,
+              "cy": 300,
+              "r": 80
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [],
+        "narrative": []
+      }
+    },
+    {
+      "id": "bad-midpoint-overlap",
+      "label": "仅中间时刻冲突",
+      "bad": true,
+      "ir": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 4000,
+        "nodes": [
+          {
+            "id": "moving",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 160,
+              "cy": 300,
+              "r": 50
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          },
+          {
+            "id": "fixed",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 360,
+              "cy": 300,
+              "r": 50
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [
+          {
+            "nodeId": "moving",
+            "property": "x",
+            "from": 0,
+            "to": 400,
+            "startMs": 0,
+            "endMs": 4000,
+            "easing": "linear"
+          }
+        ],
+        "narrative": []
+      },
+      "pngMutation": "clean",
+      "palette": [
+        "#D4537E",
+        "#EF9F27",
+        "#3B6D11",
+        "#F7F6F0"
+      ],
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "warn",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "reason": "开头和结尾不重叠，2000ms两个独立主体重合；建议必须定位中间时刻。",
+      "afterIR": {
+        "schemaVersion": "1.0",
+        "seed": 42,
+        "canvas": {
+          "width": 800,
+          "height": 600,
+          "background": "#FFFFFF"
+        },
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 600
+        },
+        "durationMs": 4000,
+        "nodes": [
+          {
+            "id": "moving",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 160,
+              "cy": 300,
+              "r": 50
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          },
+          {
+            "id": "fixed",
+            "parentId": null,
+            "type": "circle",
+            "geometry": {
+              "cx": 360,
+              "cy": 300,
+              "r": 50
+            },
+            "style": {
+              "fill": "#3B6D11",
+              "stroke": "#151515",
+              "strokeWidth": 2,
+              "opacity": 1
+            }
+          }
+        ],
+        "animations": [
+          {
+            "nodeId": "moving",
+            "property": "y",
+            "from": 0,
+            "to": 150,
+            "startMs": 0,
+            "endMs": 4000,
+            "easing": "linear"
+          }
+        ],
+        "narrative": []
+      },
+      "expectedEvidenceTimeMs": 2000
+    }
+  ]
+}

@@ -3,21 +3,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { DrawingIR, Provenance } from '@/types/core'
-import { renderScene } from '@/renderers/canvas/renderScene'
+import CanvasPreview from './CanvasPreview'
+import { hasBrowserRenderer } from '@/renderers/registry'
 
-export default function TimelinePlayer({ ir, linkEntities = false, paused = false, initialTime = 0, onTimeChange, entities = [] }: {
+export default function TimelinePlayer({ ir, backend = 'canvas2d', linkEntities = false, paused = false, initialTime = 0, onTimeChange, entities = [], seekRequest, focusNodeIds }: {
   ir: DrawingIR
+  backend?: string
   linkEntities?: boolean
   paused?: boolean
   initialTime?: number
   onTimeChange?: (timeMs: number) => void
   entities?: Provenance['matchedEntities']
+  seekRequest?: {timeMs:number}
+  focusNodeIds?: string[]
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const timeRef = useRef(Math.max(0, Math.min(initialTime, ir.durationMs)))
   const [time, setTime] = useState(timeRef.current)
   const [playing, setPlaying] = useState(false)
-  const [error, setError] = useState('')
 
   const narrative = useMemo(
     () => [...ir.narrative].sort((left, right) => left.timeMs - right.timeMs),
@@ -39,27 +41,19 @@ export default function TimelinePlayer({ ir, linkEntities = false, paused = fals
   }, [paused])
 
   useEffect(() => {
+    if (!seekRequest) return
+    setPlaying(false)
+    const next=Math.max(0,Math.min(ir.durationMs,seekRequest.timeMs))
+    timeRef.current=next
+    setTime(next)
+  },[seekRequest,ir.durationMs])
+
+  useEffect(() => {
     onTimeChange?.(Math.round(time))
   }, [time, onTimeChange])
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const context = canvas.getContext('2d')
-    if (!context) {
-      setError('Canvas2D 不可用')
-      return
-    }
-    try {
-      renderScene(context, ir, time)
-      setError('')
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '绘制失败')
-    }
-  }, [ir, time])
-
-  useEffect(() => {
-    if (!playing || paused || ir.durationMs <= 0) return
+    if (!playing || paused || ir.durationMs <= 0 || !hasBrowserRenderer(backend)) return
     const duration = ir.durationMs
     const startTime = timeRef.current
     const startWall = performance.now()
@@ -76,7 +70,7 @@ export default function TimelinePlayer({ ir, linkEntities = false, paused = fals
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [playing, paused, ir.durationMs])
+  }, [playing, paused, ir.durationMs, backend])
 
   function seek(next: number) {
     const duration = ir.durationMs
@@ -101,20 +95,11 @@ export default function TimelinePlayer({ ir, linkEntities = false, paused = fals
 
   return <div className="timeline-player">
     <div className="timeline-canvas-frame">
-      <canvas
-        ref={canvasRef}
-        width={ir.viewport.width}
-        height={ir.viewport.height}
-        role="img"
-        aria-label={`IR 时间轴预览，${Math.round(time)} 毫秒`}
-      >
-        当前浏览器不支持 Canvas。
-      </canvas>
+      <CanvasPreview ir={ir} timeMs={time} backend={backend} focusNodeIds={focusNodeIds} />
     </div>
-    {error && <p className="error" role="alert">绘制失败：{error}</p>}
     {ir.durationMs > 0
       ? <>
-        <fieldset className="timeline-controls" disabled={paused} aria-label="时间轴播放控制">
+        <fieldset className="timeline-controls" disabled={paused || !hasBrowserRenderer(backend)} aria-label="时间轴播放控制">
           <button type="button" className="button button--secondary button--small" onClick={togglePlay}>{playing ? '暂停' : '播放'}</button>
           <button type="button" className="button button--secondary button--small" disabled={time <= 0} onClick={() => seek(0)}>回到开始</button>
           <input

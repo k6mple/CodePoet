@@ -1,0 +1,285 @@
+{
+  "status": "passed",
+  "scope": "real-production-UI-and-HTTP-upload",
+  "cases": [
+    {
+      "id": "normal-separated",
+      "bad": false,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-8bf78262f9094cc8b2e8e4c45503ec2c"
+    },
+    {
+      "id": "normal-grouped",
+      "bad": false,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-166627c2f99b49499d81bfa967f2cc5f"
+    },
+    {
+      "id": "normal-transformed-crop",
+      "bad": false,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-7f2ed2120e9446bab99f91c1d0da91a4"
+    },
+    {
+      "id": "normal-thin-stroke",
+      "bad": false,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "not_applicable",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "not_applicable",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-f917cb97f0224af089b9305f8b2eef8b"
+    },
+    {
+      "id": "normal-transparent",
+      "bad": false,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-e6e849a0cfff47f3b88794e886197812"
+    },
+    {
+      "id": "normal-motion",
+      "bad": false,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-73b8d67442e74d58972ae46ee0181e90"
+    },
+    {
+      "id": "bad-overlap",
+      "bad": true,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "warn",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "warn",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-aaa96496b8184962b64d23ecc2e39284",
+      "after": {
+        "actual": {
+          "parameterValidity": "pass",
+          "layoutConflict": "pass",
+          "colorSemantic": "pass",
+          "signalNoise": "pass"
+        },
+        "workVersionId": "wv-42140814d38d48739a7cf4005020486b"
+      }
+    },
+    {
+      "id": "bad-palette",
+      "bad": true,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "warn",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "warn",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-2719ff7b7b3b4be79444e4980f9cda5c",
+      "after": {
+        "actual": {
+          "parameterValidity": "pass",
+          "layoutConflict": "pass",
+          "colorSemantic": "pass",
+          "signalNoise": "pass"
+        },
+        "workVersionId": "wv-f098b67ae4614439adc47fe12d9971b2"
+      }
+    },
+    {
+      "id": "bad-noise",
+      "bad": true,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "warn"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "warn"
+      },
+      "workVersionId": "wv-ea087b05017f4a2c944e9ac5c62d4ab7",
+      "after": {
+        "actual": {
+          "parameterValidity": "pass",
+          "layoutConflict": "pass",
+          "colorSemantic": "pass",
+          "signalNoise": "pass"
+        },
+        "workVersionId": "wv-cf9626f1a81c49b1bb8f9977fe70ff60"
+      }
+    },
+    {
+      "id": "bad-blank",
+      "bad": true,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "fail"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "pass",
+        "colorSemantic": "pass",
+        "signalNoise": "fail"
+      },
+      "workVersionId": "wv-26d0e403cd6a48b78672ca9e649f42be",
+      "after": {
+        "actual": {
+          "parameterValidity": "pass",
+          "layoutConflict": "pass",
+          "colorSemantic": "pass",
+          "signalNoise": "pass"
+        },
+        "workVersionId": "wv-d97196a570db482b9f4ad695040d3d38"
+      }
+    },
+    {
+      "id": "bad-outside",
+      "bad": true,
+      "expected": {
+        "parameterValidity": "warn",
+        "layoutConflict": "pass",
+        "colorSemantic": "not_applicable",
+        "signalNoise": "fail"
+      },
+      "actual": {
+        "parameterValidity": "warn",
+        "layoutConflict": "pass",
+        "colorSemantic": "not_applicable",
+        "signalNoise": "fail"
+      },
+      "workVersionId": "wv-ea3af3ad8bc34cb99621802d6b63e212",
+      "after": {
+        "actual": {
+          "parameterValidity": "pass",
+          "layoutConflict": "pass",
+          "colorSemantic": "pass",
+          "signalNoise": "pass"
+        },
+        "workVersionId": "wv-45d1e9ee1d9b45318e79c50a7af8fdcd"
+      }
+    },
+    {
+      "id": "bad-midpoint-overlap",
+      "bad": true,
+      "expected": {
+        "parameterValidity": "pass",
+        "layoutConflict": "warn",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "actual": {
+        "parameterValidity": "pass",
+        "layoutConflict": "warn",
+        "colorSemantic": "pass",
+        "signalNoise": "pass"
+      },
+      "workVersionId": "wv-fc31ca57183b44b5ad980ec8960954d1",
+      "after": {
+        "actual": {
+          "parameterValidity": "pass",
+          "layoutConflict": "pass",
+          "colorSemantic": "pass",
+          "signalNoise": "pass"
+        },
+        "workVersionId": "wv-83190f17b96b42608d8c6f2321ad5da6"
+      }
+    }
+  ],
+  "checks": [
+    "generation-validation-separated-from-not-yet-evaluated-pixels",
+    "12-real-upload-labels-and-6-improvements-with-immutable-history",
+    "historical-2000ms-node-focus-confirm-edit-generate-save-new-version",
+    "focus-overlay-does-not-change-renderer-PNG-or-old-history"
+  ],
+  "componentCompatibility": [
+    {
+      "mode": "legacy",
+      "scope": "adapted-response-component-test-only",
+      "passed": true
+    },
+    {
+      "mode": "unavailable",
+      "scope": "adapted-response-component-test-only",
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "falsePositives": 0,
+  "falseNegatives": 0
+}

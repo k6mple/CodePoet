@@ -55,10 +55,8 @@ ENGINE_VERSION = "p0-03.1"
 ONTOLOGY_VERSION = 1
 POLICY_REVISION = 1
 
-# 这些 code 只警告不阻断：越界的图形仍然能画出来，只是会被画布裁掉一部分。
-# 其余问题（重复 id、父引用悬空、自交多边形等）会让渲染结果不可预期，必须拒绝。
+# 越界仅警告，保留裁剪行为；其余结构问题阻断生成。
 _WARNING_CODES = frozenset({"IR_OUT_OF_BOUNDS"})
-
 _PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
 _CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
 
@@ -381,23 +379,22 @@ def _prepare_from_ir(
     # 授权先于能力：无权访问一律 404，不能因为后端没启用就变成 422
     capabilities.require_enabled(payload.backend, enabled)
 
-    # 外部图谱快照随派生一起继承（细则 K1：externalGraph 经过 ir/subgraph 后
-    # 保留）。丢掉它等于：作品是从哪条外部事实来的，一改就查不到了。
-    base_provenance = json.loads(base.provenance_json or "{}")
-    inherited_graph = base_provenance.get("externalGraph")
-
-    provenance = Provenance(
-        kind="manual_edit",
-        baseGenerationId=base.id,
-        engineVersion=ENGINE_VERSION,
-        ontologyVersion=ONTOLOGY_VERSION,
-        policyRevision=POLICY_REVISION,
-        externalGraph=inherited_graph,
-    )
+    provenance = inherited_provenance(base, 'manual_edit')
     # 手工编辑继承基底的未发布标记：基于草稿改出来的东西仍然是草稿
     unpublished = bool(base.unpublished_source)
     base_params = json.loads(base.params_json) if base.params_json else {}
     return payload.ir, base_params, None, provenance, unpublished, payload.ir.seed
+
+
+def inherited_provenance(base: GenerationModel, kind: str) -> Provenance:
+    """Editing geometry keeps the historical decisions used to assess its color."""
+    source = json.loads(base.provenance_json or '{}')
+    values = {key: value for key, value in source.items() if key in Provenance.model_fields}
+    values.update(kind=kind, baseGenerationId=base.id)
+    values.setdefault('engineVersion', ENGINE_VERSION)
+    values.setdefault('ontologyVersion', ONTOLOGY_VERSION)
+    values.setdefault('policyRevision', POLICY_REVISION)
+    return Provenance.model_validate(values)
 
 
 # ---- 入口 ----------------------------------------------------------------

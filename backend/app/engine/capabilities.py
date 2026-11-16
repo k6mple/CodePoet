@@ -46,6 +46,7 @@ SEMANTIC_ENGINE_VERSION = "p0-03.1"
 
 # 每个后端的渲染器版本。没登记的等于「还没有可执行实现」。
 RENDERER_VERSIONS: dict[str, str] = {
+    'css': 'codepoet-css-1.0.0',
     "canvas2d": CANVAS_RENDERER_VERSION,
 }
 

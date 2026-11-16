@@ -7,6 +7,7 @@ import type { Page, ReviewCreateInput, ReviewQueueItem, TemplateVersion, WorkDet
 import { formatDateTime, parameterTypeLabel, parameterValueLabel, shortId } from '@/utils/format'
 import { reviewDecisionLabel, reviewQueueStatusLabel, reviewTargetLabel } from '@/utils/template'
 import CanvasPreview from './CanvasPreview'
+import { historicalBackend } from '@/renderers/backend'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 
@@ -248,7 +249,7 @@ export default function ReviewDesk() {
                             : templateTarget
                               ? <div className="review-target">
                                 <p className="review-target__name">{templateTarget.metadata.name} · v{templateTarget.versionNumber}</p>
-                                <div className="version-preview"><CanvasPreview ir={templateTarget.irTemplate} timeMs={templateTarget.irTemplate.durationMs} /></div>
+                                <div className="version-preview"><CanvasPreview ir={templateTarget.irTemplate} backend={templateTarget.supportedBackends[0]} timeMs={templateTarget.irTemplate.durationMs} /></div>
                                 <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
                                 <dl className="label-list">
                                   <div><dt>变更说明</dt><dd>{templateTarget.changeNote || '—'}</dd></div>
@@ -268,7 +269,7 @@ export default function ReviewDesk() {
                                   {frameUrl
                                     ? <div className="review-frame"><img src={frameUrl} alt="作品审核帧" /></div>
                                     : <p className="panel-note">{frameError || '正在读取作品帧…'}</p>}
-                                  <div className="version-preview"><CanvasPreview ir={workTarget.generation.ir} timeMs={workTarget.generation.ir.durationMs} /></div>
+                                  <div className="version-preview"><CanvasPreview ir={workTarget.generation.ir} backend={historicalBackend(workTarget)} timeMs={workTarget.generation.ir.durationMs} /></div>
                                   <p className="plate-caption">上：服务器保存的 PNG；下：按保存 IR 重绘。</p>
                                   <dl className="label-list">
                                     <div><dt>变更说明</dt><dd>{workTarget.workVersion.changeNote || '—'}</dd></div>

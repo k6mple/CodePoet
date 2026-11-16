@@ -1,0 +1,155 @@
+{
+  "generationId": "gen-80c65b40f46349079b65829c4d632f65",
+  "jobId": "job-9c6e83a0fc394041a59b19b6e59c31a6",
+  "irHash": "eee9580c32fb9f3367d4908b494c0247a3ba0f4f44222d15a8997c48498f4dba",
+  "qualityReport": {
+    "pixelDifferenceThreshold": 8,
+    "nonBackgroundPixelRatio": 0.028806,
+    "emptyOutput": false,
+    "frames": [
+      {
+        "timeMs": 0,
+        "nonBackgroundPixelRatio": 0.034567,
+        "emptyOutput": false
+      },
+      {
+        "timeMs": 2000,
+        "nonBackgroundPixelRatio": 0.017283,
+        "emptyOutput": false
+      },
+      {
+        "timeMs": 4000,
+        "nonBackgroundPixelRatio": 0.034567,
+        "emptyOutput": false
+      }
+    ],
+    "issues": [],
+    "assessment": {
+      "algorithmVersion": "codepoet-quality-1.0.0",
+      "status": "warn",
+      "evaluatedTimesMs": [
+        0,
+        2000,
+        4000
+      ],
+      "thresholds": {
+        "overlapRatio": 0.12,
+        "paletteDistance": 0.12,
+        "noiseRatio": 0.02,
+        "maskWidth": 200,
+        "maskHeight": 150,
+        "maskDilationCells": 1,
+        "foregroundPixelThreshold": 8,
+        "maxColorCombinations": 60000
+      },
+      "metrics": [
+        {
+          "name": "parameterValidity",
+          "status": "pass",
+          "score": null,
+          "value": 1,
+          "method": "stored-generation-validation-v1; 参数与结构合法不代表像素或审美通过。",
+          "evidence": []
+        },
+        {
+          "name": "layoutConflict",
+          "status": "warn",
+          "score": null,
+          "value": 1,
+          "method": "top-level-subtree-mask-intersection/min-area-v1; 200×150，AABB筛选，同组交叠不计，透明度只作可见性筛选。",
+          "evidence": [
+            {
+              "message": "独立顶层主体交叠，请检查是否符合构图意图。",
+              "nodeIds": [
+                "moving",
+                "fixed"
+              ],
+              "timeMs": 2000,
+              "value": 1,
+              "details": {}
+            }
+          ]
+        },
+        {
+          "name": "colorSemantic",
+          "status": "pass",
+          "score": null,
+          "value": 0,
+          "method": "visible-fill-palette-RGB-distance-v1; 历史色板，PNG可见填充面积加权；排除描边与边缘，不透明遮挡按画序剔除，半透明混色为代理。",
+          "evidence": [
+            {
+              "message": "允许色板来自保存时来源快照。",
+              "nodeIds": [],
+              "timeMs": null,
+              "value": null,
+              "details": {
+                "palette": "#D4537E,#EF9F27,#3B6D11,#F7F6F0"
+              }
+            }
+          ]
+        },
+        {
+          "name": "signalNoise",
+          "status": "pass",
+          "score": null,
+          "value": 39.1892,
+          "method": "geometry-PNG-proxy-SNR-v1; 10log10((S+1)/(N+1))，阈值8，200×150几何mask膨胀1格，空白单独失败。",
+          "evidence": [
+            {
+              "message": "IR几何内/外的实际PNG前景计数。",
+              "nodeIds": [],
+              "timeMs": 0,
+              "value": 42.1992,
+              "details": {
+                "signalPixels": 16592,
+                "noisePixels": 0,
+                "noiseRatio": 0
+              }
+            },
+            {
+              "message": "IR几何内/外的实际PNG前景计数。",
+              "nodeIds": [],
+              "timeMs": 2000,
+              "value": 39.1892,
+              "details": {
+                "signalPixels": 8296,
+                "noisePixels": 0,
+                "noiseRatio": 0
+              }
+            },
+            {
+              "message": "IR几何内/外的实际PNG前景计数。",
+              "nodeIds": [],
+              "timeMs": 4000,
+              "value": 42.1992,
+              "details": {
+                "signalPixels": 16592,
+                "noisePixels": 0,
+                "noiseRatio": 0
+              }
+            }
+          ]
+        }
+      ],
+      "recommendations": [
+        {
+          "code": "SEPARATE_SUBJECTS",
+          "message": "独立顶层主体交叠，请检查是否符合构图意图。",
+          "nodeIds": [
+            "moving",
+            "fixed"
+          ],
+          "timeMs": 2000
+        }
+      ],
+      "limitations": [
+        "200×150离散mask与一格边缘容差是几何代理，细节可能漏检；不是审美评分。",
+        "交叠以顶层子树为独立主体，同组内设计交叠不计入；可能漏报组内冲突。",
+        "色彩只评估有历史色板依据的填充可见区域，排除描边及抗锯齿边缘；不评价色彩美感。",
+        "SNR是PNG前景与IR几何的一致性代理，不代表赛题得分或可信执行证明；少量边缘杂点可能被容差忽略。",
+        "阈值为v1启发式，score未校准为null；12标注样本的命中率不代表真实作品泛化。",
+        "最多分析60000种透明度/像素色组合，超过时色彩指标为unavailable；粗描边接角和半透明混色仍是离散代理。"
+      ]
+    }
+  }
+}

@@ -15,6 +15,9 @@ import CanvasPreview from './CanvasPreview'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 import TemplateMetadataForm from './TemplateMetadataForm'
+import { useCapabilities } from '@/hooks/useCapabilities'
+import { hasBrowserRenderer } from '@/renderers/registry'
+import { backendLabel } from '@/renderers/backend'
 
 const PAGE_SIZE = 20
 const canManageTemplates = (permissions: string[]) => permissions.some((permission) =>
@@ -213,6 +216,7 @@ export function TemplateManager() {
 }
 
 interface VersionDraft {
+  supportedBackends: string[]
   changeNote: string
   irText: string
   paramsText: string
@@ -231,6 +235,7 @@ function newVersionState(): VersionEditorState {
     mode: 'new',
     version: null,
     draft: {
+      supportedBackends: ['canvas2d'],
       changeNote: '',
       irText: prettyJson(STARTER_IR),
       paramsText: prettyJson(STARTER_PARAMETERS),
@@ -245,6 +250,7 @@ function editVersionState(version: TemplateVersion): VersionEditorState {
     mode: 'edit',
     version,
     draft: {
+      supportedBackends: [...version.supportedBackends],
       changeNote: version.changeNote,
       irText: prettyJson(version.irTemplate),
       paramsText: prettyJson(version.parameterSchema),
@@ -255,6 +261,7 @@ function editVersionState(version: TemplateVersion): VersionEditorState {
 }
 
 export function TemplateEditor({ id }: { id: string }) {
+  const capabilities = useCapabilities()
   const { user, loading, openLogin } = useSession()
   const [template, setTemplate] = useState<Template | null>(null)
   const [versions, setVersions] = useState<TemplateVersion[]>([])
@@ -368,7 +375,10 @@ export function TemplateEditor({ id }: { id: string }) {
   }
 
   function startNewVersion() {
-    setEditor(newVersionState())
+    const next = newVersionState()
+    const available = capabilities?.backends.find(item => item.available && hasBrowserRenderer(item.backend))
+    if (available) next.draft.supportedBackends = [available.backend]
+    setEditor(next)
     setVersionView(null)
     setEditorError('')
     setNotice('')
@@ -392,7 +402,7 @@ export function TemplateEditor({ id }: { id: string }) {
   }
 
   function formatJson(field: keyof VersionDraft) {
-    if (!editor || field === 'changeNote') return
+    if (!editor || field === 'changeNote' || field === 'supportedBackends') return
     try {
       const parsed = JSON.parse(editor.draft[field])
       setEditor({ ...editor, draft: { ...editor.draft, [field]: prettyJson(parsed) } })
@@ -405,6 +415,12 @@ export function TemplateEditor({ id }: { id: string }) {
   async function saveVersion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!editor || savingVersion || !template) return
+    if (!editor.draft.supportedBackends.length || editor.draft.supportedBackends.some(backend =>
+      !editor.version?.supportedBackends.includes(backend) && !capabilities?.backends.some(item =>
+        item.backend === backend && item.available && hasBrowserRenderer(backend)))) {
+      setEditorError('请选择至少一个当前已启用且有浏览器适配器的后端。')
+      return
+    }
     let ir: DrawingIR
     let params: Parameter[]
     let bindings: unknown[]
@@ -438,7 +454,7 @@ export function TemplateEditor({ id }: { id: string }) {
       parameterSchema: params,
       bindings,
       constraints,
-      supportedBackends: ['canvas2d'],
+      supportedBackends: editor.draft.supportedBackends,
       changeNote: editor.draft.changeNote.trim(),
     }
     setSavingVersion(true)
@@ -608,7 +624,7 @@ export function TemplateEditor({ id }: { id: string }) {
                   </div>
                   {versions.length === 0
                     ? <EmptyState title="还没有版本" action={<button type="button" className="button button--secondary button--small" onClick={startNewVersion}>创建第一个版本</button>}>
-                      新版本需要合法 IR 模板、参数 schema 和 Canvas2D 后端声明。
+                      新版本需要合法 IR 模板、参数 schema 和明确的后端支持声明。
                     </EmptyState>
                     : <ul className="manager-list version-list">
                       {versions.map((version) => <li className={`manager-row version-row${editor?.version?.id === version.id || versionView?.id === version.id ? ' is-selected' : ''}`} key={version.id}>
@@ -649,7 +665,7 @@ export function TemplateEditor({ id }: { id: string }) {
                     {versionView.lastReview.decision === 'approve' ? '审核通过' : '审核退回'}：{versionView.lastReview.reason || '未填写理由'}
                   </InlineNotice>}
                   <div className="version-view-grid">
-                    <div className="version-preview"><CanvasPreview ir={versionView.irTemplate} timeMs={versionView.irTemplate.durationMs} /></div>
+                    <div className="version-preview"><CanvasPreview ir={versionView.irTemplate} backend={versionView.supportedBackends[0]} timeMs={versionView.irTemplate.durationMs} /></div>
                     <div>
                       <dl className="label-list">
                         <div><dt>变更说明</dt><dd>{versionView.changeNote || '—'}</dd></div>
@@ -660,7 +676,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
                       {isEditableVersion(versionView.status) && <Link
                         className="button button--secondary button--small"
-                        href={`/?draft=${encodeURIComponent(versionView.id)}`}
+                        href={`/?draft=${encodeURIComponent(versionView.id)}&backend=${encodeURIComponent(versionView.supportedBackends.find(hasBrowserRenderer) ?? versionView.supportedBackends[0])}`}
                       >在创作台私有预览默认参数</Link>}
                     </div>
                   </div>
@@ -683,6 +699,16 @@ export function TemplateEditor({ id }: { id: string }) {
                       <span>变更说明（最多 500 字）</span>
                       <input maxLength={500} value={editor.draft.changeNote} disabled={savingVersion} onChange={(event) => setEditor({ ...editor, draft: { ...editor.draft, changeNote: event.target.value } })} />
                     </label>
+                    <fieldset disabled={savingVersion}>
+                      <legend>版本支持的渲染后端</legend>
+                      {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(backend => <label className="check" key={backend}>
+                        <input type="checkbox" checked={editor.draft.supportedBackends.includes(backend)}
+                          disabled={!capabilities?.backends.some(item => item.backend === backend && item.available && hasBrowserRenderer(backend))}
+                          onChange={event => setEditor({ ...editor, draft: { ...editor.draft, supportedBackends: event.target.checked
+                            ? [...editor.draft.supportedBackends, backend] : editor.draft.supportedBackends.filter(item => item !== backend) } })} />
+                        {backendLabel(backend)}
+                      </label>)}
+                    </fieldset>
                     <div className="json-grid">
                       <label className="field json-field">
                         <span className="json-label">IR 模板 JSON <button type="button" className="button button--link button--small" disabled={savingVersion} onClick={() => formatJson('irText')}>格式化</button></span>
@@ -704,7 +730,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       </label>
                     </div>
                     {parsedIr
-                      ? <div className="version-preview"><CanvasPreview ir={parsedIr} timeMs={parsedIr.durationMs} /><p className="plate-caption">模板原始 IR 预览 · 未应用参数与绑定</p></div>
+                      ? <div className="version-preview"><CanvasPreview ir={parsedIr} backend={editor.draft.supportedBackends[0] ?? 'unavailable'} timeMs={parsedIr.durationMs} /><p className="plate-caption">模板原始 IR 预览 · {backendLabel(editor.draft.supportedBackends[0] ?? '')} · 未应用参数与绑定</p></div>
                       : <p className="field-note">IR JSON 尚未解析为带 nodes 数组的对象，暂时无法预览。</p>}
                     {parameterErrors.length > 0
                       ? <InlineNotice tone="error" title="参数 schema 校验未通过">{parameterErrors.join('\n')}</InlineNotice>

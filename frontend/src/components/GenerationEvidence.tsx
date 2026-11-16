@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import type { Generation, Issue, RenderJob } from '@/types/core'
+import type { Generation, Issue } from '@/types/core'
 import { symbolLabel } from '@/utils/format'
-import { InlineNotice } from './Feedback'
 
 export function IssueList({ issues }: { issues: Issue[] }) {
   return issues.length > 0 && <ul className="issue-list">
@@ -54,17 +53,4 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
       <pre>{JSON.stringify(source, null, 2)}</pre>
     </details>
   </details>
-}
-
-export function QualityEvidence({ generation, report }: {
-  generation: Generation
-  report?: RenderJob['qualityReport']
-}) {
-  const validation = generation.validationReport
-  if (!validation && !report && !generation.warnings?.length) return null
-  return <InlineNotice title="生成与输出检查">
-    {validation && <p>参数校验 {validation.parameterValid ? '通过' : '未通过'} · {validation.nodeCount} 个节点 · {validation.outOfBoundsNodeCount} 个节点完全出界</p>}
-    {report && <p>非背景像素比例 {(report.nonBackgroundPixelRatio * 100).toFixed(2)}%{report.emptyOutput && ' · 输出为空白，请检查画布'}</p>}
-    <IssueList issues={[...(validation?.issues ?? []), ...(generation.warnings ?? []), ...(report?.issues ?? [])]} />
-  </InlineNotice>
 }

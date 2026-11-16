@@ -3,14 +3,17 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { errorMessage, request } from '@/api/client'
-import { browserRenderer, uploadRenderFrames } from '@/api/render'
+import { renderRequest, uploadRenderFrames, cancelRenderJob } from '@/api/render'
+import { backendLabel, generationBackend } from '@/renderers/backend'
+import { hasBrowserRenderer, rendererVersion } from '@/renderers/registry'
 import type {
-  Capabilities, CreationSession, DrawingIR, EditorState, Generation, Page, Parameter, Params, RenderJob, SemanticInput, Template, TemplateVersion, Work, WorkDetail, WorkVersion,
+  Backend, Capabilities, CreationSession, DrawingIR, EditorState, Generation, Page, Parameter, Params, QualityLocation, RenderJob, SemanticInput, Template, TemplateVersion, Work, WorkDetail, WorkVersion,
 } from '@/types/core'
 import { sampleTimes } from '@/renderers/canvas/renderScene'
 import { parameterValueLabel, shortId, symbolLabel } from '@/utils/format'
 import CanvasPreview from './CanvasPreview'
-import { GenerationEvidence, QualityEvidence } from './GenerationEvidence'
+import { GenerationEvidence } from './GenerationEvidence'
+import QualityEvidence from './QualityEvidence'
 import IRControls, { parseIR } from './IRControls'
 import TimelinePlayer from './TimelinePlayer'
 import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
@@ -23,10 +26,22 @@ function EmptyCanvas({ busy, label }: { busy: boolean; label?: string }) {
   </div>
 }
 
+function supportsBackend(caps: Capabilities | undefined, backend: Backend): boolean {
+  const item = caps?.backends.find(entry => entry.backend === backend)
+  if (!item?.available) return false
+  if (backend === 'turtle') return item.executionModes.includes('server')
+  return hasBrowserRenderer(backend) && item.executionModes.includes('browser_upload')
+    && (!item.rendererVersion || item.rendererVersion === rendererVersion(backend)
+      || (backend === 'canvas2d' && item.rendererVersion === 'p0-03.1'))
+}
+
 export default function Creator() {
   const { user, openLogin } = useSession()
   const userId = user?.id
   const [mode, setMode] = useState<EditorState['mode']>('template')
+  const [backend, setBackend] = useState<Backend>('canvas2d')
+  const backendRef = useRef<Backend>('canvas2d')
+  const [capabilities, setCapabilities] = useState<Capabilities>()
   const [features, setFeatures] = useState<Capabilities['features']>()
   const [semantic, setSemantic] = useState<SemanticInput>({ text: '', entityIds: [] })
   const [semanticIdsText, setSemanticIdsText] = useState('')
@@ -42,7 +57,10 @@ export default function Creator() {
   const [restoreAttempt, setRestoreAttempt] = useState(0)
   const [templateRequest, setTemplateRequest] = useState(0)
   const [quality, setQuality] = useState<RenderJob['qualityReport']>()
+  const [qualityFocus, setQualityFocus] = useState<{nodeIds:string[];timeMs:number}>()
   const manualLock = useRef(false)
+  const manualController = useRef<AbortController | null>(null)
+  const saveController = useRef<AbortController | null>(null)
   const lastUser = useRef<string | undefined>(undefined)
   const loadedQuery = useRef('')
   const [templates, setTemplates] = useState<Template[]>([])
@@ -61,7 +79,7 @@ export default function Creator() {
   const [pending, setPending] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [title, setTitle] = useState('我的 Canvas 作品')
+  const [title, setTitle] = useState('我的作品')
   const [saved, setSaved] = useState('')
   const [attempt, setAttempt] = useState(0)
   const generationSequence = useRef(0)
@@ -74,6 +92,14 @@ export default function Creator() {
   const [sessionNotice, setSessionNotice] = useState('')
   const [sessionError, setSessionError] = useState('')
   const restoredTemplate = useRef<{ versionId: string; params?: Params } | null>(null)
+  useEffect(() => () => { manualController.current?.abort(); saveController.current?.abort() }, [])
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('backend')
+    if (requested && ['canvas2d', 'css', 'webgl', 'turtle'].includes(requested)) {
+      backendRef.current = requested as Backend
+      setBackend(requested as Backend)
+    }
+  }, [])
 
   const selectedTemplate = templates.find((item) => item.id === selected) ?? null
   const status = loading ? '正在载入模板'
@@ -95,16 +121,16 @@ export default function Creator() {
     request<Capabilities>('/engine/capabilities', { signal: controller.signal }).then((caps) => {
       if (controller.signal.aborted) return
       setFeatures(caps.features)
-      const available = caps.profile === 'core-demo' && caps.backends.some((backend) =>
-        backend.backend === 'canvas2d' && backend.available && backend.executionModes.includes('browser_upload'))
+      setCapabilities(caps)
+      const available = caps.profile === 'core-demo' && supportsBackend(caps, backend)
       setCapability(available)
-      if (!available) setLoadError('后端尚未启用 core-demo Canvas / browser_upload。生成与保存暂不可用。')
+      if (!available) setLoadError(`当前 ${backendLabel(backend)} 能力或适配器版本未就绪，生成与保存暂不可用。`)
     }).catch((cause) => {
       if (!controller.signal.aborted) setLoadError(errorMessage(cause))
     })
-    request<Page<Template>>('/templates?backend=canvas2d&pageSize=100', { signal: controller.signal }).then((page) => {
+    request<Page<Template>>(`/templates?backend=${backend}&pageSize=100`, { signal: controller.signal }).then((page) => {
       if (controller.signal.aborted) return
-      const items = page.items.filter((item) => item.publishedVersionId && item.supportedBackends.includes('canvas2d'))
+      const items = page.items.filter((item) => item.publishedVersionId && item.supportedBackends.includes(backend))
       setTemplates(items)
       const requestedTemplate = typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('template')
@@ -120,7 +146,7 @@ export default function Creator() {
       if (!controller.signal.aborted) setLoading(false)
     })
     return () => controller.abort()
-  }, [attempt])
+  }, [attempt, backend])
 
   useEffect(() => {
     if (initializing || mode !== 'template') return
@@ -142,6 +168,13 @@ export default function Creator() {
       .then((result) => {
         if (controller.signal.aborted) return
         if (result.status !== 'published' && !restoredTemplate.current) throw new Error('该模板版本尚未发布，请重新加载模板。')
+        // Old draft links may have no backend query. Restore a declared adapter
+        // before validating; keep the draft reference for the next effect run.
+        if (restoredTemplate.current && !result.supportedBackends.includes(backend)) {
+          const next = result.supportedBackends.find(hasBrowserRenderer) ?? result.supportedBackends[0]
+          if (next) { backendRef.current = next as Backend; setBackend(next as Backend); return }
+        }
+        if (!result.supportedBackends.includes(backend)) throw new Error('该模板版本不支持当前渲染后端，请选择其他模板或后端。')
         const restoredParams = restoredTemplate.current?.params
         setParams(restoredParams ?? Object.fromEntries(result.parameterSchema.map((param) => [param.name, param.default])))
         setVersion(result)
@@ -151,16 +184,17 @@ export default function Creator() {
         if (!controller.signal.aborted) setVersionLoading(false)
       })
     return () => controller.abort()
-  }, [selected, templates, mode, initializing, templateRequest])
+  }, [selected, templates, mode, initializing, templateRequest, backend])
 
   useEffect(() => {
+    if (mode !== 'template') return
     const sequence = ++generationSequence.current
-    if (mode !== 'template' || initializing || !version || !userId || !capability) {
+    if (initializing || !version || !userId || !capability) {
       setPending(false)
       return
     }
     // Re-authentication with the same user preserves a failed save's checkpoint.
-    if (generation?.ownerId === userId && !dirty) {
+    if (generation?.ownerId === userId && generationBackend(generation) === backend && !dirty) {
       setPending(false)
       return
     }
@@ -180,10 +214,10 @@ export default function Creator() {
         }
         const result = await request<Generation>('/generations', {
           method: 'POST', signal: controller.signal,
-          body: JSON.stringify({ mode: 'template', templateVersionId: version.id, params, backend: 'canvas2d', seed: templateSeed }),
+          body: JSON.stringify({ mode: 'template', templateVersionId: version.id, params, backend, seed: templateSeed }),
         })
         if (!controller.signal.aborted && generationSequence.current === sequence) {
-          acceptGeneration(result)
+          acceptGeneration(result, backend)
         }
       } catch (cause) {
         if (!controller.signal.aborted && generationSequence.current === sequence) {
@@ -198,7 +232,7 @@ export default function Creator() {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [version, params, userId, capability, mode, initializing, templateSeed])
+  }, [version, params, userId, capability, mode, initializing, templateSeed, backend])
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search)
@@ -254,6 +288,11 @@ export default function Creator() {
             ? await request<Generation>(`/generations/${encodeURIComponent(state.generationId)}`, { signal })
             : null
           signal.throwIfAborted()
+          const restoredBackend = state.backend ?? (restored ? generationBackend(restored) : 'canvas2d')
+          if (!['canvas2d', 'css', 'webgl', 'turtle'].includes(restoredBackend)
+            || (restored && generationBackend(restored) !== restoredBackend)) throw new Error('会话的后端与生成记录不一致，无法恢复。')
+          backendRef.current = restoredBackend
+          setBackend(restoredBackend)
           if (restored) acceptGeneration(restored)
           else setGeneration(null)
           setSessionId(session.id)
@@ -282,9 +321,19 @@ export default function Creator() {
             throw new Error('该版本不属于你的目标作品。')
           }
           acceptGeneration(detail.generation)
+          backendRef.current = generationBackend(detail.generation)
+          setBackend(generationBackend(detail.generation))
           setMode('ir')
           setEditWork(work)
           setTitle(work.title)
+          if (query.has('qualityTime')) {
+            const time=Number(query.get('qualityTime'))
+            const node=query.get('qualityNode')
+            setQuality(detail.renderJob.qualityReport)
+            setQualityFocus({nodeIds:node?[node]:[],timeMs:Number.isFinite(time)?Math.max(0,Math.min(time,detail.generation.ir.durationMs)):0})
+            setNodeId(node)
+            setDirty(true)
+          }
         }
         loadedQuery.current = restoreKey
       } catch (cause) {
@@ -297,8 +346,10 @@ export default function Creator() {
     return () => controller.abort()
   }, [userId, restoreAttempt])
 
-  function acceptGeneration(result: Generation) {
+  function acceptGeneration(result: Generation, expectedBackend?: Backend) {
+    if (expectedBackend && generationBackend(result) !== expectedBackend) throw new Error('生成结果的渲染后端与本次请求不一致。')
     setGeneration(result)
+    setQualityFocus(undefined)
     setDraft(JSON.stringify(result.ir, null, 2))
     setNodeId(null)
     setTimelineTime(0)
@@ -313,27 +364,36 @@ export default function Creator() {
     setQuality(null)
   }
 
-  async function runManual(path: string, payload: object, subgraph = false) {
+  async function runManual(path: string, payload: object, subgraph = false, requestedBackend = backendRef.current) {
     if (!userId || initializing || saveLock.current || manualLock.current) return
     manualLock.current = true
+    const controller = new AbortController()
+    manualController.current = controller
+    const sequence = ++generationSequence.current
     setPending(true)
     setGenerateError('')
     setDirty(true)
     try {
       if (subgraph) {
         const result = await request<{ generation: Generation; changedNodeIds: string[]; removedNodeIds: string[] }>(path, {
-          method: 'POST', body: JSON.stringify(payload),
+          method: 'POST', body: JSON.stringify(payload), signal: controller.signal,
         })
-        acceptGeneration(result.generation)
+        if (controller.signal.aborted || sequence !== generationSequence.current) return
+        acceptGeneration(result.generation, requestedBackend)
         setNotice(`子树已应用：变更 ${result.changedNodeIds.length} 个节点，移除 ${result.removedNodeIds.length} 个节点。`)
       } else {
-        acceptGeneration(await request<Generation>(path, { method: 'POST', body: JSON.stringify(payload) }))
+        const result = await request<Generation>(path, { method: 'POST', body: JSON.stringify(payload), signal: controller.signal })
+        if (controller.signal.aborted || sequence !== generationSequence.current) return
+        acceptGeneration(result, requestedBackend)
       }
     } catch (cause) {
-      setGenerateError(errorMessage(cause))
+      if (!controller.signal.aborted && sequence === generationSequence.current) setGenerateError(errorMessage(cause))
     } finally {
-      manualLock.current = false
-      setPending(false)
+      if (manualController.current === controller) {
+        manualController.current = null
+        manualLock.current = false
+        setPending(false)
+      }
     }
   }
 
@@ -353,11 +413,11 @@ export default function Creator() {
       semanticInput: semantic,
       draftIR,
       fragmentSource: '',
-      backend: 'canvas2d',
+      backend,
       seed: mode === 'template' ? templateSeed : generation?.seed ?? 42,
       timelineTimeMs: timelineTime,
       selectedNodeId: nodeId,
-      generationId: generation?.ownerId === user.id && (!dirty || mode === 'ir') ? generation.id : null,
+      generationId: generation?.ownerId === user.id && generationBackend(generation) === backend && (!dirty || mode === 'ir') ? generation.id : null,
     }
     const name = title.trim() || '未命名创作现场'
     setSessionBusy(true)
@@ -389,7 +449,7 @@ export default function Creator() {
   }
 
   async function save() {
-    if (saveLock.current || initializing || manualLock.current || !generation || dirty || pending || !user
+    if (saveLock.current || !capability || initializing || manualLock.current || !generation || generationBackend(generation) !== backend || dirty || pending || !user
       || generation.ownerId !== user.id || !title.trim()) return
     saveLock.current = true
     setSaving(true)
@@ -399,32 +459,29 @@ export default function Creator() {
     const frozen = generation
     const frozenTitle = title.trim()
     const times = sampleTimes(frozen.ir)
+    const controller = new AbortController()
+    saveController.current = controller
+    const { signal } = controller
     try {
       let job: RenderJob
       if (checkpoint.current?.generationId === frozen.id) {
-        job = await request<RenderJob>(`/render-jobs/${encodeURIComponent(checkpoint.current.jobId)}`)
+        job = await request<RenderJob>(`/render-jobs/${encodeURIComponent(checkpoint.current.jobId)}`, { signal })
       } else {
         setNotice('正在创建上传任务…')
         job = await request<RenderJob>('/render-jobs', {
-          method: 'POST',
-          body: JSON.stringify({
-            generationId: frozen.id,
-            backend: 'canvas2d',
-            timesMs: times,
-            executionMode: 'browser_upload',
-            ...browserRenderer(),
-          }),
+          method: 'POST', signal,
+          body: JSON.stringify(renderRequest(frozen, times)),
         })
         checkpoint.current = { generationId: frozen.id, jobId: job.id }
         setJobId(job.id)
       }
-      job = await uploadRenderFrames(job, frozen, times, setNotice)
+      job = await uploadRenderFrames(job, frozen, times, setNotice, signal)
       setQuality(job.qualityReport)
       setNotice('PNG 上传完成，正在保存私有作品…')
       const payload = { generationId: frozen.id, renderJobId: job.id }
       const path = editWork ? `/works/${encodeURIComponent(editWork.id)}/versions` : '/works'
       const created = await request<{ work: Work; version: WorkVersion }>(path, {
-        method: 'POST',
+        method: 'POST', signal,
         body: JSON.stringify(editWork
           ? { ...payload, expectedRevision: editWork.revision, changeNote: changeNote.trim() }
           : { ...payload, title: frozenTitle }),
@@ -436,8 +493,38 @@ export default function Creator() {
       setSaveError(errorMessage(cause))
       setNotice('')
     } finally {
+      if (saveController.current === controller) saveController.current = null
       saveLock.current = false
       setSaving(false)
+    }
+  }
+
+  function switchBackend(next: Backend) {
+    if (next === backend || saveLock.current || sessionBusy || !supportsBackend(capabilities, next)) return
+    generationSequence.current++
+    manualController.current?.abort()
+    manualController.current = null
+    manualLock.current = false
+    setPending(false)
+    backendRef.current = next
+    restoredTemplate.current = null
+    setBackend(next)
+    setVersion(null)
+    setTemplates([])
+    setDirty(true)
+    setSaved('')
+    setGenerateError('')
+    setSaveError('')
+    setQuality(null)
+    checkpoint.current = null
+    setJobId('')
+    if (mode === 'semantic' && (semantic.text.trim() || semantic.entityIds.length)) {
+      void runManual('/generations', { mode: 'semantic', input: semantic, backend: next, seed: generation?.seed ?? 42 }, false, next)
+    } else if (mode === 'ir' && generation) {
+      try {
+        const ir = draft ? parseIR(draft) : generation.ir
+        void runManual('/generations', { mode: 'ir', baseGenerationId: generation.id, ir, backend: next }, false, next)
+      } catch (cause) { setGenerateError(errorMessage(cause)) }
     }
   }
 
@@ -474,6 +561,7 @@ export default function Creator() {
   function switchMode(next: EditorState['mode']) {
     if (next === mode) return
     generationSequence.current++
+    setPending(false)
     setGenerateError('')
     if (next === 'template') setDirty(true)
     setMode(next)
@@ -547,10 +635,18 @@ export default function Creator() {
       </div>
       <div className="capability" aria-live="polite">
         <span className={`status-mark${capability ? ' is-ok' : loading ? '' : ' is-off'}`} aria-hidden="true" />
-        <span>{capability ? 'Canvas 2D 可用' : loading ? '正在检查能力' : 'Canvas 2D 未就绪'}</span>
+        <span>{capability ? `${backendLabel(backend)} 可用` : loading ? '正在检查能力' : `${backendLabel(backend)} 未就绪`}</span>
         <span className="mono">core-demo</span>
       </div>
     </header>
+
+    <label className="field">渲染后端
+      <select aria-label="渲染后端" value={backend} disabled={initializing || saving || sessionBusy} onChange={event => switchBackend(event.target.value as Backend)}>
+        {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!supportsBackend(capabilities, item)}>
+          {backendLabel(item)}{supportsBackend(capabilities, item) ? '' : '（未就绪）'}
+        </option>)}
+      </select>
+    </label>
 
     {loadError && <div className="creator-alert">
       <InlineNotice tone="error" title="创作资源加载失败">
@@ -584,7 +680,7 @@ export default function Creator() {
           <h2 id="templates-heading">选择模板</h2>
           <span className="rail-count mono">{templates.length} 个</span>
         </div>
-        <p className="rail-lead">已发布的文化主题模板。当前仅支持 Canvas 2D。</p>
+        <p className="rail-lead">适用于 {backendLabel(backend)} 的已发布文化主题模板。</p>
         {loading
           ? <LoadingLines label="正在载入模板" />
           : templates.length === 0
@@ -618,10 +714,10 @@ export default function Creator() {
           <div className="stage-surface">
             {generation?.ownerId === userId && generation
               ? generation.ir.durationMs > 0
-                ? <TimelinePlayer key={generation.id} ir={generation.ir} linkEntities
+                ? <TimelinePlayer key={generation.id} ir={generation.ir} backend={generationBackend(generation)} linkEntities
                   entities={generation.provenance?.matchedEntities} paused={saving}
-                  initialTime={initialTimelineTime} onTimeChange={setTimelineTime} />
-                : <CanvasPreview ir={generation.ir} timeMs={0} />
+                  initialTime={initialTimelineTime} onTimeChange={setTimelineTime} seekRequest={qualityFocus} focusNodeIds={qualityFocus?.nodeIds} />
+                : <CanvasPreview ir={generation.ir} timeMs={0} backend={generationBackend(generation)} focusNodeIds={qualityFocus?.nodeIds} />
               : <EmptyCanvas
                 busy={loading || versionLoading}
                 label={loading ? '正在载入模板' : versionLoading ? '正在载入参数' : undefined}
@@ -651,7 +747,17 @@ export default function Creator() {
         </details>}
         {generation && generation.ownerId === userId && <>
           <GenerationEvidence generation={generation} />
-          <QualityEvidence generation={generation} report={quality} />
+          {qualityFocus && <p role="status" className="quality-target">已定位：{qualityFocus.nodeIds.join('、')||'整帧'} · {qualityFocus.timeMs}ms；定位框不进入PNG。</p>}
+          {quality && dirty && <p className="quality-note">下方报告属于上次已应用的生成；当前草稿修改尚未评估。</p>}
+          <QualityEvidence key={generation.id} generation={generation} report={quality}
+            onLocate={!saving && !pending ? location=>{
+              setQualityFocus({nodeIds:location.nodeIds,timeMs:location.timeMs??0})
+              if(location.nodeIds[0]) setNodeId(location.nodeIds[0])
+            }:undefined}
+            onImprove={!saving && !pending ? (location:QualityLocation)=>{
+              setMode('ir');setDirty(true)
+              if(location.nodeIds[0])setNodeId(location.nodeIds[0])
+            }:undefined} />
         </>}
       </section>
 
@@ -689,7 +795,7 @@ export default function Creator() {
             return
           }
           void runManual('/generations', {
-            mode: 'semantic', input: { text: semantic.text.trim(), entityIds: semantic.entityIds }, backend: 'canvas2d', seed: 42,
+            mode: 'semantic', input: { text: semantic.text.trim(), entityIds: semantic.entityIds }, backend, seed: 42,
           })
         }}>
           <fieldset disabled={saving || pending || initializing || !capability || !features?.semanticGeneration}>
@@ -716,7 +822,7 @@ export default function Creator() {
             subgraph={Boolean(features?.subgraphEditing)}
             onDraft={(value) => { setDraft(value); setDirty(true) }}
             onApply={(ir) => void runManual('/generations', {
-              mode: 'ir', baseGenerationId: generation.id, ir, backend: 'canvas2d',
+              mode: 'ir', baseGenerationId: generation.id, ir, backend,
             })}
             onSubgraph={(edit) => void runManual(`/generations/${encodeURIComponent(generation.id)}/subgraph`, edit, true)}
           />
@@ -745,13 +851,19 @@ export default function Creator() {
                 type="button"
                 className="button button--primary"
                 onClick={() => void save()}
-                disabled={initializing || saving || pending || dirty || generation === null || generation.ownerId !== user.id || !title.trim() || Boolean(saved)}
+                disabled={initializing || !capability || saving || pending || dirty || generation === null || generationBackend(generation) !== backend || generation.ownerId !== user.id || !title.trim() || Boolean(saved)}
               >{saving ? '保存中…' : jobId ? '重试原任务并保存' : editWork ? '保存为新版本' : '保存私有作品'}</button>}
             {jobId && !saved && <button type="button" className="button button--secondary button--small" disabled={saving} onClick={() => {
               checkpoint.current = null
               setJobId('')
               setNotice('下次保存将创建新任务；原任务由后端按时效清理。')
             }}>下次新建上传任务</button>}
+            {saving && jobId && backend === 'turtle' && <button type="button" className="button button--secondary" onClick={() => {
+              void cancelRenderJob(jobId).then(() => {
+                saveController.current?.abort()
+                setSaveError('服务器任务已取消，可选择新建任务重试。')
+              }).catch(cause => setSaveError(errorMessage(cause)))
+            }}>取消服务器任务</button>}
           </div>
         </div>
         <p className="archive-note">

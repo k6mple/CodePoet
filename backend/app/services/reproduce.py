@@ -26,6 +26,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import errors
+from app.engine import capabilities
 from app.models.creations import Generation as GenerationModel
 from app.models.users import User
 from app.models.works import Artifact, RenderJob, Work, WorkVersion
@@ -83,23 +84,10 @@ def reproduce_version(
     if original is None or original.phase != "completed":
         raise errors.validation_error("原始渲染任务未完成，无法复现")
 
-    # 复现不是「随便拿旧快照重跑一遍」，它要能**真的被执行**。三道校验缺一不可：
-    #
-    # 1) 原任务的后端现在还得启用，并且有可执行渲染器。停用一个后端之后，
-    #    旧作品仍可读（历史记录不许篡改），但不该还能发起新的渲染任务——
-    #    否则用户以为在复现 CSS，实际没有任何执行器。
-    capabilities.require_enabled(
-        original.backend, capabilities.enabled_backends(settings)
-    )
-    # 2) 原任务当时用的渲染器版本，现在必须仍可执行。否则「复现」出来的东西
-    #    和原图不是同一套渲染器，像素比较没有意义。
-    capabilities.require_renderer_version(
-        original.backend, original.renderer_version or ""
-    )
-    # 3) 客户端此刻上报的版本也必须可执行。
-    #
-    # 旧实现只比较「两个版本字符串是否相等」：两个**相同但都不认识**的版本
-    # （比如都写 "unknown"）会被判成兼容——那是拿相等当兼容，等于没校验。
+    capabilities.require_enabled(original.backend, capabilities.enabled_backends(settings))
+    if original.execution_mode != "browser_upload" or original.backend != generation.backend:
+        raise errors.unsupported_capability("历史任务的后端或执行模式不兼容")
+    capabilities.require_renderer_version(original.backend, original.renderer_version or "")
     capabilities.require_renderer_version(original.backend, payload.rendererVersion)
 
     times: list[int] = json.loads(original.times_ms_json or "[]")
@@ -229,6 +217,8 @@ def _compare_images(old: Image.Image, new: Image.Image) -> tuple[bool, float, fl
 def _fingerprint(db: Session, job: RenderJob) -> dict:
     env = json.loads(job.client_environment_json or "{}")
     return {
+        "backend": job.backend,
+        "executionMode": job.execution_mode,
         "rendererVersion": job.renderer_version,
         "userAgent": env.get("userAgent"),
         "deviceScaleFactor": env.get("deviceScaleFactor"),
@@ -269,6 +259,10 @@ def compare_jobs(
     reasons: list[str] = []
     new_fp = _fingerprint(db, job)
     old_fp = _fingerprint(db, original)
+    if new_fp["backend"] != old_fp["backend"]:
+        reasons.append("渲染后端不同")
+    if new_fp["executionMode"] != old_fp["executionMode"]:
+        reasons.append("执行模式不同")
     if new_fp["rendererVersion"] != old_fp["rendererVersion"]:
         reasons.append(
             f"渲染器版本不同（{old_fp['rendererVersion']} vs {new_fp['rendererVersion']}）"

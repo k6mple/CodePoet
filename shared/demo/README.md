@@ -14,6 +14,8 @@
 | `templates/narrative.json` | 四秒·清莲叙事：水线、莲开、日轮移动、4 个 narrative 时间点 |
 | `rules/rules.json` | 8 条确定性映射规则，含 any/all 匹配、莲/竹/水/石灰/墨梅/家风/四知/叙事效果 |
 | `fixtures/` | `basic_shapes`、`canvas_probe`、`animation_sequence`、`narrative_sequence`、`parent_child_crop` |
+| `sample-cases.json` | Q1-A1跨语言世界几何采样9组输入，TS/Python以1e-9容差对照 |
+| `quality/` | Q1的12标注样本、6坏例、24张真实Chrome PNG与改进样例；是校准数据，不是API响应，见目录README |
 
 ## 格式说明
 

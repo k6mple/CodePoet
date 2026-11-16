@@ -18,11 +18,9 @@ import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from app.engine import capabilities
 from app.main import create_app
 from app.settings import Settings
 
@@ -253,23 +251,9 @@ class CanvasOnlyGateTests(_Base):
 
 
 class CssEnabledTests(_Base):
-    """显式打开 CSS 之后，契约层的门要真的打开（渲染器仍归 R1-B）。
-
-    **只把 css 放进启用集合还不够**：注册表里必须有它的渲染器版本，否则闸门会
-    按「没有可执行实现」拒绝——这正是评审指出的「能力声明与闸门不一致」。
-    这里临时给 css 注册一个候选版本，模拟 R1-B 的真实渲染器接入；
-    「启用但没注册」那一半由 ``UnregisteredBackendTests`` 单独覆盖。
-    """
+    """显式打开 CSS 之后，契约层的门要真的打开（渲染器仍归 R1-B）。"""
 
     enabled_backends = "canvas2d,css"
-
-    def setUp(self) -> None:
-        super().setUp()
-        patcher = patch.dict(
-            capabilities.RENDERER_VERSIONS, {"css": "codepoet-css-1.0.0"}
-        )
-        patcher.start()
-        self.addCleanup(patcher.stop)
 
     def test_ir_branch_accepts_enabled_backend(self) -> None:
         base = self._generate_canvas()
@@ -344,17 +328,19 @@ class RegistryTests(unittest.TestCase):
             frozenset(capabilities.DEFAULT_ENABLED_BACKENDS),
         )
 
-    def test_only_canvas_has_renderer(self) -> None:
+    def test_only_implemented_browser_backends_have_renderer(self) -> None:
         from app.engine import capabilities
 
         self.assertEqual(
             capabilities.renderer_version("canvas2d"), capabilities.CANVAS_RENDERER_VERSION
         )
-        for backend in ("css", "webgl", "turtle"):
+        self.assertEqual(capabilities.renderer_version("css"), "codepoet-css-1.0.0")
+        for backend in ("webgl", "turtle"):
             self.assertIsNone(
                 capabilities.renderer_version(backend),
                 f"{backend} 还没有可执行实现，不该有渲染器版本",
             )
+
 
 class CapabilityAvailabilityTests(_Base):
     """能力声明必须与实际闸门同源（评审 P2）。
@@ -456,6 +442,15 @@ class UnregisteredBackendTests(_Base):
     """
 
     enabled_backends = "canvas2d,css"
+
+    def setUp(self):
+        super().setUp()
+        from unittest.mock import patch
+        from app.engine import capabilities
+        registered = patch.dict(capabilities.RENDERER_VERSIONS,
+                                {'canvas2d': capabilities.CANVAS_RENDERER_VERSION}, clear=True)
+        registered.start()
+        self.addCleanup(registered.stop)
 
     def _css_capability(self) -> dict:
         caps = self.client.get(f"{API}/engine/capabilities").json()

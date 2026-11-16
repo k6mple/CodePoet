@@ -421,6 +421,22 @@ class ReproduceTests(unittest.TestCase):
         self.assertEqual(job["generationId"], "gen-r")
         self.assertIsNotNone(job["expiresAt"])
 
+    def test_unexecutable_historical_version_is_rejected_without_rewriting(self) -> None:
+        from contextlib import closing
+        self._register('old_renderer')
+        self._seed_ready(make_png())
+        with closing(sqlite3.connect(self.settings.database_path)) as connection:
+            connection.execute("UPDATE render_jobs SET renderer_version='p0-03.1' WHERE id='job-orig'")
+            connection.commit()
+        response = self.client.post(f'{API}/work-versions/wv-r/reproduce', json={
+            'rendererVersion':'codepoet-canvas-1.0.0',
+            'clientEnvironment':{'userAgent':'test/1.0','deviceScaleFactor':1},
+        }, headers={'X-CSRF-Token':self.csrf})
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(response.json()['error']['code'], 'UNSUPPORTED_CAPABILITY')
+        with closing(sqlite3.connect(self.settings.database_path)) as connection:
+            self.assertEqual(connection.execute("SELECT renderer_version FROM render_jobs WHERE id='job-orig'").fetchone()[0], 'p0-03.1')
+
     def test_identical_frames_compare_exact(self) -> None:
         """同一张图 → exactMatch=true、mae=0。"""
         self._register("cmp_same")
