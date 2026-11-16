@@ -1,0 +1,326 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "transparent-overlap",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12290
+    },
+    {
+      "name": "colored-background",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 13931
+    },
+    {
+      "name": "concave-polygon",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11871
+    },
+    {
+      "name": "parent-trs",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12922
+    },
+    {
+      "name": "thick-stroke-crop",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11875
+    },
+    {
+      "name": "parent-scaled-stroke",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11874
+    },
+    {
+      "name": "stroked-polygon-opacity",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11906
+    },
+    {
+      "name": "stroke-caps-and-miter",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11875
+    },
+    {
+      "name": "fill-and-stroke-opacity",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 17848
+    },
+    {
+      "name": "stroke-self-overlap",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12195
+    },
+    {
+      "name": "stroke-backtrack",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11878
+    },
+    {
+      "name": "parent-child-animation",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12645
+    },
+    {
+      "name": "parent-child-animation",
+      "timeMs": 2000,
+      "width": 800,
+      "height": 600,
+      "size": 12687
+    },
+    {
+      "name": "parent-child-animation",
+      "timeMs": 4000,
+      "width": 800,
+      "height": 600,
+      "size": 12679
+    },
+    {
+      "name": "viewport-crop-offset",
+      "timeMs": 0,
+      "width": 400,
+      "height": 300,
+      "size": 3845
+    }
+  ],
+  "images": [
+    {
+      "name": "transparent-overlap-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12290
+    },
+    {
+      "name": "colored-background-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 13931
+    },
+    {
+      "name": "concave-polygon-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11871
+    },
+    {
+      "name": "parent-trs-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12922
+    },
+    {
+      "name": "thick-stroke-crop-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11875
+    },
+    {
+      "name": "parent-scaled-stroke-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11874
+    },
+    {
+      "name": "stroked-polygon-opacity-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11906
+    },
+    {
+      "name": "stroke-caps-and-miter-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11875
+    },
+    {
+      "name": "fill-and-stroke-opacity-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 17848
+    },
+    {
+      "name": "stroke-self-overlap-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12195
+    },
+    {
+      "name": "stroke-backtrack-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 11878
+    },
+    {
+      "name": "parent-child-animation-0.png",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "size": 12645
+    },
+    {
+      "name": "parent-child-animation-2000.png",
+      "timeMs": 2000,
+      "width": 800,
+      "height": 600,
+      "size": 12687
+    },
+    {
+      "name": "parent-child-animation-4000.png",
+      "timeMs": 4000,
+      "width": 800,
+      "height": 600,
+      "size": 12679
+    },
+    {
+      "name": "viewport-crop-offset-0.png",
+      "timeMs": 0,
+      "width": 400,
+      "height": 300,
+      "size": 3845
+    },
+    {
+      "name": "transparent-canvas.png",
+      "width": 800,
+      "height": 600,
+      "size": 15055
+    },
+    {
+      "name": "transparent-webgl.png",
+      "width": 800,
+      "height": 600,
+      "size": 13901
+    }
+  ],
+  "webglContext": {
+    "available": true,
+    "vendor": "Google Inc. (NVIDIA)",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Laptop GPU (0x00002D59) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "version": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+  },
+  "crossBackend": [
+    {
+      "name": "transparent-overlap",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 0,
+      "foregroundSymmetricDifferenceRatio": 0,
+      "differentPixels": 0,
+      "mae": 0.1640625,
+      "maxChannelDelta": 1
+    },
+    {
+      "name": "concave-polygon",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 0,
+      "foregroundSymmetricDifferenceRatio": 0,
+      "differentPixels": 0,
+      "mae": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "name": "parent-trs",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 20,
+      "foregroundSymmetricDifferenceRatio": 0.000041666666666666665,
+      "differentPixels": 232,
+      "mae": 0.0081625,
+      "maxChannelDelta": 31
+    },
+    {
+      "name": "thick-stroke-crop",
+      "timeMs": 0,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 0,
+      "foregroundSymmetricDifferenceRatio": 0,
+      "differentPixels": 0,
+      "mae": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "name": "parent-child-animation@2000",
+      "timeMs": 2000,
+      "width": 800,
+      "height": 600,
+      "interiorMismatchPixels": 0,
+      "foregroundSymmetricDifference": 20,
+      "foregroundSymmetricDifferenceRatio": 0.000041666666666666665,
+      "differentPixels": 176,
+      "mae": 0.0037625,
+      "maxChannelDelta": 62
+    }
+  ],
+  "transparentBackend": {
+    "canvas": [
+      255,
+      0,
+      0,
+      128
+    ],
+    "webgl": [
+      255,
+      0,
+      0,
+      127
+    ]
+  },
+  "protocol": [
+    "real-webgl-context",
+    "viewport-size-and-crop",
+    "fill-orders-and-concave",
+    "stroke-width-and-clip",
+    "stroke-width-not-scaled",
+    "parent-child-animation",
+    "serial-seek-export",
+    "context-loss-and-restore",
+    "dispose",
+    "transparent-background",
+    "cross-backend-aa-report",
+    "exportBackendFrame"
+  ],
+  "pageErrors": []
+}

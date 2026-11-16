@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { errorMessage, request } from '@/api/client'
-import type { DrawingIR, Page, Parameter, Template, TemplateVersion, VersionCreateInput } from '@/types/core'
+import type { Backend, DrawingIR, Page, Parameter, Template, TemplateVersion, VersionCreateInput } from '@/types/core'
 import { formatDateTime, parameterTypeLabel, parameterValueLabel, symbolLabel } from '@/utils/format'
 import {
   diffTemplateVersions, draftToMetadata, isEditableVersion, metadataToDraft, prettyJson,
@@ -16,8 +16,7 @@ import { EmptyState, InlineNotice, LoadingLines } from './Feedback'
 import { useSession } from './SessionProvider'
 import TemplateMetadataForm from './TemplateMetadataForm'
 import { useCapabilities } from '@/hooks/useCapabilities'
-import { hasBrowserRenderer } from '@/renderers/registry'
-import { backendLabel } from '@/renderers/backend'
+import { backendLabel, backendExecutable, preferredBrowserBackend } from '@/renderers/backend'
 
 const PAGE_SIZE = 20
 const canManageTemplates = (permissions: string[]) => permissions.some((permission) =>
@@ -376,7 +375,7 @@ export function TemplateEditor({ id }: { id: string }) {
 
   function startNewVersion() {
     const next = newVersionState()
-    const available = capabilities?.backends.find(item => item.available && hasBrowserRenderer(item.backend))
+    const available = capabilities?.backends.find(item => backendExecutable(capabilities, item.backend))
     if (available) next.draft.supportedBackends = [available.backend]
     setEditor(next)
     setVersionView(null)
@@ -416,8 +415,7 @@ export function TemplateEditor({ id }: { id: string }) {
     event.preventDefault()
     if (!editor || savingVersion || !template) return
     if (!editor.draft.supportedBackends.length || editor.draft.supportedBackends.some(backend =>
-      !editor.version?.supportedBackends.includes(backend) && !capabilities?.backends.some(item =>
-        item.backend === backend && item.available && hasBrowserRenderer(backend)))) {
+      !editor.version?.supportedBackends.includes(backend) && !backendExecutable(capabilities, backend as Backend))) {
       setEditorError('请选择至少一个当前已启用且有浏览器适配器的后端。')
       return
     }
@@ -665,7 +663,7 @@ export function TemplateEditor({ id }: { id: string }) {
                     {versionView.lastReview.decision === 'approve' ? '审核通过' : '审核退回'}：{versionView.lastReview.reason || '未填写理由'}
                   </InlineNotice>}
                   <div className="version-view-grid">
-                    <div className="version-preview"><CanvasPreview ir={versionView.irTemplate} backend={versionView.supportedBackends[0]} timeMs={versionView.irTemplate.durationMs} /></div>
+                    <div className="version-preview"><CanvasPreview ir={versionView.irTemplate} backend={preferredBrowserBackend(versionView.supportedBackends)} timeMs={versionView.irTemplate.durationMs} /></div>
                     <div>
                       <dl className="label-list">
                         <div><dt>变更说明</dt><dd>{versionView.changeNote || '—'}</dd></div>
@@ -676,7 +674,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       <p className="plate-caption">模板原始 IR，未应用参数与绑定。</p>
                       {isEditableVersion(versionView.status) && <Link
                         className="button button--secondary button--small"
-                        href={`/?draft=${encodeURIComponent(versionView.id)}&backend=${encodeURIComponent(versionView.supportedBackends.find(hasBrowserRenderer) ?? versionView.supportedBackends[0])}`}
+                        href={`/?draft=${encodeURIComponent(versionView.id)}&backend=${encodeURIComponent(preferredBrowserBackend(versionView.supportedBackends))}`}
                       >在创作台私有预览默认参数</Link>}
                     </div>
                   </div>
@@ -703,7 +701,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       <legend>版本支持的渲染后端</legend>
                       {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(backend => <label className="check" key={backend}>
                         <input type="checkbox" checked={editor.draft.supportedBackends.includes(backend)}
-                          disabled={!capabilities?.backends.some(item => item.backend === backend && item.available && hasBrowserRenderer(backend))}
+                          disabled={!backendExecutable(capabilities, backend)}
                           onChange={event => setEditor({ ...editor, draft: { ...editor.draft, supportedBackends: event.target.checked
                             ? [...editor.draft.supportedBackends, backend] : editor.draft.supportedBackends.filter(item => item !== backend) } })} />
                         {backendLabel(backend)}
@@ -730,7 +728,7 @@ export function TemplateEditor({ id }: { id: string }) {
                       </label>
                     </div>
                     {parsedIr
-                      ? <div className="version-preview"><CanvasPreview ir={parsedIr} backend={editor.draft.supportedBackends[0] ?? 'unavailable'} timeMs={parsedIr.durationMs} /><p className="plate-caption">模板原始 IR 预览 · {backendLabel(editor.draft.supportedBackends[0] ?? '')} · 未应用参数与绑定</p></div>
+                      ? <div className="version-preview"><CanvasPreview ir={parsedIr} backend={preferredBrowserBackend(editor.draft.supportedBackends)} timeMs={parsedIr.durationMs} /><p className="plate-caption">模板原始 IR 预览 · {backendLabel(preferredBrowserBackend(editor.draft.supportedBackends))} · 未应用参数与绑定</p></div>
                       : <p className="field-note">IR JSON 尚未解析为带 nodes 数组的对象，暂时无法预览。</p>}
                     {parameterErrors.length > 0
                       ? <InlineNotice tone="error" title="参数 schema 校验未通过">{parameterErrors.join('\n')}</InlineNotice>

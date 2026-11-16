@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { errorMessage, request } from '@/api/client'
 import { renderRequest, uploadRenderFrames, cancelRenderJob } from '@/api/render'
-import { backendLabel, generationBackend } from '@/renderers/backend'
-import { hasBrowserRenderer, rendererVersion } from '@/renderers/registry'
+import { backendLabel, backendExecutable, capabilityReason, generationBackend } from '@/renderers/backend'
 import type {
   Backend, Capabilities, CreationSession, DrawingIR, EditorState, Generation, Page, Parameter, Params, QualityLocation, RenderJob, SemanticInput, Template, TemplateVersion, Work, WorkDetail, WorkVersion,
 } from '@/types/core'
@@ -26,15 +25,6 @@ function EmptyCanvas({ busy, label }: { busy: boolean; label?: string }) {
   </div>
 }
 
-function supportsBackend(caps: Capabilities | undefined, backend: Backend): boolean {
-  const item = caps?.backends.find(entry => entry.backend === backend)
-  if (!item?.available) return false
-  if (backend === 'turtle') return item.executionModes.includes('server')
-  return hasBrowserRenderer(backend) && item.executionModes.includes('browser_upload')
-    && (!item.rendererVersion || item.rendererVersion === rendererVersion(backend)
-      || (backend === 'canvas2d' && item.rendererVersion === 'p0-03.1'))
-}
-
 export default function Creator() {
   const { user, openLogin } = useSession()
   const userId = user?.id
@@ -45,6 +35,8 @@ export default function Creator() {
   const [features, setFeatures] = useState<Capabilities['features']>()
   const [semantic, setSemantic] = useState<SemanticInput>({ text: '', entityIds: [] })
   const [semanticIdsText, setSemanticIdsText] = useState('')
+  const [graphSourceId, setGraphSourceId] = useState('wikidata')
+  const [graphEntityId, setGraphEntityId] = useState('')
   const [templateSeed, setTemplateSeed] = useState(42)
   const [draft, setDraft] = useState('')
   const [nodeId, setNodeId] = useState<string | null>(null)
@@ -71,6 +63,7 @@ export default function Creator() {
   const [generation, setGeneration] = useState<Generation | null>(null)
   const [capability, setCapability] = useState(false)
   const [loadError, setLoadError] = useState('')
+  const [capabilityNotice, setCapabilityNotice] = useState('')
   const [versionError, setVersionError] = useState('')
   const [generateError, setGenerateError] = useState('')
   const [saveError, setSaveError] = useState('')
@@ -117,14 +110,15 @@ export default function Creator() {
     const controller = new AbortController()
     setLoading(true)
     setLoadError('')
+    setCapabilityNotice('')
     setCapability(false)
     request<Capabilities>('/engine/capabilities', { signal: controller.signal }).then((caps) => {
       if (controller.signal.aborted) return
       setFeatures(caps.features)
       setCapabilities(caps)
-      const available = caps.profile === 'core-demo' && supportsBackend(caps, backend)
+      const available = caps.profile === 'core-demo' && backendExecutable(caps, backend)
       setCapability(available)
-      if (!available) setLoadError(`当前 ${backendLabel(backend)} 能力或适配器版本未就绪，生成与保存暂不可用。`)
+      setCapabilityNotice(available ? '' : capabilityReason(caps, backend) || '当前后端能力未就绪。')
     }).catch((cause) => {
       if (!controller.signal.aborted) setLoadError(errorMessage(cause))
     })
@@ -171,8 +165,8 @@ export default function Creator() {
         // Old draft links may have no backend query. Restore a declared adapter
         // before validating; keep the draft reference for the next effect run.
         if (restoredTemplate.current && !result.supportedBackends.includes(backend)) {
-          const next = result.supportedBackends.find(hasBrowserRenderer) ?? result.supportedBackends[0]
-          if (next) { backendRef.current = next as Backend; setBackend(next as Backend); return }
+          const next = result.supportedBackends.find(item => backendExecutable(capabilities, item as Backend)) as Backend | undefined
+          if (next) { backendRef.current = next; setBackend(next); return }
         }
         if (!result.supportedBackends.includes(backend)) throw new Error('该模板版本不支持当前渲染后端，请选择其他模板或后端。')
         const restoredParams = restoredTemplate.current?.params
@@ -184,7 +178,7 @@ export default function Creator() {
         if (!controller.signal.aborted) setVersionLoading(false)
       })
     return () => controller.abort()
-  }, [selected, templates, mode, initializing, templateRequest, backend])
+  }, [selected, templates, mode, initializing, templateRequest, backend, capabilities])
 
   useEffect(() => {
     if (mode !== 'template') return
@@ -364,6 +358,27 @@ export default function Creator() {
     setQuality(null)
   }
 
+  function generateFromGraph(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!user) {
+      openLogin('登录后即可从外部知识图谱生成。')
+      return
+    }
+    const sourceId = graphSourceId.trim()
+    const externalEntityId = graphEntityId.trim()
+    if (!/^[a-z0-9_-]+$/.test(sourceId)) {
+      setGenerateError('来源键只能使用小写字母、数字、下划线和短横线，例如 wikidata。')
+      return
+    }
+    if (!/^[A-Za-z0-9_-]+$/.test(externalEntityId)) {
+      setGenerateError('外部实体 ID 只能使用字母、数字、下划线和短横线，例如 Q16528。')
+      return
+    }
+    void runManual('/knowledge-graph/generations', {
+      sourceId, externalEntityId, backend, seed: templateSeed,
+    }, false, backend)
+  }
+
   async function runManual(path: string, payload: object, subgraph = false, requestedBackend = backendRef.current) {
     if (!userId || initializing || saveLock.current || manualLock.current) return
     manualLock.current = true
@@ -500,14 +515,16 @@ export default function Creator() {
   }
 
   function switchBackend(next: Backend) {
-    if (next === backend || saveLock.current || sessionBusy || !supportsBackend(capabilities, next)) return
+    if (next === backend || saveLock.current || sessionBusy || !backendExecutable(capabilities, next)) return
     generationSequence.current++
     manualController.current?.abort()
     manualController.current = null
     manualLock.current = false
     setPending(false)
     backendRef.current = next
-    restoredTemplate.current = null
+    // A restored draft keeps its version reference across backend switches.
+    // The version effect reloads the same draft and falls back to a declared
+    // browser backend if the new backend is not supported by that draft.
     setBackend(next)
     setVersion(null)
     setTemplates([])
@@ -642,8 +659,8 @@ export default function Creator() {
 
     <label className="field">渲染后端
       <select aria-label="渲染后端" value={backend} disabled={initializing || saving || sessionBusy} onChange={event => switchBackend(event.target.value as Backend)}>
-        {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!supportsBackend(capabilities, item)}>
-          {backendLabel(item)}{supportsBackend(capabilities, item) ? '' : '（未就绪）'}
+        {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!backendExecutable(capabilities, item)}>
+          {backendLabel(item)}{backendExecutable(capabilities, item) ? '' : '（未就绪）'}
         </option>)}
       </select>
     </label>
@@ -657,6 +674,14 @@ export default function Creator() {
         </details>
         <div className="notice__actions">
           <button type="button" className="button button--secondary button--small" onClick={() => setAttempt((value) => value + 1)}>重新加载</button>
+        </div>
+      </InlineNotice>
+    </div>}
+    {capabilityNotice && <div className="creator-alert">
+      <InlineNotice tone="info" title={`${backendLabel(backend)} 未就绪`}>
+        {capabilityNotice}
+        <div className="notice__actions">
+          <button type="button" className="button button--secondary button--small" onClick={() => setAttempt((value) => value + 1)}>重新检查能力</button>
         </div>
       </InlineNotice>
     </div>}
@@ -816,18 +841,37 @@ export default function Creator() {
           </fieldset>
           {!features?.semanticGeneration && <p className="rail-lead">当前后端尚未启用语义生成。</p>}
         </form>}
+        {mode === 'semantic' && <form className="graph-form" onSubmit={generateFromGraph}>
+          <fieldset disabled={saving || pending || initializing || !capability || !features?.knowledgeGraph}>
+            <legend>外部知识图谱</legend>
+            <p className="rail-lead">按部署配置的来源键取一个外部实体。外部 ID 只进入来源快照，不作为站内知识链接。</p>
+            <label className="field">来源键
+              <input value={graphSourceId} maxLength={40} placeholder="wikidata"
+                onChange={(event) => setGraphSourceId(event.target.value)} />
+            </label>
+            <label className="field">外部实体 ID
+              <input value={graphEntityId} maxLength={80} placeholder="Q16528"
+                onChange={(event) => setGraphEntityId(event.target.value)} />
+            </label>
+            <button type="submit" className="button button--secondary button--small"
+              disabled={!graphSourceId.trim() || !graphEntityId.trim()}>
+              {pending ? '正在生成…' : '从外部图谱生成'}
+            </button>
+          </fieldset>
+          {!features?.knowledgeGraph && <p className="rail-lead">当前部署未启用知识图谱来源；配置后才会显示入口。</p>}
+        </form>}
         {mode === 'ir' && (generation && generation.ownerId === userId
           ? <IRControls key={generation.id} ir={generation.ir} draft={draft} selected={nodeId}
             onSelect={setNodeId} disabled={saving || pending || initializing || !capability}
-            subgraph={Boolean(features?.subgraphEditing)}
+            subgraph={Boolean(features?.subgraphEditing) && generationBackend(generation) === backend}
             onDraft={(value) => { setDraft(value); setDirty(true) }}
             onApply={(ir) => void runManual('/generations', {
               mode: 'ir', baseGenerationId: generation.id, ir, backend,
             })}
-            onSubgraph={(edit) => void runManual(`/generations/${encodeURIComponent(generation.id)}/subgraph`, edit, true)}
+            onSubgraph={(edit) => void runManual(`/generations/${encodeURIComponent(generation.id)}/subgraph`, edit, true, generationBackend(generation))}
           />
           : <p className="rail-lead">先生成一个作品，再以其 IR 为编辑基础。</p>)}
-        {generateError && <InlineNotice tone="error" title="修改未应用">{generateError}</InlineNotice>}
+        {generateError && <InlineNotice tone="error" title={mode === 'semantic' ? '生成未完成' : '修改未应用'}>{generateError}</InlineNotice>}
       </aside>
 
       <section className="archive" aria-labelledby="archive-heading">

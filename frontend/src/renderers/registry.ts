@@ -1,15 +1,37 @@
 import { CanvasRenderer } from './canvas/renderer'
 import { RENDERER_VERSION } from './canvas/drawScene'
 import { CssRenderer, CSS_RENDERER_VERSION } from './css/renderer'
+import { WebglRenderer, WEBGL_RENDERER_VERSION } from './webgl/renderer'
 import type { Renderer } from './types'
 
-export function hasBrowserRenderer(backend: string): backend is 'canvas2d' | 'css' {
-  return backend === 'canvas2d' || backend === 'css'
+export function hasBrowserRenderer(backend: string): backend is 'canvas2d' | 'css' | 'webgl' {
+  return backend === 'canvas2d' || backend === 'css' || backend === 'webgl'
+}
+
+let webglProbe: boolean | null = null
+
+// Server capability is not a GPU guarantee. Probe WebGL locally before
+// enabling WebGL controls; cache the result for this browser session.
+export function browserSupportsRenderer(backend: string): boolean {
+  if (!hasBrowserRenderer(backend)) return false
+  if (backend !== 'webgl') return true
+  if (typeof document === 'undefined') return true
+  if (webglProbe !== null) return webglProbe
+  try {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('webgl')
+    webglProbe = Boolean(context)
+    context?.getExtension('WEBGL_lose_context')?.loseContext()
+  } catch {
+    webglProbe = false
+  }
+  return webglProbe
 }
 
 export function rendererVersion(backend: string): string {
   if (backend === 'canvas2d') return RENDERER_VERSION
   if (backend === 'css') return CSS_RENDERER_VERSION
+  if (backend === 'webgl') return WEBGL_RENDERER_VERSION
   throw new Error(`尚未实现渲染后端：${backend}`)
 }
 
@@ -18,6 +40,10 @@ export const registry = {
     if (backend === 'css') {
       if (host instanceof HTMLCanvasElement) throw new Error('CSS Renderer 需要容器元素')
       return new CssRenderer(host)
+    }
+    if (backend === 'webgl') {
+      if (!(host instanceof HTMLCanvasElement)) throw new Error('WebGL Renderer 需要 canvas 元素')
+      return new WebglRenderer(host)
     }
     if (backend !== 'canvas2d') throw new Error(`尚未实现渲染后端：${backend}`)
     if (!(host instanceof HTMLCanvasElement)) throw new Error('Canvas Renderer 需要 canvas 元素')

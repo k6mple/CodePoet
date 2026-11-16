@@ -9,5 +9,7 @@ export interface Renderer {
   load(ir: DrawingIR): Promise<void>
   seek(timeMs: number): Promise<void>
   toPNG(): Promise<Blob>
-  dispose(): void
+  // releaseContext lets a caller discard the canvas (exports/tests); preview
+  // components pass false when the same canvas will host the next renderer.
+  dispose(releaseContext?: boolean): void
 }

@@ -86,7 +86,7 @@ export default function FixtureViewer() {
         <h2 id="fixture-controls-heading">验证数据</h2>
         <label className="field">本地渲染后端
           <select aria-label="本地渲染后端" value={backend} disabled={exporting} onChange={event => setBackend(event.target.value)}>
-            <option value="canvas2d">Canvas 2D</option><option value="css">CSS / SVG</option>
+            <option value="canvas2d">Canvas 2D</option><option value="css">CSS / SVG</option><option value="webgl">WebGL</option>
           </select>
         </label>
         <label className="field">
