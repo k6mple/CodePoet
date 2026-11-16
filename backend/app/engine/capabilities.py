@@ -27,6 +27,8 @@ __all__ = [
     "require_enabled",
     "require_renderer_version",
     "CANVAS_RENDERER_VERSION",
+    "CSS_RENDERER_VERSION",
+    "WEBGL_RENDERER_VERSION",
     "DEFAULT_ENABLED_BACKENDS",
     "SEMANTIC_ENGINE_VERSION",
     "enabled_backends",
@@ -41,13 +43,27 @@ ALL_BACKENDS: tuple[str, ...] = ("turtle", "canvas2d", "webgl", "css")
 # 真实值，不在这里回写。
 CANVAS_RENDERER_VERSION = "codepoet-canvas-1.0.0"
 
+# CSS / WebGL 的真实渲染器版本。必须与前端常量逐字一致：
+#   frontend/src/renderers/css/renderer.ts::CSS_RENDERER_VERSION
+#   frontend/src/renderers/webgl/renderer.ts::WEBGL_RENDERER_VERSION
+# 差一个字，`require_renderer_version` 就会把每一次真实验收过的任务判成
+# 「渲染器版本不兼容」——而这种不一致只会在线上一层层报出来，本地很难发现。
+CSS_RENDERER_VERSION = "codepoet-css-1.0.0"
+WEBGL_RENDERER_VERSION = "codepoet-webgl-1.0.0"
+
 # 语义引擎版本（规则合成 + IR 生成），与渲染器版本是两件事，不要合并
 SEMANTIC_ENGINE_VERSION = "p0-03.1"
 
 # 每个后端的渲染器版本。没登记的等于「还没有可执行实现」。
+#
+# 登记 ≠ 可用：还要 `CODEPOET_ENABLED_BACKENDS` 里开了它才算。这两件事分开是
+# 有意的——「实现了」和「这台机器决定对外提供」不是一个判断，公共部署不该因为
+# 代码里多了一个渲染器就自动声称可用。
 RENDERER_VERSIONS: dict[str, str] = {
-    'css': 'codepoet-css-1.0.0',
     "canvas2d": CANVAS_RENDERER_VERSION,
+    "css": CSS_RENDERER_VERSION,
+    "webgl": WEBGL_RENDERER_VERSION,
+    # turtle 要等 R3（server 执行模式 + 可恢复状态机），本期不登记。
 }
 
 # 默认只开 Canvas。CSS/WebGL 要等 R1/R2 的真实渲染验收，Turtle 要等 R3，

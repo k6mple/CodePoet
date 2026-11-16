@@ -13,9 +13,20 @@ class RendererContractTests(_Base):
         }, headers={'X-CSRF-Token':self.csrf})
         self.assertEqual(cloned.status_code, 201, cloned.text)
         self.assertEqual(cloned.json()['supportedBackends'], ['canvas2d','css'])
-        for declarations in [['webgl'], ['turtle'], ['css','css']]:
+        # R2 之后 webgl 有了可执行渲染器，不再是「未实现候选」；只有 turtle 仍然不是。
+        # 这里同时也验证了反向：真实现了的后端必须能声明成功，否则模板永远挂不上 WebGL。
+        accepted = self.client.patch(f'{API}/template-versions/{cloned.json()["id"]}', json={
+            'expectedRevision':cloned.json()['revision'],'supportedBackends':['canvas2d','css','webgl'],
+        }, headers={'X-CSRF-Token':self.csrf})
+        self.assertEqual(accepted.status_code, 200, accepted.text)
+        # 服务端按 ALL_BACKENDS 的固定顺序归一化，不保留请求里的顺序
+        self.assertEqual(
+            sorted(accepted.json()['supportedBackends']), ['canvas2d','css','webgl']
+        )
+
+        for declarations in [['turtle'], ['css','css'], ['canvas2d','turtle']]:
             rejected = self.client.patch(f'{API}/template-versions/{cloned.json()["id"]}', json={
-                'expectedRevision':cloned.json()['revision'],'supportedBackends':declarations,
+                'expectedRevision':accepted.json()['revision'],'supportedBackends':declarations,
             }, headers={'X-CSRF-Token':self.csrf})
             self.assertEqual(rejected.status_code, 422, rejected.text)
 
@@ -49,7 +60,9 @@ class RendererContractTests(_Base):
         self.assertTrue(states['css']['available'])
         self.assertEqual(states['css']['rendererVersion'], 'codepoet-css-1.0.0')
         self.assertEqual(states['css']['executionModes'], ['browser_upload'])
-        self.assertFalse(states['webgl']['available'])
+        # 启用 + 有实现 = 可用；只满足一条都不算
+        self.assertTrue(states['webgl']['available'])
+        self.assertEqual(states['webgl']['rendererVersion'], 'codepoet-webgl-1.0.0')
         self.assertFalse(states['turtle']['available'])
 
     def test_wrong_and_legacy_alias_versions_are_rejected(self):
