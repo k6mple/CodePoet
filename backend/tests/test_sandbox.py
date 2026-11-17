@@ -22,6 +22,7 @@ from sqlalchemy import text
 from app.db import create_database, create_session_factory
 from app.main import create_app
 from app.models.creations import Generation as GenerationModel
+from app.models.templates import Template, TemplateVersion
 from app.models.sandbox import SandboxRun as SandboxRunModel
 from app.schemas.sandbox import SandboxCreate
 from app.services import policy as policy_service
@@ -163,6 +164,136 @@ class SandboxTestBase(unittest.TestCase):
                     unpublished_source=0,
                     request_id="req-test",
                     created_at="2026-11-14T00:00:00+00:00",
+                )
+            )
+            db.commit()
+        return gen_id
+
+    def _seed_template_generation(self, owner_id: str, gen_id: str = "gen-tpl") -> str:
+        """造一份「来自模板」的 base，用来走 ``set_param`` 那条路。
+
+        这条路径此前在测试里是零覆盖：所有用例的 base 都是 ``mode="ir"``，
+        而 ``_param_context`` 只在 ``mode == "template"`` 时才执行。
+        于是里面那句 ``ParameterDefinition.model_validate`` 抛的 AttributeError
+        一直没被发现——``ParameterDefinition`` 是 ``Annotated[Union[...]]``
+        类型别名，根本没有 ``.model_validate``。
+        """
+        template_ir = {
+            "schemaVersion": "1.0",
+            "seed": 42,
+            "canvas": {"width": 800, "height": 600, "background": "#FFFFFF"},
+            "viewport": {"x": 0, "y": 0, "width": 800, "height": 600},
+            "durationMs": 0,
+            "nodes": [
+                {
+                    "id": "petal",
+                    "parentId": None,
+                    "type": "circle",
+                    "geometry": {"cx": 400, "cy": 300, "r": 60},
+                    "style": {
+                        "fill": "#E8A0A0",
+                        "stroke": "#8B3A3A",
+                        "strokeWidth": 2,
+                        "opacity": 1,
+                    },
+                }
+            ],
+            "animations": [],
+            "narrative": [],
+        }
+        schema = [
+            {
+                "name": "petalRadius",
+                "label": "花瓣半径",
+                "description": "",
+                "type": "integer",
+                "default": 60,
+                "min": 10,
+                "max": 200,
+                "step": 1,
+            }
+        ]
+        bindings = [
+            {"parameter": "petalRadius", "nodeId": "petal", "property": "geometry.r"}
+        ]
+        stamp = "2026-11-17T00:00:00+00:00"
+        with self.sessions() as db:
+            db.add(
+                Template(
+                    id="tpl-base",
+                    owner_id=owner_id,
+                    name="S1 基底模板",
+                    description="",
+                    status="published",
+                    supported_backends_json='["canvas2d"]',
+                    revision=1,
+                    created_at=stamp,
+                    updated_at=stamp,
+                )
+            )
+            db.add(
+                TemplateVersion(
+                    id="tver-base",
+                    template_id="tpl-base",
+                    version_number=1,
+                    created_by=owner_id,
+                    status="published",
+                    metadata_json="{}",
+                    ir_template_json=json.dumps(template_ir),
+                    parameter_schema_json=json.dumps(schema),
+                    bindings_json=json.dumps(bindings),
+                    constraints_json="[]",
+                    supported_backends_json='["canvas2d"]',
+                    ontology_version=1,
+                    change_note="",
+                    revision=1,
+                    created_at=stamp,
+                    updated_at=stamp,
+                )
+            )
+            # 先提交模板与版本：这些模型之间只有裸 ForeignKey、没有 relationship，
+            # SQLAlchemy 无法推断插入顺序，同一个 flush 里 Generation 有可能
+            # 排在 TemplateVersion 前面，直接撞 FK。
+            db.commit()
+            db.add(
+                GenerationModel(
+                    id=gen_id,
+                    owner_id=owner_id,
+                    mode="template",
+                    backend="canvas2d",
+                    template_version_id="tver-base",
+                    params_json=json.dumps({"petalRadius": 60}),
+                    seed=42,
+                    ir_json=json.dumps(template_ir),
+                    ir_hash="b" * 64,
+                    provenance_json=json.dumps(
+                        {
+                            "kind": "template",
+                            "baseGenerationId": None,
+                            "matchedEntities": [],
+                            "matchedRules": [],
+                            "selectedSymbols": [],
+                            "paletteDecision": None,
+                            "compositionDecision": None,
+                            "timelineDecision": None,
+                            "templateSelection": None,
+                            "conflicts": [],
+                            "warnings": [],
+                            "engineVersion": "test-1.0",
+                            "ontologyVersion": 1,
+                            "policyRevision": 1,
+                            "fragmentSource": None,
+                            "fragmentSourceHash": None,
+                        }
+                    ),
+                    validation_report_json=(
+                        '{"parameterValid":true,"nodeCount":1,'
+                        '"outOfBoundNodeCount":0,"issues":[]}'
+                    ),
+                    warnings_json="[]",
+                    unpublished_source=0,
+                    request_id="req-test",
+                    created_at=stamp,
                 )
             )
             db.commit()
@@ -496,6 +627,64 @@ class OwnershipTests(SandboxTestBase):
         run_body = self.client.get(f"{API}/sandbox-runs/{body['id']}").json()
         self.assertNotIn("source", run_body)
         self.assertNotIn("source_json", run_body)
+
+
+class TemplateBaseTests(SandboxTestBase):
+    """模板基底：set_param 必须真的生效，而不是报内部错误。
+
+    这是 #26 漏掉的一条路径。IR 基底的用例覆盖不到 ``_param_context``，
+    结果那里的一句 ``ParameterDefinition.model_validate`` 一直是错的
+    （它是 ``Annotated`` 类型别名，没有该方法），只有真正拿模板快照跑
+    DSL 的人才会撞上，而且看到的是「执行线程异常终止」这种毫无线索的报错。
+    """
+
+    def test_set_param_on_template_base_takes_effect(self) -> None:
+        self._new_user("tpl")
+        csrf = self._login("tpl")
+        base = self._seed_template_generation(self._user_id())
+
+        body = self._run_and_wait(
+            csrf,
+            base,
+            source(
+                {"op": "set_param", "name": "petalRadius", "value": 120},
+                {"op": "circle", "cx": 100, "cy": 100, "r": 10},
+            ),
+        )
+        self.assertEqual(body["status"], "succeeded", body.get("error"))
+        generation = self.client.get(f"{API}/generations/{body['generationId']}").json()
+        petal = next(n for n in generation["ir"]["nodes"] if n["id"] == "petal")
+        self.assertEqual(petal["geometry"]["r"], 120, "set_param 覆盖值没生效")
+        self.assertEqual(body["metrics"]["drawCalls"], 1)
+
+    def test_unknown_param_on_template_base_is_invalid_base(self) -> None:
+        """参数名写错要给 DSL_INVALID_BASE，不能是内部错误。"""
+        self._new_user("tpl2")
+        csrf = self._login("tpl2")
+        base = self._seed_template_generation(self._user_id(), gen_id="gen-tpl2")
+
+        body = self._run_and_wait(
+            csrf, base, source({"op": "set_param", "name": "nope", "value": 1})
+        )
+        self.assertEqual(body["status"], "failed")
+        self.assertEqual(body["error"]["code"], "DSL_INVALID_BASE")
+        self.assertIsNone(body["generationId"])
+        self.assertEqual(body["auditFindings"][0]["ruleId"], "DSL_SET_PARAM_BASE")
+
+    def test_set_param_on_ir_base_is_invalid_base(self) -> None:
+        """IR 基底（手改/派生）没有模板上下文，set_param 必须明确拒绝。"""
+        self._new_user("tpl3")
+        csrf = self._login("tpl3")
+        base = self._seed_generation(self._user_id(), gen_id="gen-ir-only")
+
+        body = self._run_and_wait(
+            csrf,
+            base,
+            source({"op": "set_param", "name": "petalRadius", "value": 120}),
+        )
+        self.assertEqual(body["status"], "failed")
+        self.assertEqual(body["error"]["code"], "DSL_INVALID_BASE")
+        self.assertEqual(body["error"]["details"]["reason"], "no-template-context")
 
 
 class BudgetTests(SandboxTestBase):
