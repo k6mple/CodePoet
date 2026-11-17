@@ -334,12 +334,20 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(
             capabilities.renderer_version("canvas2d"), capabilities.CANVAS_RENDERER_VERSION
         )
-        self.assertEqual(capabilities.renderer_version("css"), "codepoet-css-1.0.0")
-        for backend in ("webgl", "turtle"):
-            self.assertIsNone(
-                capabilities.renderer_version(backend),
-                f"{backend} 还没有可执行实现，不该有渲染器版本",
-            )
+        self.assertEqual(
+            capabilities.renderer_version("css"), capabilities.CSS_RENDERER_VERSION
+        )
+        self.assertEqual(
+            capabilities.renderer_version("webgl"), capabilities.WEBGL_RENDERER_VERSION
+        )
+        # 版本字符串必须与前端常量逐字一致，否则真实验收过的任务会被判成不兼容
+        self.assertEqual(capabilities.CSS_RENDERER_VERSION, "codepoet-css-1.0.0")
+        self.assertEqual(capabilities.WEBGL_RENDERER_VERSION, "codepoet-webgl-1.0.0")
+        # 只有 turtle 仍然没有可执行实现（R3 未做）
+        self.assertIsNone(
+            capabilities.renderer_version("turtle"),
+            "turtle 还没有可执行实现，不该有渲染器版本",
+        )
 
 
 class CapabilityAvailabilityTests(_Base):
