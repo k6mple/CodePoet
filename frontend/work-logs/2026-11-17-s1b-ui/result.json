@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "scope": "s1b-production-ui",
+  "checks": [
+    {
+      "name": "sandbox-page-loads"
+    },
+    {
+      "name": "valid-run-succeeds-with-fragment-preview",
+      "runText": "执行结果\nsucceeded\n执行编号\nrun-ad615b3954bb4c0693495255529838a0\n基底生成\ngen-d34bc4afe02c4a5a8efcbbcabc0bfdb3\n源码哈希\n378b53071586befb…\n策略修订\n3\n创建时间\n2026/11/17 13:40\n完成时间\n2026/11/17 13:40\n本次生效的策略快照\n墙钟时间0 ms\nCPU 时间0 ms\n绘图调用2\n执行步数5\n峰值内存31 MiB"
+    },
+    {
+      "name": "fragment-saved-as-work",
+      "href": "/works/versions/wv-921d451367d24e5d86cb343ea3c5941f"
+    },
+    {
+      "name": "invalid-run-shows-audit-line-column",
+      "auditText": "执行结果\nfailed\n执行编号\nrun-cfeb1673e10f47f4a32d338102af3115\n基底生成\ngen-d34bc4afe02c4a5a8efcbbcabc0bfdb3\n源码哈希\n2f2bc47841302e73…\n策略修订\n3\n创建时间\n2026/11/17 13:40\n完成时间\n2026/11/17 13:40\n本次生效的策略快照\nDSL_AUDIT_REJECTED\nops[0] 的 op 不受支持：'eval'\n审计发现\nDSL_OP_WHITELIST · 第 1 行第 0 列：ops[0] 的 op 不受支持：'eval'"
+    },
+    {
+      "name": "policy-ui-updates-and-bumps-revision",
+      "initialRevision": 3,
+      "afterSave": 4
+    },
+    {
+      "name": "policy-ui-409-shows-reload-action"
+    }
+  ],
+  "pageErrors": []
+}

@@ -1,0 +1,308 @@
+{
+  "status": "passed",
+  "scope": "real-api-production-ui-k1-external-knowledge-graph",
+  "base": "http://127.0.0.1:3000",
+  "startedAt": "2026-11-17T05:38:47.487Z",
+  "entities": [
+    {
+      "key": "lotus",
+      "generationId": "gen-228ac8b3a2b14abc8cfb105faecb8b2d",
+      "requestId": "req-3bcdda73fc1f4d8d89e83f9f49723127",
+      "httpStatus": 201,
+      "backend": "canvas2d",
+      "mode": "semantic",
+      "sourceId": "wikidata",
+      "externalEntityId": "Q16528",
+      "entityLabel": "莲",
+      "entityCount": 1,
+      "relationCount": 10,
+      "mappingDecisionCount": 15,
+      "mappingAffects": [
+        "caption",
+        "rule-selection"
+      ],
+      "contentHash": "3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137",
+      "fetchedAt": "2026-11-17T05:38:55.560728Z",
+      "dataVersion": null,
+      "uiGenerationId": "gen-228ac8b3a2b14abc8cfb105faecb8b2d",
+      "evidenceVisible": true,
+      "evidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ16528\n抓取时间\n2026/11/17 13:38\n数据版本\n来源未提供\n内容哈希\n3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137\n莲 · Q16528 · 睡莲科莲属多年生挺水植物 · 学名(P225)=Nelumbo nucifera；分类单元(P105)=种；实例于(P31)=生物分類單元；亲本(P171)=莲属；记载于(P1343)=中国植物志第二十七卷；用途(P366)=園藝植物\nQ16528 --分类单元--> Q7432 · 种\nQ16528 --实例于--> Q16521 · 生物分類單元\nQ16528 --亲本--> Q207427 · 莲属\nQ16528 --记载于--> Q1768721 · 古今圖書集成\nQ16528 --记载于--> Q112869405 · 中国植物志第二十七卷\nQ16528 --用途--> Q188840 · 药用植物\nQ16528 --用途--> Q11004 · 蔬菜\nQ16528 --用途--> Q211439 · 饲料\nQ16528 --用途--> Q199182 · 園藝植物\nQ16528 --子类--> Q11992872 · 有用植物\n实际采纳的外部事实\nentity · Q16",
+      "refetchVerified": true
+    },
+    {
+      "key": "bamboo",
+      "generationId": "gen-2aada50b478e4471a221458b4e914b34",
+      "requestId": "req-0b5557de817843f1bf6f28633b1938e2",
+      "httpStatus": 201,
+      "backend": "canvas2d",
+      "mode": "semantic",
+      "sourceId": "wikidata",
+      "externalEntityId": "Q670887",
+      "entityLabel": "竹亚科",
+      "entityCount": 1,
+      "relationCount": 17,
+      "mappingDecisionCount": 14,
+      "mappingAffects": [
+        "caption",
+        "rule-selection"
+      ],
+      "contentHash": "e483913f03dfac0ddf3c683b0b51611e15ce6269e8fef4b36ba13d85d63e8526",
+      "fetchedAt": "2026-11-17T05:38:59.169930Z",
+      "dataVersion": null,
+      "uiGenerationId": "gen-2aada50b478e4471a221458b4e914b34",
+      "evidenceVisible": true,
+      "evidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ670887\n抓取时间\n2026/11/17 13:38\n数据版本\n来源未提供\n内容哈希\ne483913f03dfac0ddf3c683b0b51611e15ce6269e8fef4b36ba13d85d63e8526\n竹亚科 · Q670887 · 禾本科植物的一个亚科 · 学名(P225)=Bambusoideae；分类单元(P105)=亚科；实例于(P31)=生物分類單元；亲本(P171)=禾本科；子类(P279)=food plant；记载于(P1343)=乌兹别克斯坦国家百科全书\nQ670887 --分类单元--> Q164280 · 亚科\nQ670887 --实例于--> Q16521 · 生物分類單元\nQ670887 --亲本--> Q43238 · 禾本科\nQ670887 --子类--> Q11992872 · 有用植物\nQ670887 --子类--> Q9323487 · food plant\nQ670887 --记载于--> Q1768721 · 古今圖書集成\nQ670887 --记载于--> Q106727050 · 大都會藝術博物館標註詞彙\nQ670887 --记载于--> Q15934424 · 清稗類鈔\nQ670887 --记载于--> Q867541 · 大英百科全書第十一版\nQ670887 ",
+      "refetchVerified": true
+    },
+    {
+      "key": "plum",
+      "generationId": "gen-fa681f07b14b4fbea0372fd7f7329ae6",
+      "requestId": "req-b8e240d8ec1948c9a9a04a32c9c7eb37",
+      "httpStatus": 201,
+      "backend": "canvas2d",
+      "mode": "semantic",
+      "sourceId": "wikidata",
+      "externalEntityId": "Q157763",
+      "entityLabel": "梅",
+      "entityCount": 1,
+      "relationCount": 9,
+      "mappingDecisionCount": 14,
+      "mappingAffects": [
+        "caption",
+        "rule-selection"
+      ],
+      "contentHash": "700e7903fcec464ff354620b5a5364392d65329ad9405ba1cf14b9023265accb",
+      "fetchedAt": "2026-11-17T05:39:02.378529Z",
+      "dataVersion": null,
+      "uiGenerationId": "gen-fa681f07b14b4fbea0372fd7f7329ae6",
+      "evidenceVisible": true,
+      "evidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ157763\n抓取时间\n2026/11/17 13:39\n数据版本\n来源未提供\n内容哈希\n700e7903fcec464ff354620b5a5364392d65329ad9405ba1cf14b9023265accb\n梅 · Q157763 · 薔薇科李屬的多年生落葉喬木 · 学名(P225)=Prunus mume；分类单元(P105)=种；亲本(P171)=李属；实例于(P31)=生物分類單元；记载于(P1343)=植物名實圖考；用途(P366)=药用植物\nQ157763 --分类单元--> Q7432 · 种\nQ157763 --亲本--> Q190545 · 李属\nQ157763 --实例于--> Q16521 · 生物分類單元\nQ157763 --记载于--> Q1768721 · 古今圖書集成\nQ157763 --记载于--> Q107402112 · 植物名實圖考\nQ157763 --用途--> Q2384419 · 植樹造林\nQ157763 --用途--> Q2095 · 食物\nQ157763 --用途--> Q188840 · 药用植物\nQ157763 --子类--> Q904653 · 果樹\n实际采纳的外部事实\nentity · Q157763 · 影响 rule-selection（knowledg",
+      "refetchVerified": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "capabilities-knowledge-graph-enabled",
+      "profile": "core-demo",
+      "knowledgeGraph": true,
+      "canvas2dRendererVersion": "codepoet-canvas-1.0.0",
+      "canvas2dAvailable": true
+    },
+    {
+      "name": "error-malformed-id-ui-prevalidation",
+      "input": "Q 16528",
+      "blockedBeforeRequest": true,
+      "uiMessage": "外部实体 ID 只能使用字母、数字、下划线和短横线，例如 Q16528。"
+    },
+    {
+      "name": "error-unknown-source-ui",
+      "requestedSourceId": "cypher",
+      "httpStatus": 503,
+      "code": "KNOWLEDGE_GRAPH_UNAVAILABLE",
+      "message": "来源 cypher 未配置或不受支持",
+      "available": [
+        "wikidata"
+      ],
+      "uiVisible": true
+    },
+    {
+      "name": "error-unknown-source-api",
+      "requestedSourceId": "not-configured",
+      "httpStatus": 503,
+      "code": "KNOWLEDGE_GRAPH_UNAVAILABLE",
+      "message": "来源 not-configured 未配置或不受支持",
+      "available": [
+        "wikidata"
+      ],
+      "generationReturned": false
+    },
+    {
+      "name": "error-malformed-id-api",
+      "requestedExternalEntityId": "Q 16528",
+      "httpStatus": 422,
+      "code": "VALIDATION_ERROR",
+      "fieldErrors": [
+        {
+          "path": "externalEntityId",
+          "message": "String should match pattern '^[A-Za-z0-9_-]+$'"
+        }
+      ],
+      "generationReturned": false
+    },
+    {
+      "name": "error-unmapped-entity-api",
+      "requestedExternalEntityId": "Q42",
+      "httpStatus": 422,
+      "code": "NO_SEMANTIC_MATCH",
+      "message": "外部实体没有映射到任何站内知识条目",
+      "details": {
+        "externalEntityId": "Q42",
+        "labels": [
+          "道格拉斯·亞當斯"
+        ]
+      },
+      "generationReturned": false
+    },
+    {
+      "name": "lotus-generation",
+      "generationId": "gen-228ac8b3a2b14abc8cfb105faecb8b2d",
+      "requestId": "req-3bcdda73fc1f4d8d89e83f9f49723127",
+      "httpStatus": 201,
+      "backend": "canvas2d",
+      "mode": "semantic",
+      "sourceId": "wikidata",
+      "externalEntityId": "Q16528",
+      "entityLabel": "莲",
+      "entityCount": 1,
+      "relationCount": 10,
+      "mappingDecisionCount": 15,
+      "mappingAffects": [
+        "caption",
+        "rule-selection"
+      ],
+      "contentHash": "3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137",
+      "fetchedAt": "2026-11-17T05:38:55.560728Z",
+      "dataVersion": null,
+      "uiGenerationId": "gen-228ac8b3a2b14abc8cfb105faecb8b2d",
+      "evidenceVisible": true,
+      "evidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ16528\n抓取时间\n2026/11/17 13:38\n数据版本\n来源未提供\n内容哈希\n3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137\n莲 · Q16528 · 睡莲科莲属多年生挺水植物 · 学名(P225)=Nelumbo nucifera；分类单元(P105)=种；实例于(P31)=生物分類單元；亲本(P171)=莲属；记载于(P1343)=中国植物志第二十七卷；用途(P366)=園藝植物\nQ16528 --分类单元--> Q7432 · 种\nQ16528 --实例于--> Q16521 · 生物分類單元\nQ16528 --亲本--> Q207427 · 莲属\nQ16528 --记载于--> Q1768721 · 古今圖書集成\nQ16528 --记载于--> Q112869405 · 中国植物志第二十七卷\nQ16528 --用途--> Q188840 · 药用植物\nQ16528 --用途--> Q11004 · 蔬菜\nQ16528 --用途--> Q211439 · 饲料\nQ16528 --用途--> Q199182 · 園藝植物\nQ16528 --子类--> Q11992872 · 有用植物\n实际采纳的外部事实\nentity · Q16",
+      "refetchVerified": true
+    },
+    {
+      "name": "lotus-save-work-version",
+      "title": "K1-莲-1794893935803",
+      "href": "/works/versions/wv-977a48d1ebb740f0ac7b020f7b46ecac",
+      "versionId": "wv-977a48d1ebb740f0ac7b020f7b46ecac",
+      "workId": "work-c9315889891a46baa4c75d09f4626f31",
+      "generationId": "gen-228ac8b3a2b14abc8cfb105faecb8b2d",
+      "renderJobId": "job-df0cdd00aafc4563a82911386f589919",
+      "rendererVersion": "codepoet-canvas-1.0.0",
+      "timesMs": [
+        0,
+        1000,
+        2000
+      ],
+      "externalGraphStillPresent": true,
+      "sourceId": "wikidata",
+      "externalEntityId": "Q16528",
+      "contentHash": "3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137",
+      "contentHashMatches": true
+    },
+    {
+      "name": "lotus-reopen-and-reproduce",
+      "versionId": "wv-977a48d1ebb740f0ac7b020f7b46ecac",
+      "originalJobId": "job-df0cdd00aafc4563a82911386f589919",
+      "reproductionJobId": "job-f4b4ba5a292949a093cb0c2de82b10ee",
+      "compatible": true,
+      "exactMatch": true,
+      "mae": 0,
+      "maePercent": 0,
+      "differentPixelRatio": 0,
+      "differentPixelRatioPercent": 0,
+      "uiMetricsPercent": {
+        "mae": 0,
+        "differentPixelRatio": 0
+      },
+      "uiText": "复现与像素对比\n\n按历史 IR 和原采样时刻重绘。像素指标由服务端解码原始与复现 PNG 后返回。\n\n复现此版本\n\n像素一致\n\n平均绝对误差 0.0000% · 不同像素比例 0.0000%\n\n对比时刻\n0 ms\n1000 ms\n2000 ms\n原始 PNG · 0 ms\n复现 PNG · 0 ms\n0 ms · 平均绝对误差 0.0000% · 不同像素 0.0000%\n1000 ms · 平均绝对误差 0.0000% · 不同像素 0.0000%\n2000 ms · 平均绝对误差 0.0000% · 不同像素 0.0000%",
+      "reopenedSnapshotVisible": true,
+      "reopenedEvidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ16528\n抓取时间\n2026/11/17 13:38\n数据版本\n来源未提供\n内容哈希\n3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137\n莲 · Q16528 · 睡莲科莲属多年生挺水植物 · 学名(P225)=Nelumbo nucifera；分类单元(P105)=种；实例于(P31)=生物分類單元；亲本(P171)=莲属；记载于(P1343)=中国植物志第二十七卷；用途(P366)=園藝植物\nQ16528 --分类单元--> Q7432 · 种\nQ16528 --实例于--> Q16521 · 生物分類單元\nQ16528 --亲本--> Q207427 · 莲属\nQ16528 --记载于--> Q1768721 · 古今圖書集成\nQ16528 --记载于--> Q112869405 · 中国植物志第二十七卷\nQ16528 --用途--> Q188840 · 药用植物\nQ16528 --用途--> Q11004 · 蔬菜\nQ16528 --用途--> Q211439 · 饲料\nQ16528 --用途--> Q199182 · 園藝植物\nQ16528 --子类--> Q11992872 · 有用植物\n实际采纳的外部事实\nentity · Q16"
+    },
+    {
+      "name": "bamboo-generation",
+      "generationId": "gen-2aada50b478e4471a221458b4e914b34",
+      "requestId": "req-0b5557de817843f1bf6f28633b1938e2",
+      "httpStatus": 201,
+      "backend": "canvas2d",
+      "mode": "semantic",
+      "sourceId": "wikidata",
+      "externalEntityId": "Q670887",
+      "entityLabel": "竹亚科",
+      "entityCount": 1,
+      "relationCount": 17,
+      "mappingDecisionCount": 14,
+      "mappingAffects": [
+        "caption",
+        "rule-selection"
+      ],
+      "contentHash": "e483913f03dfac0ddf3c683b0b51611e15ce6269e8fef4b36ba13d85d63e8526",
+      "fetchedAt": "2026-11-17T05:38:59.169930Z",
+      "dataVersion": null,
+      "uiGenerationId": "gen-2aada50b478e4471a221458b4e914b34",
+      "evidenceVisible": true,
+      "evidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ670887\n抓取时间\n2026/11/17 13:38\n数据版本\n来源未提供\n内容哈希\ne483913f03dfac0ddf3c683b0b51611e15ce6269e8fef4b36ba13d85d63e8526\n竹亚科 · Q670887 · 禾本科植物的一个亚科 · 学名(P225)=Bambusoideae；分类单元(P105)=亚科；实例于(P31)=生物分類單元；亲本(P171)=禾本科；子类(P279)=food plant；记载于(P1343)=乌兹别克斯坦国家百科全书\nQ670887 --分类单元--> Q164280 · 亚科\nQ670887 --实例于--> Q16521 · 生物分類單元\nQ670887 --亲本--> Q43238 · 禾本科\nQ670887 --子类--> Q11992872 · 有用植物\nQ670887 --子类--> Q9323487 · food plant\nQ670887 --记载于--> Q1768721 · 古今圖書集成\nQ670887 --记载于--> Q106727050 · 大都會藝術博物館標註詞彙\nQ670887 --记载于--> Q15934424 · 清稗類鈔\nQ670887 --记载于--> Q867541 · 大英百科全書第十一版\nQ670887 ",
+      "refetchVerified": true
+    },
+    {
+      "name": "plum-generation",
+      "generationId": "gen-fa681f07b14b4fbea0372fd7f7329ae6",
+      "requestId": "req-b8e240d8ec1948c9a9a04a32c9c7eb37",
+      "httpStatus": 201,
+      "backend": "canvas2d",
+      "mode": "semantic",
+      "sourceId": "wikidata",
+      "externalEntityId": "Q157763",
+      "entityLabel": "梅",
+      "entityCount": 1,
+      "relationCount": 9,
+      "mappingDecisionCount": 14,
+      "mappingAffects": [
+        "caption",
+        "rule-selection"
+      ],
+      "contentHash": "700e7903fcec464ff354620b5a5364392d65329ad9405ba1cf14b9023265accb",
+      "fetchedAt": "2026-11-17T05:39:02.378529Z",
+      "dataVersion": null,
+      "uiGenerationId": "gen-fa681f07b14b4fbea0372fd7f7329ae6",
+      "evidenceVisible": true,
+      "evidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ157763\n抓取时间\n2026/11/17 13:39\n数据版本\n来源未提供\n内容哈希\n700e7903fcec464ff354620b5a5364392d65329ad9405ba1cf14b9023265accb\n梅 · Q157763 · 薔薇科李屬的多年生落葉喬木 · 学名(P225)=Prunus mume；分类单元(P105)=种；亲本(P171)=李属；实例于(P31)=生物分類單元；记载于(P1343)=植物名實圖考；用途(P366)=药用植物\nQ157763 --分类单元--> Q7432 · 种\nQ157763 --亲本--> Q190545 · 李属\nQ157763 --实例于--> Q16521 · 生物分類單元\nQ157763 --记载于--> Q1768721 · 古今圖書集成\nQ157763 --记载于--> Q107402112 · 植物名實圖考\nQ157763 --用途--> Q2384419 · 植樹造林\nQ157763 --用途--> Q2095 · 食物\nQ157763 --用途--> Q188840 · 药用植物\nQ157763 --子类--> Q904653 · 果樹\n实际采纳的外部事实\nentity · Q157763 · 影响 rule-selection（knowledg",
+      "refetchVerified": true
+    }
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "unverified": [
+    {
+      "item": "未配置任何来源时的 503（KNOWLEDGE_GRAPH_UNAVAILABLE，details.available=[]）",
+      "reason": "当前后端已配置 wikidata；关闭来源需要重启后端，本轮约束禁止重启已有服务。"
+    },
+    {
+      "item": "来源超时 504 与断网后重开作品的离线复现",
+      "reason": "未构造可控超时/断网条件；本轮只验证真实正常来源与可测错误路径。"
+    }
+  ],
+  "work": {
+    "title": "K1-莲-1794893935803",
+    "href": "/works/versions/wv-977a48d1ebb740f0ac7b020f7b46ecac",
+    "versionId": "wv-977a48d1ebb740f0ac7b020f7b46ecac",
+    "workId": "work-c9315889891a46baa4c75d09f4626f31",
+    "generationId": "gen-228ac8b3a2b14abc8cfb105faecb8b2d",
+    "renderJobId": "job-df0cdd00aafc4563a82911386f589919",
+    "rendererVersion": "codepoet-canvas-1.0.0",
+    "timesMs": [
+      0,
+      1000,
+      2000
+    ],
+    "externalGraphStillPresent": true,
+    "reopenedSnapshotVisible": true,
+    "reproduction": {
+      "versionId": "wv-977a48d1ebb740f0ac7b020f7b46ecac",
+      "originalJobId": "job-df0cdd00aafc4563a82911386f589919",
+      "reproductionJobId": "job-f4b4ba5a292949a093cb0c2de82b10ee",
+      "compatible": true,
+      "exactMatch": true,
+      "mae": 0,
+      "maePercent": 0,
+      "differentPixelRatio": 0,
+      "differentPixelRatioPercent": 0,
+      "uiMetricsPercent": {
+        "mae": 0,
+        "differentPixelRatio": 0
+      },
+      "uiText": "复现与像素对比\n\n按历史 IR 和原采样时刻重绘。像素指标由服务端解码原始与复现 PNG 后返回。\n\n复现此版本\n\n像素一致\n\n平均绝对误差 0.0000% · 不同像素比例 0.0000%\n\n对比时刻\n0 ms\n1000 ms\n2000 ms\n原始 PNG · 0 ms\n复现 PNG · 0 ms\n0 ms · 平均绝对误差 0.0000% · 不同像素 0.0000%\n1000 ms · 平均绝对误差 0.0000% · 不同像素 0.0000%\n2000 ms · 平均绝对误差 0.0000% · 不同像素 0.0000%",
+      "reopenedSnapshotVisible": true,
+      "reopenedEvidenceExcerpt": "外部知识图谱来源快照\n来源键\nwikidata\n外部实体\nQ16528\n抓取时间\n2026/11/17 13:38\n数据版本\n来源未提供\n内容哈希\n3a5f493513b48fc157b5e745aea02cadb363c66bf2d55eca2e559026ae589137\n莲 · Q16528 · 睡莲科莲属多年生挺水植物 · 学名(P225)=Nelumbo nucifera；分类单元(P105)=种；实例于(P31)=生物分類單元；亲本(P171)=莲属；记载于(P1343)=中国植物志第二十七卷；用途(P366)=園藝植物\nQ16528 --分类单元--> Q7432 · 种\nQ16528 --实例于--> Q16521 · 生物分類單元\nQ16528 --亲本--> Q207427 · 莲属\nQ16528 --记载于--> Q1768721 · 古今圖書集成\nQ16528 --记载于--> Q112869405 · 中国植物志第二十七卷\nQ16528 --用途--> Q188840 · 药用植物\nQ16528 --用途--> Q11004 · 蔬菜\nQ16528 --用途--> Q211439 · 饲料\nQ16528 --用途--> Q199182 · 園藝植物\nQ16528 --子类--> Q11992872 · 有用植物\n实际采纳的外部事实\nentity · Q16"
+    }
+  },
+  "finishedAt": "2026-11-17T05:39:02.612Z"
+}

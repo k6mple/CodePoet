@@ -1,0 +1,101 @@
+{
+  "checks": [
+    {
+      "name": "submit accepted",
+      "ok": true,
+      "detail": {
+        "status": 202,
+        "body": "{\"id\":\"run-b7364fb673de45ff9dee5d788edae659\",\"createdAt\":\"2026-11-17T05:34:57Z\",\"ownerId\":\"usr-f292f75058c345e58056fe76c67e0831\",\"baseGenerationId\":\"gen-73ae7d49266c4a929a3d850552064e07\",\"status\":\"queued\",\"policyRevision\":1,\"sourceHash\":\"c83d60c8afe30d865ed87262ca34f52b979182c3236a268d428350d32309d3"
+      }
+    },
+    {
+      "name": "run reached terminal",
+      "ok": true,
+      "detail": {
+        "status": "failed",
+        "error": {
+          "code": "DSL_EXECUTION_FAILED",
+          "message": "执行线程异常终止",
+          "details": {}
+        }
+      }
+    },
+    {
+      "name": "valid run succeeded",
+      "ok": false,
+      "detail": {
+        "status": "failed",
+        "generationId": null,
+        "metrics": null,
+        "auditFindings": []
+      }
+    },
+    {
+      "name": "submit accepted",
+      "ok": true,
+      "detail": {
+        "status": 202,
+        "body": "{\"id\":\"run-b5923d33a259457898c320b1bc815d3b\",\"createdAt\":\"2026-11-17T05:34:57Z\",\"ownerId\":\"usr-f292f75058c345e58056fe76c67e0831\",\"baseGenerationId\":\"gen-73ae7d49266c4a929a3d850552064e07\",\"status\":\"queued\",\"policyRevision\":1,\"sourceHash\":\"18fc150939ca3cef5e7022ba61a53615ca375d7ed2aa31049fb497aab3c119"
+      }
+    },
+    {
+      "name": "run reached terminal",
+      "ok": true,
+      "detail": {
+        "status": "failed",
+        "error": {
+          "code": "DSL_EXECUTION_FAILED",
+          "message": "执行线程异常终止",
+          "details": {}
+        }
+      }
+    },
+    {
+      "name": "invalid run rejected with audit finding",
+      "ok": false,
+      "detail": {
+        "status": "failed",
+        "error": {
+          "code": "DSL_EXECUTION_FAILED",
+          "message": "执行线程异常终止",
+          "details": {}
+        },
+        "auditFindings": []
+      }
+    },
+    {
+      "name": "admin reads policies",
+      "ok": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "admin updates writable policy",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "revision": 2,
+        "body": "{\"revision\":2,\"updatedAt\":\"2026-11-17T05:34:58Z\",\"values\":{\"maxIRNodes\":200,\"maxVertices\":2000,\"maxRequestBytes\":262144,\"maxIRBytes\":262144,\"maxParameters\":16,\"dslWallTimeMs\":2000,\"dslCpuTimeSeconds\":1,\"dslMemoryMiB\":256,\"dslMaxDrawCalls\":999,\"dslMaxAstNodes\":2000,\"dslMaxRangeIterations\":1,\"renderWa"
+      }
+    },
+    {
+      "name": "stale revision returns 409",
+      "ok": true,
+      "detail": {
+        "status": 409,
+        "body": "{\"error\":{\"code\":\"REVISION_CONFLICT\",\"message\":\"数据已被其他人修改（期望版本 1，当前版本 2），请刷新后重试\",\"fieldErrors\":[],\"requestId\":\"req-a7191505b9c244f3895625ad0c73b459\",\"details\":null}}"
+      }
+    },
+    {
+      "name": "read-only field returns 422",
+      "ok": true,
+      "detail": {
+        "status": 422,
+        "body": "{\"error\":{\"code\":\"POLICY_FIELD_READ_ONLY\",\"message\":\"以下策略字段本期只读，不能修改：maxIRNodes\",\"fieldErrors\":[{\"path\":\"values.maxIRNodes\",\"message\":\"该字段本期只读\"}],\"requestId\":\"req-0f9a7b91130d4966b3da933b83fffe88\",\"details\":{\"readOnlyFields\":[\"maxIRNodes\"]}}}"
+      }
+    }
+  ],
+  "passed": 8,
+  "total": 10
+}

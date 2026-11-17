@@ -1,0 +1,85 @@
+{
+  "status": "passed-with-pixel-difference",
+  "scope": "real-api-production-ui-webgl",
+  "checks": [
+    {
+      "name": "clone-review-publish-webgl-template",
+      "oldVersionId": "tver-f6f292a47407459c88eb29525e2a89d0",
+      "newVersionId": "tver-3851a9f80ecc470aae9bf0ff29ac039a"
+    },
+    {
+      "name": "webgl-generate-and-parameter-change",
+      "generationId": "gen-aa1b6fdcb44c4b5498f903738e093c81"
+    },
+    {
+      "name": "static-save-reopen-reproduce",
+      "versionId": "wv-000a1bb855314daf938ed98cb108f51f",
+      "jobId": "job-8fec928b00f04d9f92e5208acaea8a19",
+      "times": [
+        0
+      ],
+      "frames": [
+        {
+          "timeMs": 0,
+          "artifactHash": "0530138689ba354a5ad9255b455d53fbb67ec679ec91c4b6d161e9e1ba9800dd",
+          "rerenderHash": "0c2a196108c2bcf44a1d0a9761cd5fce410fbc85aeae97cbca710e15d657b806",
+          "pixelExact": false,
+          "differentPixels": 15
+        }
+      ],
+      "hashesVerified": true,
+      "exactMatch": false,
+      "maePercent": 0,
+      "differentPixelRatioPercent": 0.005,
+      "note": "WebGL multisample AA variance across contexts"
+    },
+    {
+      "name": "webgl-animation-seek-three-times",
+      "times": [
+        0,
+        2000,
+        4000
+      ]
+    },
+    {
+      "name": "animated-save-reopen-reproduce",
+      "versionId": "wv-dd692c5e3b66411ca7e0c94e6300f071",
+      "jobId": "job-cf9c1d97bd8847348bb91e204c7e4ae7",
+      "times": [
+        0,
+        2000,
+        4000
+      ],
+      "frames": [
+        {
+          "timeMs": 0,
+          "artifactHash": "48f464beec28ab9164decc41edc2f3afb71b17f41f6e8f249b57024c2f6cbce3",
+          "rerenderHash": "b18a5cbc8b9232d26357cfa81e4630f94684982743a62c5ee02aa6176cedbbd2",
+          "pixelExact": false,
+          "differentPixels": 13
+        },
+        {
+          "timeMs": 2000,
+          "artifactHash": "d0dad064bcf0ed82709613a565971baa9394344b626e69dac454415bc65ae5e2",
+          "rerenderHash": "ad9dc9f439a40d23127d5008242e6b083ae9793525ca8dec5ae1e156fbf15137",
+          "pixelExact": false,
+          "differentPixels": 22
+        },
+        {
+          "timeMs": 4000,
+          "artifactHash": "f9f24ae07daf5a517ae6414399b6e501ec37ed768d9ff68b0a84190ea87e0c11",
+          "rerenderHash": "a308aebc4d42cba134ffef64fbc1f3bcc076b09f17437387b987fd19d53938a6",
+          "pixelExact": false,
+          "differentPixels": 15
+        }
+      ],
+      "hashesVerified": true,
+      "exactMatch": false,
+      "maePercent": 0,
+      "differentPixelRatioPercent": 0.0029,
+      "note": "WebGL multisample AA variance across contexts"
+    }
+  ],
+  "pageErrors": [],
+  "pixelExact": false
+}
