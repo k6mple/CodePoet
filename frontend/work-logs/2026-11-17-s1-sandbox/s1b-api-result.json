@@ -1,0 +1,139 @@
+{
+  "checks": [
+    {
+      "name": "submit accepted",
+      "ok": true,
+      "detail": {
+        "status": 202,
+        "body": "{\"id\":\"run-23f59f4353d84f6ab3a26bd7db0de4cc\",\"createdAt\":\"2026-11-17T05:35:49Z\",\"ownerId\":\"usr-f292f75058c345e58056fe76c67e0831\",\"baseGenerationId\":\"gen-d34bc4afe02c4a5a8efcbbcabc0bfdb3\",\"status\":\"queued\",\"policyRevision\":2,\"sourceHash\":\"c83d60c8afe30d865ed87262ca34f52b979182c3236a268d428350d32309d3"
+      }
+    },
+    {
+      "name": "run reached terminal",
+      "ok": true,
+      "detail": {
+        "status": "succeeded",
+        "error": null
+      }
+    },
+    {
+      "name": "valid run succeeded",
+      "ok": true,
+      "detail": {
+        "status": "succeeded",
+        "generationId": "gen-0e9061539b484dc8b7c482dcdab36153",
+        "metrics": {
+          "wallTimeMs": 0,
+          "cpuTimeMs": 0,
+          "drawCalls": 2,
+          "steps": 5,
+          "peakMemoryMiB": 31
+        },
+        "auditFindings": []
+      }
+    },
+    {
+      "name": "fragment generation readable",
+      "ok": true,
+      "detail": {
+        "mode": "fragment",
+        "backend": "webgl",
+        "nodes": 12,
+        "provenanceKind": "fragment",
+        "fragmentSource": null
+      }
+    },
+    {
+      "name": "submit accepted",
+      "ok": true,
+      "detail": {
+        "status": 202,
+        "body": "{\"id\":\"run-a42b06fd6a9c4201b9799d3982d7807c\",\"createdAt\":\"2026-11-17T05:35:50Z\",\"ownerId\":\"usr-f292f75058c345e58056fe76c67e0831\",\"baseGenerationId\":\"gen-d34bc4afe02c4a5a8efcbbcabc0bfdb3\",\"status\":\"queued\",\"policyRevision\":2,\"sourceHash\":\"18fc150939ca3cef5e7022ba61a53615ca375d7ed2aa31049fb497aab3c119"
+      }
+    },
+    {
+      "name": "run reached terminal",
+      "ok": true,
+      "detail": {
+        "status": "failed",
+        "error": {
+          "code": "DSL_AUDIT_REJECTED",
+          "message": "ops[0] 的 op 不受支持：'eval'",
+          "details": {
+            "index": 0,
+            "op": "eval",
+            "supported": [
+              "circle",
+              "polygon",
+              "polyline",
+              "set_param"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid run rejected with audit finding",
+      "ok": true,
+      "detail": {
+        "status": "failed",
+        "error": {
+          "code": "DSL_AUDIT_REJECTED",
+          "message": "ops[0] 的 op 不受支持：'eval'",
+          "details": {
+            "index": 0,
+            "op": "eval",
+            "supported": [
+              "circle",
+              "polygon",
+              "polyline",
+              "set_param"
+            ]
+          }
+        },
+        "auditFindings": [
+          {
+            "ruleId": "DSL_OP_WHITELIST",
+            "line": 1,
+            "column": 0,
+            "message": "ops[0] 的 op 不受支持：'eval'"
+          }
+        ]
+      }
+    },
+    {
+      "name": "admin reads policies",
+      "ok": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "admin updates writable policy",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "revision": 3,
+        "body": "{\"revision\":3,\"updatedAt\":\"2026-11-17T05:35:51Z\",\"values\":{\"maxIRNodes\":200,\"maxVertices\":2000,\"maxRequestBytes\":262144,\"maxIRBytes\":262144,\"maxParameters\":16,\"dslWallTimeMs\":2000,\"dslCpuTimeSeconds\":1,\"dslMemoryMiB\":256,\"dslMaxDrawCalls\":998,\"dslMaxAstNodes\":2000,\"dslMaxRangeIterations\":1,\"renderWa"
+      }
+    },
+    {
+      "name": "stale revision returns 409",
+      "ok": true,
+      "detail": {
+        "status": 409,
+        "body": "{\"error\":{\"code\":\"REVISION_CONFLICT\",\"message\":\"数据已被其他人修改（期望版本 2，当前版本 3），请刷新后重试\",\"fieldErrors\":[],\"requestId\":\"req-c1637cab3c914f538ce95ebb9cf0d678\",\"details\":null}}"
+      }
+    },
+    {
+      "name": "read-only field returns 422",
+      "ok": true,
+      "detail": {
+        "status": 422,
+        "body": "{\"error\":{\"code\":\"POLICY_FIELD_READ_ONLY\",\"message\":\"以下策略字段本期只读，不能修改：maxIRNodes\",\"fieldErrors\":[{\"path\":\"values.maxIRNodes\",\"message\":\"该字段本期只读\"}],\"requestId\":\"req-86deb7505fee4988a3acf0f741e8aa19\",\"details\":{\"readOnlyFields\":[\"maxIRNodes\"]}}}"
+      }
+    }
+  ],
+  "passed": 11,
+  "total": 11
+}
