@@ -1,6 +1,7 @@
 // Real isolated API + production UI acceptance for CodePoet K1 external knowledge graph.
 // Secrets are environment-only; output must point at an ignored local work-log directory.
 import assert from 'node:assert/strict'
+import { spawn } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -9,8 +10,16 @@ const { chromium } = createRequire(import.meta.url)('playwright')
 const base = process.env.CODEPOET_K1_BASE_URL
 const password = process.env.CODEPOET_ACCEPTANCE_PASSWORD
 const output = process.env.CODEPOET_K1_OUTPUT_DIR
+const manageBackend = process.env.CODEPOET_K1_MANAGE_BACKEND === '1'
+const backendDataDir = process.env.CODEPOET_DATA_DIR
+const backendPort = Number(process.env.CODEPOET_K1_BACKEND_PORT || '8000')
+const repoRoot = path.resolve(import.meta.dirname, '..', '..')
+const backendPython = path.join(repoRoot, 'backend', '.venv', 'Scripts', 'python.exe')
 if (!base || !['localhost', '127.0.0.1'].includes(new URL(base).hostname) || !password || !output) {
   throw new Error('Requires isolated localhost deployment, seed password and local output directory')
+}
+if (manageBackend && !backendDataDir) {
+  throw new Error('CODEPOET_K1_MANAGE_BACKEND=1 requires CODEPOET_DATA_DIR')
 }
 const out = path.resolve(output)
 if (!out.toLowerCase().includes(`${path.sep}local-work-logs${path.sep}`)) {
@@ -407,7 +416,62 @@ async function testDirectApiErrors(p) {
   }
 }
 
+let backendProc = null
+
+async function stopBackend() {
+  if (!backendProc) return
+  const proc = backendProc
+  backendProc = null
+  await new Promise((resolve) => {
+    const timer = setTimeout(resolve, 4000)
+    proc.once('exit', () => {
+      clearTimeout(timer)
+      resolve()
+    })
+    if (process.platform === 'win32' && proc.pid) {
+      spawn('taskkill', ['/PID', String(proc.pid), '/T', '/F'], { stdio: 'ignore' })
+    } else {
+      try { proc.kill('SIGTERM') } catch { clearTimeout(timer); resolve() }
+    }
+  })
+  await new Promise((r) => setTimeout(r, 300))
+}
+
+async function restartBackend(envOverrides) {
+  await stopBackend()
+  backendProc = spawn(
+    backendPython,
+    ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', String(backendPort), '--log-level', 'warning'],
+    {
+      cwd: path.join(repoRoot, 'backend'),
+      env: {
+        ...process.env,
+        CODEPOET_DATA_DIR: backendDataDir,
+        CODEPOET_ENABLED_BACKENDS: 'canvas2d,css,webgl',
+        CODEPOET_KNOWLEDGE_GRAPH_MAPPING_FILE: 'shared/demo/knowledge-graph-mappings.json',
+        ...envOverrides,
+      },
+      stdio: 'ignore',
+    },
+  )
+  const deadline = Date.now() + 30000
+  while (Date.now() < deadline) {
+    try {
+      const r = await fetch(`http://127.0.0.1:${backendPort}/api/v1/health`)
+      if (r.status === 200) return
+    } catch {}
+    await new Promise((r) => setTimeout(r, 300))
+  }
+  throw new Error(`Managed backend on :${backendPort} did not become healthy`)
+}
+
 try {
+  if (manageBackend) {
+    await restartBackend({
+      CODEPOET_KNOWLEDGE_GRAPH_SOURCES: 'wikidata',
+      CODEPOET_KNOWLEDGE_GRAPH_TIMEOUT_SECONDS: '15',
+    })
+  }
   page = await actor('creator_demo')
   const caps = await api(page, '/engine/capabilities')
   assert.equal(caps.features?.knowledgeGraph, true, 'features.knowledgeGraph must be enabled')
@@ -450,6 +514,87 @@ try {
   assert.equal(result.entities.length, 3)
   assert.deepEqual(new Set(result.entities.map((item) => item.externalEntityId)),
     new Set(['Q16528', 'Q670887', 'Q157763']))
+
+  if (manageBackend) {
+    // Phase 2: 504 KNOWLEDGE_GRAPH_TIMEOUT (controlled 0.0001s timeout against Wikidata)
+    await restartBackend({
+      CODEPOET_KNOWLEDGE_GRAPH_SOURCES: 'wikidata',
+      CODEPOET_KNOWLEDGE_GRAPH_TIMEOUT_SECONDS: '0.0001',
+    })
+    await page.goto('/')
+    await openSemanticGraph(page)
+    await page.getByLabel('来源键', { exact: true }).fill('wikidata')
+    await page.getByLabel('外部实体 ID', { exact: true }).fill('Q16528')
+    const timeoutRespPromise = page.waitForResponse(
+      (r) => new URL(r.url()).pathname === '/api/v1/knowledge-graph/generations' && r.request().method() === 'POST',
+      { timeout: 60000 },
+    )
+    await page.getByRole('button', { name: '从外部图谱生成', exact: true }).click()
+    const timeoutResp = await timeoutRespPromise
+    const timeoutStatus = timeoutResp.status()
+    const timeoutBody = await timeoutResp.json()
+    await page.getByText(/HTTP 504 · KNOWLEDGE_GRAPH_TIMEOUT/).waitFor()
+    assert.equal(timeoutStatus, 504, redact(timeoutBody))
+    assert.equal(timeoutBody?.error?.code, 'KNOWLEDGE_GRAPH_TIMEOUT')
+    await page.screenshot({ path: path.join(out, 'error-timeout-504-ui.png'), fullPage: true })
+    record('error-timeout-504-ui-and-api', {
+      httpStatus: timeoutStatus,
+      code: timeoutBody.error.code,
+      message: timeoutBody.error.message,
+      uiVisible: true,
+      generationReturned: false,
+    })
+
+    // Phase 3: Unconfigured sources (CODEPOET_KNOWLEDGE_GRAPH_SOURCES="") -> 503 + UI disabled + offline work reopen & reproduce
+    await restartBackend({
+      CODEPOET_KNOWLEDGE_GRAPH_SOURCES: '',
+      CODEPOET_KNOWLEDGE_GRAPH_TIMEOUT_SECONDS: '10',
+    })
+    const disabledCaps = await api(page, '/engine/capabilities')
+    assert.equal(disabledCaps.features?.knowledgeGraph, false, 'features.knowledgeGraph must be false when sources are empty')
+    await page.goto('/')
+    await page.getByRole('button', { name: '语义生成', exact: true }).click()
+    await page.getByText('当前部署未启用知识图谱来源；配置后才会显示入口。').waitFor()
+    const fieldsetDisabled = await page.evaluate(() => Boolean(document.querySelector('.graph-form fieldset')?.disabled))
+    assert.equal(fieldsetDisabled, true, 'graph-form fieldset must be disabled when knowledgeGraph=false')
+    await page.screenshot({ path: path.join(out, 'unconfigured-disabled-ui.png'), fullPage: true })
+    const unconfiguredPost = await rawApi(page, graphEndpoint, 'POST', {
+      sourceId: 'wikidata', externalEntityId: 'Q16528', backend: 'canvas2d', seed: 42,
+    })
+    assert.equal(unconfiguredPost.status, 503, redact(unconfiguredPost.body))
+    assert.equal(unconfiguredPost.body?.error?.code, 'KNOWLEDGE_GRAPH_UNAVAILABLE')
+    assert.deepEqual(unconfiguredPost.body?.error?.details?.available ?? [], [])
+    record('error-unconfigured-sources-503-and-ui-disabled', {
+      knowledgeGraphFeature: disabledCaps.features.knowledgeGraph,
+      uiFieldsetDisabled: fieldsetDisabled,
+      httpStatus: unconfiguredPost.status,
+      code: unconfiguredPost.body.error.code,
+      available: unconfiguredPost.body.error.details?.available ?? [],
+    })
+
+    // Offline reopen & reproduce of the saved lotus work version while external graph sources are completely disabled
+    let graphRequestsDuringOfflineReproduce = 0
+    const countGraphReq = (req) => {
+      if (new URL(req.url()).pathname.includes('knowledge-graph') || new URL(req.url()).hostname.includes('wikidata.org')) {
+        graphRequestsDuringOfflineReproduce++
+      }
+    }
+    page.on('request', countGraphReq)
+    const offlineReproduction = await reopenAndReproduce(page, work)
+    page.off('request', countGraphReq)
+    assert.equal(graphRequestsDuringOfflineReproduce, 0, 'Offline work reproduction must not call external knowledge graph')
+    assert.equal(offlineReproduction.exactMatch, true)
+    record('offline-reopen-and-reproduce-without-sources', {
+      versionId: work.versionId,
+      knowledgeGraphFeature: false,
+      graphRequestsDuringOfflineReproduce,
+      exactMatch: offlineReproduction.exactMatch,
+      mae: offlineReproduction.mae,
+      differentPixelRatio: offlineReproduction.differentPixelRatio,
+    })
+    result.unverified = []
+  }
+
   assert.deepEqual(result.pageErrors, [])
   if (result.failures.length > 0) throw new Error(`${result.failures.length} acceptance failure(s)`)
 } catch (error) {
@@ -464,6 +609,7 @@ try {
   }
   throw error
 } finally {
+  await stopBackend()
   if (result.status === 'running') {
     result.status = result.failures.length || result.pageErrors.length ? 'failed' : 'passed'
   }

@@ -18,12 +18,12 @@ type NumericPolicyKey =
   | 'dslMaxRangeIterations'
 
 const WRITABLE_NUMERIC: { key: NumericPolicyKey; label: string; min: number; note: string }[] = [
-  { key: 'dslWallTimeMs', label: 'DSL 墙钟上限（ms）', min: 100, note: '单次执行的墙钟时间上限，硬上限 5000ms。' },
-  { key: 'dslCpuTimeSeconds', label: 'DSL CPU 上限（秒）', min: 1, note: '单次执行的 CPU 时间上限，硬上限 3s。' },
-  { key: 'dslMemoryMiB', label: 'DSL 内存上限（MiB）', min: 64, note: 'worker 峰值内存上限，硬上限 512MiB。' },
+  { key: 'dslWallTimeMs', label: 'DSL 墙钟上限（ms）', min: 100, note: '单次执行的墙钟时间上限。' },
+  { key: 'dslCpuTimeSeconds', label: 'DSL CPU 上限（秒）', min: 1, note: '单次执行的 CPU 时间上限。' },
+  { key: 'dslMemoryMiB', label: 'DSL 内存上限（MiB）', min: 64, note: 'worker 峰值内存上限。' },
   { key: 'dslMaxDrawCalls', label: 'DSL 绘图调用上限', min: 1, note: '单次 run 允许的 circle/polygon/polyline 调用数。' },
-  { key: 'dslMaxAstNodes', label: 'DSL AST 节点上限', min: 100, note: '源码 AST 节点数上限，硬上限 2000。' },
-  { key: 'dslMaxRangeIterations', label: 'DSL 范围迭代上限', min: 1, note: '单次范围迭代上限，硬上限 200。' },
+  { key: 'dslMaxAstNodes', label: 'DSL AST 节点上限', min: 100, note: '源码 AST 节点数上限。' },
+  { key: 'dslMaxRangeIterations', label: 'DSL 范围迭代上限', min: 1, note: '单次范围迭代上限。' },
 ]
 
 const READ_ONLY_NUMERIC: { key: keyof PolicyValues; label: string }[] = [
