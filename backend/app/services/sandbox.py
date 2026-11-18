@@ -42,6 +42,7 @@ from threading import Lock
 from typing import Any
 from uuid import uuid4
 
+from pydantic import TypeAdapter
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
@@ -130,6 +131,15 @@ _INHERITED_ENV = (
     "LANG",
     "LC_ALL",
 )
+
+#: ``ParameterDefinition`` / ``Constraint`` 都是 ``Annotated[Union[...], Field(...)]``
+#: 这样的**类型别名**，不是 class——它们没有 ``.model_validate``。
+#: 校验必须走 ``TypeAdapter``。在 ``_param_context`` 里直接写
+#: ``ParameterDefinition.model_validate(...)`` 会抛 AttributeError，
+#: 而那段代码只在「base 来自模板」时才执行，IR 基底的用例永远走不到，
+#: 于是这个错误一直藏着，直到有人真的拿模板快照跑 set_param。
+_PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
+_CONSTRAINT_ADAPTER = TypeAdapter(Constraint)
 
 _probe_lock = Lock()
 _probe_result: tuple[bool, str | None] | None = None
@@ -723,7 +733,7 @@ def _param_context(
         return None
     try:
         parameter_schema = [
-            ParameterDefinition.model_validate(item).model_dump(mode="json")
+            _PARAM_ADAPTER.validate_python(item).model_dump(mode="json")
             for item in json.loads(version.parameter_schema_json or "[]")
         ]
         bindings = [
@@ -731,7 +741,7 @@ def _param_context(
             for item in json.loads(version.bindings_json or "[]")
         ]
         constraints = [
-            Constraint.model_validate(item).model_dump(mode="json")
+            _CONSTRAINT_ADAPTER.validate_python(item).model_dump(mode="json")
             for item in json.loads(version.constraints_json or "[]")
         ]
         # 传的是**未实例化**的模板 IR：worker 里会用既有绑定 + set_param 的

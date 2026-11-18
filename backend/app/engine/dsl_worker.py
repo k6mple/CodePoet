@@ -301,19 +301,33 @@ def _check_enabled_functions(program: Any, enabled: list[str]) -> None:
 
 
 def _build_param_context(raw: Any) -> Any:
+    """把父进程传来的模板上下文还原成 ``dsl.ParamContext``。
+
+    ``ParameterDefinition`` / ``Constraint`` 是 ``Annotated[Union[...]]`` 类型别名，
+    **没有 ``.model_validate``**，必须走 ``TypeAdapter``。这里和
+    ``services/sandbox.py::_param_context`` 是同一处误用——那份在父进程构造时抛，
+    这份在 worker 反序列化时抛，两边都得改，只改一边会让错误表现成
+    「模板基底能受理、执行时内部错误」。
+    """
+    from pydantic import TypeAdapter
+
     from app.engine import dsl
     from app.schemas.generation import Binding, Constraint, ParameterDefinition
     from app.schemas.ir import DrawingIR
 
     if not raw:
         return None
+    param_adapter = TypeAdapter(ParameterDefinition)
+    constraint_adapter = TypeAdapter(Constraint)
     return dsl.ParamContext(
         template_ir=DrawingIR.model_validate(raw["templateIr"]),
         parameter_schema=[
-            ParameterDefinition.model_validate(item) for item in raw["parameterSchema"]
+            param_adapter.validate_python(item) for item in raw["parameterSchema"]
         ],
         bindings=[Binding.model_validate(item) for item in raw["bindings"]],
-        constraints=[Constraint.model_validate(item) for item in raw["constraints"]],
+        constraints=[
+            constraint_adapter.validate_python(item) for item in raw["constraints"]
+        ],
         provided=dict(raw.get("provided") or {}),
     )
 
