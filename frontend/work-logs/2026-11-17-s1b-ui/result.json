@@ -1,29 +1,56 @@
 {
   "status": "passed",
-  "scope": "s1b-production-ui",
+  "scope": "s1b-production-ui-and-template-set-param",
   "checks": [
     {
-      "name": "sandbox-page-loads"
+      "name": "sandbox-page-loads",
+      "irBaseGenerationId": "gen-800fd3b571bd4be984b3319ec9a06fce",
+      "templateBaseGenerationId": "gen-a71417efedc14e9792b3efd2256ca4db"
     },
     {
       "name": "valid-run-succeeds-with-fragment-preview",
-      "runText": "执行结果\nsucceeded\n执行编号\nrun-ad615b3954bb4c0693495255529838a0\n基底生成\ngen-d34bc4afe02c4a5a8efcbbcabc0bfdb3\n源码哈希\n378b53071586befb…\n策略修订\n3\n创建时间\n2026/11/17 13:40\n完成时间\n2026/11/17 13:40\n本次生效的策略快照\n墙钟时间0 ms\nCPU 时间0 ms\n绘图调用2\n执行步数5\n峰值内存31 MiB"
+      "runText": "执行结果\nsucceeded\n执行编号\nrun-eaf5ec4c86884fbe86c5d834441f1659\n基底生成\ngen-800fd3b571bd4be984b3319ec9a06fce\n源码哈希\n378b53071586befb…\n策略修订\n1\n创建时间\n2026/11/18 15:25\n完成时间\n2026/11/18 15:25\n本次生效的策略快照\n墙钟时间0 ms\nCPU 时间0 ms\n绘图调用2\n执行步数5\n峰值内存31 MiB"
     },
     {
       "name": "fragment-saved-as-work",
-      "href": "/works/versions/wv-921d451367d24e5d86cb343ea3c5941f"
+      "href": "/works/versions/wv-12634acbb98f41e894efb11a28d769cd"
+    },
+    {
+      "name": "template-base-set-param-succeeds-and-saves",
+      "templateBaseGenerationId": "gen-a71417efedc14e9792b3efd2256ca4db",
+      "fragmentGenerationId": "gen-fd699127216647ebad6d9475c4edeb49",
+      "parameter": "petalRadius",
+      "boundNodeId": "petal-1",
+      "boundProperty": "geometry.r",
+      "previousValue": 28,
+      "updatedValue": 48,
+      "savedHref": "/works/versions/wv-e09489156a1347219179914d265a6266"
+    },
+    {
+      "name": "set-param-invalid-base-and-unknown-param-rejected",
+      "unknownParamSnippet": "执行结果\nfailed\n执行编号\nrun-b39607fa0e3c497c92f7c22192f08378\n基底生成\ngen-a71417efedc14e9792b3efd2256ca4db\n源码哈希\n030aed2ce1116244…\n策略修订\n1\n创建时间\n2026/11/18 15:25\n完成时间\n2026/11/18 15:25\n本次生效的策略快照\nDSL_INVALID_BASE\n参数无法在模板既有绑定下实例化\n审计发现\nDSL_SET_PARAM_BASE · 第 0 行第 0 列：参数无法在模板既有绑定下实例化",
+      "irBaseSnippet": "执行结果\nfailed\n执行编号\nrun-abdaf70ca5c748f4801a7ea8d492b45a\n基底生成\ngen-800fd3b571bd4be984b3319ec9a06fce\n源码哈希\n33cfa8a9052ecbf4…\n策略修订\n1\n创建时间\n2026/11/18 15:25\n完成时间\n2026/11/18 15:25\n本次生效的策略快照\nDSL_INVALID_BASE\n该 base 不支持 set_param：需要「有模板来源、未手改、未子图派生」的快照\n审计发现\nDSL_SET_PARAM_BASE · 第 0 行第 0 列：该 base 不支持 set_param：需要「有模板来源、未手改、未子图派生」的快照"
     },
     {
       "name": "invalid-run-shows-audit-line-column",
-      "auditText": "执行结果\nfailed\n执行编号\nrun-cfeb1673e10f47f4a32d338102af3115\n基底生成\ngen-d34bc4afe02c4a5a8efcbbcabc0bfdb3\n源码哈希\n2f2bc47841302e73…\n策略修订\n3\n创建时间\n2026/11/17 13:40\n完成时间\n2026/11/17 13:40\n本次生效的策略快照\nDSL_AUDIT_REJECTED\nops[0] 的 op 不受支持：'eval'\n审计发现\nDSL_OP_WHITELIST · 第 1 行第 0 列：ops[0] 的 op 不受支持：'eval'"
+      "auditText": "执行结果\nfailed\n执行编号\nrun-3d42c9aadc2345138e7512460e569acc\n基底生成\ngen-800fd3b571bd4be984b3319ec9a06fce\n源码哈希\n2f2bc47841302e73…\n策略修订\n1\n创建时间\n2026/11/18 15:25\n完成时间\n2026/11/18 15:25\n本次生效的策略快照\nDSL_AUDIT_REJECTED\nops[0] 的 op 不受支持：'eval'\n审计发现\nDSL_OP_WHITELIST · 第 1 行第 0 列：ops[0] 的 op 不受支持：'eval'"
+    },
+    {
+      "name": "policy-hard-limits-display-consistent"
     },
     {
       "name": "policy-ui-updates-and-bumps-revision",
-      "initialRevision": 3,
-      "afterSave": 4
+      "initialRevision": 1,
+      "afterSave": 2
     },
     {
-      "name": "policy-ui-409-shows-reload-action"
+      "name": "policy-draw-call-limit-enforced-in-sandbox-ui",
+      "snippet": "执行结果\nfailed\n执行编号\nrun-719512381e2d4f1f8efd90343d20a5d0\n基底生成\ngen-800fd3b571bd4be984b3319ec9a06fce\n源码哈希\n378b53071586befb…\n策略修订\n2\n创建时间\n2026/11/18 15:25\n完成时间\n2026/11/18 15:25\n本次生效的策略快照\nDSL_CALL_LIMIT\n绘图调用 2 超过上限 1\n审计发现\nDSL_BUDGET_LIMIT · 第 0 行第 0 列：绘图调用 2 超过上限 1"
+    },
+    {
+      "name": "policy-ui-409-shows-reload-action",
+      "restoredDrawCalls": 1000,
+      "revision": 3
     }
   ],
   "pageErrors": []
