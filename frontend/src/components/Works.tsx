@@ -42,15 +42,16 @@ export function WorkList() {
   return <section className="works-page" aria-labelledby="works-heading">
     <header className="page-intro page-intro--compact">
       <div>
+        <span className="studio-eyebrow">数字艺术典藏 · 作品展厅</span>
         <h1 id="works-heading">{scope === 'mine' ? '我的作品' : '公开作品'}</h1>
-        <p>按保存时间排列的作品档案。每件作品都绑定服务器确认的生成记录与 PNG 上传任务。</p>
+        <p>收录每一次灵感定格的数字画卷，完整保留高清画幅、创作脉络与可复现档案。</p>
       </div>
       <div className="page-intro__actions">
-        <Link href="/" className="button button--secondary">创作新作品</Link>
+        <Link href="/" className="button button--primary">创作新作品</Link>
       </div>
     </header>
 
-    <div className="param-actions" role="group" aria-label="作品范围">
+    <div className="param-actions studio-modes p1-modes works-scope-switch" role="group" aria-label="作品范围">
       {(['mine', 'public'] as const).map((value) => <button key={value} type="button"
         className={`button button--small button--${scope === value ? 'primary' : 'secondary'}`}
         aria-pressed={scope === value} onClick={() => { setScope(value); setPage(1) }}>

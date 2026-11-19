@@ -145,27 +145,36 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
   const canReadPolicies = Boolean(user?.permissions.includes('policies.read'))
   const personName = user ? (user.nickname || user.username) : ''
 
+  const hasAdminNav = canManageKnowledge || canManageTemplates || canReview || canApproveUsers || canOps || canReadPolicies
+
   return <SessionContext.Provider value={{ user, loading, openLogin, updateUser, refreshUser }}>
     <header className="site-header">
       <div className="site-header__inner">
         <Link href="/" className="brand" aria-label="代码诗 CodePoet 首页">
           <span className="brand-seal" aria-hidden="true">诗</span>
-          <span className="brand-name">代码诗</span>
-          <span className="brand-sub">CodePoet</span>
+          <span className="brand-text">
+            <span className="brand-name">代码诗</span>
+            <span className="brand-sub">CodePoet Studio</span>
+          </span>
         </Link>
         <nav className="site-nav" aria-label="主导航">
-          <Link href="/" className={`nav-link${creatorActive ? ' is-active' : ''}`} aria-current={creatorActive ? 'page' : undefined}>创作台</Link>
-          <Link href="/works" className={`nav-link${worksActive ? ' is-active' : ''}`} aria-current={worksActive ? 'page' : undefined}>我的作品</Link>
-          {user && <Link href="/space" className={`nav-link${spaceActive ? ' is-active' : ''}`} aria-current={spaceActive ? 'page' : undefined}>个人空间</Link>}
-          <Link href="/templates" className={`nav-link${templatesActive ? ' is-active' : ''}`} aria-current={templatesActive ? 'page' : undefined}>模板库</Link>
-          <Link href="/search" className={`nav-link${searchActive ? ' is-active' : ''}`} aria-current={searchActive ? 'page' : undefined}>检索</Link>
-          {user && <Link href="/sandbox" className={`nav-link${sandboxActive ? ' is-active' : ''}`} aria-current={sandboxActive ? 'page' : undefined}>沙箱</Link>}
-          {canManageKnowledge && <Link href="/manage" className={`nav-link${manageActive && !templateManageActive ? ' is-active' : ''}`} aria-current={manageActive && !templateManageActive ? 'page' : undefined}>知识管理</Link>}
-          {canManageTemplates && <Link href="/manage/templates" className={`nav-link${templateManageActive ? ' is-active' : ''}`} aria-current={templateManageActive ? 'page' : undefined}>模板管理</Link>}
-          {canReview && <Link href="/reviews" className={`nav-link${reviewsActive ? ' is-active' : ''}`} aria-current={reviewsActive ? 'page' : undefined}>审核台</Link>}
-          {canApproveUsers && <Link href="/admin/users" className={`nav-link${adminUsersActive ? ' is-active' : ''}`} aria-current={adminUsersActive ? 'page' : undefined}>用户管理</Link>}
-          {canOps && <Link href="/admin/ops" className={`nav-link${adminOpsActive ? ' is-active' : ''}`} aria-current={adminOpsActive ? 'page' : undefined}>运维</Link>}
-          {canReadPolicies && <Link href="/admin/policies" className={`nav-link${policiesActive ? ' is-active' : ''}`} aria-current={policiesActive ? 'page' : undefined}>执行策略</Link>}
+          <div className="site-nav__group site-nav__group--primary">
+            <Link href="/" className={`nav-link${creatorActive ? ' is-active' : ''}`} aria-current={creatorActive ? 'page' : undefined}>创作台</Link>
+            <Link href="/works" className={`nav-link${worksActive ? ' is-active' : ''}`} aria-current={worksActive ? 'page' : undefined}>我的作品</Link>
+            <Link href="/templates" className={`nav-link${templatesActive ? ' is-active' : ''}`} aria-current={templatesActive ? 'page' : undefined}>模板库</Link>
+            <Link href="/search" className={`nav-link${searchActive ? ' is-active' : ''}`} aria-current={searchActive ? 'page' : undefined}>检索</Link>
+            {user && <Link href="/sandbox" className={`nav-link${sandboxActive ? ' is-active' : ''}`} aria-current={sandboxActive ? 'page' : undefined}>沙箱</Link>}
+            {user && <Link href="/space" className={`nav-link${spaceActive ? ' is-active' : ''}`} aria-current={spaceActive ? 'page' : undefined}>个人空间</Link>}
+          </div>
+          {hasAdminNav && <div className="site-nav__group site-nav__group--governance" role="group" aria-label="治理与管理工作台">
+            <span className="site-nav__badge" aria-hidden="true">工作台</span>
+            {canManageKnowledge && <Link href="/manage" className={`nav-link nav-link--compact${manageActive && !templateManageActive ? ' is-active' : ''}`} aria-current={manageActive && !templateManageActive ? 'page' : undefined}>知识管理</Link>}
+            {canManageTemplates && <Link href="/manage/templates" className={`nav-link nav-link--compact${templateManageActive ? ' is-active' : ''}`} aria-current={templateManageActive ? 'page' : undefined}>模板管理</Link>}
+            {canReview && <Link href="/reviews" className={`nav-link nav-link--compact${reviewsActive ? ' is-active' : ''}`} aria-current={reviewsActive ? 'page' : undefined}>审核台</Link>}
+            {canApproveUsers && <Link href="/admin/users" className={`nav-link nav-link--compact${adminUsersActive ? ' is-active' : ''}`} aria-current={adminUsersActive ? 'page' : undefined}>用户管理</Link>}
+            {canOps && <Link href="/admin/ops" className={`nav-link nav-link--compact${adminOpsActive ? ' is-active' : ''}`} aria-current={adminOpsActive ? 'page' : undefined}>运维</Link>}
+            {canReadPolicies && <Link href="/admin/policies" className={`nav-link nav-link--compact${policiesActive ? ' is-active' : ''}`} aria-current={policiesActive ? 'page' : undefined}>执行策略</Link>}
+          </div>}
         </nav>
         <div className="site-account" aria-label="账号">
           {loading ? <span className="account-loading">正在恢复登录…</span>
@@ -177,8 +186,8 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
               </Link>
               <button type="button" className="button button--ghost button--small" disabled={accountBusy} onClick={() => void logout()}>退出</button>
             </> : <>
-              <span className="account-guest">访客</span>
-              <button type="button" className="button button--secondary button--small" onClick={() => openLogin()}>登录</button>
+              <span className="account-guest">访客模式</span>
+              <button type="button" className="button button--primary button--small" onClick={() => openLogin()}>登录</button>
             </>}
         </div>
       </div>

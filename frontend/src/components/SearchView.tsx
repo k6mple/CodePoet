@@ -104,8 +104,9 @@ export default function SearchView({ initial }: { initial: SearchQuery }) {
   return <section className="search-page" aria-labelledby="search-heading">
     <header className="page-intro page-intro--compact">
       <div>
+        <span className="studio-eyebrow">多维探索 · 文化意象与画轴</span>
         <h1 id="search-heading">组合检索</h1>
-        <p>按文化实体、标签、视觉符号、渲染后端和时间主题叠加条件，检索已发布模板与知识条目。</p>
+        <p>按文化意象、标签、视觉符号、渲染引擎与时间主题，探索已发布画轴与典故知识。</p>
       </div>
     </header>
 
