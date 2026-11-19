@@ -143,7 +143,7 @@ async function main() {
     await click(page, page.getByRole('button', { name: '校验并应用 IR', exact: true }), '/generations', 'POST', 201)
     const blankWork = await save(page, `空白质量检查-${runId}`)
     assert.equal(blankWork.renderJob.qualityReport.emptyOutput, true)
-    await page.getByText(/输出为空白，请检查画布/).waitFor()
+    await page.getByText(/存在空白帧|输出为空白，请检查画布/).waitFor()
     record('real-blank-png-quality-warning', { versionId: blankWork.workVersion.id, quality: blankWork.renderJob.qualityReport })
     await shot(page, 'blank-quality-warning.png')
 

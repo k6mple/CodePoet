@@ -85,6 +85,7 @@ export default function Creator() {
   const [sessionNotice, setSessionNotice] = useState('')
   const [sessionError, setSessionError] = useState('')
   const restoredTemplate = useRef<{ versionId: string; params?: Params } | null>(null)
+  const presetEntityIdsRef = useRef(false)
   useEffect(() => () => { manualController.current?.abort(); saveController.current?.abort() }, [])
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get('backend')
@@ -562,6 +563,44 @@ export default function Creator() {
     setParams(Object.fromEntries(version.parameterSchema.map((param) => [param.name, param.default])))
   }
 
+  function randomizeParams() {
+    if (!version) return
+    generationSequence.current++
+    setDirty(true)
+    setGenerateError('')
+    setSaveError('')
+    const nextParams: Params = { ...params }
+    for (const param of version.parameterSchema) {
+      if (param.type === 'number' || param.type === 'integer') {
+        const step = param.step > 0 ? param.step : 1
+        const stepsCount = Math.max(1, Math.floor((param.max - param.min) / step))
+        const randomStep = Math.floor(Math.random() * (stepsCount + 1))
+        const raw = param.min + randomStep * step
+        nextParams[param.name] = param.type === 'integer'
+          ? Math.round(Math.min(param.max, Math.max(param.min, raw)))
+          : Number(Math.min(param.max, Math.max(param.min, raw)).toFixed(2))
+      } else if (param.type === 'enum' && param.options.length > 0) {
+        nextParams[param.name] = param.options[Math.floor(Math.random() * param.options.length)]
+      }
+    }
+    setTemplateSeed((prev) => (prev % 900) + 17)
+    setParams(nextParams)
+  }
+
+  function applySemanticPreset(text: string, entityIds: string[] = []) {
+    presetEntityIdsRef.current = entityIds.length > 0
+    setSemanticIdsText(entityIds.join(' '))
+    changeSemantic({ text, entityIds })
+    if (user && capability && features?.semanticGeneration && !saving && !initializing) {
+      manualController.current?.abort()
+      manualController.current = null
+      manualLock.current = false
+      void runManual('/generations', {
+        mode: 'semantic', input: { text: text.trim(), entityIds }, backend, seed: 42,
+      })
+    }
+  }
+
   function selectTemplate(id: string) {
     if (id === selected && !restoredTemplate.current) return
     generationSequence.current++
@@ -645,25 +684,37 @@ export default function Creator() {
   }
 
   return <section className="creator" aria-labelledby="creator-heading">
-    <header className="creator-head">
-      <div>
-        <h2 id="creator-heading">创作台</h2>
-        <p>用模板参数、知识语义或 JSON IR 创作。画布显示服务器校验后的生成结果。</p>
+    <div className="studio-toolbar">
+      <div className="studio-toolbar__left">
+        <div className="studio-toolbar__brand">
+          <h2 id="creator-heading">创作台</h2>
+          <span className="studio-toolbar__subtitle">选择创作方式，实时预览画卷</span>
+        </div>
+        <div className="param-actions p1-modes studio-modes" role="group" aria-label="创作模式">
+          {([
+            ['template', '模板参数'], ['semantic', '语义生成'], ['ir', 'JSON IR'],
+          ] as const).map(([key, label]) => <button key={key} type="button"
+            className={`button button--small button--${mode === key ? 'primary' : 'secondary'}`}
+            aria-pressed={mode === key} disabled={initializing || saving || (pending && mode !== 'template')}
+            onClick={() => switchMode(key)}>{label}</button>)}
+        </div>
       </div>
-      <div className="capability" aria-live="polite">
-        <span className={`status-mark${capability ? ' is-ok' : loading ? '' : ' is-off'}`} aria-hidden="true" />
-        <span>{capability ? `${backendLabel(backend)} 可用` : loading ? '正在检查能力' : `${backendLabel(backend)} 未就绪`}</span>
-        <span className="mono">core-demo</span>
-      </div>
-    </header>
 
-    <label className="field">渲染后端
-      <select aria-label="渲染后端" value={backend} disabled={initializing || saving || sessionBusy} onChange={event => switchBackend(event.target.value as Backend)}>
-        {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!backendExecutable(capabilities, item)}>
-          {backendLabel(item)}{backendExecutable(capabilities, item) ? '' : '（未就绪）'}
-        </option>)}
-      </select>
-    </label>
+      <div className="studio-toolbar__right">
+        <label className="field studio-backend-field">
+          <span>渲染后端</span>
+          <select aria-label="渲染后端" value={backend} disabled={initializing || saving || sessionBusy} onChange={event => switchBackend(event.target.value as Backend)}>
+            {(['canvas2d', 'css', 'webgl', 'turtle'] as const).map(item => <option key={item} value={item} disabled={!backendExecutable(capabilities, item)}>
+              {backendLabel(item)}{backendExecutable(capabilities, item) ? '' : '（未就绪）'}
+            </option>)}
+          </select>
+        </label>
+        <div className="capability" aria-live="polite">
+          <span className={`status-mark${capability ? ' is-ok' : loading ? '' : ' is-off'}`} aria-hidden="true" />
+          <span>{capability ? `${backendLabel(backend)} 可用` : loading ? '正在检查能力' : `${backendLabel(backend)} 未就绪`}</span>
+        </div>
+      </div>
+    </div>
 
     {loadError && <div className="creator-alert">
       <InlineNotice tone="error" title="创作资源加载失败">
@@ -685,27 +736,19 @@ export default function Creator() {
         </div>
       </InlineNotice>
     </div>}
-
-    <div className="param-actions p1-modes" role="group" aria-label="创作模式">
-      {([
-        ['template', '模板参数'], ['semantic', '语义生成'], ['ir', 'JSON IR'],
-      ] as const).map(([key, label]) => <button key={key} type="button"
-        className={`button button--small button--${mode === key ? 'primary' : 'secondary'}`}
-        aria-pressed={mode === key} disabled={initializing || saving || (pending && mode !== 'template')}
-        onClick={() => switchMode(key)}>{label}</button>)}
-    </div>
     {restoreError && <InlineNotice tone="error" title="无法恢复创作现场">
       {restoreError}
       <button type="button" className="button button--secondary button--small"
         onClick={() => setRestoreAttempt((value) => value + 1)}>重新加载现场</button>
     </InlineNotice>}
+
     <div className="studio">
       <aside className="rail rail--templates" aria-labelledby="templates-heading">
         <div className="rail-head">
           <h2 id="templates-heading">选择模板</h2>
           <span className="rail-count mono">{templates.length} 个</span>
         </div>
-        <p className="rail-lead">适用于 {backendLabel(backend)} 的已发布文化主题模板。</p>
+        <p className="rail-lead">适用于 {backendLabel(backend)} 的已发布文化主题画轴。</p>
         {loading
           ? <LoadingLines label="正在载入模板" />
           : templates.length === 0
@@ -732,7 +775,12 @@ export default function Creator() {
 
       <section className="stage" aria-labelledby="stage-heading">
         <div className="stage-head">
-          <h2 id="stage-heading">作品画布</h2>
+          <div className="stage-head__title">
+            <h2 id="stage-heading">作品画布</h2>
+            <span className="stage-head__meta">
+              {mode === 'template' ? selectedTemplate?.metadata.name ?? '东方雅韵' : mode === 'semantic' ? '知识意象驱动' : '几何图层精修'}
+            </span>
+          </div>
           <span className={`stage-state ${statusTone}`}>{status}</span>
         </div>
         <div className="stage-mount">
@@ -756,34 +804,10 @@ export default function Creator() {
         <p className="stage-note">
           {generation
             ? generation.ir.durationMs > 0
-              ? '拖动时间轴定位叙事节点。保存时导出开头、中间、结尾三个 PNG 采样帧。'
-              : '当前显示静态画面；保存会导出 1 个采样帧。导出的 PNG 使用当前画布尺寸。'
-            : '画布逻辑尺寸为 800 × 600；页面显示时等比缩放，导出尺寸不随窗口变化。'}
+              ? '拖动时间轴可定位叙事节点；典藏保存时将自动截取片头、中段与片尾三帧高清 PNG。'
+              : '当前为静态画卷；典藏保存时将按 800 × 600 标准画幅导出高清 PNG。'
+            : '画案标准画幅为 800 × 600，随视口自适应缩放，导出图像保持原尺寸。'}
         </p>
-        {generation && generation.ownerId === userId && <details className="tech-details">
-          <summary>本次生成的技术信息</summary>
-          <dl className="tech-list">
-            <div><dt>生成编号</dt><dd className="mono">{generation.id}</dd></div>
-            <div><dt>请求编号</dt><dd className="mono">{generation.requestId}</dd></div>
-            <div><dt>IR 哈希</dt><dd className="mono">{shortId(generation.irHash, 16)}</dd></div>
-            <div><dt>模板版本</dt><dd className="mono">{generation.templateVersionId ? shortId(generation.templateVersionId, 12) : '—'}</dd></div>
-            <div><dt>种子</dt><dd className="mono">{generation.seed}</dd></div>
-          </dl>
-        </details>}
-        {generation && generation.ownerId === userId && <>
-          <GenerationEvidence generation={generation} />
-          {qualityFocus && <p role="status" className="quality-target">已定位：{qualityFocus.nodeIds.join('、')||'整帧'} · {qualityFocus.timeMs}ms；定位框不进入PNG。</p>}
-          {quality && dirty && <p className="quality-note">下方报告属于上次已应用的生成；当前草稿修改尚未评估。</p>}
-          <QualityEvidence key={generation.id} generation={generation} report={quality}
-            onLocate={!saving && !pending ? location=>{
-              setQualityFocus({nodeIds:location.nodeIds,timeMs:location.timeMs??0})
-              if(location.nodeIds[0]) setNodeId(location.nodeIds[0])
-            }:undefined}
-            onImprove={!saving && !pending ? (location:QualityLocation)=>{
-              setMode('ir');setDirty(true)
-              if(location.nodeIds[0])setNodeId(location.nodeIds[0])
-            }:undefined} />
-        </>}
       </section>
 
       <aside className="rail rail--params" aria-labelledby="params-heading">
@@ -803,7 +827,10 @@ export default function Creator() {
               <legend className="sr-only">模板参数</legend>
               <div className="param-list">{version.parameterSchema.map(renderParameter)}</div>
               <div className="param-actions">
-                <button type="button" className="button button--secondary button--small" onClick={resetDefaults} disabled={pending}>恢复默认</button>
+                <div className="param-actions__buttons">
+                  <button type="button" className="button button--secondary button--small" onClick={resetDefaults} disabled={pending}>恢复默认</button>
+                  <button type="button" className="button button--ghost button--small" onClick={randomizeParams} disabled={pending}>随机灵感</button>
+                </div>
                 <span className={`apply-state ${pending ? '' : dirty && generation ? 'is-dirty' : generation ? 'is-ready' : ''}`}>
                   {pending ? '正在应用…' : dirty && generation ? '修改未应用' : generation ? '已应用' : '等待生成'}
                 </span>
@@ -813,7 +840,7 @@ export default function Creator() {
               ? <InlineNotice tone="error" title="参数载入失败">{versionError}</InlineNotice>
               : <p className="rail-empty">{loading ? '正在载入模板…' : '尚未选择模板。'}</p>}
         </>}
-        {mode === 'semantic' && <form onSubmit={(event) => {
+        {mode === 'semantic' && <form className="semantic-form" onSubmit={(event) => {
           event.preventDefault()
           if (!user) {
             openLogin('登录后即可按知识或文本生成。')
@@ -825,12 +852,44 @@ export default function Creator() {
         }}>
           <fieldset disabled={saving || pending || initializing || !capability || !features?.semanticGeneration}>
             <legend className="sr-only">语义生成</legend>
+            <div className="preset-block">
+              <span className="preset-block__label">诗意主题快选（点击即刻生成对应意象画卷）</span>
+              <div className="preset-chips">
+                {([
+                  ['莲花清正', '填入：莲花清正', []],
+                  ['竹节守正', '填入：竹节守正', []],
+                  ['上善若水', '填入：上善若水', []],
+                  ['墨梅清气', '填入：墨梅清气', []],
+                  ['石灰清白', '填入：石灰清白', []],
+                  ['四知慎独', '填入：四知慎独', []],
+                  ['家风陶母悬鱼', '填入：清廉家风', ['knowledge-tao-mu']],
+                  ['四秒清莲叙事', '填入：四秒清莲叙事', ['knowledge-lotus', 'knowledge-bamboo']],
+                ] as const).map(([presetText, label, presetEntities]) => <button
+                  key={label}
+                  type="button"
+                  className={`preset-chip${semantic.text === presetText ? ' is-active' : ''}`}
+                  onClick={() => applySemanticPreset(presetText, [...presetEntities])}
+                >
+                  {label}
+                </button>)}
+              </div>
+            </div>
             <label className="field">典故或创作描述
-              <textarea rows={5} maxLength={2000} value={semantic.text}
-                onChange={(event) => changeSemantic({ ...semantic, text: event.target.value })} />
+              <textarea rows={4} maxLength={2000} placeholder="输入廉洁诗句、文化典故或画面意境描述，如“莲花清正”“竹节守正”“上善若水”…" value={semantic.text}
+                onChange={(event) => {
+                  const nextText = event.target.value
+                  if (presetEntityIdsRef.current) {
+                    presetEntityIdsRef.current = false
+                    setSemanticIdsText('')
+                    changeSemantic({ text: nextText, entityIds: [] })
+                  } else {
+                    changeSemantic({ ...semantic, text: nextText })
+                  }
+                }} />
             </label>
             <label className="field">知识实体 ID（以空格分隔）
-              <input value={semanticIdsText} onChange={(event) => {
+              <input placeholder="可选，仅在时间轴叙事或组合规则时填写，如：knowledge-lotus knowledge-bamboo" value={semanticIdsText} onChange={(event) => {
+                presetEntityIdsRef.current = false
                 setSemanticIdsText(event.target.value)
                 const ids = event.target.value.trim().split(/\s+/).filter(Boolean)
                 changeSemantic({ ...semantic, entityIds: [...new Set(ids)] })
@@ -844,7 +903,24 @@ export default function Creator() {
         {mode === 'semantic' && <form className="graph-form" onSubmit={generateFromGraph}>
           <fieldset disabled={saving || pending || initializing || !capability || !features?.knowledgeGraph}>
             <legend>外部知识图谱</legend>
-            <p className="rail-lead">按部署配置的来源键取一个外部实体。外部 ID 只进入来源快照，不作为站内知识链接。</p>
+            <p className="rail-lead">连接 Wikidata 等开放文化图谱，提取莲、竹、梅实体的属性与关系映射为画面。</p>
+            <div className="preset-block">
+              <span className="preset-block__label">常用图谱实体快选</span>
+              <div className="preset-chips">
+                {([
+                  ['Q16528', '莲 Q16528'],
+                  ['Q670887', '竹 Q670887'],
+                  ['Q157763', '梅 Q157763'],
+                ] as const).map(([qid, label]) => <button
+                  key={qid}
+                  type="button"
+                  className={`preset-chip${graphEntityId === qid ? ' is-active' : ''}`}
+                  onClick={() => { setGraphSourceId('wikidata'); setGraphEntityId(qid) }}
+                >
+                  图谱：{label}
+                </button>)}
+              </div>
+            </div>
             <label className="field">来源键
               <input value={graphSourceId} maxLength={40} placeholder="wikidata"
                 onChange={(event) => setGraphSourceId(event.target.value)} />
@@ -875,75 +951,116 @@ export default function Creator() {
       </aside>
 
       <section className="archive" aria-labelledby="archive-heading">
-        <div className="archive-head">
-          <h2 id="archive-heading">{editWork ? '保存作品新版本' : '保存作品'}</h2>
-          <p>上传完成且服务器确认后，才会显示为已保存。</p>
-        </div>
-        <div className="archive-body">
-          <label className="field">
-            <span>作品名称</span>
-            <input maxLength={80} required value={title} disabled={saving} readOnly={Boolean(editWork)}
-              onChange={(event) => setTitle(event.target.value)} />
-          </label>
-          {editWork && <label className="field">版本说明
-            <input maxLength={500} value={changeNote} disabled={saving} onChange={(event) => setChangeNote(event.target.value)} />
-          </label>}
-          <div className="archive-actions">
-            {!user
-              ? <button type="button" className="button button--primary" onClick={() => openLogin('登录后即可创建、上传并保存私有作品。')}>登录后保存</button>
-              : <button
-                type="button"
-                className="button button--primary"
-                onClick={() => void save()}
-                disabled={initializing || !capability || saving || pending || dirty || generation === null || generationBackend(generation) !== backend || generation.ownerId !== user.id || !title.trim() || Boolean(saved)}
-              >{saving ? '保存中…' : jobId ? '重试原任务并保存' : editWork ? '保存为新版本' : '保存私有作品'}</button>}
-            {jobId && !saved && <button type="button" className="button button--secondary button--small" disabled={saving} onClick={() => {
-              checkpoint.current = null
-              setJobId('')
-              setNotice('下次保存将创建新任务；原任务由后端按时效清理。')
-            }}>下次新建上传任务</button>}
-            {saving && jobId && backend === 'turtle' && <button type="button" className="button button--secondary" onClick={() => {
-              void cancelRenderJob(jobId).then(() => {
-                saveController.current?.abort()
-                setSaveError('服务器任务已取消，可选择新建任务重试。')
-              }).catch(cause => setSaveError(errorMessage(cause)))
-            }}>取消服务器任务</button>}
+        <div className="archive-grid">
+          <div className="archive-primary">
+            <div className="archive-head">
+              <h2 id="archive-heading">{editWork ? '保存作品新版本' : '保存作品'}</h2>
+              <p>题写作品名并归档至个人画廊，生成不可篡改的采样帧与溯源档案。</p>
+            </div>
+            <div className="archive-body">
+              <label className="field">
+                <span>作品名称</span>
+                <input maxLength={80} required value={title} disabled={saving} readOnly={Boolean(editWork)}
+                  onChange={(event) => setTitle(event.target.value)} />
+              </label>
+              {editWork && <label className="field">版本说明
+                <input maxLength={500} value={changeNote} disabled={saving} onChange={(event) => setChangeNote(event.target.value)} />
+              </label>}
+              <div className="archive-actions">
+                {!user
+                  ? <button type="button" className="button button--primary" onClick={() => openLogin('登录后即可创建、上传并保存私有作品。')}>登录后保存</button>
+                  : <button
+                    type="button"
+                    className="button button--primary"
+                    onClick={() => void save()}
+                    disabled={initializing || !capability || saving || pending || dirty || generation === null || generationBackend(generation) !== backend || generation.ownerId !== user.id || !title.trim() || Boolean(saved)}
+                  >{saving ? '保存中…' : jobId ? '重试原任务并保存' : editWork ? '保存为新版本' : '保存私有作品'}</button>}
+                {jobId && !saved && <button type="button" className="button button--secondary button--small" disabled={saving} onClick={() => {
+                  checkpoint.current = null
+                  setJobId('')
+                  setNotice('下次保存将创建新任务；原任务由后端按时效清理。')
+                }}>下次新建上传任务</button>}
+                {saving && jobId && backend === 'turtle' && <button type="button" className="button button--secondary" onClick={() => {
+                  void cancelRenderJob(jobId).then(() => {
+                    saveController.current?.abort()
+                    setSaveError('服务器任务已取消，可选择新建任务重试。')
+                  }).catch(cause => setSaveError(errorMessage(cause)))
+                }}>取消服务器任务</button>}
+              </div>
+            </div>
+            <p className="archive-note">
+              {!user ? '登录后可保存到你的私有作品。'
+                : !generation ? '生成画面后即可保存。'
+                  : pending || dirty ? '参数尚未应用，保存按钮保持禁用。'
+                    : '保存时会固定当前生成结果、IR 哈希、渲染器版本和采样时刻。'}
+            </p>
+            {notice && <p className="archive-status" role="status">{notice}</p>}
+            {saved && <p className="archive-success" role="status">
+              作品已保存。<Link href={`/works/versions/${encodeURIComponent(saved)}`}>打开已保存的作品</Link>
+            </p>}
+            {saveError && <InlineNotice tone="error" title="保存未确认">
+              {saveError}
+              <p>编辑内容和任务编号已保留。若保存请求超时，请先查看“我的作品”，避免重复创建。</p>
+            </InlineNotice>}
+            {jobId && <details className="tech-details">
+              <summary>上传任务编号</summary>
+              <p className="mono archive-job">{jobId}</p>
+            </details>}
           </div>
-        </div>
-        <p className="archive-note">
-          {!user ? '登录后可保存到你的私有作品。'
-            : !generation ? '生成画面后即可保存。'
-              : pending || dirty ? '参数尚未应用，保存按钮保持禁用。'
-                : '保存时会固定当前生成结果、IR 哈希、渲染器版本和采样时刻。'}
-        </p>
-        {notice && <p className="archive-status" role="status">{notice}</p>}
-        {saved && <p className="archive-success" role="status">
-          作品已保存。<Link href={`/works/versions/${encodeURIComponent(saved)}`}>打开已保存的作品</Link>
-        </p>}
-        {saveError && <InlineNotice tone="error" title="保存未确认">
-          {saveError}
-          <p>编辑内容和任务编号已保留。若保存请求超时，请先查看“我的作品”，避免重复创建。</p>
-        </InlineNotice>}
-        {jobId && <details className="tech-details">
-          <summary>上传任务编号</summary>
-          <p className="mono archive-job">{jobId}</p>
-        </details>}
-        <div className="archive-session">
-          <div className="archive-session__head">
-            <h3>保存创作进度</h3>
-            <span className="mono">{sessionId ? `会话 ${shortId(sessionId)} · rev ${sessionRevision}` : '未创建会话'}</span>
+
+          <div className="archive-session">
+            <div className="archive-session__head">
+              <h3>保存创作进度</h3>
+              <span className="mono">{sessionId ? `会话 ${shortId(sessionId)} · rev ${sessionRevision}` : '未创建会话'}</span>
+            </div>
+            <p className="archive-note">随时暂存当前调参或编辑现场，可在个人空间查看历史快照并无损回退。</p>
+            <div className="archive-actions">
+              <button type="button" className="button button--secondary button--small" disabled={initializing || saving || sessionBusy || pending || (mode === 'template' && !version) || !user} onClick={() => void saveProgress()}>
+                {sessionBusy ? '保存进度中…' : sessionId ? '保存进度并追加快照' : '保存创作进度'}
+              </button>
+              <Link href="/space?tab=sessions" className="button button--link button--small">打开个人空间会话</Link>
+            </div>
+            {sessionNotice && <p className="archive-status" role="status">{sessionNotice}</p>}
+            {sessionError && <InlineNotice tone="error" title="进度保存失败">{sessionError}</InlineNotice>}
           </div>
-          <p className="archive-note">保存当前创作模式与编辑现场。每次保存由服务器追加快照，恢复入口在个人空间。</p>
-          <div className="archive-actions">
-            <button type="button" className="button button--secondary" disabled={initializing || saving || sessionBusy || pending || (mode === 'template' && !version) || !user} onClick={() => void saveProgress()}>
-              {sessionBusy ? '保存进度中…' : sessionId ? '保存进度并追加快照' : '保存创作进度'}
-            </button>
-            <Link href="/space?tab=sessions" className="button button--link button--small">打开个人空间会话</Link>
-          </div>
-          {sessionNotice && <p className="archive-status" role="status">{sessionNotice}</p>}
-          {sessionError && <InlineNotice tone="error" title="进度保存失败">{sessionError}</InlineNotice>}
         </div>
       </section>
+
+      {generation && generation.ownerId === userId && <section className="studio-diagnostics" aria-label="美学评估与创作溯源">
+        <div className="studio-diagnostics__header">
+          <div>
+            <h3>美学评估与创作溯源</h3>
+            <p>自动分析构图交叠、色彩语义与信号纯度，并完整记录本次画卷的知识与参数脉络。</p>
+          </div>
+          <div className="studio-diagnostics__badges">
+            <span className="diag-pill">{generation.ir.nodes.length} 个图层节点</span>
+            <span className="diag-pill">{generation.ir.durationMs > 0 ? `${generation.ir.durationMs}ms 叙事动画` : '静态画幅'}</span>
+            <span className="diag-pill">{backendLabel(generationBackend(generation))}</span>
+          </div>
+        </div>
+        {qualityFocus && <p role="status" className="quality-target">已定位：{qualityFocus.nodeIds.join('、')||'整帧'} · {qualityFocus.timeMs}ms；定位框不进入PNG。</p>}
+        {quality && dirty && <p className="quality-note">下方报告属于上次已应用的生成；当前草稿修改尚未评估。</p>}
+        <QualityEvidence key={generation.id} generation={generation} report={quality}
+          onLocate={!saving && !pending ? location=>{
+            setQualityFocus({nodeIds:location.nodeIds,timeMs:location.timeMs??0})
+            if(location.nodeIds[0]) setNodeId(location.nodeIds[0])
+          }:undefined}
+          onImprove={!saving && !pending ? (location:QualityLocation)=>{
+            setMode('ir');setDirty(true)
+            if(location.nodeIds[0])setNodeId(location.nodeIds[0])
+          }:undefined} />
+        <GenerationEvidence generation={generation} />
+        <details className="tech-details">
+          <summary>本次生成的技术信息</summary>
+          <dl className="tech-list">
+            <div><dt>生成编号</dt><dd className="mono">{generation.id}</dd></div>
+            <div><dt>请求编号</dt><dd className="mono">{generation.requestId}</dd></div>
+            <div><dt>IR 哈希</dt><dd className="mono">{shortId(generation.irHash, 16)}</dd></div>
+            <div><dt>模板版本</dt><dd className="mono">{generation.templateVersionId ? shortId(generation.templateVersionId, 12) : '—'}</dd></div>
+            <div><dt>种子</dt><dd className="mono">{generation.seed}</dd></div>
+          </dl>
+        </details>
+      </section>}
     </div>
   </section>
 }

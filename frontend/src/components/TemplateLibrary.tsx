@@ -16,28 +16,48 @@ const PAGE_SIZE = 12
 
 function TemplatePlate({ template }: { template: Template }) {
   const [preview, setPreview] = useState('')
+  const [version, setVersion] = useState<TemplateVersion | null>(null)
   const [previewFailed, setPreviewFailed] = useState(false)
 
   useEffect(() => {
-    if (!template.thumbnailArtifactId) return
     const controller = new AbortController()
     let url = ''
-    request<Blob>(`/artifacts/${encodeURIComponent(template.thumbnailArtifactId)}`, {
-      signal: controller.signal, headers: { Accept: 'image/png' },
-    }).then((blob) => {
-      if (controller.signal.aborted) return
-      url = URL.createObjectURL(blob)
-      setPreview(url)
-    }).catch(() => {
-      if (!controller.signal.aborted) setPreviewFailed(true)
-    })
+    setPreview('')
+    setVersion(null)
+    setPreviewFailed(false)
+    if (template.thumbnailArtifactId) {
+      request<Blob>(`/artifacts/${encodeURIComponent(template.thumbnailArtifactId)}`, {
+        signal: controller.signal, headers: { Accept: 'image/png' },
+      }).then((blob) => {
+        if (controller.signal.aborted) return
+        url = URL.createObjectURL(blob)
+        setPreview(url)
+      }).catch(() => {
+        if (!controller.signal.aborted) setPreviewFailed(true)
+      })
+    } else if (template.publishedVersionId) {
+      request<TemplateVersion>(`/template-versions/${encodeURIComponent(template.publishedVersionId)}`, {
+        signal: controller.signal,
+      }).then((result) => {
+        if (!controller.signal.aborted) setVersion(result)
+      }).catch(() => {
+        if (!controller.signal.aborted) setPreviewFailed(true)
+      })
+    }
     return () => {
       controller.abort()
       if (url) URL.revokeObjectURL(url)
     }
-  }, [template.thumbnailArtifactId])
+  }, [template.thumbnailArtifactId, template.publishedVersionId])
 
   if (preview) return <img src={preview} alt={`${template.metadata.name} 模板预览`} loading="lazy" />
+  if (version) {
+    return <CanvasPreview
+      ir={version.irTemplate}
+      backend={preferredBrowserBackend(version.supportedBackends)}
+      timeMs={version.irTemplate.durationMs}
+    />
+  }
   const mark = template.metadata.symbols?.length ? symbolLabel(template.metadata.symbols[0]) : template.metadata.name.slice(0, 1)
   return <div className="template-card__placeholder">
     <span aria-hidden="true">{mark || '模'}</span>
@@ -96,8 +116,12 @@ export function TemplateLibrary() {
   return <section className="template-library" aria-labelledby="templates-heading">
     <header className="page-intro page-intro--compact">
       <div>
+        <span className="studio-eyebrow">廉洁意象 · 主题画轴</span>
         <h1 id="templates-heading">模板库</h1>
-        <p>从已发布的文化模板开始创作。模板不是固定图片：参数、IR 模板和来源会随作品保存。</p>
+        <p>精选莲、竹、梅、兰等东方廉洁文化主题画轴。任选一幅进入工坊，即可调校参数、衍生专属画卷。</p>
+      </div>
+      <div className="page-intro__actions">
+        <Link href="/" className="button button--primary button--small">前往创作台</Link>
       </div>
     </header>
 

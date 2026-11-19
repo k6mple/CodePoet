@@ -29,7 +29,7 @@ _NODE_TYPES = ["group", "circle", "polygon", "polyline"]
 _UNAVAILABLE_REASONS = {
     "canvas2d": "当前实例未启用 Canvas 2D",
     "turtle": "Turtle 后端尚未实现",
-    "webgl": "基础版不做 GLSL 与 WebGL，未实现",
+    "webgl": "当前实例未启用 WebGL",
     "css": "当前实例未启用 CSS",
 }
 
