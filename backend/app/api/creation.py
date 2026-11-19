@@ -34,8 +34,8 @@ router = APIRouter(tags=["创作"])
     summary="模板/语义/手工 IR 生成",
     description=(
         "创建一份不可变快照。template 模式按模板版本的声明式绑定实例化 IR；"
-        "ir 模式接收前端提交的完整 IR。semantic 模式尚未实现，会返回 "
-        "422 UNSUPPORTED_CAPABILITY。"
+        "semantic 模式按廉洁领域知识与映射规则推理合成 IR；"
+        "ir 模式接收前端提交的完整 IR。"
     ),
 )
 def create_generation(
