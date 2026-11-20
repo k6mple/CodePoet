@@ -687,6 +687,29 @@ class AssistantFlowTests(AssistantTestBase):
             self.assertEqual(json.loads(ver.parameter_schema_json), TEMPLATE_SCHEMA)
             self.assertEqual(json.loads(ver.bindings_json), TEMPLATE_BINDINGS)
 
+        # 确认经 parameter_schema 提案派生的快照在沙箱调用 set_param 时明确报 DSL_INVALID_BASE（不误用原模板 schema）
+        sb_res = self.client.post(
+            f"{API}/sandbox-runs",
+            json={
+                "baseGenerationId": gen["id"],
+                "source": json.dumps(
+                    {
+                        "version": 1,
+                        "ops": [
+                            {"op": "set_param", "name": "coreRadius", "value": 55},
+                            {"op": "circle", "cx": 400, "cy": 300, "r": 20, "fill": "#2F5D50"},
+                        ],
+                    }
+                ),
+            },
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(sb_res.status_code, 202, sb_res.text)
+        with self.sessions() as db:
+            sb_row = sandbox_service.wait_for(db, sb_res.json()["id"], timeout=15.0)
+            self.assertEqual(sb_row.status, "failed")
+            self.assertEqual(json.loads(sb_row.error_json)["code"], "DSL_INVALID_BASE")
+
     def test_cross_user_404_and_permission_revocation_on_apply(self) -> None:
         csrf_a, uid_a = self._register_and_login("x1_owner_a")
         _, gen_a = self._seed_template_and_generation(uid_a, csrf_a)

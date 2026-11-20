@@ -126,6 +126,30 @@ export default function AssistantPanel({
     }
   }, [target, supportsParameterSchema])
 
+  // 用户登出或切换账号时，立即中止轮询并清空旧提案状态，避免串号或 401 误报
+  useEffect(() => {
+    stopPolling()
+    setSubmitting(false)
+    setApplying(false)
+    setProposal(null)
+    setError('')
+    setAppliedNotice('')
+  }, [user?.id])
+
+  // 当画布切换到与当前提案无关的快照（如换模板/换后端）时清理陈旧提案，防止误应用错后端
+  useEffect(() => {
+    if (!proposal) return
+    const currentId = generation?.id
+    if (currentId && (currentId === proposal.baseGenerationId || currentId === proposal.appliedGenerationId)) {
+      return
+    }
+    stopPolling()
+    setSubmitting(false)
+    setProposal(null)
+    setError('')
+    setAppliedNotice('')
+  }, [generation?.id, proposal])
+
   // 卸载时清理轮询定时器
   useEffect(() => () => {
     activeRunToken.current++

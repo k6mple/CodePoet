@@ -58,6 +58,7 @@ def create_proposal(
     _csrf=Depends(require_csrf),
     db: Session = Depends(get_db),
 ) -> AssistantProposal:
+    executor = _executor(request)
     proposal = assistant_service.create_proposal(
         db,
         user,
@@ -65,7 +66,7 @@ def create_proposal(
         request.state.request_id,
         request.app.state.settings,
     )
-    _executor(request).submit(proposal.id)
+    executor.submit(proposal.id)
     return proposal
 
 

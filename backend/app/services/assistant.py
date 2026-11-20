@@ -11,7 +11,6 @@ from threading import Lock
 from typing import Any
 from uuid import uuid4
 
-from pydantic import TypeAdapter
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
@@ -34,9 +33,7 @@ from app.schemas.assistant import (
 )
 from app.schemas.generation import (
     AssistantProvenance,
-    Binding,
     Generation as GenerationSchema,
-    ParameterDefinition,
     Provenance,
 )
 from app.schemas.ir import DrawingIR, IRNode
@@ -64,7 +61,6 @@ MAX_ACTIVE_PROPOSALS_PER_USER = 2
 MAX_ATTEMPTS = 2
 _WORKER_PROTOCOL = 1
 _ASSISTANT_ENGINE_VERSION = "x1-assistant-1.0"
-_PARAM_ADAPTER = TypeAdapter(ParameterDefinition)
 
 
 def _now_iso() -> str:

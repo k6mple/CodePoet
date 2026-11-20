@@ -743,6 +743,10 @@ def _param_context(
     """
     if base.mode != "template" or not base.template_version_id:
         return None
+    # 经 AI parameter_schema 提案派生的快照使用的是临时参数空间，不再与原模板绑定一致
+    base_prov = json.loads(base.provenance_json or "{}")
+    if base_prov.get("assistant") is not None:
+        return None
     version = db.get(TemplateVersion, base.template_version_id)
     if version is None:
         return None
