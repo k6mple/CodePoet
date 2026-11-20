@@ -1,7 +1,7 @@
 # 交接：X1 智能辅助可视计算能力（DeepSeek API）
 
-日期 / 任务 ID / 代码基线：2026-11-20（Asia/Shanghai） / X1 / 分支 `feat/x1-llm-assistant-20261120`（基于 `main` `2313ce2`）
-当前状态与影响范围：**真实集成通过**（未自动合入 `main`，未推送远端；未配置 `CODEPOET_LLM_API_KEY` 时 `features.llmAssistant = false`，既有主线零回归）。
+日期 / 任务 ID / 代码基线：2026-11-20（Asia/Shanghai） / X1 / 分支 `feat/x1-llm-assistant-20261120`（基于 `main` `2313ce2`，经独立审查修复后合入 `main`）
+当前状态与影响范围：**真实集成通过（已合入 `main`）**（未配置 `CODEPOET_LLM_API_KEY` 时 `features.llmAssistant = false`，既有主线零回归）。
 
 ## 接手者需要知道的变化
 
