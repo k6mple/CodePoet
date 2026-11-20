@@ -12,6 +12,7 @@ from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
 from app.api.admin import router as admin_router
+from app.api.assistant import router as assistant_router
 from app.observability import set_request_id
 from app.api.audit import router as audit_router
 from app.api.auth import router as auth_router
@@ -29,6 +30,8 @@ from app.api.works import router as works_router
 from app.db import create_database, create_session_factory
 from app.errors import ApiError
 from app.schemas.health import Health
+from app.services import assistant as assistant_service
+from app.services.assistant import AssistantExecutor
 from app.services import sandbox as sandbox_service
 from app.services.sandbox import SandboxExecutor
 from app.settings import Settings
@@ -61,6 +64,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # （engine/dsl_worker.py），这里只负责排队与在事务中落库。
         executor = SandboxExecutor(application.state.sessions)
         application.state.sandbox_executor = executor
+        assistant_executor = AssistantExecutor(application.state.sessions, config)
+        application.state.assistant_executor = assistant_executor
         try:
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
@@ -83,8 +88,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 logger.warning(
                     "跳过沙箱孤儿任务清理：sandbox_runs 表不存在，请先跑迁移"
                 )
+            try:
+                with application.state.sessions() as session:
+                    assistant_service.recover_orphans(session)
+            except OperationalError as exc:
+                if "no such table" not in str(exc).lower():
+                    raise
+                logger.warning(
+                    "跳过智能辅助孤儿提案清理：assistant_proposals 表不存在，请先跑迁移"
+                )
             yield
         finally:
+            assistant_executor.shutdown()
             executor.shutdown()
             engine.dispose()
 
@@ -180,6 +195,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return Health()
 
     application.include_router(admin_router, prefix="/api/v1")
+    application.include_router(assistant_router, prefix="/api/v1")
     application.include_router(audit_router, prefix="/api/v1")
     application.include_router(auth_router, prefix="/api/v1")
     application.include_router(creation_router, prefix="/api/v1")

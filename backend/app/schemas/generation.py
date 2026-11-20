@@ -292,6 +292,18 @@ class TemplateSelection(BaseModel):
     reason: str = Field(max_length=1000)
 
 
+class AssistantProvenance(BaseModel):
+    """X1 LLM 智能辅助提案的只读来源记录，随派生链继承。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    proposalId: NodeId
+    model: str = Field(min_length=1, max_length=120)
+    attempts: int = Field(ge=1, le=2)
+    proposalHash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    policyRevision: int = Field(ge=1)
+
+
 class Provenance(BaseModel):
     """来源快照：这份 IR 是怎么来的、依据了哪些实体和规则。
 
@@ -323,6 +335,7 @@ class Provenance(BaseModel):
     # schemas.knowledge_graph.ExternalGraph。
     # 旧记录的字段缺失按 null 读取，不改旧快照内容。
     externalGraph: dict[str, Any] | None = None
+    assistant: AssistantProvenance | None = None
     fragmentSource: str | None = Field(default=None, max_length=16384)
     fragmentSourceHash: str | None = Field(default=None, max_length=64)
 
@@ -377,6 +390,8 @@ class CapabilityFeatureFlags(BaseModel):
     #: 本实例是否配了知识图谱来源。false 时 `POST /knowledge-graph/generations`
     #: 一律 503，前端据此关闭入口——而不是让用户点了才看到报错。
     knowledgeGraph: bool = False
+    #: X1 智能辅助：仅当服务端同时配置了 llm_api_key 与 llm_base_url 时为 true。
+    llmAssistant: bool = False
 
 
 class Capability(BaseModel):

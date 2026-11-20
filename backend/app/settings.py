@@ -41,6 +41,13 @@ class Settings(BaseSettings):
     # 「竹亚科」对「竹」、「梅」对「墨梅」这种差异，猜会错、表才对得上。
     knowledge_graph_mapping_file: str = ""
 
+    # X1 LLM 辅助（OpenAI 兼容接口，默认 DeepSeek）。
+    # 留空 api_key 时 features.llmAssistant 保持 false，POST /assistant/proposals 返回 503。
+    llm_base_url: str = "https://api.deepseek.com"
+    llm_api_key: str = ""
+    llm_model: str = "deepseek-chat"
+    llm_timeout_seconds: float = 30.0
+
     @field_validator("data_dir", mode="after")
     @classmethod
     def resolve_data_dir(cls, value: Path) -> Path:

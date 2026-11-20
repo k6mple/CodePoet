@@ -14,9 +14,10 @@
 - **Q1 作品质量量化治理**：版本化质量评估（`codepoet-quality-1.0.0`），覆盖参数合法性（`parameterValidity`）、200×150 逻辑掩码布局冲突检测（`layoutConflict`）、规则色板色彩语义合规（`colorSemantic`）与前景掩码代理信噪比（`signalNoise`），支持在时间轴上定位问题节点与时刻并带入编辑器改进对照（12 标注样本含 6 坏例闭环；指标 `score` 保持未校准 `null`）。
 - **S1 受限 DSL 沙箱与执行策略**：纯 JSON AST 白名单解释器（支持 `circle` / `polygon` / `polyline` / `set_param`，兼容 IR 基底与模板基底参数重实例化），独立子进程 + Windows Job Object / 看门狗资源保护（墙钟、CPU、内存、步数、绘图调用上限）与管理员策略配置（`/sandbox`、`/admin/policies`，支持硬上限校验与 409 乐观锁恢复）。
 - **K1 外部知识图谱联动生成**：对接 Wikidata 真实实体与一跳关系（莲 `Q16528`、竹 `Q670887`、梅 `Q157763`），将外部属性与关系映射至站内知识与叙事题记，持久化自包含 `externalGraph` 来源快照，支持断网或关闭外部来源后的历史作品离线复现。默认关闭，通过 `CODEPOET_KNOWLEDGE_GRAPH_SOURCES` 与 `CODEPOET_KNOWLEDGE_GRAPH_MAPPING_FILE` 启用。
+- **X1 智能辅助可视计算能力**：对接 OpenAI 兼容模型接口（默认 DeepSeek `deepseek-chat`），在创作台提供自然语言驱动的 **IR 片段改造（`ir_fragment`）** 与 **模板参数空间生成（`parameter_schema`）** 提案；模型只输出结构化 IR / 参数空间 JSON（不输出原始绘图代码），经独立子进程隔离校验（含 `validate_ir` 全图限额与采样）并在检出冲突/越界时自动反馈模型修复（最多 1 次，`attempts <= 2`），校验通过后由用户显式幂等应用并记录 `provenance.assistant` 溯源与依赖快照哈希。默认关闭，配置 `CODEPOET_LLM_API_KEY` 后自动启用；未配置时 `features.llmAssistant = false`、UI 禁用入口且接口返回 `503 ASSISTANT_UNAVAILABLE`。
 - **已知范围边界（诚实声明）**：
   - `R3`（Turtle 服务端渲染）因目标环境缺少 Ghostscript 无法完成 EPS→PNG 栅格化，保持延期未启用；
-  - `X1`（LLM 辅助）与 `X2`（WebGL 高级后处理）按项目门槛规则裁剪未启用；
+  - `X2`（WebGL 高级后处理）按项目门槛规则裁剪未启用；
   - `WebGL` 复现因跨上下文 MSAA 抗锯齿存在 ≤0.005% 边缘像素差异（MAE 为 `0%`）；
   - `Q1` 质量分数为项目内部版本化代理指标，未做官方校准。
 
@@ -35,13 +36,13 @@ uv sync --project backend --locked
 .\scripts\setup-node.ps1
 .\scripts\npm.ps1 ci
 
-# 建表迁移（001～013）+ 写入四角色演示账号与演示素材（知识/规则/模板）
+# 建表迁移（001～014）+ 写入四角色演示账号与演示素材（知识/规则/模板）
 uv run --project backend python scripts/migrate.py
 uv run --project backend python scripts/seed.py --reset-passwords
 uv run --project backend python scripts/seed_demo.py
 ```
 
-默认配置可直接使用（默认仅开启 `canvas2d`）。需要开启 `css` / `webgl` 与 `K1` 外部知识图谱时，将根目录 [.env.example](.env.example) 复制为 `.env` 并取消对应项注释（`CODEPOET_ENABLED_BACKENDS=canvas2d,css,webgl`、`CODEPOET_KNOWLEDGE_GRAPH_SOURCES=wikidata`、`CODEPOET_KNOWLEDGE_GRAPH_MAPPING_FILE=shared/demo/knowledge-graph-mappings.json`）；已有 `.env` 时不要覆盖。
+默认配置可直接使用（默认仅开启 `canvas2d`）。需要开启 `css` / `webgl`、`K1` 外部知识图谱与 `X1` 智能辅助时，将根目录 [.env.example](.env.example) 复制为 `.env` 并取消对应项注释（`CODEPOET_ENABLED_BACKENDS=canvas2d,css,webgl`、`CODEPOET_KNOWLEDGE_GRAPH_SOURCES=wikidata`、`CODEPOET_KNOWLEDGE_GRAPH_MAPPING_FILE=shared/demo/knowledge-graph-mappings.json`，以及 `CODEPOET_LLM_BASE_URL`、`CODEPOET_LLM_API_KEY`、`CODEPOET_LLM_MODEL`）；已有 `.env` 时不要覆盖，且严禁将真实密钥提交到 Git。
 
 默认演示账号为 `creator_demo`、`developer_demo`、`expert_demo`、`admin_demo`（初始密码定义见 [scripts/seed.py](scripts/seed.py)）。
 
@@ -84,7 +85,7 @@ uv run --project backend uvicorn app.main:app --host 127.0.0.1 --port 8000
 ### 常用自动化检查命令
 
 ```powershell
-# 1. 后端全量单元测试（在 backend 目录，当前 484 项）
+# 1. 后端全量单元测试（在 backend 目录，当前 493 项）
 uv run --locked python -m unittest discover -s tests -q
 
 # 2. 沙箱进程冒烟与反向守卫验证（仓库根目录）
@@ -124,13 +125,13 @@ CodePoet/
 │   │   ├── main.py             # FastAPI 应用入口、生命周期与健康接口
 │   │   ├── settings.py         # 环境配置与数据路径（读取根 .env）
 │   │   ├── db.py               # 同步 SQLAlchemy / SQLite
-│   │   ├── api/                # auth、knowledge、templates、creation、works、admin、sandbox、knowledge_graph、engine
-│   │   ├── models/             # users、knowledge、templates、creations、operations、sandbox
+│   │   ├── api/                # auth、knowledge、templates、creation、works、admin、sandbox、knowledge_graph、assistant、engine
+│   │   ├── models/             # users、knowledge、templates、creations、operations、sandbox、assistant
 │   │   ├── schemas/            # Pydantic 请求/响应模型
-│   │   ├── services/           # 权限、审核、上传、快照、导入导出、审计、quality、sandbox、policy、knowledge_graph
-│   │   └── engine/             # capabilities、validate、instantiate、semantic、sample、dsl、dsl_worker
-│   ├── migrations/            # 001～013 数据库编号迁移
-│   └── tests/                 # 后端全量行为与安全边界测试（484 项）
+│   │   ├── services/           # 权限、审核、上传、快照、导入导出、审计、quality、sandbox、policy、knowledge_graph、assistant
+│   │   └── engine/             # capabilities、validate、instantiate、semantic、sample、dsl、dsl_worker、llm_client、assistant_worker
+│   ├── migrations/            # 001～014 数据库编号迁移
+│   └── tests/                 # 后端全量行为与安全边界测试（493 项）
 ├── frontend/                   # Next.js 16 页面、新中式工坊界面与多后端渲染器
 │   ├── public/                # 公开静态资源
 │   ├── src/

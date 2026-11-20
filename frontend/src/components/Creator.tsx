@@ -11,6 +11,7 @@ import type {
 import { sampleTimes } from '@/renderers/canvas/renderScene'
 import { parameterValueLabel, shortId, symbolLabel } from '@/utils/format'
 import CanvasPreview from './CanvasPreview'
+import AssistantPanel from './AssistantPanel'
 import { GenerationEvidence } from './GenerationEvidence'
 import QualityEvidence from './QualityEvidence'
 import IRControls, { parseIR } from './IRControls'
@@ -1025,6 +1026,21 @@ export default function Creator() {
           </div>
         </div>
       </section>
+
+      <AssistantPanel
+        enabled={Boolean(features?.llmAssistant)}
+        user={user}
+        generation={generation}
+        selectedNodeId={nodeId}
+        disabled={initializing || saving || pending}
+        onRequireLogin={openLogin}
+        onApplied={(applied, proposal) => {
+          acceptGeneration(applied, generationBackend(applied))
+          setNotice(
+            `已应用 AI 提案（${proposal.target} · 模型 ${proposal.model} · 尝试 ${proposal.attempts} 次），当前新快照尚未像素评估，可正常命名保存。`,
+          )
+        }}
+      />
 
       {generation && generation.ownerId === userId && <section className="studio-diagnostics" aria-label="美学评估与创作溯源">
         <div className="studio-diagnostics__header">

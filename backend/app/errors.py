@@ -201,3 +201,22 @@ def policy_field_read_only(fields: list[str]) -> ApiError:
         ],
         details={"readOnlyFields": fields},
     )
+
+
+# ---- X1 LLM 智能辅助 ------------------------------------------------------
+
+
+def assistant_unavailable(
+    message: str = "当前未配置智能辅助模型服务",
+    details: Any = None,
+) -> ApiError:
+    """503：未配置 LLM API Key / Base URL 或隔离校验环境不可用。"""
+    return ApiError(503, "ASSISTANT_UNAVAILABLE", message, details=details)
+
+
+def assistant_unsupported_base(
+    message: str,
+    details: Any = None,
+) -> ApiError:
+    """422：基底快照不支持所请求的辅助目标（如非模板基底请求 parameter_schema）。"""
+    return ApiError(422, "ASSISTANT_UNSUPPORTED_BASE", message, details=details)
