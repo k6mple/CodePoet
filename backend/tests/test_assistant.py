@@ -277,16 +277,22 @@ class AssistantFlowTests(AssistantTestBase):
         else:
             apply_migrations(target_db, max_version=13)
 
-        env = {"CODEPOET_DATA_DIR": str(copy_dir)}
+        env = {
+            **__import__("os").environ,
+            "CODEPOET_DATA_DIR": str(copy_dir),
+            "PYTHONIOENCODING": "utf-8",
+        }
         proc = subprocess.run(
             [sys.executable, str(REPO_ROOT / "scripts" / "migrate.py")],
             cwd=str(REPO_ROOT),
-            env={**__import__("os").environ, **env},
+            env=env,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
-        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(proc.returncode, 0, (proc.stdout or "") + (proc.stderr or ""))
         conn = sqlite3.connect(target_db)
         tables = {
             row[0]
@@ -401,14 +407,14 @@ class AssistantFlowTests(AssistantTestBase):
             "rootNodeId": "lotus_core",
             "replacementNodes": [
                 {
-                    "id": "lotus_core_group",
+                    "id": "lotus_core",
                     "parentId": "scene_root",
                     "type": "group",
                     "style": {"opacity": 1},
                 },
                 {
                     "id": "lotus_petal_inner",
-                    "parentId": "lotus_core_group",
+                    "parentId": "lotus_core",
                     "type": "circle",
                     "geometry": {"cx": 400, "cy": 300, "r": 52},
                     "style": {
@@ -420,7 +426,7 @@ class AssistantFlowTests(AssistantTestBase):
                 },
                 {
                     "id": "lotus_petal_top",
-                    "parentId": "lotus_core_group",
+                    "parentId": "lotus_core",
                     "type": "polygon",
                     "geometry": {"points": [[400, 220], [426, 268], [374, 268]]},
                     "style": {
@@ -769,7 +775,7 @@ class AssistantFlowTests(AssistantTestBase):
             "rootNodeId": "lotus_core",
             "replacementNodes": [
                 {
-                    "id": "lotus_core_b",
+                    "id": "lotus_core",
                     "parentId": "scene_root",
                     "type": "circle",
                     "geometry": {"cx": 400, "cy": 300, "r": 50},
@@ -851,6 +857,239 @@ class AssistantFlowTests(AssistantTestBase):
             self.assertEqual(orphan.status, "failed")
             self.assertIsNotNone(orphan.finished_at)
             self.assertEqual(json.loads(orphan.error_json)["code"], "ASSISTANT_INTERRUPTED")
+
+    def test_ir_fragment_enforces_subtree_root_id_and_parent_continuity(self) -> None:
+        csrf, uid = self._register_and_login("x1_user_m1")
+        _, gen_id = self._seed_template_and_generation(uid, csrf)
+
+        bad_cases = [
+            (
+                "detached_root_parent_null",
+                {
+                    "rootNodeId": "lotus_core",
+                    "replacementNodes": [
+                        {
+                            "id": "lotus_core",
+                            "parentId": None,
+                            "type": "circle",
+                            "geometry": {"cx": 400, "cy": 300, "r": 50},
+                            "style": {"fill": "#E8B4B8", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                        }
+                    ],
+                },
+                "ASSISTANT_SUBTREE_PARENT_MISMATCH",
+            ),
+            (
+                "reparented_to_sibling",
+                {
+                    "rootNodeId": "lotus_core",
+                    "replacementNodes": [
+                        {
+                            "id": "lotus_core",
+                            "parentId": "outer_ring",
+                            "type": "circle",
+                            "geometry": {"cx": 400, "cy": 300, "r": 50},
+                            "style": {"fill": "#E8B4B8", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                        }
+                    ],
+                },
+                "ASSISTANT_SUBTREE_PARENT_MISMATCH",
+            ),
+            (
+                "renamed_root_id",
+                {
+                    "rootNodeId": "lotus_core",
+                    "replacementNodes": [
+                        {
+                            "id": "renamed_core",
+                            "parentId": "scene_root",
+                            "type": "circle",
+                            "geometry": {"cx": 400, "cy": 300, "r": 50},
+                            "style": {"fill": "#E8B4B8", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                        }
+                    ],
+                },
+                "ASSISTANT_SUBTREE_ROOT_ID_MISMATCH",
+            ),
+            (
+                "multiple_roots",
+                {
+                    "rootNodeId": "lotus_core",
+                    "replacementNodes": [
+                        {
+                            "id": "lotus_core",
+                            "parentId": "scene_root",
+                            "type": "circle",
+                            "geometry": {"cx": 380, "cy": 300, "r": 40},
+                            "style": {"fill": "#E8B4B8", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                        },
+                        {
+                            "id": "extra_root",
+                            "parentId": "scene_root",
+                            "type": "circle",
+                            "geometry": {"cx": 420, "cy": 300, "r": 40},
+                            "style": {"fill": "#4A6B5D", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                        },
+                    ],
+                },
+                "ASSISTANT_SUBTREE_ROOT_INVALID",
+            ),
+        ]
+
+        for label, bad_payload, expected_code in bad_cases:
+            with self.subTest(label=label):
+                with patch(
+                    "app.engine.llm_client.chat_json",
+                    return_value=LlmResponse(
+                        content=json.dumps(bad_payload, ensure_ascii=False),
+                        model="deepseek-chat",
+                    ),
+                ):
+                    created = self.client.post(
+                        f"{API}/assistant/proposals",
+                        json={
+                            "baseGenerationId": gen_id,
+                            "prompt": f"测试子树根约束 {label}",
+                            "target": "ir_fragment",
+                            "rootNodeId": "lotus_core",
+                        },
+                        headers={"X-CSRF-Token": csrf},
+                    )
+                    self.assertEqual(created.status_code, 202, created.text)
+                    pid = created.json()["id"]
+                    with self.sessions() as db:
+                        assistant_service.wait_for(db, pid, timeout=15.0)
+                fetched = self.client.get(f"{API}/assistant/proposals/{pid}").json()
+                self.assertEqual(fetched["status"], "failed", fetched)
+                self.assertEqual(fetched["error"]["code"], "ASSISTANT_VALIDATION_FAILED")
+                codes = {i["code"] for i in fetched["validation"]["issues"]}
+                self.assertIn(expected_code, codes)
+
+    def test_policy_revision_tracking_and_apply_rechecks_tightened_limits(self) -> None:
+        from app.models.sandbox import Policy as PolicyModel
+
+        csrf, uid = self._register_and_login("x1_user_m5")
+        _, gen_id = self._seed_template_and_generation(uid, csrf)
+
+        # 在执行前将策略 revision 推进到 3，验证 validation/provenance 记录真实执行时的 revision=3
+        with self.sessions() as db:
+            pol = db.get(PolicyModel, 1)
+            assert pol is not None
+            pol.revision = 3
+            db.commit()
+
+        valid_prop = {
+            "rootNodeId": "lotus_core",
+            "replacementNodes": [
+                {
+                    "id": "lotus_core",
+                    "parentId": "scene_root",
+                    "type": "group",
+                    "style": {"opacity": 1},
+                },
+                {
+                    "id": "lotus_c1",
+                    "parentId": "lotus_core",
+                    "type": "circle",
+                    "geometry": {"cx": 400, "cy": 300, "r": 40},
+                    "style": {"fill": "#E8B4B8", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                },
+                {
+                    "id": "lotus_c2",
+                    "parentId": "lotus_core",
+                    "type": "circle",
+                    "geometry": {"cx": 420, "cy": 300, "r": 25},
+                    "style": {"fill": "#4A6B5D", "stroke": None, "strokeWidth": 0, "opacity": 1},
+                },
+            ],
+        }
+        with patch(
+            "app.engine.llm_client.chat_json",
+            return_value=LlmResponse(content=json.dumps(valid_prop), model="deepseek-chat"),
+        ):
+            created = self.client.post(
+                f"{API}/assistant/proposals",
+                json={
+                    "baseGenerationId": gen_id,
+                    "prompt": "替换为三节点花心",
+                    "target": "ir_fragment",
+                    "rootNodeId": "lotus_core",
+                },
+                headers={"X-CSRF-Token": csrf},
+            )
+            self.assertEqual(created.status_code, 202)
+            pid = created.json()["id"]
+            with self.sessions() as db:
+                assistant_service.wait_for(db, pid, timeout=15.0)
+
+        prop = self.client.get(f"{API}/assistant/proposals/{pid}").json()
+        self.assertEqual(prop["status"], "ready")
+        self.assertEqual(prop["validation"]["policyRevision"], 3)
+
+        # 收紧策略 maxIRNodes=3（当前替换后将有 5 个节点），apply 必须拒绝（409 INVALID_STATE）
+        with self.sessions() as db:
+            pol = db.get(PolicyModel, 1)
+            assert pol is not None
+            vals = json.loads(pol.values_json)
+            vals["maxIRNodes"] = 3
+            pol.values_json = json.dumps(vals)
+            pol.revision = 4
+            db.commit()
+
+        blocked = self.client.post(
+            f"{API}/assistant/proposals/{pid}/apply",
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(blocked.status_code, 409, blocked.text)
+        self.assertEqual(blocked.json()["error"]["code"], "INVALID_STATE")
+
+    def test_concurrent_apply_idempotency(self) -> None:
+        from concurrent.futures import ThreadPoolExecutor
+        from app.models.users import User as UserModel
+
+        csrf, uid = self._register_and_login("x1_user_conc")
+        _, gen_id = self._seed_template_and_generation(uid, csrf)
+        valid_prop = {
+            "rootNodeId": "lotus_core",
+            "replacementNodes": [
+                {
+                    "id": "lotus_core",
+                    "parentId": "scene_root",
+                    "type": "circle",
+                    "geometry": {"cx": 400, "cy": 300, "r": 46},
+                    "style": {"fill": "#E8B4B8", "stroke": "#8B3A3A", "strokeWidth": 2, "opacity": 1},
+                }
+            ],
+        }
+        with patch(
+            "app.engine.llm_client.chat_json",
+            return_value=LlmResponse(content=json.dumps(valid_prop), model="deepseek-chat"),
+        ):
+            created = self.client.post(
+                f"{API}/assistant/proposals",
+                json={
+                    "baseGenerationId": gen_id,
+                    "prompt": "并发幂等 apply 测试",
+                    "target": "ir_fragment",
+                    "rootNodeId": "lotus_core",
+                },
+                headers={"X-CSRF-Token": csrf},
+            )
+            self.assertEqual(created.status_code, 202)
+            pid = created.json()["id"]
+            with self.sessions() as db:
+                assistant_service.wait_for(db, pid, timeout=15.0)
+
+        def call_apply(idx: int) -> str:
+            with self.sessions() as db:
+                u = db.get(UserModel, uid)
+                assert u is not None
+                g = assistant_service.apply_proposal(db, u, pid, f"req-conc-{idx}")
+                return g.id
+
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            ids = list(pool.map(call_apply, range(4)))
+        self.assertEqual(len(set(ids)), 1, f"Concurrent apply created duplicates: {ids}")
 
 
 if __name__ == "__main__":

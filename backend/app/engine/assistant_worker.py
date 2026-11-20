@@ -215,6 +215,50 @@ def _validate_ir_fragment(payload: dict[str, Any]) -> dict[str, Any]:
             )
         )
 
+    # M1: 强制子树替换语义——replacementNodes 必须包含且仅包含一个替换根节点，
+    # 其 id 必须保持为 rootNodeId，其 parentId 必须严格延续原目标节点的 parentId，
+    # 防止模型把子树替换成脱离原父节点的游离根或改挂到其他节点。
+    target_node = by_id[expected_root]
+    expected_parent_id = target_node.parentId
+    replacement_id_set = set(replacement_ids)
+    roots = [n for n in proposal.replacementNodes if n.parentId not in replacement_id_set]
+    if len(roots) != 1:
+        issues.append(
+            _issue(
+                "ASSISTANT_SUBTREE_ROOT_INVALID",
+                (
+                    f"replacementNodes 必须包含且仅包含 1 个替换根节点（当前检出 {len(roots)} 个），"
+                    f"其余节点必须挂在根节点「{expected_root}」或其后代下"
+                ),
+                path="replacementNodes",
+                node_ids=[r.id for r in roots[:5]],
+            )
+        )
+    else:
+        rep_root = roots[0]
+        if rep_root.id != expected_root:
+            issues.append(
+                _issue(
+                    "ASSISTANT_SUBTREE_ROOT_ID_MISMATCH",
+                    f"替换根节点的 id 必须保持为「{expected_root}」（当前为「{rep_root.id}」）",
+                    path="replacementNodes",
+                    node_ids=[rep_root.id],
+                )
+            )
+        if rep_root.parentId != expected_parent_id:
+            issues.append(
+                _issue(
+                    "ASSISTANT_SUBTREE_PARENT_MISMATCH",
+                    (
+                        f"替换根节点「{rep_root.id}」的 parentId 必须延续原父节点 "
+                        f"{json.dumps(expected_parent_id, ensure_ascii=False)}，"
+                        f"当前为 {json.dumps(rep_root.parentId, ensure_ascii=False)}"
+                    ),
+                    path="replacementNodes",
+                    node_ids=[rep_root.id],
+                )
+            )
+
     kept = [node for node in base_ir.nodes if node.id not in subtree]
     merged_nodes = kept + list(proposal.replacementNodes)
     if len(merged_nodes) > max_nodes:
@@ -412,14 +456,30 @@ def _validate_parameter_schema(payload: dict[str, Any]) -> dict[str, Any]:
             ],
         }
 
-    # 验证数字参数的 min/max 边界写入 IR 也不会违反 DrawingIR 字段约束（如 opacity<=1, strokeWidth<=20）
-    min_params = dict(outcome.params)
-    max_params_vals = dict(outcome.params)
-    for param in proposal.parameterSchema:
-        if isinstance(param, (IntegerParameter, NumberParameter)):
-            min_params[param.name] = param.min
-            max_params_vals[param.name] = param.max
-    for label, bound_vals in (("min", min_params), ("max", max_params_vals)):
+    # 验证数字参数的边界写入 IR 也不会违反 DrawingIR 字段约束（如 opacity<=1, strokeWidth<=20）：
+    # 覆盖 all-min / all-max 以及逐参数单边 min/max（其余取 default），避免混合极值漏检（L6）。
+    boundary_cases: list[tuple[str, dict[str, Any]]] = []
+    numeric_params = [
+        p for p in proposal.parameterSchema if isinstance(p, (IntegerParameter, NumberParameter))
+    ]
+    if numeric_params:
+        all_min = dict(outcome.params)
+        all_max = dict(outcome.params)
+        for param in numeric_params:
+            all_min[param.name] = param.min
+            all_max[param.name] = param.max
+        boundary_cases.append(("all-min", all_min))
+        boundary_cases.append(("all-max", all_max))
+        if len(numeric_params) > 1:
+            for param in numeric_params:
+                single_min = dict(outcome.params)
+                single_min[param.name] = param.min
+                boundary_cases.append((f"{param.name}.min", single_min))
+                single_max = dict(outcome.params)
+                single_max[param.name] = param.max
+                boundary_cases.append((f"{param.name}.max", single_max))
+
+    for label, bound_vals in boundary_cases:
         try:
             bound_outcome = instantiate(
                 template_ir,

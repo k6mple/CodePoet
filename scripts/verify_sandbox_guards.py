@@ -110,6 +110,8 @@ def run(test_id: str) -> bool:
         cwd=str(BACKEND),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=300,
     )
     return result.returncode == 0
@@ -118,16 +120,20 @@ def run(test_id: str) -> bool:
 def main() -> int:
     failures: list[str] = []
     for label, path, original, broken, test_id in CASES:
-        text = path.read_text(encoding="utf-8")
-        if original not in text:
+        raw = path.read_bytes()
+        newline = b"\r\n" if b"\r\n" in raw else b"\n"
+        original_bytes = original.encode("utf-8").replace(b"\n", newline)
+        broken_bytes = broken.encode("utf-8").replace(b"\n", newline)
+        if original_bytes not in raw:
             print(f"[SKIP] {label}：找不到锚点，说明代码已经变了，需人工复核")
             failures.append(label)
             continue
-        path.write_text(text.replace(original, broken, 1), encoding="utf-8", newline="\n")
+        path.write_bytes(raw.replace(original_bytes, broken_bytes, 1))
         try:
             degraded_pass = run(test_id)
         finally:
-            path.write_text(text, encoding="utf-8", newline="\n")
+            # 按原始字节原样还原，保留 CRLF/LF 行尾，避免运行后 git status 变脏
+            path.write_bytes(raw)
         restored_pass = run(test_id)
 
         verdict = "OK" if (not degraded_pass and restored_pass) else "PROBLEM"

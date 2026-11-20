@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.deepseek.com"
     llm_api_key: str = ""
     llm_model: str = "deepseek-chat"
-    llm_timeout_seconds: float = Field(default=30.0, gt=0, le=120.0)
+    llm_timeout_seconds: float = Field(default=30.0, gt=0, le=30.0)
 
     @field_validator("data_dir", mode="after")
     @classmethod

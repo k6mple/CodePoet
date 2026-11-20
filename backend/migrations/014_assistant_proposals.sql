@@ -39,7 +39,7 @@ CREATE TABLE assistant_proposals (
         (target = 'parameter_schema' AND root_node_id IS NULL)
     ),
     CHECK (
-        (status = 'ready' AND proposal_json IS NOT NULL AND proposal_hash IS NOT NULL) OR
+        (status = 'ready' AND proposal_json IS NOT NULL AND proposal_hash IS NOT NULL AND attempts >= 1) OR
         (status <> 'ready' AND proposal_json IS NULL)
     ),
     CHECK (

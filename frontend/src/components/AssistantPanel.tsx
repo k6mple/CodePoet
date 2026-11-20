@@ -7,7 +7,7 @@ import {
   getAssistantProposal,
 } from '@/api/assistant'
 import { errorMessage } from '@/api/client'
-import type { AssistantProposal, AssistantTarget, Generation, User } from '@/types/core'
+import type { AssistantProposal, AssistantTarget, Backend, Generation, User } from '@/types/core'
 import { shortId } from '@/utils/format'
 import { InlineNotice } from './Feedback'
 import { IssueList } from './GenerationEvidence'
@@ -46,11 +46,16 @@ interface AssistantPanelProps {
   enabled: boolean
   user: User | null
   generation: Generation | null
+  backend: Backend
   selectedNodeId: string | null
+  hasUnsavedDraft: boolean
+  backendMismatch: boolean
   disabled: boolean
   onRequireLogin: (reason: string) => void
   onApplied: (generation: Generation, proposal: AssistantProposal) => void
 }
+
+const MAX_POLL_MS = 120_000
 
 function statusLabel(status: AssistantProposal['status']): string {
   switch (status) {
@@ -69,7 +74,10 @@ export default function AssistantPanel({
   enabled,
   user,
   generation,
+  backend,
   selectedNodeId,
+  hasUnsavedDraft,
+  backendMismatch,
   disabled,
   onRequireLogin,
   onApplied,
@@ -136,6 +144,16 @@ export default function AssistantPanel({
     setAppliedNotice('')
   }, [user?.id])
 
+  // 切换渲染后端时立即中止轮询并清理旧提案，防止跨后端误应用（M4）
+  useEffect(() => {
+    stopPolling()
+    setSubmitting(false)
+    setApplying(false)
+    setProposal(null)
+    setError('')
+    setAppliedNotice('')
+  }, [backend])
+
   // 当画布切换到与当前提案无关的快照（如换模板/换后端）时清理陈旧提案，防止误应用错后端
   useEffect(() => {
     if (!proposal) return
@@ -164,7 +182,13 @@ export default function AssistantPanel({
     }
   }
 
-  async function pollProposal(id: string, token: number) {
+  async function pollProposal(id: string, token: number, startedAt: number) {
+    if (Date.now() - startedAt > MAX_POLL_MS) {
+      if (activeRunToken.current !== token) return
+      setSubmitting(false)
+      setError('提案等待超时（超过 120 秒），请重新发起或稍后重试。')
+      return
+    }
     try {
       const latest = await getAssistantProposal(id)
       if (activeRunToken.current !== token) return
@@ -174,7 +198,7 @@ export default function AssistantPanel({
         return
       }
       pollTimer.current = setTimeout(() => {
-        void pollProposal(id, token)
+        void pollProposal(id, token, startedAt)
       }, 600)
     } catch (cause) {
       if (activeRunToken.current !== token) return
@@ -194,6 +218,10 @@ export default function AssistantPanel({
       setError('请先生成一幅属于你的作品画卷，再发起 AI 辅助提案。')
       return
     }
+    if (hasUnsavedDraft || backendMismatch) {
+      setError('当前存在未应用草稿或渲染后端切换尚未就绪，请先应用当前修改后再发起 AI 提案。')
+      return
+    }
     const cleanPrompt = prompt.trim()
     if (!cleanPrompt) {
       setError('请输入自然语言创作或改造需求。')
@@ -206,6 +234,7 @@ export default function AssistantPanel({
 
     stopPolling()
     const token = ++activeRunToken.current
+    const startedAt = Date.now()
     setSubmitting(true)
     setError('')
     setAppliedNotice('')
@@ -224,7 +253,7 @@ export default function AssistantPanel({
         setSubmitting(false)
       } else {
         pollTimer.current = setTimeout(() => {
-          void pollProposal(created.id, token)
+          void pollProposal(created.id, token, startedAt)
         }, 500)
       }
     } catch (cause) {
@@ -235,7 +264,7 @@ export default function AssistantPanel({
   }
 
   async function handleApply() {
-    if (!proposal || proposal.status !== 'ready' || applying || disabled) return
+    if (!proposal || proposal.status !== 'ready' || applying || disabled || hasUnsavedDraft || backendMismatch) return
     setApplying(true)
     setError('')
     setAppliedNotice('')
@@ -258,7 +287,7 @@ export default function AssistantPanel({
   }
 
   const presets = target === 'ir_fragment' ? IR_FRAGMENT_PRESETS : PARAMETER_SCHEMA_PRESETS
-  const isBusy = submitting || applying || disabled
+  const isBusy = submitting || applying || disabled || hasUnsavedDraft || backendMismatch
   const repairedIssues = proposal?.validation?.repairedIssues ?? []
   const validationIssues = proposal?.validation?.issues ?? []
 
@@ -305,6 +334,14 @@ export default function AssistantPanel({
 
       {enabled && user && !canUseBase && <p className="rail-lead">
         先生成一幅属于你的作品作为基础画卷，再在此发起 IR 片段改造或参数空间扩展提案。
+      </p>}
+
+      {enabled && canUseBase && backendMismatch && <p className="assistant-hint" role="status">
+        当前渲染后端已切换，等待新画布生成就绪后再使用 AI 智能辅助，避免跨后端状态错位。
+      </p>}
+
+      {enabled && canUseBase && !backendMismatch && hasUnsavedDraft && <p className="assistant-hint" role="status">
+        当前存在未应用的草稿或参数修改；请先应用当前修改后再发起或应用 AI 提案，避免覆盖手动草稿。
       </p>}
 
       <form className="assistant-form" onSubmit={(event) => void handleSubmit(event)}>
@@ -393,7 +430,7 @@ export default function AssistantPanel({
           {proposal?.status === 'ready' && <button
             type="button"
             className="button button--secondary button--small"
-            disabled={applying || disabled}
+            disabled={applying || disabled || hasUnsavedDraft || backendMismatch}
             onClick={() => void handleApply()}
           >
             {applying ? '正在应用提案…' : proposal.appliedGenerationId ? '再次应用提案（幂等）' : '应用提案'}

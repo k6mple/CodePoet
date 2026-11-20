@@ -329,7 +329,8 @@ def _build_ir_fragment_messages(
         "2. 顶层结构固定且仅允许两个键：{\"rootNodeId\": string, \"replacementNodes\": [IRNode, ...]}。\n"
         "3. IRNode 严格字段（不允许任何额外键）：\n"
         "   - id: 匹配 ^[A-Za-z0-9_-]{1,80}$ 且不可与子树外既有节点 ID 冲突，replacementNodes 内部也不可重复。\n"
-        "   - parentId: 替换根节点须延续原 parentId；子节点可指向 replacementNodes 内已有节点 id；不可悬空或成环；总嵌套深度 <= 4。\n"
+        "   - 子树根连续性（强制）：replacementNodes 必须包含且仅包含 1 个替换根节点，其 id 必须严格等于 rootNodeId，"
+        "其 parentId 必须严格延续原目标节点的 parentId；其余所有替换节点的 parentId 必须指向 replacementNodes 内部节点，禁止脱离原父节点或改挂到子树外其他节点；总嵌套深度 <= 4。\n"
         "   - type: \"group\" | \"circle\" | \"polygon\" | \"polyline\"\n"
         "   - transform(可选): {\"x\": number, \"y\": number, \"rotation\": number, \"scaleX\": 0.1..10, \"scaleY\": 0.1..10}\n"
         "   - style:\n"
@@ -650,7 +651,9 @@ def execute_proposal(db: Session, proposal_id: str, settings: Settings) -> None:
         return
 
     base_ir = DrawingIR.model_validate_json(base.ir_json)
-    _, policy_vals_model = policy_service.snapshot(db)
+    # M5: 校验所用策略值与记录的 policy_revision 必须严格来自同一次快照，避免受理→执行间改策略导致溯源失真
+    exec_policy_revision, policy_vals_model = policy_service.snapshot(db)
+    row.policy_revision = exec_policy_revision
     policy_vals = policy_vals_model.model_dump(mode="json")
 
     template_context: dict[str, Any] | None = None
@@ -856,6 +859,9 @@ def apply_proposal(
                 db.commit()
                 return generations_service.build_generation_schema(existing)
 
+        # M5: apply 前重检当前生效策略限额，防止管理员收紧策略后旧 ready 提案突破最新限额
+        _, current_policy = policy_service.snapshot(db)
+
         assistant_prov = AssistantProvenance(
             proposalId=row.id,
             model=row.model,
@@ -870,9 +876,29 @@ def apply_proposal(
             by_id = {n.id: n for n in base_ir.nodes}
             if parsed.rootNodeId not in by_id:
                 raise errors.ir_invalid("基底 IR 节点已不匹配提案目标")
+            if row.root_node_id and parsed.rootNodeId != row.root_node_id:
+                raise errors.ir_invalid("提案 rootNodeId 与记录不一致")
+
+            # M1: apply 侧复核子树根连续性（不单独信任 worker 结果）
+            target_node = by_id[parsed.rootNodeId]
+            rep_ids = {n.id for n in parsed.replacementNodes}
+            roots = [n for n in parsed.replacementNodes if n.parentId not in rep_ids]
+            if (
+                len(roots) != 1
+                or roots[0].id != parsed.rootNodeId
+                or roots[0].parentId != target_node.parentId
+            ):
+                raise errors.ir_invalid(
+                    "提案替换根节点未保持原节点 ID 或原 parentId，无法作为合法子树替换应用"
+                )
+
             subtree = _collect_subtree_ids(list(base_ir.nodes), parsed.rootNodeId)
             kept = [n for n in base_ir.nodes if n.id not in subtree]
             merged = kept + list(parsed.replacementNodes)
+            if len(merged) > current_policy.maxIRNodes:
+                raise errors.invalid_state(
+                    f"当前执行策略已收紧，替换后节点数 {len(merged)} 超过上限 {current_policy.maxIRNodes}"
+                )
             new_ir = DrawingIR.model_validate(
                 {
                     "schemaVersion": base_ir.schemaVersion,
@@ -889,6 +915,15 @@ def apply_proposal(
                     "narrative": [item.model_dump() for item in base_ir.narrative],
                 }
             )
+            total_vertices = sum(
+                len(n.geometry.points)
+                for n in new_ir.nodes
+                if n.type in ("polygon", "polyline")
+            )
+            if total_vertices > current_policy.maxVertices:
+                raise errors.invalid_state(
+                    f"当前执行策略已收紧，替换后顶点数 {total_vertices} 超过上限 {current_policy.maxVertices}"
+                )
             report = validate_ir(new_ir)
             blocking = [i for i in report.issues if i.code != "IR_OUT_OF_BOUNDS"]
             if blocking:
@@ -916,6 +951,10 @@ def apply_proposal(
                     "基底模板版本已不可用于 parameter_schema 应用"
                 )
             parsed_ps = ParameterSchemaProposal.model_validate_json(row.proposal_json)
+            if len(parsed_ps.parameterSchema) > current_policy.maxParameters:
+                raise errors.invalid_state(
+                    f"当前执行策略已收紧，参数数 {len(parsed_ps.parameterSchema)} 超过上限 {current_policy.maxParameters}"
+                )
             template_ir = DrawingIR.model_validate_json(version.ir_template_json)
             try:
                 check_template_integrity(
@@ -938,6 +977,19 @@ def apply_proposal(
                     f"临时模板参数校验失败：{outcome.issues[0].message}"
                 )
             new_ir = outcome.ir
+            if len(new_ir.nodes) > current_policy.maxIRNodes:
+                raise errors.invalid_state(
+                    f"当前执行策略已收紧，实例化节点数 {len(new_ir.nodes)} 超过上限 {current_policy.maxIRNodes}"
+                )
+            total_vertices = sum(
+                len(n.geometry.points)
+                for n in new_ir.nodes
+                if n.type in ("polygon", "polyline")
+            )
+            if total_vertices > current_policy.maxVertices:
+                raise errors.invalid_state(
+                    f"当前执行策略已收紧，实例化顶点数 {total_vertices} 超过上限 {current_policy.maxVertices}"
+                )
             report = validate_ir(new_ir)
             blocking = [i for i in report.issues if i.code != "IR_OUT_OF_BOUNDS"]
             if blocking:

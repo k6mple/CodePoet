@@ -85,7 +85,7 @@ uv run --project backend uvicorn app.main:app --host 127.0.0.1 --port 8000
 ### 常用自动化检查命令
 
 ```powershell
-# 1. 后端全量单元测试（在 backend 目录，当前 493 项）
+# 1. 后端全量单元测试（在 backend 目录，当前 496 项）
 uv run --locked python -m unittest discover -s tests -q
 
 # 2. 沙箱进程冒烟与反向守卫验证（仓库根目录）
@@ -131,7 +131,7 @@ CodePoet/
 │   │   ├── services/           # 权限、审核、上传、快照、导入导出、审计、quality、sandbox、policy、knowledge_graph、assistant
 │   │   └── engine/             # capabilities、validate、instantiate、semantic、sample、dsl、dsl_worker、llm_client、assistant_worker
 │   ├── migrations/            # 001～014 数据库编号迁移
-│   └── tests/                 # 后端全量行为与安全边界测试（493 项）
+│   └── tests/                 # 后端全量行为与安全边界测试（496 项）
 ├── frontend/                   # Next.js 16 页面、新中式工坊界面与多后端渲染器
 │   ├── public/                # 公开静态资源
 │   ├── src/
@@ -144,7 +144,7 @@ CodePoet/
 │   │   ├── types/             # 前端类型定义
 │   │   └── utils/             # 通用工具
 │   ├── work-logs/             # 随仓库共享的跨端交接与验收证据索引
-│   └── tests/                 # 渲染器、G0/P1、CSS/WebGL、Q1、K1、S1-B 真实浏览器验收脚本
+│   └── tests/                 # 渲染器、G0/P1、CSS/WebGL、Q1、K1、S1-B、X1 真实浏览器验收脚本
 ├── shared/
 │   ├── schemas/               # 共享数据约束说明
 │   └── demo/                  # 演示数据、标注质量样本、外部图谱映射与联调 fixture

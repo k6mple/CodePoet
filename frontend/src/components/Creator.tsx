@@ -1031,11 +1031,17 @@ export default function Creator() {
         enabled={Boolean(features?.llmAssistant)}
         user={user}
         generation={generation}
+        backend={backend}
         selectedNodeId={nodeId}
-        disabled={initializing || saving || pending}
+        hasUnsavedDraft={dirty}
+        backendMismatch={Boolean(generation && generationBackend(generation) !== backend)}
+        disabled={initializing || saving || pending || versionLoading}
         onRequireLogin={openLogin}
         onApplied={(applied, proposal) => {
-          acceptGeneration(applied, generationBackend(applied))
+          const appliedBackend = generationBackend(applied)
+          backendRef.current = appliedBackend
+          setBackend(appliedBackend)
+          acceptGeneration(applied, appliedBackend)
           setNotice(
             `已应用 AI 提案（${proposal.target} · 模型 ${proposal.model} · 尝试 ${proposal.attempts} 次），当前新快照尚未像素评估，可正常命名保存。`,
           )

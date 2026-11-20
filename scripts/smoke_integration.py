@@ -53,14 +53,17 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 def run_script(name: str, data_dir: Path) -> tuple[int, str]:
     env = dict(os.environ)
     env["CODEPOET_DATA_DIR"] = str(data_dir)
+    env["PYTHONIOENCODING"] = "utf-8"
     proc = subprocess.run(
         [sys.executable, str(PROJECT_ROOT / "scripts" / name)],
         cwd=str(BACKEND_DIR),
         env=env,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
-    return proc.returncode, (proc.stdout + proc.stderr)[-400:]
+    return proc.returncode, ((proc.stdout or "") + (proc.stderr or ""))[-400:]
 
 
 def register(client: httpx.Client, base: str, name: str, role: str, db_path: Path) -> str:

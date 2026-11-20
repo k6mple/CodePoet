@@ -34,3 +34,14 @@
 
 - 审阅分支 `feat/x1-llm-assistant-20261120` 后按需合入 `main` 并决定是否推送远端（由仓库维护者执行）；
 - 若在正式演示库启用 X1，需在正式 `data/` 上执行 `scripts/migrate.py` 升级至 `014` 并在 `.env` 保留有效 `CODEPOET_LLM_API_KEY`。
+
+## 独立审查问题闭环（对照 `2026-11-20-x1-independent-review.md`）
+
+已逐项完成独立审查中全部 5 项中危问题（M1–M5）与 L1/L2/L4/L5/L6/L7 及并发幂等用例修复并全量复验：
+- **M1**：在 `assistant_worker.py` 与 `services/assistant.py::apply_proposal` 双端强制 `ir_fragment` 替换根节点唯一且保留原 `rootNodeId` 与原 `parentId`，补 4 组失败回归测试。
+- **M2**：`scripts/verify_sandbox_guards.py` 改用二进制按原始换行符读写还原，11/11 通过且运行后 `git diff` 零行尾残留。
+- **M3**：`backend/tests/test_assistant.py` 与 `scripts/smoke_integration.py` 子进程显式固定 `encoding="utf-8", errors="replace"` 与 `PYTHONIOENCODING=utf-8`，在 `PYTHONIOENCODING=utf-8:surrogateescape` PowerShell 环境下实测 `test_assistant` 12/12、`smoke_integration` 40/40 通过。
+- **M4 / L5**：`AssistantPanel.tsx` 与 `Creator.tsx` 纳入 `dirty`、`versionLoading`、`backendMismatch` 禁用防护与切后端清理，`onApplied` 同步 `backend`，轮询增加 120s 总超时兜底。
+- **M5**：`execute_proposal` 同步写入实际执行所用 `policy_revision`，`apply_proposal` 重检当前策略 `maxIRNodes`/`maxVertices`/`maxParameters`（收紧超限返回 `409 INVALID_STATE`），新增策略收紧与 4 线程并发 `apply` 幂等单测。
+- **L1 / L2 / L4 / L6 / L7**：补充 `docs/接口文档.md` 第 13 节 X1 契约；收紧 `llm_timeout_seconds <= 30.0`；提交可复跑脚本 `frontend/tests/x1-browser-check.mjs`；补全 `parameter_schema` 逐参数单边 min/max 边界校验；`014_assistant_proposals.sql` 增加 `ready -> attempts >= 1` 表级约束。
+- **复验结果**：后端 **496 tests OK（200.223s）**、`smoke_integration` **40/40**、`verify_sandbox_guards` **11/11（零脏文件）**、前端 `typecheck`/`build` 退出码 `0`、`frontend/tests/x1-browser-check.mjs` 真实 DeepSeek 3+1 + 无密钥 503 全通过（`exactMatch=true`, `pageErrors=[]`）。
