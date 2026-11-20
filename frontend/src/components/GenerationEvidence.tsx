@@ -23,6 +23,7 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
   const source = generation.provenance
   if (!source) return null
   const external = source.externalGraph
+  const assistant = source.assistant
   // externalGraph is stored as a JSON dict on the backend, so old/malformed
   // snapshots must not crash the evidence panel.
   const externalEntities = external?.entities ?? []
@@ -34,7 +35,7 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
     ['时间轴', source.timelineDecision],
   ] as const
 
-  return <details className="tech-details" open={generation.mode === 'semantic'}>
+  return <details className="tech-details" open={generation.mode === 'semantic' || Boolean(assistant)}>
     <summary>生成依据与来源快照</summary>
     <dl className="tech-list">
       <div><dt>来源类型</dt><dd>{source.kind}</dd></div>
@@ -87,6 +88,16 @@ export function GenerationEvidence({ generation }: { generation: Generation }) {
         </ul>
       </div>}
       <p className="quality-note">外部 ID 只保留在来源快照中，不是站内知识链接；属性/关系影响叙事、规则或符号，不承诺改变 PNG 像素。</p>
+    </section>}
+    {assistant && <section className="assistant-source" aria-label="AI 智能辅助来源">
+      <h4>AI 智能辅助溯源</h4>
+      <dl className="tech-list">
+        <div><dt>模型</dt><dd className="mono">{assistant.model}</dd></div>
+        <div><dt>提案编号</dt><dd className="mono">{assistant.proposalId}</dd></div>
+        <div><dt>校验/修复次数</dt><dd className="mono">{assistant.attempts} 次{assistant.attempts > 1 ? '（含自动修复）' : ''}</dd></div>
+        <div><dt>策略版本</dt><dd className="mono">rev {assistant.policyRevision}</dd></div>
+        <div><dt>提案哈希</dt><dd className="mono">{assistant.proposalHash}</dd></div>
+      </dl>
     </section>}
     {source.matchedEntities.length > 0 && <ul className="issue-list">
       {source.matchedEntities.map((entity) => <li key={entity.entityId}>

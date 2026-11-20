@@ -294,7 +294,22 @@ def _worker_env() -> dict[str, str]:
 def _run_worker(
     payload: dict[str, Any], *, wall_seconds: float, job_memory_mib: int
 ) -> WorkerResult:
-    """起一个 worker，喂 JSON，收 JSON。超时就整组回收。
+    return run_isolated_module(
+        "app.engine.dsl_worker",
+        payload,
+        wall_seconds=wall_seconds,
+        job_memory_mib=job_memory_mib,
+    )
+
+
+def run_isolated_module(
+    module: str,
+    payload: dict[str, Any],
+    *,
+    wall_seconds: float,
+    job_memory_mib: int,
+) -> WorkerResult:
+    """起一个隔离 Python 子进程运行指定纯计算模块，喂 JSON，收 JSON。超时整组回收。
 
     ``job_memory_mib`` 只用于 **Job Object 那层内核兜底**。worker 内部看门狗
     实际用的上限来自 ``payload["memoryMiB"]``（也就是策略快照里的值）——
@@ -314,7 +329,7 @@ def _run_worker(
         # 不用 ``-I``：isolated 模式会连 ``PYTHONPATH`` 一起忽略，worker 就
         # import 不到 ``app.*`` 了。隔离靠的是「只传最小 env」和「进程外执行」，
         # 不是靠解释器开关。``-B`` 只是别往仓库里写 __pycache__。
-        [sys.executable, "-B", "-m", "app.engine.dsl_worker"],
+        [sys.executable, "-B", "-m", module],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -728,6 +743,10 @@ def _param_context(
     """
     if base.mode != "template" or not base.template_version_id:
         return None
+    # 经 AI parameter_schema 提案派生的快照使用的是临时参数空间，不再与原模板绑定一致
+    base_prov = json.loads(base.provenance_json or "{}")
+    if base_prov.get("assistant") is not None:
+        return None
     version = db.get(TemplateVersion, base.template_version_id)
     if version is None:
         return None
@@ -857,8 +876,9 @@ def _finish_succeeded(
         engineVersion=ENGINE_VERSION,
         ontologyVersion=ONTOLOGY_VERSION,
         policyRevision=row.policy_revision,
-        # 外部图谱快照随派生保留（细则 K1：经 DSL 后仍在）
+        # 外部图谱与 AI 辅助来源快照随派生保留（细则 K1/X1：经 DSL 后仍在）
         externalGraph=base_provenance.get("externalGraph"),
+        assistant=base_provenance.get("assistant"),
         # **只留 hash，不留源码**。
         #
         # provenance 会随 `GET /generations/{id}` 返回，而作品一旦发布，

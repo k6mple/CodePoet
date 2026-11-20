@@ -874,6 +874,7 @@ input[type="checkbox"] {
   grid-template-areas:
     "templates stage params"
     "templates archive params"
+    "templates assistant params"
     "templates diagnostics params";
   column-gap: 24px;
   row-gap: 20px;
@@ -892,6 +893,7 @@ input[type="checkbox"] {
 .rail--params { grid-area: params; }
 .stage { grid-area: stage; min-width: 0; }
 .archive { grid-area: archive; min-width: 0; }
+.studio-assistant { grid-area: assistant; min-width: 0; }
 .studio-diagnostics { grid-area: diagnostics; min-width: 0; }
 
 .rail-head {
@@ -1521,6 +1523,201 @@ input[type="checkbox"] {
   border-radius: var(--radius-lg);
   background: var(--paper-raised);
   box-shadow: var(--shadow-card);
+}
+
+/* Studio AI Assistant Panel (X1) */
+
+.studio-assistant {
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.assistant-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.assistant-head__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.assistant-head h3 {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.assistant-lead {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.assistant-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  border: 1px solid var(--line);
+}
+.assistant-badge.is-on {
+  color: var(--moss);
+  border-color: rgba(70, 98, 76, 0.35);
+  background: var(--moss-wash);
+}
+.assistant-badge.is-off {
+  color: var(--muted);
+  background: var(--paper);
+}
+
+.assistant-body {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.assistant-form {
+  display: grid;
+  gap: 12px;
+}
+
+.assistant-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assistant-target {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.assistant-node-field {
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+
+.assistant-hint {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.assistant-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.assistant-result {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.assistant-result__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.assistant-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--line);
+}
+.assistant-status.is-ready {
+  color: var(--moss);
+  border-color: rgba(70, 98, 76, 0.35);
+  background: var(--moss-wash);
+}
+.assistant-status.is-failed {
+  color: var(--error);
+  border-color: rgba(168, 56, 43, 0.35);
+  background: var(--vermilion-wash);
+}
+.assistant-status.is-queued,
+.assistant-status.is-running {
+  color: var(--ink-soft);
+  background: var(--paper-raised);
+}
+
+.assistant-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.assistant-repair-box {
+  padding: 10px 12px;
+  border: 1px solid rgba(70, 98, 76, 0.3);
+  border-radius: var(--radius);
+  background: var(--moss-wash);
+}
+.assistant-repair-box__title {
+  color: var(--moss);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.assistant-issues__title {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.assistant-json {
+  max-height: 280px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  overflow: auto;
+  border-radius: var(--radius);
+  background: #1c201d;
+  color: #e9e5da;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistant-source {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.assistant-source h4 {
+  margin-bottom: 6px;
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .studio-diagnostics__header {
@@ -2155,6 +2352,7 @@ input[type="checkbox"] {
       "templates stage"
       "params params"
       "archive archive"
+      "assistant assistant"
       "diagnostics diagnostics";
   }
 
@@ -2196,6 +2394,7 @@ input[type="checkbox"] {
       "stage"
       "params"
       "archive"
+      "assistant"
       "diagnostics";
   }
   .rail--params .param-list { grid-template-columns: minmax(0, 1fr); }

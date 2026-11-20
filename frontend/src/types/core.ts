@@ -313,6 +313,47 @@ export interface Generation {
 
 export type SemanticInput = EditorState['semanticInput']
 
+export interface AssistantProvenance {
+  proposalId: string
+  model: string
+  attempts: number
+  proposalHash: string
+  policyRevision: number
+}
+
+export type AssistantTarget = 'ir_fragment' | 'parameter_schema'
+export type ProposalStatus = 'queued' | 'running' | 'ready' | 'failed'
+
+export interface ProposalValidation {
+  policyRevision: number
+  issues: Issue[]
+  isolatedValidationPassed: boolean
+  repairedIssues?: Issue[]
+}
+
+export interface ProposalError {
+  code: string
+  message: string
+  details?: Record<string, unknown> | null
+}
+
+export interface AssistantProposal {
+  id: string
+  status: ProposalStatus
+  baseGenerationId: string
+  target: AssistantTarget
+  rootNodeId?: string | null
+  model: string
+  attempts: number
+  proposal: Record<string, unknown> | null
+  proposalHash?: string | null
+  validation: ProposalValidation | null
+  error: ProposalError | null
+  appliedGenerationId?: string | null
+  createdAt: string
+  finishedAt: string | null
+}
+
 export interface Provenance {
   kind: string
   baseGenerationId: string | null
@@ -329,6 +370,7 @@ export interface Provenance {
   ontologyVersion: number
   policyRevision: number
   externalGraph?: ExternalGraph | null
+  assistant?: AssistantProvenance | null
 }
 
 export interface ExternalEntity {
@@ -515,7 +557,15 @@ export interface Page<T> {
 export interface Capabilities {
   profile: string
   backends: { backend: Backend; available: boolean; executionModes: string[]; unavailableReason: string | null; rendererVersion?: string; nodeTypes?: string[]; animationProperties?: string[]; maxNodes?: number; maxFrames?: number }[]
-  features?: { semanticGeneration?: boolean; subgraphEditing?: boolean; qualityAssessment?: boolean; knowledgeGraph?: boolean }
+  features?: {
+    semanticGeneration?: boolean
+    subgraphEditing?: boolean
+    qualityAssessment?: boolean
+    dslSandbox?: boolean
+    advancedPolicies?: boolean
+    knowledgeGraph?: boolean
+    llmAssistant?: boolean
+  }
 }
 
 // P1-A knowledge, ontology and tag models. Field names follow docs/openapi-core.json.

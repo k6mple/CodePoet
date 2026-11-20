@@ -86,6 +86,7 @@ def _dependency_snapshot_hash(
     """
     provenance = json.loads(generation.provenance_json or "{}")
     external = provenance.get("externalGraph") or None
+    assistant = provenance.get("assistant") or None
     payload = {
         "rendererVersion": renderer_version or "unknown",
         "engineVersion": provenance.get("engineVersion"),
@@ -110,6 +111,14 @@ def _dependency_snapshot_hash(
             else None
         ),
     }
+    if assistant:
+        payload["assistant"] = {
+            "proposalId": assistant.get("proposalId"),
+            "model": assistant.get("model"),
+            "attempts": assistant.get("attempts"),
+            "proposalHash": assistant.get("proposalHash"),
+            "policyRevision": assistant.get("policyRevision"),
+        }
     canonical = json.dumps(
         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
     )

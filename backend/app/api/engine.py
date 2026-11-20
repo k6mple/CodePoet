@@ -100,6 +100,11 @@ def build_capabilities(settings: Settings | None = None) -> Capabilities:
             knowledgeGraph=bool(
                 (settings.knowledge_graph_sources if settings else "").strip()
             ),
+            llmAssistant=bool(
+                settings
+                and settings.llm_api_key.strip()
+                and settings.llm_base_url.strip()
+            ),
         ),
     )
 

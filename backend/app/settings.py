@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -40,6 +40,13 @@ class Settings(BaseSettings):
     # 显式映射是人工确认过的对应关系，比字符串相似度可靠：
     # 「竹亚科」对「竹」、「梅」对「墨梅」这种差异，猜会错、表才对得上。
     knowledge_graph_mapping_file: str = ""
+
+    # X1 LLM 辅助（OpenAI 兼容接口，默认 DeepSeek）。
+    # 留空 api_key 时 features.llmAssistant 保持 false，POST /assistant/proposals 返回 503。
+    llm_base_url: str = "https://api.deepseek.com"
+    llm_api_key: str = ""
+    llm_model: str = "deepseek-chat"
+    llm_timeout_seconds: float = Field(default=30.0, gt=0, le=30.0)
 
     @field_validator("data_dir", mode="after")
     @classmethod
