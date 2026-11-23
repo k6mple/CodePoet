@@ -3,10 +3,38 @@ export type Value = string | number | boolean
 export type Params = Record<string, Value>
 export type Backend = 'canvas2d' | 'css' | 'webgl' | 'turtle'
 
+export type PaperStyle = 'none' | 'xuan' | 'silk' | 'aged'
+
+export interface GradientStop {
+  offset: number
+  color: string
+  opacity?: number
+}
+
+export interface GradientFill {
+  type: 'linear' | 'radial'
+  stops: GradientStop[]
+  angle?: number
+  cx?: number
+  cy?: number
+  r?: number
+  tintFromFill?: boolean
+}
+
+export interface TextGeometry {
+  x?: number
+  y?: number
+  text: string
+  fontSize?: number
+  writingMode?: 'vertical' | 'horizontal'
+  fontFamily?: 'kai' | 'song' | 'seal'
+  letterSpacing?: number
+}
+
 export interface DrawingIR {
   schemaVersion: string
   seed: number
-  canvas: { width: number; height: number; background: string | null }
+  canvas: { width: number; height: number; background: string | null; paper?: PaperStyle | null }
   viewport: { x: number; y: number; width: number; height: number }
   durationMs: number
   nodes: IRNode[]
@@ -17,11 +45,32 @@ export interface DrawingIR {
 export interface IRNode {
   id: string
   parentId: string | null
-  type: 'group' | 'circle' | 'polygon' | 'polyline'
+  type: 'group' | 'circle' | 'polygon' | 'polyline' | 'text'
   transform?: Partial<{ x: number; y: number; rotation: number; scaleX: number; scaleY: number }>
-  style?: { fill?: string | null; stroke?: string | null; strokeWidth?: number; opacity?: number }
-  geometry?: { cx?: number; cy?: number; r?: number; points?: number[][] }
-  material?: { shaderRef: string }
+  style?: {
+    fill?: string | null
+    stroke?: string | null
+    strokeWidth?: number
+    opacity?: number
+    gradient?: GradientFill | null
+    lineCap?: 'butt' | 'round' | 'square' | null
+    lineJoin?: 'miter' | 'round' | 'bevel' | null
+    feather?: number | null
+  }
+  geometry?: {
+    cx?: number
+    cy?: number
+    r?: number
+    points?: number[][]
+    x?: number
+    y?: number
+    text?: string
+    fontSize?: number
+    writingMode?: 'vertical' | 'horizontal'
+    fontFamily?: 'kai' | 'song' | 'seal'
+    letterSpacing?: number
+  }
+  material?: { shaderRef: string } | null
 }
 
 export type Role = 'creator' | 'developer' | 'expert' | 'admin'

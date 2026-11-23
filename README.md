@@ -46,7 +46,22 @@ uv run --project backend python scripts/seed_demo.py
 
 默认演示账号为 `creator_demo`、`developer_demo`、`expert_demo`、`admin_demo`（初始密码定义见 [scripts/seed.py](scripts/seed.py)）。
 
-### 2. 开发模式与生产模式启动
+### 2. 一键启动与手动启动
+
+**Windows 一键启动（推荐）**：
+
+在仓库根目录直接双击 `一键启动.bat`（或运行 `.\一键启动.bat` / `.\scripts\launch.ps1`），将自动检查 `uv`、Python `.venv`、Node 24 与前端依赖、数据库迁移（全新环境自动建库并导入演示账号与素材）、按需构建前端生产产物，并依次启动后端（`:8000`）与前端（`:3000`）后自动打开浏览器。
+
+```powershell
+# 默认生产模式（next start + uvicorn），按 Q 或 Ctrl+C 停止全部服务
+.\一键启动.bat
+
+# 常用参数示例：后台运行 / 开发热重载 / 重启 / 强制重建前端
+.\scripts\launch.ps1 -Detached
+.\scripts\launch.ps1 -Mode dev
+.\scripts\launch.ps1 -Restart -Rebuild
+.\一键停止.bat
+```
 
 **开发模式**（两个 PowerShell 终端，仓库根目录）：
 

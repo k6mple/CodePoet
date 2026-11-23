@@ -1,0 +1,4766 @@
+{
+  "slug": "upgrade-bamboo",
+  "targetTemplateId": "tpl-bamboo",
+  "metadata": {
+    "name": "竹·守正",
+    "description": "以三竿分节修竹、二十六片“个”字柳叶竹叶、太湖青石与晨曦远山构图，表达“咬定青山不放松”的坚韧与守正。",
+    "entityIds": [
+      "knowledge-bamboo",
+      "knowledge-integrity"
+    ],
+    "tagIds": [
+      "tag-steadfast",
+      "tag-pure",
+      "tag-integrity"
+    ],
+    "symbols": [
+      "bamboo"
+    ],
+    "timeTheme": "四季"
+  },
+  "irTemplate": {
+    "schemaVersion": "1.0",
+    "seed": 23,
+    "canvas": {
+      "width": 800,
+      "height": 600,
+      "background": "#F4F1E9",
+      "paper": "xuan"
+    },
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 600
+    },
+    "durationMs": 0,
+    "nodes": [
+      {
+        "id": "painting",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "scroll-frame-outer",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              14.0
+            ],
+            [
+              786.0,
+              14.0
+            ],
+            [
+              786.0,
+              586.0
+            ],
+            [
+              14.0,
+              586.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#C9BEA8",
+          "strokeWidth": 1.2,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "scroll-frame-inner",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              22.0,
+              22.0
+            ],
+            [
+              778.0,
+              22.0
+            ],
+            [
+              778.0,
+              578.0
+            ],
+            [
+              22.0,
+              578.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D9D0BE",
+          "strokeWidth": 0.8,
+          "opacity": 0.58
+        }
+      },
+      {
+        "id": "b-sun-halo",
+        "parentId": "painting",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 210.0,
+          "cy": 152.0,
+          "r": 74.0
+        },
+        "style": {
+          "fill": "#F3E6C8",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.55,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F3E6C8",
+                "opacity": 0.88
+              },
+              {
+                "offset": 0.55,
+                "color": "#F3E6C8",
+                "opacity": 0.4
+              },
+              {
+                "offset": 1.0,
+                "color": "#F3E6C8",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "b-sun",
+        "parentId": "painting",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 210.0,
+          "cy": 152.0,
+          "r": 40.0
+        },
+        "style": {
+          "fill": "#FBF5E4",
+          "stroke": "#E3D5B6",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "angle": 90.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#FBF5E4",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#FBF5E4",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#FBF5E4",
+                "opacity": 0.92
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "b-mtn-far",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              504.0
+            ],
+            [
+              54.57,
+              491.85
+            ],
+            [
+              81.14,
+              476.69
+            ],
+            [
+              107.71,
+              456.6
+            ],
+            [
+              134.29,
+              434.24
+            ],
+            [
+              160.86,
+              414.39
+            ],
+            [
+              187.43,
+              402.19
+            ],
+            [
+              214.0,
+              400.91
+            ],
+            [
+              240.57,
+              410.43
+            ],
+            [
+              267.14,
+              427.22
+            ],
+            [
+              293.71,
+              445.86
+            ],
+            [
+              320.29,
+              461.0
+            ],
+            [
+              346.86,
+              468.79
+            ],
+            [
+              373.43,
+              467.33
+            ],
+            [
+              400.0,
+              456.6
+            ],
+            [
+              426.57,
+              438.27
+            ],
+            [
+              453.14,
+              415.73
+            ],
+            [
+              479.71,
+              393.79
+            ],
+            [
+              506.29,
+              377.74
+            ],
+            [
+              532.86,
+              371.9
+            ],
+            [
+              559.43,
+              378.04
+            ],
+            [
+              586.0,
+              394.76
+            ],
+            [
+              612.57,
+              418.06
+            ],
+            [
+              639.14,
+              442.93
+            ],
+            [
+              665.71,
+              465.06
+            ],
+            [
+              692.29,
+              482.01
+            ],
+            [
+              718.86,
+              493.32
+            ],
+            [
+              745.43,
+              499.94
+            ],
+            [
+              772.0,
+              504.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#C2CDC7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.3,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#C2CDC7",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#C2CDC7",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F4F1E9",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "b-mist",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              655.0,
+              496.0
+            ],
+            [
+              644.47,
+              506.78
+            ],
+            [
+              613.73,
+              515.09
+            ],
+            [
+              565.26,
+              521.27
+            ],
+            [
+              503.01,
+              525.86
+            ],
+            [
+              432.0,
+              526.95
+            ],
+            [
+              358.0,
+              525.91
+            ],
+            [
+              286.99,
+              526.16
+            ],
+            [
+              224.74,
+              525.04
+            ],
+            [
+              176.27,
+              517.51
+            ],
+            [
+              145.53,
+              505.9
+            ],
+            [
+              135.0,
+              496.0
+            ],
+            [
+              145.53,
+              487.63
+            ],
+            [
+              176.27,
+              478.33
+            ],
+            [
+              224.74,
+              469.88
+            ],
+            [
+              286.99,
+              464.01
+            ],
+            [
+              358.0,
+              459.64
+            ],
+            [
+              432.0,
+              458.6
+            ],
+            [
+              503.01,
+              464.3
+            ],
+            [
+              565.26,
+              473.65
+            ],
+            [
+              613.73,
+              480.74
+            ],
+            [
+              644.47,
+              486.74
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F4F1E9",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.66,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F4F1E9",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F4F1E9",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F4F1E9",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "bamboo",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 400.0,
+          "y": 526.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "stem-1",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -92.0,
+              0.0
+            ],
+            [
+              -86.0,
+              -86.0
+            ],
+            [
+              -79.0,
+              -172.0
+            ],
+            [
+              -72.0,
+              -256.0
+            ],
+            [
+              -64.0,
+              -334.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#366341",
+          "strokeWidth": 8.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-1-hi",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -90.2,
+              0.0
+            ],
+            [
+              -84.2,
+              -86.0
+            ],
+            [
+              -77.2,
+              -172.0
+            ],
+            [
+              -70.2,
+              -256.0
+            ],
+            [
+              -62.2,
+              -334.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#89B391",
+          "strokeWidth": 1.5,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-1-node-0",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -94.5,
+              -86.0
+            ],
+            [
+              -77.5,
+              -86.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-1-node-1",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -87.5,
+              -172.0
+            ],
+            [
+              -70.5,
+              -172.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-1-node-2",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -80.5,
+              -256.0
+            ],
+            [
+              -63.5,
+              -256.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-2",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -4.0,
+              -92.0
+            ],
+            [
+              -2.0,
+              -184.0
+            ],
+            [
+              3.0,
+              -276.0
+            ],
+            [
+              8.0,
+              -366.0
+            ],
+            [
+              14.0,
+              -432.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2C5536",
+          "strokeWidth": 8.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-2-hi",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              1.8,
+              0.0
+            ],
+            [
+              -2.2,
+              -92.0
+            ],
+            [
+              -0.2,
+              -184.0
+            ],
+            [
+              4.8,
+              -276.0
+            ],
+            [
+              9.8,
+              -366.0
+            ],
+            [
+              15.8,
+              -432.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#89B391",
+          "strokeWidth": 1.5,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-2-node-0",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -12.5,
+              -92.0
+            ],
+            [
+              4.5,
+              -92.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-2-node-1",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -10.5,
+              -184.0
+            ],
+            [
+              6.5,
+              -184.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-2-node-2",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -5.5,
+              -276.0
+            ],
+            [
+              11.5,
+              -276.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-2-node-3",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -0.5,
+              -366.0
+            ],
+            [
+              16.5,
+              -366.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-3",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              92.0,
+              0.0
+            ],
+            [
+              88.0,
+              -82.0
+            ],
+            [
+              82.0,
+              -162.0
+            ],
+            [
+              76.0,
+              -240.0
+            ],
+            [
+              70.0,
+              -310.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#426E4D",
+          "strokeWidth": 8.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-3-hi",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              93.8,
+              0.0
+            ],
+            [
+              89.8,
+              -82.0
+            ],
+            [
+              83.8,
+              -162.0
+            ],
+            [
+              77.8,
+              -240.0
+            ],
+            [
+              71.8,
+              -310.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#89B391",
+          "strokeWidth": 1.5,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-3-node-0",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              79.5,
+              -82.0
+            ],
+            [
+              96.5,
+              -82.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-3-node-1",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              73.5,
+              -162.0
+            ],
+            [
+              90.5,
+              -162.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-3-node-2",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              67.5,
+              -240.0
+            ],
+            [
+              84.5,
+              -240.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#1E3C25",
+          "strokeWidth": 2.4,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-0",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -79.0,
+              -172.0
+            ],
+            [
+              -132.0,
+              -206.0
+            ],
+            [
+              -178.0,
+              -222.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-1",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -72.0,
+              -256.0
+            ],
+            [
+              -124.0,
+              -290.0
+            ],
+            [
+              -166.0,
+              -306.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-2",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -2.0,
+              -184.0
+            ],
+            [
+              48.0,
+              -218.0
+            ],
+            [
+              94.0,
+              -234.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-3",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              -276.0
+            ],
+            [
+              -50.0,
+              -312.0
+            ],
+            [
+              -96.0,
+              -328.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-4",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              8.0,
+              -366.0
+            ],
+            [
+              62.0,
+              -396.0
+            ],
+            [
+              108.0,
+              -410.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-5",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              82.0,
+              -162.0
+            ],
+            [
+              132.0,
+              -194.0
+            ],
+            [
+              176.0,
+              -208.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-twig-6",
+        "parentId": "bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              76.0,
+              -240.0
+            ],
+            [
+              126.0,
+              -272.0
+            ],
+            [
+              168.0,
+              -286.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2A4C33",
+          "strokeWidth": 1.6,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-1",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -132.0,
+              -206.0
+            ],
+            [
+              -143.77,
+              -201.7
+            ],
+            [
+              -158.12,
+              -200.0
+            ],
+            [
+              -173.95,
+              -200.25
+            ],
+            [
+              -190.17,
+              -201.79
+            ],
+            [
+              -205.69,
+              -203.95
+            ],
+            [
+              -191.17,
+              -205.81
+            ],
+            [
+              -175.7,
+              -207.25
+            ],
+            [
+              -160.11,
+              -207.98
+            ],
+            [
+              -145.26,
+              -207.66
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-2",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -132.0,
+              -206.0
+            ],
+            [
+              -143.48,
+              -206.96
+            ],
+            [
+              -156.03,
+              -211.1
+            ],
+            [
+              -169.02,
+              -217.41
+            ],
+            [
+              -181.83,
+              -224.92
+            ],
+            [
+              -193.81,
+              -232.63
+            ],
+            [
+              -181.03,
+              -228.69
+            ],
+            [
+              -167.62,
+              -224.01
+            ],
+            [
+              -154.42,
+              -218.65
+            ],
+            [
+              -142.27,
+              -212.63
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-3",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -168.0,
+              -220.0
+            ],
+            [
+              -176.06,
+              -213.29
+            ],
+            [
+              -186.77,
+              -207.91
+            ],
+            [
+              -199.12,
+              -203.61
+            ],
+            [
+              -212.08,
+              -200.18
+            ],
+            [
+              -224.61,
+              -197.36
+            ],
+            [
+              -213.89,
+              -203.08
+            ],
+            [
+              -202.32,
+              -208.73
+            ],
+            [
+              -190.45,
+              -213.79
+            ],
+            [
+              -178.82,
+              -217.72
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-4",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -124.0,
+              -290.0
+            ],
+            [
+              -136.38,
+              -286.44
+            ],
+            [
+              -151.21,
+              -285.73
+            ],
+            [
+              -167.42,
+              -287.12
+            ],
+            [
+              -183.94,
+              -289.86
+            ],
+            [
+              -199.7,
+              -293.18
+            ],
+            [
+              -184.68,
+              -294.04
+            ],
+            [
+              -168.71,
+              -294.41
+            ],
+            [
+              -152.68,
+              -294.03
+            ],
+            [
+              -137.48,
+              -292.65
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-5",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -124.0,
+              -290.0
+            ],
+            [
+              -134.99,
+              -292.02
+            ],
+            [
+              -146.74,
+              -297.1
+            ],
+            [
+              -158.72,
+              -304.23
+            ],
+            [
+              -170.41,
+              -312.44
+            ],
+            [
+              -181.31,
+              -320.73
+            ],
+            [
+              -169.3,
+              -315.88
+            ],
+            [
+              -156.75,
+              -310.28
+            ],
+            [
+              -144.48,
+              -304.03
+            ],
+            [
+              -133.3,
+              -297.24
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-6",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -158.0,
+              -304.0
+            ],
+            [
+              -166.86,
+              -297.79
+            ],
+            [
+              -178.39,
+              -293.2
+            ],
+            [
+              -191.55,
+              -289.89
+            ],
+            [
+              -205.29,
+              -287.54
+            ],
+            [
+              -218.56,
+              -285.84
+            ],
+            [
+              -206.97,
+              -290.7
+            ],
+            [
+              -194.49,
+              -295.42
+            ],
+            [
+              -181.75,
+              -299.53
+            ],
+            [
+              -169.38,
+              -302.54
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-7",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -54.0,
+              -312.0
+            ],
+            [
+              -66.13,
+              -306.76
+            ],
+            [
+              -81.19,
+              -304.16
+            ],
+            [
+              -97.98,
+              -303.56
+            ],
+            [
+              -115.29,
+              -304.34
+            ],
+            [
+              -131.92,
+              -305.86
+            ],
+            [
+              -116.65,
+              -308.54
+            ],
+            [
+              -100.35,
+              -310.85
+            ],
+            [
+              -83.88,
+              -312.43
+            ],
+            [
+              -68.14,
+              -312.93
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-8",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -54.0,
+              -312.0
+            ],
+            [
+              -65.85,
+              -312.24
+            ],
+            [
+              -79.05,
+              -315.61
+            ],
+            [
+              -92.86,
+              -321.15
+            ],
+            [
+              -106.57,
+              -327.91
+            ],
+            [
+              -119.45,
+              -334.93
+            ],
+            [
+              -106.03,
+              -331.74
+            ],
+            [
+              -91.92,
+              -327.86
+            ],
+            [
+              -77.97,
+              -323.29
+            ],
+            [
+              -65.04,
+              -318.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-9",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -88.0,
+              -326.0
+            ],
+            [
+              -95.3,
+              -318.0
+            ],
+            [
+              -105.5,
+              -310.96
+            ],
+            [
+              -117.51,
+              -304.78
+            ],
+            [
+              -130.26,
+              -299.39
+            ],
+            [
+              -142.67,
+              -294.7
+            ],
+            [
+              -132.52,
+              -302.07
+            ],
+            [
+              -121.48,
+              -309.51
+            ],
+            [
+              -110.05,
+              -316.38
+            ],
+            [
+              -98.73,
+              -322.08
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-10",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              54.0,
+              -220.0
+            ],
+            [
+              65.29,
+              -224.59
+            ],
+            [
+              79.17,
+              -226.72
+            ],
+            [
+              94.56,
+              -227.01
+            ],
+            [
+              110.38,
+              -226.07
+            ],
+            [
+              125.53,
+              -224.49
+            ],
+            [
+              111.49,
+              -222.19
+            ],
+            [
+              96.5,
+              -220.26
+            ],
+            [
+              81.38,
+              -219.03
+            ],
+            [
+              66.94,
+              -218.83
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-11",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              54.0,
+              -220.0
+            ],
+            [
+              65.07,
+              -218.8
+            ],
+            [
+              77.16,
+              -214.39
+            ],
+            [
+              89.65,
+              -207.73
+            ],
+            [
+              101.93,
+              -199.83
+            ],
+            [
+              113.41,
+              -191.67
+            ],
+            [
+              101.13,
+              -196.08
+            ],
+            [
+              88.26,
+              -201.22
+            ],
+            [
+              75.58,
+              -206.98
+            ],
+            [
+              63.9,
+              -213.28
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-12",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              86.0,
+              -232.0
+            ],
+            [
+              93.05,
+              -239.29
+            ],
+            [
+              102.8,
+              -245.55
+            ],
+            [
+              114.25,
+              -250.92
+            ],
+            [
+              126.36,
+              -255.53
+            ],
+            [
+              138.13,
+              -259.48
+            ],
+            [
+              128.43,
+              -252.88
+            ],
+            [
+              117.88,
+              -246.27
+            ],
+            [
+              106.98,
+              -240.21
+            ],
+            [
+              96.19,
+              -235.26
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-13",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              64.0,
+              -396.0
+            ],
+            [
+              76.81,
+              -400.42
+            ],
+            [
+              92.42,
+              -401.99
+            ],
+            [
+              109.65,
+              -401.42
+            ],
+            [
+              127.3,
+              -399.42
+            ],
+            [
+              144.21,
+              -396.71
+            ],
+            [
+              128.38,
+              -395.1
+            ],
+            [
+              111.51,
+              -393.94
+            ],
+            [
+              94.54,
+              -393.52
+            ],
+            [
+              78.39,
+              -394.11
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-14",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              64.0,
+              -396.0
+            ],
+            [
+              76.0,
+              -394.04
+            ],
+            [
+              88.98,
+              -388.5
+            ],
+            [
+              102.31,
+              -380.49
+            ],
+            [
+              115.36,
+              -371.09
+            ],
+            [
+              127.52,
+              -361.41
+            ],
+            [
+              114.36,
+              -367.07
+            ],
+            [
+              100.58,
+              -373.55
+            ],
+            [
+              87.02,
+              -380.66
+            ],
+            [
+              74.55,
+              -388.2
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-15",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              98.0,
+              -408.0
+            ],
+            [
+              108.62,
+              -409.96
+            ],
+            [
+              121.04,
+              -409.27
+            ],
+            [
+              134.43,
+              -406.67
+            ],
+            [
+              147.96,
+              -402.91
+            ],
+            [
+              160.8,
+              -398.72
+            ],
+            [
+              148.21,
+              -399.27
+            ],
+            [
+              134.87,
+              -400.32
+            ],
+            [
+              121.55,
+              -402.03
+            ],
+            [
+              109.0,
+              -404.54
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-16",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              12.0,
+              -408.0
+            ],
+            [
+              1.4,
+              -403.51
+            ],
+            [
+              -11.63,
+              -401.28
+            ],
+            [
+              -26.06,
+              -400.74
+            ],
+            [
+              -40.89,
+              -401.34
+            ],
+            [
+              -55.08,
+              -402.5
+            ],
+            [
+              -41.93,
+              -404.98
+            ],
+            [
+              -27.89,
+              -407.13
+            ],
+            [
+              -13.72,
+              -408.58
+            ],
+            [
+              -0.17,
+              -408.99
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-17",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              12.0,
+              -408.0
+            ],
+            [
+              1.52,
+              -408.41
+            ],
+            [
+              -10.04,
+              -411.58
+            ],
+            [
+              -22.09,
+              -416.65
+            ],
+            [
+              -34.02,
+              -422.76
+            ],
+            [
+              -45.21,
+              -429.05
+            ],
+            [
+              -33.43,
+              -426.14
+            ],
+            [
+              -21.05,
+              -422.6
+            ],
+            [
+              -8.84,
+              -418.4
+            ],
+            [
+              2.43,
+              -413.55
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-18",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              132.0,
+              -194.0
+            ],
+            [
+              143.94,
+              -197.77
+            ],
+            [
+              158.39,
+              -198.74
+            ],
+            [
+              174.26,
+              -197.63
+            ],
+            [
+              190.5,
+              -195.16
+            ],
+            [
+              206.02,
+              -192.07
+            ],
+            [
+              191.38,
+              -191.03
+            ],
+            [
+              175.79,
+              -190.46
+            ],
+            [
+              160.12,
+              -190.59
+            ],
+            [
+              145.23,
+              -191.69
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-19",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              132.0,
+              -194.0
+            ],
+            [
+              143.34,
+              -192.08
+            ],
+            [
+              155.51,
+              -186.87
+            ],
+            [
+              167.95,
+              -179.4
+            ],
+            [
+              180.12,
+              -170.71
+            ],
+            [
+              191.44,
+              -161.85
+            ],
+            [
+              179.05,
+              -166.99
+            ],
+            [
+              166.09,
+              -172.91
+            ],
+            [
+              153.39,
+              -179.47
+            ],
+            [
+              141.75,
+              -186.54
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-20",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              168.0,
+              -206.0
+            ],
+            [
+              178.07,
+              -206.74
+            ],
+            [
+              189.55,
+              -204.72
+            ],
+            [
+              201.75,
+              -200.73
+            ],
+            [
+              213.95,
+              -195.58
+            ],
+            [
+              225.48,
+              -190.06
+            ],
+            [
+              213.83,
+              -192.02
+            ],
+            [
+              201.53,
+              -194.55
+            ],
+            [
+              189.31,
+              -197.69
+            ],
+            [
+              177.89,
+              -201.49
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-21",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              126.0,
+              -272.0
+            ],
+            [
+              137.8,
+              -277.13
+            ],
+            [
+              152.47,
+              -279.67
+            ],
+            [
+              168.81,
+              -280.24
+            ],
+            [
+              185.67,
+              -279.47
+            ],
+            [
+              201.87,
+              -277.98
+            ],
+            [
+              187.01,
+              -275.35
+            ],
+            [
+              171.14,
+              -273.09
+            ],
+            [
+              155.11,
+              -271.54
+            ],
+            [
+              139.77,
+              -271.07
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-22",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              126.0,
+              -272.0
+            ],
+            [
+              137.8,
+              -271.11
+            ],
+            [
+              150.79,
+              -266.85
+            ],
+            [
+              164.3,
+              -260.26
+            ],
+            [
+              177.64,
+              -252.34
+            ],
+            [
+              190.13,
+              -244.12
+            ],
+            [
+              176.94,
+              -248.37
+            ],
+            [
+              163.08,
+              -253.37
+            ],
+            [
+              149.41,
+              -259.03
+            ],
+            [
+              136.77,
+              -265.26
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-23",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              162.0,
+              -284.0
+            ],
+            [
+              171.91,
+              -280.63
+            ],
+            [
+              182.07,
+              -274.22
+            ],
+            [
+              192.15,
+              -265.79
+            ],
+            [
+              201.79,
+              -256.35
+            ],
+            [
+              210.67,
+              -246.91
+            ],
+            [
+              200.26,
+              -253.21
+            ],
+            [
+              189.46,
+              -260.28
+            ],
+            [
+              179.0,
+              -267.91
+            ],
+            [
+              169.6,
+              -275.89
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-24",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -68.0,
+              -314.0
+            ],
+            [
+              -78.54,
+              -311.56
+            ],
+            [
+              -90.95,
+              -311.62
+            ],
+            [
+              -104.39,
+              -313.48
+            ],
+            [
+              -118.01,
+              -316.46
+            ],
+            [
+              -130.96,
+              -319.85
+            ],
+            [
+              -118.39,
+              -320.02
+            ],
+            [
+              -105.05,
+              -319.72
+            ],
+            [
+              -91.7,
+              -318.75
+            ],
+            [
+              -79.1,
+              -316.91
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-25",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -68.0,
+              -314.0
+            ],
+            [
+              -75.27,
+              -307.45
+            ],
+            [
+              -85.09,
+              -302.07
+            ],
+            [
+              -96.47,
+              -297.67
+            ],
+            [
+              -108.46,
+              -294.06
+            ],
+            [
+              -120.06,
+              -291.04
+            ],
+            [
+              -110.27,
+              -296.75
+            ],
+            [
+              -99.68,
+              -302.41
+            ],
+            [
+              -88.77,
+              -307.52
+            ],
+            [
+              -78.04,
+              -311.55
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-26",
+        "parentId": "bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              72.0,
+              -296.0
+            ],
+            [
+              81.0,
+              -301.33
+            ],
+            [
+              92.52,
+              -304.82
+            ],
+            [
+              105.55,
+              -306.88
+            ],
+            [
+              119.11,
+              -307.92
+            ],
+            [
+              132.18,
+              -308.35
+            ],
+            [
+              120.56,
+              -304.66
+            ],
+            [
+              108.09,
+              -301.19
+            ],
+            [
+              95.41,
+              -298.33
+            ],
+            [
+              83.16,
+              -296.46
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4F7A3A",
+          "stroke": "#294A23",
+          "strokeWidth": 0.55,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4F7A3A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4F7A3A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4F7A3A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "ground-base",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              76.0,
+              564.0
+            ],
+            [
+              210.0,
+              532.0
+            ],
+            [
+              400.0,
+              522.0
+            ],
+            [
+              590.0,
+              532.0
+            ],
+            [
+              724.0,
+              564.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#DFD9C9",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.68,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stone",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              484.0,
+              558.0
+            ],
+            [
+              491.0,
+              533.88
+            ],
+            [
+              504.0,
+              506.0
+            ],
+            [
+              525.75,
+              487.38
+            ],
+            [
+              552.0,
+              476.0
+            ],
+            [
+              580.0,
+              475.12
+            ],
+            [
+              608.0,
+              482.0
+            ],
+            [
+              634.25,
+              495.62
+            ],
+            [
+              656.0,
+              514.0
+            ],
+            [
+              669.0,
+              538.0
+            ],
+            [
+              676.0,
+              558.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#8D968E",
+          "stroke": "#525C55",
+          "strokeWidth": 1.2,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#8D968E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#8D968E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#8D968E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "stone-hi",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              508.0,
+              510.0
+            ],
+            [
+              527.12,
+              495.5
+            ],
+            [
+              552.0,
+              482.0
+            ],
+            [
+              579.12,
+              482.62
+            ],
+            [
+              598.0,
+              490.0
+            ],
+            [
+              593.12,
+              503.0
+            ],
+            [
+              576.0,
+              516.0
+            ],
+            [
+              548.62,
+              521.62
+            ],
+            [
+              524.0,
+              524.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B7C0B6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.65,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#B7C0B6",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#B7C0B6",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#B7C0B6",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "b-moss-0",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              326.0,
+              532.0
+            ],
+            [
+              323.59,
+              535.25
+            ],
+            [
+              317.0,
+              537.63
+            ],
+            [
+              308.0,
+              538.5
+            ],
+            [
+              299.0,
+              537.63
+            ],
+            [
+              292.41,
+              535.25
+            ],
+            [
+              290.0,
+              532.0
+            ],
+            [
+              292.41,
+              528.75
+            ],
+            [
+              299.0,
+              526.37
+            ],
+            [
+              308.0,
+              525.5
+            ],
+            [
+              317.0,
+              526.37
+            ],
+            [
+              323.59,
+              528.75
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4A6E52",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-moss-1",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              422.0,
+              530.0
+            ],
+            [
+              419.05,
+              533.5
+            ],
+            [
+              411.0,
+              536.06
+            ],
+            [
+              400.0,
+              537.0
+            ],
+            [
+              389.0,
+              536.06
+            ],
+            [
+              380.95,
+              533.5
+            ],
+            [
+              378.0,
+              530.0
+            ],
+            [
+              380.95,
+              526.5
+            ],
+            [
+              389.0,
+              523.94
+            ],
+            [
+              400.0,
+              523.0
+            ],
+            [
+              411.0,
+              523.94
+            ],
+            [
+              419.05,
+              526.5
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4A6E52",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "b-moss-2",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              510.0,
+              536.0
+            ],
+            [
+              507.59,
+              539.25
+            ],
+            [
+              501.0,
+              541.63
+            ],
+            [
+              492.0,
+              542.5
+            ],
+            [
+              483.0,
+              541.63
+            ],
+            [
+              476.41,
+              539.25
+            ],
+            [
+              474.0,
+              536.0
+            ],
+            [
+              476.41,
+              532.75
+            ],
+            [
+              483.0,
+              530.37
+            ],
+            [
+              492.0,
+              529.5
+            ],
+            [
+              501.0,
+              530.37
+            ],
+            [
+              507.59,
+              532.75
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4A6E52",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "seal",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 714.0,
+          "y": 52.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "seal-bg",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0
+            ],
+            [
+              30.0,
+              44.0
+            ],
+            [
+              0.0,
+              44.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B5382B",
+          "stroke": "#822219",
+          "strokeWidth": 1.1,
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "seal-inner",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              27.0,
+              3.0
+            ],
+            [
+              27.0,
+              41.0
+            ],
+            [
+              3.0,
+              41.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F7F0E4",
+          "strokeWidth": 0.9,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "seal-text",
+        "parentId": "seal",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 15.0,
+          "y": 6.5,
+          "text": "守正",
+          "fontSize": 13.5,
+          "writingMode": "vertical",
+          "fontFamily": "seal",
+          "letterSpacing": 3.0
+        },
+        "style": {
+          "fill": "#F8F2E6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.96
+        }
+      },
+      {
+        "id": "calligraphy",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "poem-col-0",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 88.0,
+          "y": 54.0,
+          "text": "千磨万击还坚劲",
+          "fontSize": 19.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 4.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "poem-col-1",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 58.0,
+          "y": 98.0,
+          "text": "任尔东西南北风",
+          "fontSize": 17.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 4.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.74
+        }
+      }
+    ],
+    "animations": [],
+    "narrative": []
+  },
+  "parameterSchema": [
+    {
+      "name": "stemScale",
+      "label": "修竹尺度",
+      "description": "整体缩放三竿修竹。",
+      "type": "number",
+      "default": 1.0,
+      "min": 0.8,
+      "max": 1.08,
+      "step": 0.04
+    },
+    {
+      "name": "leafColor",
+      "label": "竹叶颜色",
+      "description": "全部柳叶竹叶的填充颜色。",
+      "type": "color",
+      "default": "#4F7A3A"
+    },
+    {
+      "name": "leafOpacity",
+      "label": "竹叶透明度",
+      "description": "竹叶浓淡透明度。",
+      "type": "number",
+      "default": 0.95,
+      "min": 0.5,
+      "max": 1.0,
+      "step": 0.05
+    },
+    {
+      "name": "stemWidth",
+      "label": "竹竿线宽",
+      "description": "三竿修竹的竿身粗细。",
+      "type": "number",
+      "default": 8.0,
+      "min": 4.0,
+      "max": 12.0,
+      "step": 0.5
+    },
+    {
+      "name": "sway",
+      "label": "竹丛倾斜",
+      "description": "整体迎风旋转角度。",
+      "type": "number",
+      "default": 0.0,
+      "min": -5.0,
+      "max": 5.0,
+      "step": 1.0
+    }
+  ],
+  "bindings": [
+    {
+      "parameter": "stemScale",
+      "nodeId": "bamboo",
+      "property": "transform.scaleX"
+    },
+    {
+      "parameter": "stemScale",
+      "nodeId": "bamboo",
+      "property": "transform.scaleY"
+    },
+    {
+      "parameter": "sway",
+      "nodeId": "bamboo",
+      "property": "transform.rotation"
+    },
+    {
+      "parameter": "stemWidth",
+      "nodeId": "stem-1",
+      "property": "style.strokeWidth"
+    },
+    {
+      "parameter": "stemWidth",
+      "nodeId": "stem-2",
+      "property": "style.strokeWidth"
+    },
+    {
+      "parameter": "stemWidth",
+      "nodeId": "stem-3",
+      "property": "style.strokeWidth"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-5",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-6",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-7",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-8",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-9",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-10",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-11",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-12",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-13",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-14",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-15",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-16",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-17",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-18",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-19",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-20",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-21",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-22",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-23",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-24",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-25",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-26",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-1",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-2",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-3",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-4",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-5",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-6",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-7",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-8",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-9",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-10",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-11",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-12",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-13",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-14",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-15",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-16",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-17",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-18",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-19",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-20",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-21",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-22",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-23",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-24",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-25",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "leafOpacity",
+      "nodeId": "leaf-26",
+      "property": "style.opacity"
+    }
+  ],
+  "constraints": [],
+  "supportedBackends": [
+    "canvas2d",
+    "css",
+    "webgl"
+  ],
+  "changeNote": "高画质终版：宣纸三竿分节墨竹、水墨竹叶渐变与竖排题跋（保留全部原 5 项参数）"
+}

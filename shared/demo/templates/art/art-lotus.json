@@ -1,0 +1,8342 @@
+{
+  "slug": "art-lotus",
+  "metadata": {
+    "name": "清莲映月·水墨工笔",
+    "description": "高精度新中式水墨莲花卷：包含远山叠墨与柔和云岚、皎月清晕、高密度波浪叶缘荷叶与脉络、重瓣尖瓣莲花、含苞花蕾、水波涟漪及朱文闲章。",
+    "entityIds": [
+      "knowledge-lotus",
+      "knowledge-water",
+      "knowledge-integrity"
+    ],
+    "tagIds": [
+      "tag-pure",
+      "tag-symbol",
+      "tag-integrity"
+    ],
+    "symbols": [
+      "lotus",
+      "water"
+    ],
+    "timeTheme": "夏日"
+  },
+  "irTemplate": {
+    "schemaVersion": "1.0",
+    "seed": 101,
+    "canvas": {
+      "width": 800,
+      "height": 600,
+      "background": "#F6F1E7",
+      "paper": "xuan"
+    },
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 600
+    },
+    "durationMs": 4000,
+    "nodes": [
+      {
+        "id": "painting",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "scroll-frame-outer",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              14.0
+            ],
+            [
+              786.0,
+              14.0
+            ],
+            [
+              786.0,
+              586.0
+            ],
+            [
+              14.0,
+              586.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#C9BEA8",
+          "strokeWidth": 1.2,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "scroll-frame-inner",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              22.0,
+              22.0
+            ],
+            [
+              778.0,
+              22.0
+            ],
+            [
+              778.0,
+              578.0
+            ],
+            [
+              22.0,
+              578.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D9D0BE",
+          "strokeWidth": 0.8,
+          "opacity": 0.58
+        }
+      },
+      {
+        "id": "moon-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 594.0,
+          "y": 130.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "moon-group",
+        "parentId": "moon-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "moon-halo-outer",
+        "parentId": "moon-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": 0.0,
+          "r": 92.0
+        },
+        "style": {
+          "fill": "#EFE2C6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.55,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#EFE2C6",
+                "opacity": 0.88
+              },
+              {
+                "offset": 0.55,
+                "color": "#EFE2C6",
+                "opacity": 0.4
+              },
+              {
+                "offset": 1.0,
+                "color": "#EFE2C6",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "moon-halo-mid",
+        "parentId": "moon-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": 0.0,
+          "r": 66.0
+        },
+        "style": {
+          "fill": "#F3E5C2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.55,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F3E5C2",
+                "opacity": 0.88
+              },
+              {
+                "offset": 0.55,
+                "color": "#F3E5C2",
+                "opacity": 0.4
+              },
+              {
+                "offset": 1.0,
+                "color": "#F3E5C2",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "moon-disc",
+        "parentId": "moon-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": 0.0,
+          "r": 42.0
+        },
+        "style": {
+          "fill": "#FBF5E6",
+          "stroke": "#E5D5B4",
+          "strokeWidth": 0.9,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "angle": 90.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#FBF5E6",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#FBF5E6",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#FBF5E6",
+                "opacity": 0.92
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "mtn-far",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              372.0
+            ],
+            [
+              51.25,
+              361.58
+            ],
+            [
+              74.5,
+              349.77
+            ],
+            [
+              97.75,
+              334.25
+            ],
+            [
+              121.0,
+              315.98
+            ],
+            [
+              144.25,
+              297.1
+            ],
+            [
+              167.5,
+              280.43
+            ],
+            [
+              190.75,
+              268.6
+            ],
+            [
+              214.0,
+              263.12
+            ],
+            [
+              237.25,
+              263.75
+            ],
+            [
+              260.5,
+              268.62
+            ],
+            [
+              283.75,
+              274.95
+            ],
+            [
+              307.0,
+              280.09
+            ],
+            [
+              330.25,
+              282.51
+            ],
+            [
+              353.5,
+              282.21
+            ],
+            [
+              376.75,
+              280.5
+            ],
+            [
+              400.0,
+              279.3
+            ],
+            [
+              423.25,
+              280.2
+            ],
+            [
+              446.5,
+              283.8
+            ],
+            [
+              469.75,
+              289.42
+            ],
+            [
+              493.0,
+              295.37
+            ],
+            [
+              516.25,
+              299.71
+            ],
+            [
+              539.5,
+              301.11
+            ],
+            [
+              562.75,
+              299.54
+            ],
+            [
+              586.0,
+              296.44
+            ],
+            [
+              609.25,
+              294.29
+            ],
+            [
+              632.5,
+              295.59
+            ],
+            [
+              655.75,
+              301.86
+            ],
+            [
+              679.0,
+              313.02
+            ],
+            [
+              702.25,
+              327.44
+            ],
+            [
+              725.5,
+              342.74
+            ],
+            [
+              748.75,
+              356.81
+            ],
+            [
+              772.0,
+              372.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#C7D0CA",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#C7D0CA",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#C7D0CA",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F6F1E7",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "mtn-mid",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              396.0
+            ],
+            [
+              51.25,
+              383.6
+            ],
+            [
+              74.5,
+              370.26
+            ],
+            [
+              97.75,
+              355.18
+            ],
+            [
+              121.0,
+              341.6
+            ],
+            [
+              144.25,
+              332.83
+            ],
+            [
+              167.5,
+              330.45
+            ],
+            [
+              190.75,
+              333.2
+            ],
+            [
+              214.0,
+              337.72
+            ],
+            [
+              237.25,
+              340.44
+            ],
+            [
+              260.5,
+              339.43
+            ],
+            [
+              283.75,
+              335.19
+            ],
+            [
+              307.0,
+              330.03
+            ],
+            [
+              330.25,
+              326.62
+            ],
+            [
+              353.5,
+              326.57
+            ],
+            [
+              376.75,
+              329.65
+            ],
+            [
+              400.0,
+              334.0
+            ],
+            [
+              423.25,
+              337.08
+            ],
+            [
+              446.5,
+              336.98
+            ],
+            [
+              469.75,
+              333.5
+            ],
+            [
+              493.0,
+              328.29
+            ],
+            [
+              516.25,
+              324.12
+            ],
+            [
+              539.5,
+              323.35
+            ],
+            [
+              562.75,
+              326.55
+            ],
+            [
+              586.0,
+              332.04
+            ],
+            [
+              609.25,
+              336.92
+            ],
+            [
+              632.5,
+              339.13
+            ],
+            [
+              655.75,
+              339.34
+            ],
+            [
+              679.0,
+              340.82
+            ],
+            [
+              702.25,
+              347.17
+            ],
+            [
+              725.5,
+              359.43
+            ],
+            [
+              748.75,
+              375.37
+            ],
+            [
+              772.0,
+              396.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#98AEA4",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.26,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#98AEA4",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#98AEA4",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F6F1E7",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "mtn-mist-l",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              410.0,
+              386.0
+            ],
+            [
+              402.3,
+              395.52
+            ],
+            [
+              379.84,
+              402.84
+            ],
+            [
+              344.42,
+              408.3
+            ],
+            [
+              298.93,
+              412.35
+            ],
+            [
+              247.04,
+              413.31
+            ],
+            [
+              192.96,
+              412.39
+            ],
+            [
+              141.07,
+              412.61
+            ],
+            [
+              95.58,
+              411.63
+            ],
+            [
+              60.16,
+              404.98
+            ],
+            [
+              37.7,
+              394.73
+            ],
+            [
+              30.0,
+              386.0
+            ],
+            [
+              37.7,
+              378.61
+            ],
+            [
+              60.16,
+              370.4
+            ],
+            [
+              95.58,
+              362.96
+            ],
+            [
+              141.07,
+              357.77
+            ],
+            [
+              192.96,
+              353.92
+            ],
+            [
+              247.04,
+              353.0
+            ],
+            [
+              298.93,
+              358.03
+            ],
+            [
+              344.42,
+              366.28
+            ],
+            [
+              379.84,
+              372.54
+            ],
+            [
+              402.3,
+              377.83
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F6F1E7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.68,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F6F1E7",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#F6F1E7",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F6F1E7",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "mtn-mist-r",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              765.0,
+              390.0
+            ],
+            [
+              757.51,
+              398.88
+            ],
+            [
+              735.63,
+              405.72
+            ],
+            [
+              701.15,
+              410.81
+            ],
+            [
+              656.85,
+              414.59
+            ],
+            [
+              606.33,
+              415.49
+            ],
+            [
+              553.67,
+              414.63
+            ],
+            [
+              503.15,
+              414.83
+            ],
+            [
+              458.85,
+              413.92
+            ],
+            [
+              424.37,
+              407.71
+            ],
+            [
+              402.49,
+              398.15
+            ],
+            [
+              395.0,
+              390.0
+            ],
+            [
+              402.49,
+              383.1
+            ],
+            [
+              424.37,
+              375.44
+            ],
+            [
+              458.85,
+              368.49
+            ],
+            [
+              503.15,
+              363.65
+            ],
+            [
+              553.67,
+              360.06
+            ],
+            [
+              606.33,
+              359.2
+            ],
+            [
+              656.85,
+              363.89
+            ],
+            [
+              701.15,
+              371.6
+            ],
+            [
+              735.63,
+              377.44
+            ],
+            [
+              757.51,
+              382.37
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F6F1E7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.66,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F6F1E7",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#F6F1E7",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F6F1E7",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pond-wash",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              414.0
+            ],
+            [
+              772.0,
+              414.0
+            ],
+            [
+              772.0,
+              574.0
+            ],
+            [
+              28.0,
+              574.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#DCE4DF",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F6F1E7",
+                "opacity": 0.15
+              },
+              {
+                "offset": 0.35,
+                "color": "#DCE4DF",
+                "opacity": 0.78
+              },
+              {
+                "offset": 1.0,
+                "color": "#DCE4DF",
+                "opacity": 0.95
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "pond-reflect-leaf",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              386.83,
+              493.62
+            ],
+            [
+              382.98,
+              499.52
+            ],
+            [
+              371.09,
+              505.46
+            ],
+            [
+              351.96,
+              511.02
+            ],
+            [
+              326.91,
+              515.83
+            ],
+            [
+              297.64,
+              519.57
+            ],
+            [
+              266.15,
+              521.97
+            ],
+            [
+              234.58,
+              522.87
+            ],
+            [
+              205.08,
+              522.22
+            ],
+            [
+              179.67,
+              520.05
+            ],
+            [
+              160.07,
+              516.51
+            ],
+            [
+              147.62,
+              511.85
+            ],
+            [
+              143.17,
+              506.38
+            ],
+            [
+              147.02,
+              500.48
+            ],
+            [
+              158.91,
+              494.54
+            ],
+            [
+              178.04,
+              488.98
+            ],
+            [
+              203.09,
+              484.17
+            ],
+            [
+              232.36,
+              480.43
+            ],
+            [
+              263.85,
+              478.03
+            ],
+            [
+              295.42,
+              477.13
+            ],
+            [
+              324.92,
+              477.78
+            ],
+            [
+              350.33,
+              479.95
+            ],
+            [
+              369.93,
+              483.49
+            ],
+            [
+              382.38,
+              488.15
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6E8B7A",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.14,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#6E8B7A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#6E8B7A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#6E8B7A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pond-reflect-lotus",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              497.95,
+              516.65
+            ],
+            [
+              494.05,
+              521.77
+            ],
+            [
+              483.1,
+              526.13
+            ],
+            [
+              466.16,
+              529.3
+            ],
+            [
+              444.91,
+              530.98
+            ],
+            [
+              421.41,
+              530.99
+            ],
+            [
+              397.96,
+              529.34
+            ],
+            [
+              376.88,
+              526.19
+            ],
+            [
+              360.2,
+              521.84
+            ],
+            [
+              349.58,
+              516.73
+            ],
+            [
+              346.05,
+              511.35
+            ],
+            [
+              349.95,
+              506.23
+            ],
+            [
+              360.9,
+              501.87
+            ],
+            [
+              377.84,
+              498.7
+            ],
+            [
+              399.09,
+              497.02
+            ],
+            [
+              422.59,
+              497.01
+            ],
+            [
+              446.04,
+              498.66
+            ],
+            [
+              467.12,
+              501.81
+            ],
+            [
+              483.8,
+              506.16
+            ],
+            [
+              494.42,
+              511.27
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#CC8896",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.16,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "water-group",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "wave-1",
+        "parentId": "water-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              66.0,
+              436.0
+            ],
+            [
+              85.0,
+              436.56
+            ],
+            [
+              104.0,
+              437.44
+            ],
+            [
+              123.0,
+              437.1
+            ],
+            [
+              142.0,
+              435.17
+            ],
+            [
+              161.0,
+              433.08
+            ],
+            [
+              180.0,
+              432.87
+            ],
+            [
+              199.0,
+              435.13
+            ],
+            [
+              218.0,
+              438.23
+            ],
+            [
+              237.0,
+              439.72
+            ],
+            [
+              256.0,
+              438.48
+            ],
+            [
+              275.0,
+              435.75
+            ],
+            [
+              294.0,
+              433.83
+            ],
+            [
+              313.0,
+              433.95
+            ],
+            [
+              332.0,
+              435.34
+            ],
+            [
+              351.0,
+              436.28
+            ],
+            [
+              370.0,
+              436.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#758E82",
+          "strokeWidth": 1.3,
+          "opacity": 0.42,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "wave-2",
+        "parentId": "water-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              435.0,
+              452.0
+            ],
+            [
+              453.56,
+              452.67
+            ],
+            [
+              472.12,
+              452.62
+            ],
+            [
+              490.69,
+              451.38
+            ],
+            [
+              509.25,
+              449.73
+            ],
+            [
+              527.81,
+              449.15
+            ],
+            [
+              546.38,
+              450.49
+            ],
+            [
+              564.94,
+              453.09
+            ],
+            [
+              583.5,
+              455.21
+            ],
+            [
+              602.06,
+              455.36
+            ],
+            [
+              620.62,
+              453.51
+            ],
+            [
+              639.19,
+              451.07
+            ],
+            [
+              657.75,
+              449.73
+            ],
+            [
+              676.31,
+              450.1
+            ],
+            [
+              694.88,
+              451.38
+            ],
+            [
+              713.44,
+              452.22
+            ],
+            [
+              732.0,
+              452.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#758E82",
+          "strokeWidth": 1.3,
+          "opacity": 0.38,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "wave-3",
+        "parentId": "water-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              96.0,
+              488.0
+            ],
+            [
+              122.25,
+              488.86
+            ],
+            [
+              148.5,
+              489.03
+            ],
+            [
+              174.75,
+              487.31
+            ],
+            [
+              201.0,
+              485.07
+            ],
+            [
+              227.25,
+              484.98
+            ],
+            [
+              253.5,
+              487.88
+            ],
+            [
+              279.75,
+              491.42
+            ],
+            [
+              306.0,
+              492.22
+            ],
+            [
+              332.25,
+              489.45
+            ],
+            [
+              358.5,
+              485.7
+            ],
+            [
+              384.75,
+              484.34
+            ],
+            [
+              411.0,
+              486.1
+            ],
+            [
+              437.25,
+              488.69
+            ],
+            [
+              463.5,
+              489.59
+            ],
+            [
+              489.75,
+              488.71
+            ],
+            [
+              516.0,
+              488.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#678074",
+          "strokeWidth": 1.5,
+          "opacity": 0.42,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "wave-4",
+        "parentId": "water-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              275.0,
+              526.0
+            ],
+            [
+              302.69,
+              526.2
+            ],
+            [
+              330.38,
+              525.2
+            ],
+            [
+              358.06,
+              523.9
+            ],
+            [
+              385.75,
+              524.02
+            ],
+            [
+              413.44,
+              526.12
+            ],
+            [
+              441.12,
+              528.75
+            ],
+            [
+              468.81,
+              529.66
+            ],
+            [
+              496.5,
+              527.87
+            ],
+            [
+              524.19,
+              524.72
+            ],
+            [
+              551.88,
+              522.71
+            ],
+            [
+              579.56,
+              523.24
+            ],
+            [
+              607.25,
+              525.47
+            ],
+            [
+              634.94,
+              527.3
+            ],
+            [
+              662.62,
+              527.45
+            ],
+            [
+              690.31,
+              526.5
+            ],
+            [
+              718.0,
+              526.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#678074",
+          "strokeWidth": 1.3,
+          "opacity": 0.36,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "wave-5",
+        "parentId": "water-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              142.0,
+              556.0
+            ],
+            [
+              171.12,
+              556.57
+            ],
+            [
+              200.25,
+              556.87
+            ],
+            [
+              229.38,
+              555.86
+            ],
+            [
+              258.5,
+              554.18
+            ],
+            [
+              287.62,
+              553.7
+            ],
+            [
+              316.75,
+              555.37
+            ],
+            [
+              345.88,
+              557.93
+            ],
+            [
+              375.0,
+              558.99
+            ],
+            [
+              404.12,
+              557.52
+            ],
+            [
+              433.25,
+              554.92
+            ],
+            [
+              462.38,
+              553.57
+            ],
+            [
+              491.5,
+              554.4
+            ],
+            [
+              520.62,
+              556.14
+            ],
+            [
+              549.75,
+              556.98
+            ],
+            [
+              578.88,
+              556.54
+            ],
+            [
+              608.0,
+              556.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#859C91",
+          "strokeWidth": 1.1,
+          "opacity": 0.32,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-ripple-0",
+        "parentId": "water-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              430.0,
+              538.0
+            ],
+            [
+              428.31,
+              540.22
+            ],
+            [
+              423.45,
+              542.18
+            ],
+            [
+              416.0,
+              543.63
+            ],
+            [
+              406.86,
+              544.4
+            ],
+            [
+              397.14,
+              544.4
+            ],
+            [
+              388.0,
+              543.63
+            ],
+            [
+              380.55,
+              542.18
+            ],
+            [
+              375.69,
+              540.22
+            ],
+            [
+              374.0,
+              538.0
+            ],
+            [
+              375.69,
+              535.78
+            ],
+            [
+              380.55,
+              533.82
+            ],
+            [
+              388.0,
+              532.37
+            ],
+            [
+              397.14,
+              531.6
+            ],
+            [
+              406.86,
+              531.6
+            ],
+            [
+              416.0,
+              532.37
+            ],
+            [
+              423.45,
+              533.82
+            ],
+            [
+              428.31,
+              535.78
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#678275",
+          "strokeWidth": 1.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-ripple-1",
+        "parentId": "water-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              364.0,
+              524.0
+            ],
+            [
+              362.79,
+              525.64
+            ],
+            [
+              359.32,
+              527.09
+            ],
+            [
+              354.0,
+              528.16
+            ],
+            [
+              347.47,
+              528.73
+            ],
+            [
+              340.53,
+              528.73
+            ],
+            [
+              334.0,
+              528.16
+            ],
+            [
+              328.68,
+              527.09
+            ],
+            [
+              325.21,
+              525.64
+            ],
+            [
+              324.0,
+              524.0
+            ],
+            [
+              325.21,
+              522.36
+            ],
+            [
+              328.68,
+              520.91
+            ],
+            [
+              334.0,
+              519.84
+            ],
+            [
+              340.53,
+              519.27
+            ],
+            [
+              347.47,
+              519.27
+            ],
+            [
+              354.0,
+              519.84
+            ],
+            [
+              359.32,
+              520.91
+            ],
+            [
+              362.79,
+              522.36
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#678275",
+          "strokeWidth": 1.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stem-ripple-2",
+        "parentId": "water-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              296.0,
+              522.0
+            ],
+            [
+              294.67,
+              523.78
+            ],
+            [
+              290.85,
+              525.34
+            ],
+            [
+              285.0,
+              526.5
+            ],
+            [
+              277.82,
+              527.12
+            ],
+            [
+              270.18,
+              527.12
+            ],
+            [
+              263.0,
+              526.5
+            ],
+            [
+              257.15,
+              525.34
+            ],
+            [
+              253.33,
+              523.78
+            ],
+            [
+              252.0,
+              522.0
+            ],
+            [
+              253.33,
+              520.22
+            ],
+            [
+              257.15,
+              518.66
+            ],
+            [
+              263.0,
+              517.5
+            ],
+            [
+              270.18,
+              516.88
+            ],
+            [
+              277.82,
+              516.88
+            ],
+            [
+              285.0,
+              517.5
+            ],
+            [
+              290.85,
+              518.66
+            ],
+            [
+              294.67,
+              520.22
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#678275",
+          "strokeWidth": 1.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "foliage-group",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "stem-leaf-left",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              253.02,
+              392.35
+            ],
+            [
+              255.39,
+              414.17
+            ],
+            [
+              257.77,
+              434.99
+            ],
+            [
+              260.15,
+              454.77
+            ],
+            [
+              262.52,
+              473.47
+            ],
+            [
+              264.9,
+              491.05
+            ],
+            [
+              267.28,
+              507.5
+            ],
+            [
+              269.66,
+              522.73
+            ],
+            [
+              278.34,
+              521.27
+            ],
+            [
+              275.57,
+              506.15
+            ],
+            [
+              272.81,
+              489.85
+            ],
+            [
+              270.05,
+              472.4
+            ],
+            [
+              267.28,
+              453.81
+            ],
+            [
+              264.52,
+              434.14
+            ],
+            [
+              261.75,
+              413.41
+            ],
+            [
+              258.98,
+              391.65
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#34543F",
+          "stroke": "#243B2C",
+          "strokeWidth": 0.7,
+          "opacity": 0.9,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 0.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#34543F",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#34543F",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#34543F",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "stem-leaf-right",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              545.23,
+              423.57
+            ],
+            [
+              541.89,
+              443.71
+            ],
+            [
+              538.24,
+              462.35
+            ],
+            [
+              534.47,
+              479.78
+            ],
+            [
+              530.7,
+              496.23
+            ],
+            [
+              527.14,
+              511.95
+            ],
+            [
+              523.79,
+              527.13
+            ],
+            [
+              532.21,
+              528.87
+            ],
+            [
+              535.16,
+              513.64
+            ],
+            [
+              538.33,
+              497.85
+            ],
+            [
+              541.53,
+              481.22
+            ],
+            [
+              544.72,
+              463.58
+            ],
+            [
+              547.81,
+              444.7
+            ],
+            [
+              550.77,
+              424.43
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#32503D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 0.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#32503D",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#32503D",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#32503D",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-back-shadow",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              408.25,
+              359.86
+            ],
+            [
+              410.92,
+              369.79
+            ],
+            [
+              399.18,
+              381.01
+            ],
+            [
+              382.96,
+              391.34
+            ],
+            [
+              371.82,
+              401.4
+            ],
+            [
+              362.14,
+              412.54
+            ],
+            [
+              344.72,
+              423.01
+            ],
+            [
+              319.18,
+              429.79
+            ],
+            [
+              293.0,
+              433.68
+            ],
+            [
+              269.28,
+              438.65
+            ],
+            [
+              244.4,
+              445.52
+            ],
+            [
+              217.77,
+              449.81
+            ],
+            [
+              195.02,
+              447.87
+            ],
+            [
+              178.3,
+              442.29
+            ],
+            [
+              161.31,
+              438.12
+            ],
+            [
+              139.84,
+              435.74
+            ],
+            [
+              121.23,
+              430.95
+            ],
+            [
+              115.61,
+              421.65
+            ],
+            [
+              120.68,
+              410.57
+            ],
+            [
+              124.35,
+              400.57
+            ],
+            [
+              122.31,
+              390.93
+            ],
+            [
+              124.2,
+              380.1
+            ],
+            [
+              139.03,
+              369.34
+            ],
+            [
+              162.4,
+              360.64
+            ],
+            [
+              184.09,
+              352.84
+            ],
+            [
+              202.55,
+              343.49
+            ],
+            [
+              223.91,
+              333.86
+            ],
+            [
+              249.84,
+              328.36
+            ],
+            [
+              275.09,
+              328.44
+            ],
+            [
+              295.25,
+              332.73
+            ],
+            [
+              305.18,
+              342.98
+            ],
+            [
+              315.41,
+              347.82
+            ],
+            [
+              349.74,
+              338.6
+            ],
+            [
+              375.65,
+              338.13
+            ],
+            [
+              384.59,
+              345.64
+            ],
+            [
+              395.42,
+              352.56
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2B483B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.2,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2B483B",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2B483B",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2B483B",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-back",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              408.73,
+              351.07
+            ],
+            [
+              412.67,
+              358.8
+            ],
+            [
+              407.06,
+              367.75
+            ],
+            [
+              394.73,
+              376.57
+            ],
+            [
+              381.94,
+              384.61
+            ],
+            [
+              372.93,
+              392.49
+            ],
+            [
+              366.59,
+              401.11
+            ],
+            [
+              358.13,
+              410.26
+            ],
+            [
+              343.84,
+              418.43
+            ],
+            [
+              324.33,
+              424.09
+            ],
+            [
+              303.34,
+              427.33
+            ],
+            [
+              283.92,
+              430.04
+            ],
+            [
+              265.9,
+              434.16
+            ],
+            [
+              247.08,
+              439.78
+            ],
+            [
+              226.55,
+              444.72
+            ],
+            [
+              206.34,
+              446.35
+            ],
+            [
+              189.48,
+              443.86
+            ],
+            [
+              176.55,
+              439.03
+            ],
+            [
+              164.64,
+              434.65
+            ],
+            [
+              150.1,
+              432.11
+            ],
+            [
+              132.72,
+              430.34
+            ],
+            [
+              116.85,
+              427.02
+            ],
+            [
+              108.09,
+              420.74
+            ],
+            [
+              108.19,
+              412.16
+            ],
+            [
+              113.28,
+              403.16
+            ],
+            [
+              117.04,
+              395.03
+            ],
+            [
+              116.3,
+              387.48
+            ],
+            [
+              113.8,
+              379.47
+            ],
+            [
+              115.66,
+              370.64
+            ],
+            [
+              125.85,
+              361.87
+            ],
+            [
+              142.94,
+              354.38
+            ],
+            [
+              161.74,
+              348.22
+            ],
+            [
+              178.07,
+              342.13
+            ],
+            [
+              192.01,
+              334.84
+            ],
+            [
+              206.74,
+              326.66
+            ],
+            [
+              224.7,
+              319.67
+            ],
+            [
+              245.07,
+              316.0
+            ],
+            [
+              264.96,
+              315.99
+            ],
+            [
+              282.26,
+              318.5
+            ],
+            [
+              295.44,
+              323.71
+            ],
+            [
+              302.05,
+              332.41
+            ],
+            [
+              308.05,
+              338.02
+            ],
+            [
+              328.66,
+              332.94
+            ],
+            [
+              357.33,
+              326.23
+            ],
+            [
+              374.57,
+              327.66
+            ],
+            [
+              381.35,
+              333.84
+            ],
+            [
+              388.03,
+              339.85
+            ],
+            [
+              398.39,
+              345.09
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#47725B",
+          "stroke": "#2C4E3D",
+          "strokeWidth": 1.3,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#47725B",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#47725B",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#47725B",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-back-rim",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              372.85,
+              350.69
+            ],
+            [
+              373.99,
+              359.55
+            ],
+            [
+              364.93,
+              369.31
+            ],
+            [
+              351.07,
+              378.52
+            ],
+            [
+              338.03,
+              387.38
+            ],
+            [
+              324.6,
+              396.65
+            ],
+            [
+              306.34,
+              405.32
+            ],
+            [
+              283.22,
+              411.27
+            ],
+            [
+              259.47,
+              414.35
+            ],
+            [
+              237.05,
+              416.74
+            ],
+            [
+              214.12,
+              419.65
+            ],
+            [
+              190.71,
+              421.2
+            ],
+            [
+              171.26,
+              418.87
+            ],
+            [
+              158.76,
+              413.06
+            ],
+            [
+              149.92,
+              406.43
+            ],
+            [
+              140.09,
+              400.26
+            ],
+            [
+              131.15,
+              393.31
+            ],
+            [
+              130.01,
+              384.45
+            ],
+            [
+              139.07,
+              374.69
+            ],
+            [
+              152.93,
+              365.48
+            ],
+            [
+              165.97,
+              356.62
+            ],
+            [
+              179.4,
+              347.35
+            ],
+            [
+              197.66,
+              338.68
+            ],
+            [
+              220.78,
+              332.73
+            ],
+            [
+              244.53,
+              329.65
+            ],
+            [
+              266.82,
+              327.64
+            ],
+            [
+              285.84,
+              329.43
+            ],
+            [
+              292.12,
+              339.79
+            ],
+            [
+              309.06,
+              338.87
+            ],
+            [
+              339.15,
+              333.62
+            ],
+            [
+              353.69,
+              337.71
+            ],
+            [
+              363.91,
+              343.74
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C997F",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.35,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#6C997F",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#6C997F",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#6C997F",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-back-vein-0",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              199.04,
+              373.85
+            ],
+            [
+              145.09,
+              372.15
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-1",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              214.89,
+              362.48
+            ],
+            [
+              172.77,
+              349.9
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-2",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              243.81,
+              356.49
+            ],
+            [
+              227.01,
+              337.43
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-3",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              308.51,
+              368.66
+            ],
+            [
+              354.89,
+              358.28
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-4",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              312.06,
+              383.64
+            ],
+            [
+              365.55,
+              386.73
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-5",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              285.99,
+              396.83
+            ],
+            [
+              318.63,
+              412.82
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-6",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              235.34,
+              398.56
+            ],
+            [
+              221.39,
+              417.94
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-vein-7",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              256.0,
+              378.0
+            ],
+            [
+              206.35,
+              389.38
+            ],
+            [
+              163.15,
+              401.49
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8FB8A0",
+          "strokeWidth": 0.95,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-back-hub",
+        "parentId": "foliage-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 256.0,
+          "cy": 378.0,
+          "r": 4.2
+        },
+        "style": {
+          "fill": "#D8CB9A",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.78,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D8CB9A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D8CB9A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D8CB9A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-right",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              689.19,
+              431.28
+            ],
+            [
+              690.17,
+              439.04
+            ],
+            [
+              681.24,
+              444.83
+            ],
+            [
+              666.69,
+              448.54
+            ],
+            [
+              653.44,
+              451.93
+            ],
+            [
+              644.09,
+              456.75
+            ],
+            [
+              635.15,
+              462.55
+            ],
+            [
+              621.71,
+              466.74
+            ],
+            [
+              602.95,
+              467.12
+            ],
+            [
+              582.39,
+              464.22
+            ],
+            [
+              563.33,
+              460.81
+            ],
+            [
+              545.39,
+              459.06
+            ],
+            [
+              526.18,
+              458.44
+            ],
+            [
+              505.67,
+              456.43
+            ],
+            [
+              487.24,
+              451.3
+            ],
+            [
+              473.88,
+              443.79
+            ],
+            [
+              464.13,
+              436.04
+            ],
+            [
+              453.14,
+              429.28
+            ],
+            [
+              438.37,
+              422.91
+            ],
+            [
+              423.39,
+              415.75
+            ],
+            [
+              415.08,
+              407.82
+            ],
+            [
+              416.58,
+              400.32
+            ],
+            [
+              423.8,
+              393.98
+            ],
+            [
+              429.47,
+              388.02
+            ],
+            [
+              430.64,
+              381.17
+            ],
+            [
+              432.56,
+              373.95
+            ],
+            [
+              446.67,
+              370.54
+            ],
+            [
+              477.03,
+              375.57
+            ],
+            [
+              502.19,
+              381.72
+            ],
+            [
+              507.77,
+              377.27
+            ],
+            [
+              510.37,
+              366.97
+            ],
+            [
+              521.59,
+              359.75
+            ],
+            [
+              539.36,
+              357.58
+            ],
+            [
+              559.3,
+              360.04
+            ],
+            [
+              577.73,
+              365.72
+            ],
+            [
+              593.8,
+              371.92
+            ],
+            [
+              610.15,
+              376.72
+            ],
+            [
+              629.07,
+              380.64
+            ],
+            [
+              648.44,
+              385.62
+            ],
+            [
+              662.82,
+              392.62
+            ],
+            [
+              669.15,
+              400.75
+            ],
+            [
+              670.58,
+              408.54
+            ],
+            [
+              673.64,
+              415.71
+            ],
+            [
+              681.25,
+              423.15
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3B6651",
+          "stroke": "#254435",
+          "strokeWidth": 1.25,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#3B6651",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#3B6651",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#3B6651",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-right-highlight",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              659.29,
+              422.52
+            ],
+            [
+              657.02,
+              430.35
+            ],
+            [
+              644.36,
+              435.66
+            ],
+            [
+              628.9,
+              439.4
+            ],
+            [
+              614.47,
+              443.53
+            ],
+            [
+              596.8,
+              446.68
+            ],
+            [
+              574.21,
+              445.95
+            ],
+            [
+              551.24,
+              441.88
+            ],
+            [
+              529.79,
+              437.49
+            ],
+            [
+              507.5,
+              433.22
+            ],
+            [
+              486.55,
+              426.97
+            ],
+            [
+              473.03,
+              418.63
+            ],
+            [
+              466.11,
+              410.17
+            ],
+            [
+              459.15,
+              402.04
+            ],
+            [
+              452.71,
+              393.48
+            ],
+            [
+              455.01,
+              385.65
+            ],
+            [
+              469.13,
+              380.8
+            ],
+            [
+              496.98,
+              382.58
+            ],
+            [
+              519.51,
+              385.83
+            ],
+            [
+              520.47,
+              374.31
+            ],
+            [
+              537.93,
+              370.34
+            ],
+            [
+              560.76,
+              374.13
+            ],
+            [
+              582.21,
+              378.51
+            ],
+            [
+              604.5,
+              382.78
+            ],
+            [
+              625.45,
+              389.03
+            ],
+            [
+              638.97,
+              397.37
+            ],
+            [
+              645.89,
+              405.83
+            ],
+            [
+              652.85,
+              413.96
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#66937A",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.32,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#66937A",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#66937A",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#66937A",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "leaf-right-vein-0",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              458.8,
+              401.49
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-vein-1",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              579.01,
+              379.32
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-vein-2",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              641.53,
+              398.17
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-vein-3",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              642.86,
+              424.74
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-vein-4",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              585.52,
+              443.95
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-vein-5",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              491.67,
+              438.79
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-vein-6",
+        "parentId": "foliage-group",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              552.0,
+              412.0
+            ],
+            [
+              455.49,
+              417.9
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#88B29A",
+          "strokeWidth": 0.9,
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "leaf-right-hub",
+        "parentId": "foliage-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 552.0,
+          "cy": 412.0,
+          "r": 3.6
+        },
+        "style": {
+          "fill": "#D4C796",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D4C796",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D4C796",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D4C796",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "stem-bud",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              347.57,
+              522.7
+            ],
+            [
+              338.96,
+              499.49
+            ],
+            [
+              330.74,
+              475.15
+            ],
+            [
+              322.97,
+              449.81
+            ],
+            [
+              315.75,
+              423.61
+            ],
+            [
+              309.14,
+              396.74
+            ],
+            [
+              303.24,
+              369.35
+            ],
+            [
+              298.13,
+              341.61
+            ],
+            [
+              293.88,
+              313.69
+            ],
+            [
+              290.58,
+              285.71
+            ],
+            [
+              285.42,
+              286.29
+            ],
+            [
+              288.46,
+              314.4
+            ],
+            [
+              292.47,
+              342.54
+            ],
+            [
+              297.35,
+              370.5
+            ],
+            [
+              303.03,
+              398.12
+            ],
+            [
+              309.42,
+              425.23
+            ],
+            [
+              316.43,
+              451.67
+            ],
+            [
+              324.0,
+              477.28
+            ],
+            [
+              332.03,
+              501.9
+            ],
+            [
+              340.43,
+              525.3
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#476B50",
+          "stroke": "#2C4834",
+          "strokeWidth": 0.85,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 0.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#476B50",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#476B50",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#476B50",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "stem-main",
+        "parentId": "foliage-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              407.19,
+              537.64
+            ],
+            [
+              405.52,
+              515.95
+            ],
+            [
+              404.9,
+              493.96
+            ],
+            [
+              405.17,
+              471.64
+            ],
+            [
+              406.19,
+              449.08
+            ],
+            [
+              407.81,
+              426.39
+            ],
+            [
+              409.88,
+              403.66
+            ],
+            [
+              412.25,
+              381.0
+            ],
+            [
+              414.77,
+              358.51
+            ],
+            [
+              417.3,
+              336.28
+            ],
+            [
+              419.68,
+              314.43
+            ],
+            [
+              412.32,
+              313.57
+            ],
+            [
+              409.65,
+              335.37
+            ],
+            [
+              406.83,
+              357.56
+            ],
+            [
+              404.0,
+              380.05
+            ],
+            [
+              401.32,
+              402.77
+            ],
+            [
+              398.94,
+              425.61
+            ],
+            [
+              397.01,
+              448.49
+            ],
+            [
+              395.68,
+              471.3
+            ],
+            [
+              395.1,
+              493.97
+            ],
+            [
+              395.43,
+              516.41
+            ],
+            [
+              396.81,
+              538.36
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3D6046",
+          "stroke": "#27412F",
+          "strokeWidth": 0.95,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 0.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#3D6046",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#3D6046",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#3D6046",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "bud-group",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 288.0,
+          "y": 284.0,
+          "rotation": -14.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "bud-sepal-l",
+        "parentId": "bud-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -5.32,
+              2.64
+            ],
+            [
+              -9.51,
+              -2.27
+            ],
+            [
+              -12.57,
+              -8.32
+            ],
+            [
+              -14.51,
+              -15.11
+            ],
+            [
+              -15.33,
+              -22.23
+            ],
+            [
+              -15.02,
+              -29.28
+            ],
+            [
+              -13.6,
+              -35.85
+            ],
+            [
+              -8.58,
+              -31.37
+            ],
+            [
+              -4.19,
+              -25.85
+            ],
+            [
+              -0.67,
+              -19.61
+            ],
+            [
+              1.75,
+              -12.97
+            ],
+            [
+              2.83,
+              -6.28
+            ],
+            [
+              2.33,
+              0.16
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#567C5E",
+          "stroke": "#35533C",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#567C5E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#567C5E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#567C5E",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "bud-sepal-r",
+        "parentId": "bud-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -2.33,
+              0.16
+            ],
+            [
+              -2.83,
+              -6.28
+            ],
+            [
+              -1.75,
+              -12.97
+            ],
+            [
+              0.67,
+              -19.61
+            ],
+            [
+              4.19,
+              -25.85
+            ],
+            [
+              8.58,
+              -31.37
+            ],
+            [
+              13.6,
+              -35.85
+            ],
+            [
+              15.02,
+              -29.28
+            ],
+            [
+              15.33,
+              -22.23
+            ],
+            [
+              14.51,
+              -15.11
+            ],
+            [
+              12.57,
+              -8.32
+            ],
+            [
+              9.51,
+              -2.27
+            ],
+            [
+              5.32,
+              2.64
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#567C5E",
+          "stroke": "#35533C",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#567C5E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#567C5E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#567C5E",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "bud-petal-back",
+        "parentId": "bud-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              -5.77,
+              -5.19
+            ],
+            [
+              -9.73,
+              -13.94
+            ],
+            [
+              -11.96,
+              -23.78
+            ],
+            [
+              -12.54,
+              -34.29
+            ],
+            [
+              -11.56,
+              -45.01
+            ],
+            [
+              -9.08,
+              -55.5
+            ],
+            [
+              -5.21,
+              -65.31
+            ],
+            [
+              0.0,
+              -74.0
+            ],
+            [
+              5.21,
+              -65.31
+            ],
+            [
+              9.08,
+              -55.5
+            ],
+            [
+              11.56,
+              -45.01
+            ],
+            [
+              12.54,
+              -34.29
+            ],
+            [
+              11.96,
+              -23.78
+            ],
+            [
+              9.73,
+              -13.94
+            ],
+            [
+              5.77,
+              -5.19
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E69AA8",
+          "stroke": "#AE5468",
+          "strokeWidth": 1.05,
+          "opacity": 0.95,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E69AA8",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E69AA8",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E69AA8",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "bud-petal-left",
+        "parentId": "bud-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -3.0,
+              4.0
+            ],
+            [
+              -9.07,
+              -2.35
+            ],
+            [
+              -13.63,
+              -10.81
+            ],
+            [
+              -16.65,
+              -20.75
+            ],
+            [
+              -18.14,
+              -31.58
+            ],
+            [
+              -18.07,
+              -42.7
+            ],
+            [
+              -16.44,
+              -53.49
+            ],
+            [
+              -13.23,
+              -63.35
+            ],
+            [
+              -7.6,
+              -55.36
+            ],
+            [
+              -2.98,
+              -45.9
+            ],
+            [
+              0.4,
+              -35.52
+            ],
+            [
+              2.32,
+              -24.78
+            ],
+            [
+              2.54,
+              -14.24
+            ],
+            [
+              0.85,
+              -4.46
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D87D90",
+          "stroke": "#9F4559",
+          "strokeWidth": 0.95,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D87D90",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D87D90",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D87D90",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "bud-petal-right",
+        "parentId": "bud-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              4.0
+            ],
+            [
+              -0.85,
+              -4.46
+            ],
+            [
+              -2.54,
+              -14.24
+            ],
+            [
+              -2.32,
+              -24.78
+            ],
+            [
+              -0.4,
+              -35.52
+            ],
+            [
+              2.98,
+              -45.9
+            ],
+            [
+              7.6,
+              -55.36
+            ],
+            [
+              13.23,
+              -63.35
+            ],
+            [
+              16.44,
+              -53.49
+            ],
+            [
+              18.07,
+              -42.7
+            ],
+            [
+              18.14,
+              -31.58
+            ],
+            [
+              16.65,
+              -20.75
+            ],
+            [
+              13.63,
+              -10.81
+            ],
+            [
+              9.07,
+              -2.35
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F0B7C1",
+          "stroke": "#B66274",
+          "strokeWidth": 0.95,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F0B7C1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F0B7C1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F0B7C1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "lotus-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 416.0,
+          "y": 308.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "lotus-bloom",
+        "parentId": "lotus-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "lotus-sepal-0",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              -10.28,
+              13.19
+            ],
+            [
+              -21.6,
+              11.24
+            ],
+            [
+              -33.21,
+              6.75
+            ],
+            [
+              -44.33,
+              0.37
+            ],
+            [
+              -54.22,
+              -7.31
+            ],
+            [
+              -62.12,
+              -15.66
+            ],
+            [
+              -50.63,
+              -15.38
+            ],
+            [
+              -38.31,
+              -13.16
+            ],
+            [
+              -26.12,
+              -9.17
+            ],
+            [
+              -15.02,
+              -3.54
+            ],
+            [
+              -6.0,
+              3.56
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#5A8364",
+          "stroke": "#365740",
+          "strokeWidth": 0.85,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "lotus-sepal-1",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              6.0,
+              3.56
+            ],
+            [
+              15.02,
+              -3.54
+            ],
+            [
+              26.12,
+              -9.17
+            ],
+            [
+              38.31,
+              -13.16
+            ],
+            [
+              50.63,
+              -15.38
+            ],
+            [
+              62.12,
+              -15.66
+            ],
+            [
+              54.22,
+              -7.31
+            ],
+            [
+              44.33,
+              0.37
+            ],
+            [
+              33.21,
+              6.75
+            ],
+            [
+              21.6,
+              11.24
+            ],
+            [
+              10.28,
+              13.19
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#5A8364",
+          "stroke": "#365740",
+          "strokeWidth": 0.85,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "lotus-sepal-2",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              -9.07,
+              9.24
+            ],
+            [
+              -17.81,
+              3.44
+            ],
+            [
+              -25.82,
+              -4.59
+            ],
+            [
+              -32.71,
+              -14.05
+            ],
+            [
+              -38.06,
+              -24.14
+            ],
+            [
+              -41.49,
+              -34.07
+            ],
+            [
+              -31.97,
+              -29.63
+            ],
+            [
+              -22.49,
+              -23.25
+            ],
+            [
+              -13.8,
+              -15.42
+            ],
+            [
+              -6.65,
+              -6.61
+            ],
+            [
+              -1.8,
+              2.69
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#5A8364",
+          "stroke": "#365740",
+          "strokeWidth": 0.85,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "lotus-sepal-3",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              1.8,
+              2.69
+            ],
+            [
+              6.65,
+              -6.61
+            ],
+            [
+              13.8,
+              -15.42
+            ],
+            [
+              22.49,
+              -23.25
+            ],
+            [
+              31.97,
+              -29.63
+            ],
+            [
+              41.49,
+              -34.07
+            ],
+            [
+              38.06,
+              -24.14
+            ],
+            [
+              32.71,
+              -14.05
+            ],
+            [
+              25.82,
+              -4.59
+            ],
+            [
+              17.81,
+              3.44
+            ],
+            [
+              9.07,
+              9.24
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#5A8364",
+          "stroke": "#365740",
+          "strokeWidth": 0.85,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "petal-outer-0",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -13.39,
+              9.8
+            ],
+            [
+              -28.88,
+              10.74
+            ],
+            [
+              -45.75,
+              9.09
+            ],
+            [
+              -63.27,
+              5.12
+            ],
+            [
+              -80.74,
+              -0.93
+            ],
+            [
+              -97.41,
+              -8.78
+            ],
+            [
+              -112.57,
+              -18.18
+            ],
+            [
+              -125.5,
+              -28.85
+            ],
+            [
+              -109.84,
+              -31.04
+            ],
+            [
+              -92.64,
+              -31.23
+            ],
+            [
+              -74.67,
+              -29.49
+            ],
+            [
+              -56.69,
+              -25.87
+            ],
+            [
+              -39.47,
+              -20.45
+            ],
+            [
+              -23.77,
+              -13.29
+            ],
+            [
+              -10.36,
+              -4.45
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-outer-1",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -15.12,
+              4.72
+            ],
+            [
+              -31.21,
+              -0.23
+            ],
+            [
+              -47.63,
+              -8.32
+            ],
+            [
+              -63.78,
+              -19.0
+            ],
+            [
+              -79.03,
+              -31.69
+            ],
+            [
+              -92.78,
+              -45.87
+            ],
+            [
+              -104.39,
+              -60.96
+            ],
+            [
+              -113.27,
+              -76.43
+            ],
+            [
+              -96.43,
+              -72.78
+            ],
+            [
+              -78.87,
+              -66.48
+            ],
+            [
+              -61.35,
+              -57.91
+            ],
+            [
+              -44.58,
+              -47.45
+            ],
+            [
+              -29.33,
+              -35.45
+            ],
+            [
+              -16.32,
+              -22.3
+            ],
+            [
+              -6.3,
+              -8.36
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-outer-2",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -13.93,
+              -2.13
+            ],
+            [
+              -27.13,
+              -14.17
+            ],
+            [
+              -39.26,
+              -29.31
+            ],
+            [
+              -50.0,
+              -46.74
+            ],
+            [
+              -59.0,
+              -65.64
+            ],
+            [
+              -65.94,
+              -85.23
+            ],
+            [
+              -70.47,
+              -104.67
+            ],
+            [
+              -72.27,
+              -123.17
+            ],
+            [
+              -57.66,
+              -112.07
+            ],
+            [
+              -43.58,
+              -98.13
+            ],
+            [
+              -30.56,
+              -82.07
+            ],
+            [
+              -19.13,
+              -64.56
+            ],
+            [
+              -9.83,
+              -46.3
+            ],
+            [
+              -3.19,
+              -27.99
+            ],
+            [
+              0.26,
+              -10.33
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-outer-3",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -8.8,
+              -8.58
+            ],
+            [
+              -14.84,
+              -26.29
+            ],
+            [
+              -18.25,
+              -46.25
+            ],
+            [
+              -19.14,
+              -67.53
+            ],
+            [
+              -17.64,
+              -89.26
+            ],
+            [
+              -13.87,
+              -110.51
+            ],
+            [
+              -7.95,
+              -130.39
+            ],
+            [
+              0.0,
+              -148.0
+            ],
+            [
+              7.95,
+              -130.39
+            ],
+            [
+              13.87,
+              -110.51
+            ],
+            [
+              17.64,
+              -89.26
+            ],
+            [
+              19.14,
+              -67.53
+            ],
+            [
+              18.25,
+              -46.25
+            ],
+            [
+              14.84,
+              -26.29
+            ],
+            [
+              8.8,
+              -8.58
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-outer-4",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              -0.26,
+              -10.33
+            ],
+            [
+              3.19,
+              -27.99
+            ],
+            [
+              9.83,
+              -46.3
+            ],
+            [
+              19.13,
+              -64.56
+            ],
+            [
+              30.56,
+              -82.07
+            ],
+            [
+              43.58,
+              -98.13
+            ],
+            [
+              57.66,
+              -112.07
+            ],
+            [
+              72.27,
+              -123.17
+            ],
+            [
+              70.47,
+              -104.67
+            ],
+            [
+              65.94,
+              -85.23
+            ],
+            [
+              59.0,
+              -65.64
+            ],
+            [
+              50.0,
+              -46.74
+            ],
+            [
+              39.26,
+              -29.31
+            ],
+            [
+              27.13,
+              -14.17
+            ],
+            [
+              13.93,
+              -2.13
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-outer-5",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              6.3,
+              -8.36
+            ],
+            [
+              16.32,
+              -22.3
+            ],
+            [
+              29.33,
+              -35.45
+            ],
+            [
+              44.58,
+              -47.45
+            ],
+            [
+              61.35,
+              -57.91
+            ],
+            [
+              78.87,
+              -66.48
+            ],
+            [
+              96.43,
+              -72.78
+            ],
+            [
+              113.27,
+              -76.43
+            ],
+            [
+              104.39,
+              -60.96
+            ],
+            [
+              92.78,
+              -45.87
+            ],
+            [
+              79.03,
+              -31.69
+            ],
+            [
+              63.78,
+              -19.0
+            ],
+            [
+              47.63,
+              -8.32
+            ],
+            [
+              31.21,
+              -0.23
+            ],
+            [
+              15.12,
+              4.72
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-outer-6",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              6.0
+            ],
+            [
+              10.36,
+              -4.45
+            ],
+            [
+              23.77,
+              -13.29
+            ],
+            [
+              39.47,
+              -20.45
+            ],
+            [
+              56.69,
+              -25.87
+            ],
+            [
+              74.67,
+              -29.49
+            ],
+            [
+              92.64,
+              -31.23
+            ],
+            [
+              109.84,
+              -31.04
+            ],
+            [
+              125.5,
+              -28.85
+            ],
+            [
+              112.57,
+              -18.18
+            ],
+            [
+              97.41,
+              -8.78
+            ],
+            [
+              80.74,
+              -0.93
+            ],
+            [
+              63.27,
+              5.12
+            ],
+            [
+              45.75,
+              9.09
+            ],
+            [
+              28.88,
+              10.74
+            ],
+            [
+              13.39,
+              9.8
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9A3B1",
+          "stroke": "#B65B6F",
+          "strokeWidth": 1.15,
+          "opacity": 0.94,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#E9A3B1",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#E9A3B1",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#E9A3B1",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-mid-0",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -13.98,
+              5.07
+            ],
+            [
+              -29.2,
+              2.27
+            ],
+            [
+              -44.87,
+              -3.83
+            ],
+            [
+              -60.19,
+              -12.64
+            ],
+            [
+              -74.39,
+              -23.6
+            ],
+            [
+              -86.67,
+              -36.11
+            ],
+            [
+              -96.24,
+              -49.61
+            ],
+            [
+              -80.59,
+              -48.57
+            ],
+            [
+              -64.02,
+              -44.86
+            ],
+            [
+              -47.45,
+              -38.76
+            ],
+            [
+              -31.83,
+              -30.56
+            ],
+            [
+              -18.09,
+              -20.51
+            ],
+            [
+              -7.17,
+              -8.9
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D97388",
+          "stroke": "#9C4156",
+          "strokeWidth": 1.05,
+          "opacity": 0.9,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D97388",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D97388",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D97388",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-mid-1",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -14.65,
+              -1.58
+            ],
+            [
+              -28.73,
+              -11.56
+            ],
+            [
+              -41.73,
+              -24.98
+            ],
+            [
+              -53.15,
+              -40.89
+            ],
+            [
+              -62.46,
+              -58.33
+            ],
+            [
+              -69.16,
+              -76.35
+            ],
+            [
+              -72.75,
+              -93.98
+            ],
+            [
+              -57.29,
+              -85.62
+            ],
+            [
+              -42.2,
+              -74.16
+            ],
+            [
+              -28.25,
+              -60.34
+            ],
+            [
+              -16.26,
+              -44.88
+            ],
+            [
+              -7.02,
+              -28.52
+            ],
+            [
+              -1.33,
+              -11.98
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D97388",
+          "stroke": "#9C4156",
+          "strokeWidth": 1.05,
+          "opacity": 0.9,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D97388",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D97388",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D97388",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-mid-2",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -8.79,
+              -10.08
+            ],
+            [
+              -14.33,
+              -27.42
+            ],
+            [
+              -16.81,
+              -46.92
+            ],
+            [
+              -16.43,
+              -67.44
+            ],
+            [
+              -13.37,
+              -87.88
+            ],
+            [
+              -7.83,
+              -107.1
+            ],
+            [
+              0.0,
+              -124.0
+            ],
+            [
+              7.83,
+              -107.1
+            ],
+            [
+              13.37,
+              -87.88
+            ],
+            [
+              16.43,
+              -67.44
+            ],
+            [
+              16.81,
+              -46.92
+            ],
+            [
+              14.33,
+              -27.42
+            ],
+            [
+              8.79,
+              -10.08
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D97388",
+          "stroke": "#9C4156",
+          "strokeWidth": 1.05,
+          "opacity": 0.9,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D97388",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D97388",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D97388",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-mid-3",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              1.33,
+              -11.98
+            ],
+            [
+              7.02,
+              -28.52
+            ],
+            [
+              16.26,
+              -44.88
+            ],
+            [
+              28.25,
+              -60.34
+            ],
+            [
+              42.2,
+              -74.16
+            ],
+            [
+              57.29,
+              -85.62
+            ],
+            [
+              72.75,
+              -93.98
+            ],
+            [
+              69.16,
+              -76.35
+            ],
+            [
+              62.46,
+              -58.33
+            ],
+            [
+              53.15,
+              -40.89
+            ],
+            [
+              41.73,
+              -24.98
+            ],
+            [
+              28.73,
+              -11.56
+            ],
+            [
+              14.65,
+              -1.58
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D97388",
+          "stroke": "#9C4156",
+          "strokeWidth": 1.05,
+          "opacity": 0.9,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D97388",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D97388",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D97388",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-mid-4",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              7.17,
+              -8.9
+            ],
+            [
+              18.09,
+              -20.51
+            ],
+            [
+              31.83,
+              -30.56
+            ],
+            [
+              47.45,
+              -38.76
+            ],
+            [
+              64.02,
+              -44.86
+            ],
+            [
+              80.59,
+              -48.57
+            ],
+            [
+              96.24,
+              -49.61
+            ],
+            [
+              86.67,
+              -36.11
+            ],
+            [
+              74.39,
+              -23.6
+            ],
+            [
+              60.19,
+              -12.64
+            ],
+            [
+              44.87,
+              -3.83
+            ],
+            [
+              29.2,
+              2.27
+            ],
+            [
+              13.98,
+              5.07
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D97388",
+          "stroke": "#9C4156",
+          "strokeWidth": 1.05,
+          "opacity": 0.9,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#D97388",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#D97388",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#D97388",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-inner-0",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -10.9,
+              2.62
+            ],
+            [
+              -21.87,
+              -2.01
+            ],
+            [
+              -32.46,
+              -9.3
+            ],
+            [
+              -42.2,
+              -18.65
+            ],
+            [
+              -50.64,
+              -29.45
+            ],
+            [
+              -57.32,
+              -41.12
+            ],
+            [
+              -61.78,
+              -53.06
+            ],
+            [
+              -50.11,
+              -49.71
+            ],
+            [
+              -38.29,
+              -44.17
+            ],
+            [
+              -26.97,
+              -36.79
+            ],
+            [
+              -16.82,
+              -27.94
+            ],
+            [
+              -8.5,
+              -17.95
+            ],
+            [
+              -2.67,
+              -7.19
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5CAD3",
+          "stroke": "#C67486",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5CAD3",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F5CAD3",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5CAD3",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-inner-1",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -10.22,
+              -3.02
+            ],
+            [
+              -18.86,
+              -13.27
+            ],
+            [
+              -25.78,
+              -25.91
+            ],
+            [
+              -30.83,
+              -40.13
+            ],
+            [
+              -33.88,
+              -55.08
+            ],
+            [
+              -34.76,
+              -69.95
+            ],
+            [
+              -33.36,
+              -83.9
+            ],
+            [
+              -23.28,
+              -74.59
+            ],
+            [
+              -14.19,
+              -63.04
+            ],
+            [
+              -6.56,
+              -49.94
+            ],
+            [
+              -0.85,
+              -35.98
+            ],
+            [
+              2.46,
+              -21.88
+            ],
+            [
+              2.9,
+              -8.32
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5CAD3",
+          "stroke": "#C67486",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5CAD3",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F5CAD3",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5CAD3",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-inner-2",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -7.41,
+              -6.78
+            ],
+            [
+              -12.05,
+              -20.06
+            ],
+            [
+              -14.09,
+              -34.98
+            ],
+            [
+              -13.72,
+              -50.7
+            ],
+            [
+              -11.12,
+              -66.34
+            ],
+            [
+              -6.49,
+              -81.06
+            ],
+            [
+              0.0,
+              -94.0
+            ],
+            [
+              6.49,
+              -81.06
+            ],
+            [
+              11.12,
+              -66.34
+            ],
+            [
+              13.72,
+              -50.7
+            ],
+            [
+              14.09,
+              -34.98
+            ],
+            [
+              12.05,
+              -20.06
+            ],
+            [
+              7.41,
+              -6.78
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5CAD3",
+          "stroke": "#C67486",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5CAD3",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F5CAD3",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5CAD3",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-inner-3",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              -2.9,
+              -8.32
+            ],
+            [
+              -2.46,
+              -21.88
+            ],
+            [
+              0.85,
+              -35.98
+            ],
+            [
+              6.56,
+              -49.94
+            ],
+            [
+              14.19,
+              -63.04
+            ],
+            [
+              23.28,
+              -74.59
+            ],
+            [
+              33.36,
+              -83.9
+            ],
+            [
+              34.76,
+              -69.95
+            ],
+            [
+              33.88,
+              -55.08
+            ],
+            [
+              30.83,
+              -40.13
+            ],
+            [
+              25.78,
+              -25.91
+            ],
+            [
+              18.86,
+              -13.27
+            ],
+            [
+              10.22,
+              -3.02
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5CAD3",
+          "stroke": "#C67486",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5CAD3",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F5CAD3",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5CAD3",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-inner-4",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              4.0
+            ],
+            [
+              2.67,
+              -7.19
+            ],
+            [
+              8.5,
+              -17.95
+            ],
+            [
+              16.82,
+              -27.94
+            ],
+            [
+              26.97,
+              -36.79
+            ],
+            [
+              38.29,
+              -44.17
+            ],
+            [
+              50.11,
+              -49.71
+            ],
+            [
+              61.78,
+              -53.06
+            ],
+            [
+              57.32,
+              -41.12
+            ],
+            [
+              50.64,
+              -29.45
+            ],
+            [
+              42.2,
+              -18.65
+            ],
+            [
+              32.46,
+              -9.3
+            ],
+            [
+              21.87,
+              -2.01
+            ],
+            [
+              10.9,
+              2.62
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5CAD3",
+          "stroke": "#C67486",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5CAD3",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F5CAD3",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5CAD3",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "lotus-pod",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -22.0,
+              -4.0
+            ],
+            [
+              -16.0,
+              -22.0
+            ],
+            [
+              0.0,
+              -28.0
+            ],
+            [
+              16.0,
+              -22.0
+            ],
+            [
+              22.0,
+              -4.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              -12.0,
+              8.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#8DA65B",
+          "stroke": "#5D7434",
+          "strokeWidth": 1.05,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#8DA65B",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#8DA65B",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#8DA65B",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "lotus-pod-top",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -15.0,
+              -18.0
+            ],
+            [
+              -7.0,
+              -25.0
+            ],
+            [
+              7.0,
+              -25.0
+            ],
+            [
+              15.0,
+              -18.0
+            ],
+            [
+              9.0,
+              -11.0
+            ],
+            [
+              -9.0,
+              -11.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#BFD088",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#BFD088",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#BFD088",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#BFD088",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "stamen-line-0",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -12.6,
+              -6.0
+            ],
+            [
+              -28.0,
+              -14.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-0",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -28.0,
+          "cy": -14.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-1",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -9.9,
+              -6.0
+            ],
+            [
+              -22.0,
+              -28.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-1",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -22.0,
+          "cy": -28.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-2",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -4.5,
+              -6.0
+            ],
+            [
+              -10.0,
+              -34.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-2",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -10.0,
+          "cy": -34.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-3",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              -6.0
+            ],
+            [
+              0.0,
+              -36.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-3",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": -36.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-4",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              4.5,
+              -6.0
+            ],
+            [
+              10.0,
+              -34.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-4",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 10.0,
+          "cy": -34.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-5",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              9.9,
+              -6.0
+            ],
+            [
+              22.0,
+              -28.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-5",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 22.0,
+          "cy": -28.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-6",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              12.6,
+              -6.0
+            ],
+            [
+              28.0,
+              -14.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-6",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 28.0,
+          "cy": -14.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-7",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -7.2,
+              -6.0
+            ],
+            [
+              -16.0,
+              -10.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-7",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -16.0,
+          "cy": -10.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-line-8",
+        "parentId": "lotus-bloom",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              7.2,
+              -6.0
+            ],
+            [
+              16.0,
+              -10.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D99B29",
+          "strokeWidth": 1.0,
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "stamen-dot-8",
+        "parentId": "lotus-bloom",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 16.0,
+          "cy": -10.0,
+          "r": 2.6
+        },
+        "style": {
+          "fill": "#F3C048",
+          "stroke": "#A67115",
+          "strokeWidth": 0.6,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "petal-front-0",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              -7.83,
+              9.59
+            ],
+            [
+              -14.64,
+              4.7
+            ],
+            [
+              -20.29,
+              -2.14
+            ],
+            [
+              -24.63,
+              -10.44
+            ],
+            [
+              -27.5,
+              -19.67
+            ],
+            [
+              -28.77,
+              -29.32
+            ],
+            [
+              -28.29,
+              -38.88
+            ],
+            [
+              -20.64,
+              -34.81
+            ],
+            [
+              -13.5,
+              -29.11
+            ],
+            [
+              -7.29,
+              -22.13
+            ],
+            [
+              -2.42,
+              -14.2
+            ],
+            [
+              0.69,
+              -5.64
+            ],
+            [
+              1.64,
+              3.2
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F8D7DE",
+          "stroke": "#C47486",
+          "strokeWidth": 0.95,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F8D7DE",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F8D7DE",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F8D7DE",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-front-1",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              -6.05,
+              6.28
+            ],
+            [
+              -9.79,
+              -0.77
+            ],
+            [
+              -11.41,
+              -8.68
+            ],
+            [
+              -11.07,
+              -17.02
+            ],
+            [
+              -8.94,
+              -25.32
+            ],
+            [
+              -5.2,
+              -33.14
+            ],
+            [
+              0.0,
+              -40.0
+            ],
+            [
+              5.2,
+              -33.14
+            ],
+            [
+              8.94,
+              -25.32
+            ],
+            [
+              11.07,
+              -17.02
+            ],
+            [
+              11.41,
+              -8.68
+            ],
+            [
+              9.79,
+              -0.77
+            ],
+            [
+              6.05,
+              6.28
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F8D7DE",
+          "stroke": "#C47486",
+          "strokeWidth": 0.95,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F8D7DE",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F8D7DE",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F8D7DE",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "petal-front-2",
+        "parentId": "lotus-bloom",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              12.0
+            ],
+            [
+              -1.64,
+              3.2
+            ],
+            [
+              -0.69,
+              -5.64
+            ],
+            [
+              2.42,
+              -14.2
+            ],
+            [
+              7.29,
+              -22.13
+            ],
+            [
+              13.5,
+              -29.11
+            ],
+            [
+              20.64,
+              -34.81
+            ],
+            [
+              28.29,
+              -38.88
+            ],
+            [
+              28.77,
+              -29.32
+            ],
+            [
+              27.5,
+              -19.67
+            ],
+            [
+              24.63,
+              -10.44
+            ],
+            [
+              20.29,
+              -2.14
+            ],
+            [
+              14.64,
+              4.7
+            ],
+            [
+              7.83,
+              9.59
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F8D7DE",
+          "stroke": "#C47486",
+          "strokeWidth": 0.95,
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 135.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F8D7DE",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#F8D7DE",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#F8D7DE",
+                "opacity": 0.94
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "seal",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 56.0,
+          "y": 48.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "seal-bg",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0
+            ],
+            [
+              30.0,
+              44.0
+            ],
+            [
+              0.0,
+              44.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B5382B",
+          "stroke": "#822219",
+          "strokeWidth": 1.1,
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "seal-inner",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              27.0,
+              3.0
+            ],
+            [
+              27.0,
+              41.0
+            ],
+            [
+              3.0,
+              41.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F7F0E4",
+          "strokeWidth": 0.9,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "seal-text",
+        "parentId": "seal",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 15.0,
+          "y": 6.5,
+          "text": "清莲",
+          "fontSize": 13.5,
+          "writingMode": "vertical",
+          "fontFamily": "seal",
+          "letterSpacing": 3.0
+        },
+        "style": {
+          "fill": "#F8F2E6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.96
+        }
+      },
+      {
+        "id": "calligraphy",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "poem-col-0",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 134.0,
+          "y": 54.0,
+          "text": "出淤泥而不染",
+          "fontSize": 20.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 5.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "poem-col-1",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 106.0,
+          "y": 86.0,
+          "text": "濯清涟而不妖",
+          "fontSize": 18.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 5.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.74
+        }
+      }
+    ],
+    "animations": [
+      {
+        "nodeId": "moon-group",
+        "property": "opacity",
+        "from": 0.55,
+        "to": 1.0,
+        "startMs": 0,
+        "endMs": 2200,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "lotus-bloom",
+        "property": "rotation",
+        "from": -2.5,
+        "to": 2.5,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "bud-group",
+        "property": "rotation",
+        "from": -16.5,
+        "to": -11.5,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "water-group",
+        "property": "x",
+        "from": -5,
+        "to": 5,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      }
+    ],
+    "narrative": [
+      {
+        "timeMs": 0,
+        "caption": "清涟初起：远山含黛、池水微澜，以克制留白铺陈清雅底色。",
+        "entityIds": [
+          "knowledge-water"
+        ]
+      },
+      {
+        "timeMs": 1800,
+        "caption": "重瓣舒华：荷叶田田托起工笔重瓣莲花，出淤泥而不染。",
+        "entityIds": [
+          "knowledge-lotus"
+        ]
+      },
+      {
+        "timeMs": 3600,
+        "caption": "月印清心：月晕澄明与朱文印记相映，守持清正本心。",
+        "entityIds": [
+          "knowledge-integrity"
+        ]
+      }
+    ]
+  },
+  "parameterSchema": [
+    {
+      "name": "petalColor",
+      "label": "主花瓣色",
+      "description": "盛放莲花外层与花蕾主花瓣颜色",
+      "type": "color",
+      "default": "#E9A3B1"
+    },
+    {
+      "name": "innerPetalColor",
+      "label": "内瓣叠色",
+      "description": "莲花中层叠色，用于调节浓淡层次",
+      "type": "color",
+      "default": "#D97388"
+    },
+    {
+      "name": "leafColor",
+      "label": "荷叶青色",
+      "description": "大荷叶主色，可切换石青、墨绿或黛青",
+      "type": "color",
+      "default": "#47725B"
+    },
+    {
+      "name": "lotusScale",
+      "label": "莲华盛放度",
+      "description": "整体缩放主莲花大小（0.78～1.10）",
+      "type": "number",
+      "default": 1.0,
+      "min": 0.78,
+      "max": 1.1,
+      "step": 0.02
+    },
+    {
+      "name": "moonOpacity",
+      "label": "月辉明度",
+      "description": "调整明月与月晕透明度（0.15～1.0）",
+      "type": "number",
+      "default": 0.95,
+      "min": 0.15,
+      "max": 1.0,
+      "step": 0.05
+    },
+    {
+      "name": "swayAngle",
+      "label": "花枝倾角",
+      "description": "调节主莲花倾角（-18°～18°）",
+      "type": "integer",
+      "default": 0,
+      "min": -18,
+      "max": 18,
+      "step": 1
+    }
+  ],
+  "bindings": [
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-5",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "petal-outer-6",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "petalColor",
+      "nodeId": "bud-petal-back",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "innerPetalColor",
+      "nodeId": "petal-mid-0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "innerPetalColor",
+      "nodeId": "petal-mid-1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "innerPetalColor",
+      "nodeId": "petal-mid-2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "innerPetalColor",
+      "nodeId": "petal-mid-3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "innerPetalColor",
+      "nodeId": "petal-mid-4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "innerPetalColor",
+      "nodeId": "bud-petal-left",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-back",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "leaf-right",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "lotusScale",
+      "nodeId": "lotus-user",
+      "property": "transform.scaleX"
+    },
+    {
+      "parameter": "lotusScale",
+      "nodeId": "lotus-user",
+      "property": "transform.scaleY"
+    },
+    {
+      "parameter": "moonOpacity",
+      "nodeId": "moon-user",
+      "property": "style.opacity"
+    },
+    {
+      "parameter": "swayAngle",
+      "nodeId": "lotus-user",
+      "property": "transform.rotation"
+    }
+  ],
+  "constraints": [],
+  "supportedBackends": [
+    "canvas2d",
+    "css",
+    "webgl"
+  ],
+  "changeNote": "高画质终版：宣纸底纹、工笔花瓣分染渐变、柔光月晕、水墨远山与《爱莲说》竖排题跋篆印"
+}

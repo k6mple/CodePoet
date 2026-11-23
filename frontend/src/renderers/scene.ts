@@ -1,4 +1,7 @@
-import type { DrawingIR, IRNode } from '../types/core'
+import type { DrawingIR, IRNode, PaperStyle, TextGeometry } from '../types/core'
+
+export type ShaderRef = 'flat' | 'ink_wash' | 'gongbi'
+const SUPPORTED_SHADERS = new Set<string>(['flat', 'ink_wash', 'gongbi'])
 
 export interface SampledNode {
   id: string
@@ -7,12 +10,17 @@ export interface SampledNode {
   // Includes ancestor opacity; renderers must not multiply style.opacity again.
   opacity: number
   style: NonNullable<IRNode['style']>
+  shaderRef: ShaderRef
+  text?: TextGeometry
+  matrix: [number, number, number, number, number, number]
 }
 
 export interface SampledScene {
   timeMs: number
+  seed: number
   viewport: DrawingIR['viewport']
   background: string | null
+  paper: PaperStyle | null
   nodes: SampledNode[]
 }
 
@@ -60,24 +68,53 @@ export function sampleScene(ir: DrawingIR, timeMs = 0): SampledScene {
   for (const node of ir.nodes) {
     const current = state(node.id)
     if (node.type === 'group') continue
-    if (node.material && node.material.shaderRef !== 'flat') throw new Error('仅支持 flat 材质')
+    const shaderRef = (node.material?.shaderRef ?? 'flat') as ShaderRef
+    if (!SUPPORTED_SHADERS.has(shaderRef)) throw new Error(`不支持的材质：${shaderRef}`)
     const geometry = node.geometry
     let points = geometry?.points ?? []
+    let text: TextGeometry | undefined
     if (node.type === 'circle') {
       if (geometry?.r === undefined) throw new Error('圆缺少半径')
       points = Array.from({ length: 64 }, (_, index) => {
         const angle = index * Math.PI * 2 / 64
         return [(geometry.cx ?? 0) + geometry.r! * Math.cos(angle), (geometry.cy ?? 0) + geometry.r! * Math.sin(angle)]
       })
+    } else if (node.type === 'text') {
+      const content = geometry?.text ?? ''
+      if (!content) throw new Error('文字节点缺少 text')
+      const x = geometry?.x ?? 0
+      const y = geometry?.y ?? 0
+      const fontSize = geometry?.fontSize ?? 20
+      const letterSpacing = geometry?.letterSpacing ?? 4
+      const writingMode = geometry?.writingMode ?? 'vertical'
+      const fontFamily = geometry?.fontFamily ?? 'kai'
+      const span = content.length * fontSize + Math.max(0, content.length - 1) * letterSpacing
+      text = { x, y, text: content, fontSize, letterSpacing, writingMode, fontFamily }
+      points = writingMode === 'vertical'
+        ? [[x - fontSize / 2, y], [x + fontSize / 2, y], [x + fontSize / 2, y + span], [x - fontSize / 2, y + span]]
+        : [[x, y], [x + span, y], [x + span, y + fontSize], [x, y + fontSize]]
     }
     if (!points.length) throw new Error('IR 图元缺少顶点')
     const m = current.matrix
     sampled.push({
-      id: node.id, type: node.type, opacity: current.opacity, style: { ...node.style },
+      id: node.id,
+      type: node.type,
+      opacity: current.opacity,
+      style: { ...node.style },
+      shaderRef,
+      text,
+      matrix: [...m],
       points: points.map(([x, y]) => [m[0]*x + m[2]*y + m[4], m[1]*x + m[3]*y + m[5]]),
     })
   }
-  return { timeMs: time, viewport: { ...viewport }, background: ir.canvas.background, nodes: sampled }
+  return {
+    timeMs: time,
+    seed: ir.seed ?? 0,
+    viewport: { ...viewport },
+    background: ir.canvas.background,
+    paper: ir.canvas.paper ?? null,
+    nodes: sampled,
+  }
 }
 
 export function sampleTimes(ir: DrawingIR) { return ir.durationMs === 0 ? [0] : [0, Math.floor(ir.durationMs / 2), ir.durationMs] }

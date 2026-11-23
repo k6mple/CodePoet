@@ -25,6 +25,7 @@ from app.schemas.ir import (
     IRNode,
     PolygonNode,
     PolylineNode,
+    TextNode,
 )
 from app.schemas.validation import Issue, ValidationReport
 
@@ -42,7 +43,7 @@ AREA_EPSILON = 1e-9
 
 def _is_leaf(node: IRNode) -> bool:
     """分组节点没有几何形状，不参与越界判断。"""
-    return isinstance(node, (CircleNode, PolygonNode, PolylineNode))
+    return isinstance(node, (CircleNode, PolygonNode, PolylineNode, TextNode))
 
 
 def _ancestor_chain(node: IRNode, by_id: dict[str, IRNode]) -> list[IRNode]:
@@ -112,7 +113,27 @@ def _bounds(node: IRNode, chain: list[IRNode]) -> tuple[float, float, float, flo
         # 圆旋转后仍是圆，包围盒不变
         return cx - radius, cy - radius, cx + radius, cy + radius
 
-    points, rotated = _to_world(list(node.geometry.points), chain)
+    if isinstance(node, TextNode):
+        g = node.geometry
+        count = max(1, len(g.text))
+        span = count * g.fontSize + (count - 1) * g.letterSpacing
+        if g.writingMode == "vertical":
+            local_pts = [
+                (g.x - g.fontSize / 2, g.y),
+                (g.x + g.fontSize / 2, g.y),
+                (g.x + g.fontSize / 2, g.y + span),
+                (g.x - g.fontSize / 2, g.y + span),
+            ]
+        else:
+            local_pts = [
+                (g.x, g.y),
+                (g.x + span, g.y),
+                (g.x + span, g.y + g.fontSize),
+                (g.x, g.y + g.fontSize),
+            ]
+        points, rotated = _to_world(local_pts, chain)
+    else:
+        points, rotated = _to_world(list(node.geometry.points), chain)
     xs = [point[0] for point in points]
     ys = [point[1] for point in points]
     min_x, max_x = min(xs), max(xs)

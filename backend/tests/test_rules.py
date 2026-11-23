@@ -296,20 +296,20 @@ class SemanticGenerationTests(unittest.TestCase):
         lotus_nodes = lotus_body["ir"]["nodes"]
         bamboo_nodes = bamboo_body["ir"]["nodes"]
 
-        # 莲：6 个花瓣圆 + 1 个花心 = 7 个圆
-        self.assertEqual({n["type"] for n in lotus_nodes}, {"circle"}, "莲应全是圆")
-        self.assertEqual(len(lotus_nodes), 7)
+        # 莲与竹均生成带宣纸底纹、书法题跋与艺术化图元的完整画卷，且符号组与着色不同
+        self.assertEqual(lotus_body["ir"]["canvas"]["paper"], "xuan")
+        lotus_ids = {n["id"] for n in lotus_nodes}
+        bamboo_ids = {n["id"] for n in bamboo_nodes}
+        self.assertIn("s0-lotus", lotus_ids)
+        self.assertIn("s0-bamboo", bamboo_ids)
+        self.assertIn("poem-main", lotus_ids)
 
-        # 竹：3 段竖条 = 3 个多边形
-        self.assertEqual({n["type"] for n in bamboo_nodes}, {"polygon"}, "竹应全是多边形")
-        self.assertEqual(len(bamboo_nodes), 3)
-
-        # 色板不同
-        lotus_fill = lotus_nodes[0]["style"]["fill"]
-        bamboo_fill = bamboo_nodes[0]["style"]["fill"]
-        self.assertEqual(lotus_fill, "#D85A30")
-        self.assertEqual(bamboo_fill, "#639922")
-        self.assertNotEqual(lotus_fill, bamboo_fill)
+        # 色板不同：规则色板真实写入主符号节点 fill
+        lotus_petal = next(n for n in lotus_nodes if n["id"] == "s0-p0")
+        bamboo_seg = next(n for n in bamboo_nodes if n["id"] == "s0-seg0")
+        self.assertEqual(lotus_petal["style"]["fill"], "#D85A30")
+        self.assertEqual(bamboo_seg["style"]["fill"], "#639922")
+        self.assertNotEqual(lotus_petal["style"]["fill"], bamboo_seg["style"]["fill"])
 
     def test_composition_changes_coordinates(self) -> None:
         """构图真的改变坐标，不只是记在 provenance 里。"""
@@ -317,17 +317,16 @@ class SemanticGenerationTests(unittest.TestCase):
         lotus = self._generate("莲花").json()
         bamboo = self._generate("竹节").json()
 
-        # Point 是 tuple[float, float]，取 [0]=x、[1]=y
-        bamboo_xs = {n["geometry"]["points"][0][0] for n in bamboo["ir"]["nodes"]}
-        bamboo_ys = [n["geometry"]["points"][0][1] for n in bamboo["ir"]["nodes"]]
-        self.assertEqual(len(bamboo_xs), 1, "竖排的竹各段左侧 x 应相同")
+        # 竖排竹各节沿纵轴自上而下递增
+        bamboo_segs = [n for n in bamboo["ir"]["nodes"] if n["id"].startswith("s0-seg")]
+        self.assertEqual(len(bamboo_segs), 4)
+        bamboo_ys = [n["geometry"]["points"][0][1] for n in bamboo_segs]
         self.assertEqual(bamboo_ys, sorted(bamboo_ys), "竖排的竹各段应自上而下递增")
 
-        # 莲是环形排布：各花瓣圆心 x 与 y 都不相同
-        lotus_ys = {n["geometry"]["cy"] for n in lotus["ir"]["nodes"]}
-        lotus_xs = {n["geometry"]["cx"] for n in lotus["ir"]["nodes"]}
-        self.assertGreater(len(lotus_ys), 1)
-        self.assertGreater(len(lotus_xs), 1)
+        # 莲与竹构图不同（centered vs vertical），主符号组坐标不同
+        lotus_grp = next(n for n in lotus["ir"]["nodes"] if n["id"] == "s0-lotus")
+        bamboo_grp = next(n for n in bamboo["ir"]["nodes"] if n["id"] == "s0-bamboo")
+        self.assertNotEqual(lotus_grp["transform"]["y"], bamboo_grp["transform"]["y"])
 
     def test_motion_produces_animations(self) -> None:
         self._setup_rules()

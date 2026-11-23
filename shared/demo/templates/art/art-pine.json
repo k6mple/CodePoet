@@ -1,0 +1,5915 @@
+{
+  "slug": "art-pine",
+  "metadata": {
+    "name": "青松立崖·千仞不移",
+    "description": "高精度新中式崖松朝阳卷：盘曲变宽老干扎根千仞陡崖，托起七层伞状苍松针冠，配丹霞朝阳、流动画云、远空双鹤与朱文闲章。",
+    "entityIds": [
+      "knowledge-integrity"
+    ],
+    "tagIds": [
+      "tag-steadfast",
+      "tag-symbol",
+      "tag-integrity"
+    ],
+    "symbols": [
+      "narrative"
+    ],
+    "timeTheme": "晨曦"
+  },
+  "irTemplate": {
+    "schemaVersion": "1.0",
+    "seed": 505,
+    "canvas": {
+      "width": 800,
+      "height": 600,
+      "background": "#F3EFE6",
+      "paper": "aged"
+    },
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 600
+    },
+    "durationMs": 4000,
+    "nodes": [
+      {
+        "id": "painting",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "scroll-frame-outer",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              14.0
+            ],
+            [
+              786.0,
+              14.0
+            ],
+            [
+              786.0,
+              586.0
+            ],
+            [
+              14.0,
+              586.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#C9BEA8",
+          "strokeWidth": 1.2,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "scroll-frame-inner",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              22.0,
+              22.0
+            ],
+            [
+              778.0,
+              22.0
+            ],
+            [
+              778.0,
+              578.0
+            ],
+            [
+              22.0,
+              578.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D9D0BE",
+          "strokeWidth": 0.8,
+          "opacity": 0.58
+        }
+      },
+      {
+        "id": "sun-group",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 596.0,
+          "y": 148.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "pine-sun-halo2",
+        "parentId": "sun-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": 0.0,
+          "r": 96.0
+        },
+        "style": {
+          "fill": "#F1CFAF",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.55,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F1CFAF",
+                "opacity": 0.88
+              },
+              {
+                "offset": 0.55,
+                "color": "#F1CFAF",
+                "opacity": 0.4
+              },
+              {
+                "offset": 1.0,
+                "color": "#F1CFAF",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "pine-sun-halo1",
+        "parentId": "sun-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": 0.0,
+          "r": 66.0
+        },
+        "style": {
+          "fill": "#EBBC94",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.55,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#EBBC94",
+                "opacity": 0.88
+              },
+              {
+                "offset": 0.55,
+                "color": "#EBBC94",
+                "opacity": 0.4
+              },
+              {
+                "offset": 1.0,
+                "color": "#EBBC94",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "pine-sun",
+        "parentId": "sun-group",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 0.0,
+          "cy": 0.0,
+          "r": 42.0
+        },
+        "style": {
+          "fill": "#DF764F",
+          "stroke": "#BA5634",
+          "strokeWidth": 0.9,
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "angle": 90.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#DF764F",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#DF764F",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#DF764F",
+                "opacity": 0.92
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "gongbi"
+        }
+      },
+      {
+        "id": "pine-mtn-far",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              472.0
+            ],
+            [
+              51.25,
+              468.33
+            ],
+            [
+              74.5,
+              462.32
+            ],
+            [
+              97.75,
+              451.85
+            ],
+            [
+              121.0,
+              435.68
+            ],
+            [
+              144.25,
+              413.61
+            ],
+            [
+              167.5,
+              387.12
+            ],
+            [
+              190.75,
+              359.52
+            ],
+            [
+              214.0,
+              335.28
+            ],
+            [
+              237.25,
+              318.53
+            ],
+            [
+              260.5,
+              311.34
+            ],
+            [
+              283.75,
+              312.72
+            ],
+            [
+              307.0,
+              318.77
+            ],
+            [
+              330.25,
+              324.18
+            ],
+            [
+              353.5,
+              324.35
+            ],
+            [
+              376.75,
+              317.31
+            ],
+            [
+              400.0,
+              304.4
+            ],
+            [
+              423.25,
+              289.78
+            ],
+            [
+              446.5,
+              278.76
+            ],
+            [
+              469.75,
+              275.77
+            ],
+            [
+              493.0,
+              282.68
+            ],
+            [
+              516.25,
+              298.13
+            ],
+            [
+              539.5,
+              318.0
+            ],
+            [
+              562.75,
+              337.05
+            ],
+            [
+              586.0,
+              351.08
+            ],
+            [
+              609.25,
+              358.72
+            ],
+            [
+              632.5,
+              362.12
+            ],
+            [
+              655.75,
+              365.85
+            ],
+            [
+              679.0,
+              374.59
+            ],
+            [
+              702.25,
+              390.71
+            ],
+            [
+              725.5,
+              413.19
+            ],
+            [
+              748.75,
+              438.75
+            ],
+            [
+              772.0,
+              472.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#BAC6C3",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.36,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#BAC6C3",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#BAC6C3",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F3EFE6",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-mtn-mid",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              520.0
+            ],
+            [
+              54.57,
+              519.96
+            ],
+            [
+              81.14,
+              519.81
+            ],
+            [
+              107.71,
+              519.27
+            ],
+            [
+              134.29,
+              517.68
+            ],
+            [
+              160.86,
+              513.77
+            ],
+            [
+              187.43,
+              505.53
+            ],
+            [
+              214.0,
+              490.75
+            ],
+            [
+              240.57,
+              468.33
+            ],
+            [
+              267.14,
+              440.01
+            ],
+            [
+              293.71,
+              411.24
+            ],
+            [
+              320.29,
+              389.76
+            ],
+            [
+              346.86,
+              381.98
+            ],
+            [
+              373.43,
+              389.12
+            ],
+            [
+              400.0,
+              405.98
+            ],
+            [
+              426.57,
+              423.35
+            ],
+            [
+              453.14,
+              432.72
+            ],
+            [
+              479.71,
+              430.25
+            ],
+            [
+              506.29,
+              418.27
+            ],
+            [
+              532.86,
+              403.71
+            ],
+            [
+              559.43,
+              394.72
+            ],
+            [
+              586.0,
+              397.06
+            ],
+            [
+              612.57,
+              411.75
+            ],
+            [
+              639.14,
+              435.21
+            ],
+            [
+              665.71,
+              461.43
+            ],
+            [
+              692.29,
+              484.79
+            ],
+            [
+              718.86,
+              502.12
+            ],
+            [
+              745.43,
+              513.01
+            ],
+            [
+              772.0,
+              520.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#8EA19E",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.3,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#8EA19E",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#8EA19E",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F3EFE6",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "cloud-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "cloud-drift",
+        "parentId": "cloud-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "cloud-1",
+        "parentId": "cloud-drift",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              495.0,
+              446.0
+            ],
+            [
+              485.95,
+              457.07
+            ],
+            [
+              459.67,
+              465.23
+            ],
+            [
+              418.74,
+              471.31
+            ],
+            [
+              367.17,
+              474.96
+            ],
+            [
+              310.0,
+              474.63
+            ],
+            [
+              252.83,
+              474.14
+            ],
+            [
+              201.26,
+              474.15
+            ],
+            [
+              160.33,
+              468.16
+            ],
+            [
+              134.05,
+              456.4
+            ],
+            [
+              125.0,
+              446.0
+            ],
+            [
+              134.05,
+              437.29
+            ],
+            [
+              160.33,
+              427.61
+            ],
+            [
+              201.26,
+              419.54
+            ],
+            [
+              252.83,
+              414.09
+            ],
+            [
+              310.0,
+              410.63
+            ],
+            [
+              367.17,
+              413.27
+            ],
+            [
+              418.74,
+              422.37
+            ],
+            [
+              459.67,
+              430.54
+            ],
+            [
+              485.95,
+              436.62
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5F1E7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5F1E7",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F5F1E7",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5F1E7",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "cloud-2",
+        "parentId": "cloud-drift",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              745.0,
+              472.0
+            ],
+            [
+              735.21,
+              483.76
+            ],
+            [
+              706.8,
+              492.43
+            ],
+            [
+              662.56,
+              498.9
+            ],
+            [
+              606.8,
+              502.77
+            ],
+            [
+              545.0,
+              502.42
+            ],
+            [
+              483.2,
+              501.9
+            ],
+            [
+              427.44,
+              501.91
+            ],
+            [
+              383.2,
+              495.54
+            ],
+            [
+              354.79,
+              483.05
+            ],
+            [
+              345.0,
+              472.0
+            ],
+            [
+              354.79,
+              462.74
+            ],
+            [
+              383.2,
+              452.46
+            ],
+            [
+              427.44,
+              443.88
+            ],
+            [
+              483.2,
+              438.1
+            ],
+            [
+              545.0,
+              434.42
+            ],
+            [
+              606.8,
+              437.23
+            ],
+            [
+              662.56,
+              446.89
+            ],
+            [
+              706.8,
+              455.57
+            ],
+            [
+              735.21,
+              462.03
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5F1E7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.74,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5F1E7",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F5F1E7",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5F1E7",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "cloud-3",
+        "parentId": "cloud-drift",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              640.0,
+              514.0
+            ],
+            [
+              629.72,
+              525.07
+            ],
+            [
+              599.89,
+              533.23
+            ],
+            [
+              553.43,
+              539.31
+            ],
+            [
+              494.89,
+              542.96
+            ],
+            [
+              430.0,
+              542.63
+            ],
+            [
+              365.11,
+              542.14
+            ],
+            [
+              306.57,
+              542.15
+            ],
+            [
+              260.11,
+              536.16
+            ],
+            [
+              230.28,
+              524.4
+            ],
+            [
+              220.0,
+              514.0
+            ],
+            [
+              230.28,
+              505.29
+            ],
+            [
+              260.11,
+              495.61
+            ],
+            [
+              306.57,
+              487.54
+            ],
+            [
+              365.11,
+              482.09
+            ],
+            [
+              430.0,
+              478.63
+            ],
+            [
+              494.89,
+              481.27
+            ],
+            [
+              553.43,
+              490.37
+            ],
+            [
+              599.89,
+              498.54
+            ],
+            [
+              629.72,
+              504.62
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5F1E7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.68,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5F1E7",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F5F1E7",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5F1E7",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "cloud-4",
+        "parentId": "cloud-drift",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              763.0,
+              392.0
+            ],
+            [
+              756.74,
+              399.61
+            ],
+            [
+              738.55,
+              405.22
+            ],
+            [
+              710.24,
+              409.4
+            ],
+            [
+              674.55,
+              411.91
+            ],
+            [
+              635.0,
+              411.68
+            ],
+            [
+              595.45,
+              411.35
+            ],
+            [
+              559.76,
+              411.35
+            ],
+            [
+              531.45,
+              407.23
+            ],
+            [
+              513.26,
+              399.15
+            ],
+            [
+              507.0,
+              392.0
+            ],
+            [
+              513.26,
+              386.01
+            ],
+            [
+              531.45,
+              379.36
+            ],
+            [
+              559.76,
+              373.81
+            ],
+            [
+              595.45,
+              370.06
+            ],
+            [
+              635.0,
+              367.68
+            ],
+            [
+              674.55,
+              369.5
+            ],
+            [
+              710.24,
+              375.75
+            ],
+            [
+              738.55,
+              381.37
+            ],
+            [
+              756.74,
+              385.55
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F5F1E7",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.56,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F5F1E7",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F5F1E7",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F5F1E7",
+                "opacity": 0.0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "cranes-group",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "crane-1",
+        "parentId": "cranes-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              533.44,
+              148.16
+            ],
+            [
+              542.64,
+              142.64
+            ],
+            [
+              548.16,
+              135.28
+            ],
+            [
+              553.68,
+              140.8
+            ],
+            [
+              562.88,
+              138.96
+            ],
+            [
+              572.08,
+              144.48
+            ],
+            [
+              562.88,
+              146.32
+            ],
+            [
+              555.52,
+              150.0
+            ],
+            [
+              561.04,
+              157.36
+            ],
+            [
+              552.76,
+              153.68
+            ],
+            [
+              544.48,
+              151.84
+            ],
+            [
+              537.12,
+              151.84
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#33393B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.86,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "crane-2",
+        "parentId": "cranes-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              571.04,
+              196.56
+            ],
+            [
+              578.24,
+              192.24
+            ],
+            [
+              582.56,
+              186.48
+            ],
+            [
+              586.88,
+              190.8
+            ],
+            [
+              594.08,
+              189.36
+            ],
+            [
+              601.28,
+              193.68
+            ],
+            [
+              594.08,
+              195.12
+            ],
+            [
+              588.32,
+              198.0
+            ],
+            [
+              592.64,
+              203.76
+            ],
+            [
+              586.16,
+              200.88
+            ],
+            [
+              579.68,
+              199.44
+            ],
+            [
+              573.92,
+              199.44
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4B5356",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.78,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "pine-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 176.0,
+          "y": 422.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "pine-sway",
+        "parentId": "pine-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "pine-trunk",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              18.02,
+              35.99
+            ],
+            [
+              11.87,
+              19.87
+            ],
+            [
+              4.59,
+              -1.52
+            ],
+            [
+              2.59,
+              -19.45
+            ],
+            [
+              8.41,
+              -35.8
+            ],
+            [
+              20.55,
+              -55.29
+            ],
+            [
+              34.74,
+              -74.25
+            ],
+            [
+              50.42,
+              -90.44
+            ],
+            [
+              69.15,
+              -106.55
+            ],
+            [
+              87.72,
+              -126.69
+            ],
+            [
+              101.8,
+              -152.47
+            ],
+            [
+              113.13,
+              -178.8
+            ],
+            [
+              125.25,
+              -199.48
+            ],
+            [
+              143.07,
+              -214.56
+            ],
+            [
+              164.07,
+              -226.86
+            ],
+            [
+              179.27,
+              -235.57
+            ],
+            [
+              172.73,
+              -248.43
+            ],
+            [
+              156.52,
+              -241.14
+            ],
+            [
+              133.23,
+              -229.44
+            ],
+            [
+              110.75,
+              -212.52
+            ],
+            [
+              94.57,
+              -188.9
+            ],
+            [
+              81.61,
+              -162.94
+            ],
+            [
+              68.28,
+              -141.31
+            ],
+            [
+              51.74,
+              -125.74
+            ],
+            [
+              32.25,
+              -111.04
+            ],
+            [
+              13.26,
+              -93.75
+            ],
+            [
+              -4.11,
+              -73.31
+            ],
+            [
+              -19.97,
+              -50.71
+            ],
+            [
+              -30.59,
+              -24.55
+            ],
+            [
+              -29.92,
+              4.63
+            ],
+            [
+              -22.99,
+              30.79
+            ],
+            [
+              -18.02,
+              48.01
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#564439",
+          "stroke": "#30251F",
+          "strokeWidth": 1.1,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#564439",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#564439",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#564439",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-bark-hi",
+        "parentId": "pine-sway",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -9.06,
+              23.33
+            ],
+            [
+              -16.17,
+              -0.44
+            ],
+            [
+              -17.5,
+              -24.0
+            ],
+            [
+              -9.28,
+              -45.26
+            ],
+            [
+              4.72,
+              -66.3
+            ],
+            [
+              20.5,
+              -86.0
+            ],
+            [
+              37.83,
+              -102.74
+            ],
+            [
+              56.94,
+              -118.15
+            ],
+            [
+              74.5,
+              -136.0
+            ],
+            [
+              88.2,
+              -159.7
+            ],
+            [
+              100.35,
+              -185.85
+            ],
+            [
+              114.5,
+              -208.0
+            ],
+            [
+              134.65,
+              -224.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#8B7363",
+          "strokeWidth": 2.0,
+          "opacity": 0.48,
+          "lineCap": "round",
+          "lineJoin": "round"
+        }
+      },
+      {
+        "id": "pine-bough-right",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              74.52,
+              -123.15
+            ],
+            [
+              97.87,
+              -130.64
+            ],
+            [
+              131.14,
+              -140.5
+            ],
+            [
+              164.56,
+              -147.22
+            ],
+            [
+              196.29,
+              -147.48
+            ],
+            [
+              229.56,
+              -144.66
+            ],
+            [
+              262.05,
+              -143.58
+            ],
+            [
+              295.12,
+              -146.92
+            ],
+            [
+              326.54,
+              -152.02
+            ],
+            [
+              348.29,
+              -156.0
+            ],
+            [
+              347.71,
+              -160.0
+            ],
+            [
+              325.76,
+              -157.61
+            ],
+            [
+              294.36,
+              -154.12
+            ],
+            [
+              261.95,
+              -152.42
+            ],
+            [
+              230.44,
+              -155.05
+            ],
+            [
+              197.04,
+              -159.48
+            ],
+            [
+              163.44,
+              -160.78
+            ],
+            [
+              127.82,
+              -155.35
+            ],
+            [
+              93.39,
+              -146.84
+            ],
+            [
+              69.48,
+              -140.85
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#59473B",
+          "stroke": "#30251F",
+          "strokeWidth": 0.95,
+          "opacity": 0.97,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#59473B",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#59473B",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#59473B",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-bough-left",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              29.68,
+              -92.42
+            ],
+            [
+              13.05,
+              -100.93
+            ],
+            [
+              -10.69,
+              -113.11
+            ],
+            [
+              -34.59,
+              -122.52
+            ],
+            [
+              -57.91,
+              -125.97
+            ],
+            [
+              -80.37,
+              -126.36
+            ],
+            [
+              -95.92,
+              -126.07
+            ],
+            [
+              -96.08,
+              -121.93
+            ],
+            [
+              -80.66,
+              -120.45
+            ],
+            [
+              -58.83,
+              -118.33
+            ],
+            [
+              -37.41,
+              -113.48
+            ],
+            [
+              -15.68,
+              -103.04
+            ],
+            [
+              6.66,
+              -89.59
+            ],
+            [
+              22.32,
+              -79.58
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#544237",
+          "stroke": "#2E231D",
+          "strokeWidth": 0.9,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#544237",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#544237",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#544237",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-bough-top",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              118.63,
+              -198.38
+            ],
+            [
+              138.04,
+              -208.34
+            ],
+            [
+              165.74,
+              -221.78
+            ],
+            [
+              192.94,
+              -232.27
+            ],
+            [
+              219.86,
+              -237.1
+            ],
+            [
+              246.98,
+              -239.14
+            ],
+            [
+              266.05,
+              -240.51
+            ],
+            [
+              265.95,
+              -243.49
+            ],
+            [
+              246.8,
+              -243.68
+            ],
+            [
+              219.26,
+              -243.19
+            ],
+            [
+              191.06,
+              -239.73
+            ],
+            [
+              162.26,
+              -230.37
+            ],
+            [
+              133.52,
+              -218.18
+            ],
+            [
+              113.37,
+              -209.62
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#564439",
+          "stroke": "#30251F",
+          "strokeWidth": 0.85,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#564439",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#564439",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#564439",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-left-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -6.42,
+              -127.0
+            ],
+            [
+              -10.23,
+              -123.48
+            ],
+            [
+              -19.51,
+              -120.51
+            ],
+            [
+              -26.89,
+              -117.41
+            ],
+            [
+              -38.95,
+              -114.95
+            ],
+            [
+              -55.22,
+              -113.97
+            ],
+            [
+              -70.55,
+              -112.54
+            ],
+            [
+              -87.45,
+              -112.54
+            ],
+            [
+              -102.78,
+              -113.97
+            ],
+            [
+              -119.05,
+              -114.95
+            ],
+            [
+              -131.11,
+              -117.41
+            ],
+            [
+              -138.49,
+              -120.51
+            ],
+            [
+              -147.77,
+              -123.48
+            ],
+            [
+              -151.58,
+              -127.0
+            ],
+            [
+              -138.85,
+              -133.39
+            ],
+            [
+              -144.21,
+              -141.81
+            ],
+            [
+              -131.67,
+              -147.2
+            ],
+            [
+              -115.64,
+              -149.98
+            ],
+            [
+              -105.0,
+              -156.67
+            ],
+            [
+              -87.14,
+              -156.03
+            ],
+            [
+              -70.86,
+              -156.03
+            ],
+            [
+              -53.0,
+              -156.67
+            ],
+            [
+              -42.36,
+              -149.98
+            ],
+            [
+              -26.33,
+              -147.2
+            ],
+            [
+              -13.79,
+              -141.81
+            ],
+            [
+              -19.15,
+              -133.39
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-left-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -6.4,
+              -134.0
+            ],
+            [
+              -9.56,
+              -130.51
+            ],
+            [
+              -17.38,
+              -127.48
+            ],
+            [
+              -24.78,
+              -124.58
+            ],
+            [
+              -32.45,
+              -121.53
+            ],
+            [
+              -46.0,
+              -119.87
+            ],
+            [
+              -60.39,
+              -118.92
+            ],
+            [
+              -74.34,
+              -117.48
+            ],
+            [
+              -89.66,
+              -117.48
+            ],
+            [
+              -103.61,
+              -118.92
+            ],
+            [
+              -118.0,
+              -119.87
+            ],
+            [
+              -131.55,
+              -121.53
+            ],
+            [
+              -139.22,
+              -124.58
+            ],
+            [
+              -146.62,
+              -127.48
+            ],
+            [
+              -154.44,
+              -130.51
+            ],
+            [
+              -157.6,
+              -134.0
+            ],
+            [
+              -142.21,
+              -140.04
+            ],
+            [
+              -153.04,
+              -148.94
+            ],
+            [
+              -144.92,
+              -155.59
+            ],
+            [
+              -123.19,
+              -155.6
+            ],
+            [
+              -119.8,
+              -164.92
+            ],
+            [
+              -105.68,
+              -168.41
+            ],
+            [
+              -89.16,
+              -166.15
+            ],
+            [
+              -74.84,
+              -166.15
+            ],
+            [
+              -58.32,
+              -168.41
+            ],
+            [
+              -44.2,
+              -164.92
+            ],
+            [
+              -40.81,
+              -155.6
+            ],
+            [
+              -19.08,
+              -155.59
+            ],
+            [
+              -10.96,
+              -148.94
+            ],
+            [
+              -21.79,
+              -140.04
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-left-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -23.57,
+              -139.0
+            ],
+            [
+              -27.13,
+              -136.37
+            ],
+            [
+              -35.68,
+              -134.21
+            ],
+            [
+              -43.5,
+              -131.98
+            ],
+            [
+              -56.28,
+              -130.62
+            ],
+            [
+              -70.82,
+              -130.2
+            ],
+            [
+              -85.58,
+              -129.71
+            ],
+            [
+              -99.35,
+              -130.76
+            ],
+            [
+              -111.4,
+              -132.21
+            ],
+            [
+              -122.91,
+              -133.91
+            ],
+            [
+              -126.61,
+              -136.48
+            ],
+            [
+              -132.43,
+              -139.0
+            ],
+            [
+              -131.52,
+              -144.77
+            ],
+            [
+              -114.77,
+              -147.68
+            ],
+            [
+              -114.67,
+              -154.54
+            ],
+            [
+              -101.11,
+              -157.58
+            ],
+            [
+              -84.4,
+              -155.34
+            ],
+            [
+              -70.13,
+              -159.11
+            ],
+            [
+              -56.23,
+              -156.51
+            ],
+            [
+              -45.37,
+              -152.83
+            ],
+            [
+              -31.73,
+              -149.92
+            ],
+            [
+              -32.75,
+              -143.88
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-mid-l-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              123.69,
+              -179.0
+            ],
+            [
+              118.76,
+              -174.88
+            ],
+            [
+              107.93,
+              -171.38
+            ],
+            [
+              100.32,
+              -167.52
+            ],
+            [
+              83.56,
+              -165.19
+            ],
+            [
+              65.87,
+              -163.42
+            ],
+            [
+              47.23,
+              -161.76
+            ],
+            [
+              27.33,
+              -162.7
+            ],
+            [
+              7.32,
+              -162.98
+            ],
+            [
+              -10.24,
+              -165.0
+            ],
+            [
+              -23.27,
+              -168.07
+            ],
+            [
+              -38.28,
+              -170.91
+            ],
+            [
+              -41.57,
+              -175.04
+            ],
+            [
+              -49.69,
+              -179.0
+            ],
+            [
+              -49.49,
+              -188.09
+            ],
+            [
+              -24.57,
+              -192.78
+            ],
+            [
+              -29.3,
+              -204.04
+            ],
+            [
+              -10.74,
+              -208.49
+            ],
+            [
+              8.39,
+              -211.16
+            ],
+            [
+              26.4,
+              -216.23
+            ],
+            [
+              45.56,
+              -209.04
+            ],
+            [
+              68.6,
+              -214.53
+            ],
+            [
+              87.21,
+              -210.01
+            ],
+            [
+              92.11,
+              -199.81
+            ],
+            [
+              114.54,
+              -196.35
+            ],
+            [
+              111.8,
+              -186.86
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-mid-l-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              124.3,
+              -186.0
+            ],
+            [
+              120.31,
+              -181.9
+            ],
+            [
+              110.52,
+              -178.39
+            ],
+            [
+              103.58,
+              -174.71
+            ],
+            [
+              93.04,
+              -171.36
+            ],
+            [
+              75.88,
+              -169.8
+            ],
+            [
+              60.58,
+              -167.74
+            ],
+            [
+              43.22,
+              -166.41
+            ],
+            [
+              25.24,
+              -167.4
+            ],
+            [
+              7.42,
+              -167.74
+            ],
+            [
+              -10.12,
+              -168.94
+            ],
+            [
+              -22.05,
+              -172.1
+            ],
+            [
+              -35.58,
+              -174.71
+            ],
+            [
+              -46.61,
+              -177.99
+            ],
+            [
+              -47.94,
+              -182.11
+            ],
+            [
+              -56.3,
+              -186.0
+            ],
+            [
+              -56.03,
+              -194.9
+            ],
+            [
+              -35.12,
+              -200.31
+            ],
+            [
+              -39.05,
+              -210.69
+            ],
+            [
+              -27.59,
+              -217.81
+            ],
+            [
+              -3.83,
+              -216.47
+            ],
+            [
+              6.1,
+              -225.94
+            ],
+            [
+              24.38,
+              -228.58
+            ],
+            [
+              41.91,
+              -221.0
+            ],
+            [
+              61.9,
+              -225.94
+            ],
+            [
+              80.02,
+              -223.07
+            ],
+            [
+              84.62,
+              -212.15
+            ],
+            [
+              107.05,
+              -210.69
+            ],
+            [
+              118.09,
+              -203.41
+            ],
+            [
+              108.0,
+              -193.32
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-mid-l-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              103.02,
+              -191.0
+            ],
+            [
+              98.38,
+              -187.92
+            ],
+            [
+              88.67,
+              -185.35
+            ],
+            [
+              79.75,
+              -182.63
+            ],
+            [
+              63.14,
+              -181.44
+            ],
+            [
+              46.89,
+              -180.27
+            ],
+            [
+              29.11,
+              -180.27
+            ],
+            [
+              12.86,
+              -181.44
+            ],
+            [
+              -3.75,
+              -182.63
+            ],
+            [
+              -12.67,
+              -185.35
+            ],
+            [
+              -22.38,
+              -187.92
+            ],
+            [
+              -27.02,
+              -191.0
+            ],
+            [
+              -19.11,
+              -197.07
+            ],
+            [
+              -17.6,
+              -203.93
+            ],
+            [
+              3.81,
+              -205.27
+            ],
+            [
+              10.32,
+              -212.92
+            ],
+            [
+              29.09,
+              -213.42
+            ],
+            [
+              46.91,
+              -213.42
+            ],
+            [
+              65.68,
+              -212.92
+            ],
+            [
+              72.19,
+              -205.27
+            ],
+            [
+              93.6,
+              -203.93
+            ],
+            [
+              95.11,
+              -197.07
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-top-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              259.75,
+              -257.0
+            ],
+            [
+              253.84,
+              -252.7
+            ],
+            [
+              242.93,
+              -248.96
+            ],
+            [
+              234.56,
+              -244.89
+            ],
+            [
+              214.82,
+              -242.81
+            ],
+            [
+              197.64,
+              -240.08
+            ],
+            [
+              175.8,
+              -239.51
+            ],
+            [
+              154.2,
+              -239.51
+            ],
+            [
+              132.36,
+              -240.08
+            ],
+            [
+              115.18,
+              -242.81
+            ],
+            [
+              95.44,
+              -244.89
+            ],
+            [
+              87.07,
+              -248.96
+            ],
+            [
+              76.16,
+              -252.7
+            ],
+            [
+              70.25,
+              -257.0
+            ],
+            [
+              79.37,
+              -265.64
+            ],
+            [
+              79.28,
+              -275.43
+            ],
+            [
+              108.11,
+              -277.64
+            ],
+            [
+              110.38,
+              -289.41
+            ],
+            [
+              135.14,
+              -289.25
+            ],
+            [
+              153.35,
+              -296.28
+            ],
+            [
+              176.65,
+              -296.28
+            ],
+            [
+              194.86,
+              -289.25
+            ],
+            [
+              219.62,
+              -289.41
+            ],
+            [
+              221.89,
+              -277.64
+            ],
+            [
+              250.72,
+              -275.43
+            ],
+            [
+              250.63,
+              -265.64
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-top-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              260.7,
+              -264.0
+            ],
+            [
+              256.0,
+              -259.72
+            ],
+            [
+              245.31,
+              -256.04
+            ],
+            [
+              239.39,
+              -251.94
+            ],
+            [
+              225.29,
+              -248.92
+            ],
+            [
+              207.78,
+              -246.99
+            ],
+            [
+              191.88,
+              -244.28
+            ],
+            [
+              171.71,
+              -244.2
+            ],
+            [
+              152.29,
+              -244.2
+            ],
+            [
+              132.12,
+              -244.28
+            ],
+            [
+              116.22,
+              -246.99
+            ],
+            [
+              98.71,
+              -248.92
+            ],
+            [
+              84.61,
+              -251.94
+            ],
+            [
+              78.69,
+              -256.04
+            ],
+            [
+              68.0,
+              -259.72
+            ],
+            [
+              63.3,
+              -264.0
+            ],
+            [
+              78.05,
+              -271.97
+            ],
+            [
+              70.93,
+              -282.12
+            ],
+            [
+              89.69,
+              -287.47
+            ],
+            [
+              97.67,
+              -295.92
+            ],
+            [
+              111.7,
+              -302.93
+            ],
+            [
+              137.17,
+              -298.15
+            ],
+            [
+              151.41,
+              -309.04
+            ],
+            [
+              172.59,
+              -309.04
+            ],
+            [
+              186.83,
+              -298.15
+            ],
+            [
+              212.3,
+              -302.93
+            ],
+            [
+              226.33,
+              -295.92
+            ],
+            [
+              234.31,
+              -287.47
+            ],
+            [
+              253.07,
+              -282.12
+            ],
+            [
+              245.95,
+              -271.97
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-top-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              237.06,
+              -269.0
+            ],
+            [
+              231.49,
+              -265.79
+            ],
+            [
+              222.01,
+              -263.0
+            ],
+            [
+              211.33,
+              -260.27
+            ],
+            [
+              193.35,
+              -259.01
+            ],
+            [
+              175.92,
+              -257.49
+            ],
+            [
+              156.65,
+              -258.16
+            ],
+            [
+              137.12,
+              -258.45
+            ],
+            [
+              122.68,
+              -260.66
+            ],
+            [
+              108.14,
+              -262.8
+            ],
+            [
+              101.61,
+              -265.85
+            ],
+            [
+              94.94,
+              -269.0
+            ],
+            [
+              96.32,
+              -276.11
+            ],
+            [
+              111.27,
+              -281.22
+            ],
+            [
+              118.31,
+              -288.13
+            ],
+            [
+              141.62,
+              -287.55
+            ],
+            [
+              155.78,
+              -293.7
+            ],
+            [
+              174.12,
+              -288.63
+            ],
+            [
+              196.01,
+              -291.83
+            ],
+            [
+              206.32,
+              -285.17
+            ],
+            [
+              227.5,
+              -282.74
+            ],
+            [
+              231.66,
+              -275.7
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-top-r-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              345.59,
+              -243.0
+            ],
+            [
+              341.68,
+              -239.48
+            ],
+            [
+              332.14,
+              -236.51
+            ],
+            [
+              324.56,
+              -233.41
+            ],
+            [
+              312.16,
+              -230.95
+            ],
+            [
+              295.44,
+              -229.97
+            ],
+            [
+              279.68,
+              -228.54
+            ],
+            [
+              262.32,
+              -228.54
+            ],
+            [
+              246.56,
+              -229.97
+            ],
+            [
+              229.84,
+              -230.95
+            ],
+            [
+              217.44,
+              -233.41
+            ],
+            [
+              209.86,
+              -236.51
+            ],
+            [
+              200.32,
+              -239.48
+            ],
+            [
+              196.41,
+              -243.0
+            ],
+            [
+              209.49,
+              -249.39
+            ],
+            [
+              203.98,
+              -257.81
+            ],
+            [
+              216.87,
+              -263.2
+            ],
+            [
+              233.35,
+              -265.98
+            ],
+            [
+              244.28,
+              -272.67
+            ],
+            [
+              262.63,
+              -272.03
+            ],
+            [
+              279.37,
+              -272.03
+            ],
+            [
+              297.72,
+              -272.67
+            ],
+            [
+              308.65,
+              -265.98
+            ],
+            [
+              325.13,
+              -263.2
+            ],
+            [
+              338.02,
+              -257.81
+            ],
+            [
+              332.51,
+              -249.39
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-top-r-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              345.7,
+              -250.0
+            ],
+            [
+              342.45,
+              -246.51
+            ],
+            [
+              334.41,
+              -243.48
+            ],
+            [
+              326.81,
+              -240.58
+            ],
+            [
+              318.93,
+              -237.53
+            ],
+            [
+              305.0,
+              -235.87
+            ],
+            [
+              290.21,
+              -234.92
+            ],
+            [
+              275.87,
+              -233.48
+            ],
+            [
+              260.13,
+              -233.48
+            ],
+            [
+              245.79,
+              -234.92
+            ],
+            [
+              231.0,
+              -235.87
+            ],
+            [
+              217.07,
+              -237.53
+            ],
+            [
+              209.19,
+              -240.58
+            ],
+            [
+              201.59,
+              -243.48
+            ],
+            [
+              193.55,
+              -246.51
+            ],
+            [
+              190.3,
+              -250.0
+            ],
+            [
+              206.12,
+              -256.04
+            ],
+            [
+              194.98,
+              -264.94
+            ],
+            [
+              203.34,
+              -271.59
+            ],
+            [
+              225.67,
+              -271.6
+            ],
+            [
+              229.15,
+              -280.92
+            ],
+            [
+              243.67,
+              -284.41
+            ],
+            [
+              260.65,
+              -282.15
+            ],
+            [
+              275.35,
+              -282.15
+            ],
+            [
+              292.33,
+              -284.41
+            ],
+            [
+              306.85,
+              -280.92
+            ],
+            [
+              310.33,
+              -271.6
+            ],
+            [
+              332.66,
+              -271.59
+            ],
+            [
+              341.02,
+              -264.94
+            ],
+            [
+              329.88,
+              -256.04
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-top-r-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              327.94,
+              -255.0
+            ],
+            [
+              324.28,
+              -252.37
+            ],
+            [
+              315.49,
+              -250.21
+            ],
+            [
+              307.46,
+              -247.98
+            ],
+            [
+              294.32,
+              -246.62
+            ],
+            [
+              279.38,
+              -246.2
+            ],
+            [
+              264.21,
+              -245.71
+            ],
+            [
+              250.05,
+              -246.76
+            ],
+            [
+              237.67,
+              -248.21
+            ],
+            [
+              225.85,
+              -249.91
+            ],
+            [
+              222.04,
+              -252.48
+            ],
+            [
+              216.06,
+              -255.0
+            ],
+            [
+              216.99,
+              -260.77
+            ],
+            [
+              234.21,
+              -263.68
+            ],
+            [
+              234.31,
+              -270.54
+            ],
+            [
+              248.25,
+              -273.58
+            ],
+            [
+              265.42,
+              -271.34
+            ],
+            [
+              280.09,
+              -275.11
+            ],
+            [
+              294.38,
+              -272.51
+            ],
+            [
+              305.54,
+              -268.83
+            ],
+            [
+              319.55,
+              -265.92
+            ],
+            [
+              318.51,
+              -259.88
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-1-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              271.67,
+              -155.0
+            ],
+            [
+              266.85,
+              -151.29
+            ],
+            [
+              256.28,
+              -148.14
+            ],
+            [
+              248.85,
+              -144.67
+            ],
+            [
+              232.48,
+              -142.58
+            ],
+            [
+              215.2,
+              -140.98
+            ],
+            [
+              196.99,
+              -139.48
+            ],
+            [
+              177.55,
+              -140.33
+            ],
+            [
+              158.01,
+              -140.58
+            ],
+            [
+              140.86,
+              -142.4
+            ],
+            [
+              128.13,
+              -145.17
+            ],
+            [
+              113.47,
+              -147.72
+            ],
+            [
+              110.26,
+              -151.43
+            ],
+            [
+              102.33,
+              -155.0
+            ],
+            [
+              102.52,
+              -163.18
+            ],
+            [
+              126.86,
+              -167.4
+            ],
+            [
+              122.25,
+              -177.54
+            ],
+            [
+              140.37,
+              -181.54
+            ],
+            [
+              159.05,
+              -183.95
+            ],
+            [
+              176.64,
+              -188.51
+            ],
+            [
+              195.36,
+              -182.04
+            ],
+            [
+              217.87,
+              -186.98
+            ],
+            [
+              236.04,
+              -182.91
+            ],
+            [
+              240.83,
+              -173.73
+            ],
+            [
+              262.73,
+              -170.62
+            ],
+            [
+              260.06,
+              -162.07
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-1-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              272.2,
+              -162.0
+            ],
+            [
+              268.3,
+              -158.31
+            ],
+            [
+              258.74,
+              -155.15
+            ],
+            [
+              251.96,
+              -151.84
+            ],
+            [
+              241.67,
+              -148.82
+            ],
+            [
+              224.91,
+              -147.42
+            ],
+            [
+              209.96,
+              -145.57
+            ],
+            [
+              193.01,
+              -144.37
+            ],
+            [
+              175.45,
+              -145.26
+            ],
+            [
+              158.04,
+              -145.57
+            ],
+            [
+              140.91,
+              -146.65
+            ],
+            [
+              129.25,
+              -149.49
+            ],
+            [
+              116.04,
+              -151.84
+            ],
+            [
+              105.27,
+              -154.79
+            ],
+            [
+              103.97,
+              -158.5
+            ],
+            [
+              95.8,
+              -162.0
+            ],
+            [
+              96.06,
+              -170.01
+            ],
+            [
+              116.49,
+              -174.88
+            ],
+            [
+              112.64,
+              -184.22
+            ],
+            [
+              123.84,
+              -190.63
+            ],
+            [
+              147.05,
+              -189.43
+            ],
+            [
+              156.74,
+              -197.95
+            ],
+            [
+              174.6,
+              -200.32
+            ],
+            [
+              191.72,
+              -193.5
+            ],
+            [
+              211.26,
+              -197.95
+            ],
+            [
+              228.95,
+              -195.37
+            ],
+            [
+              233.45,
+              -185.54
+            ],
+            [
+              255.36,
+              -184.22
+            ],
+            [
+              266.13,
+              -177.67
+            ],
+            [
+              256.28,
+              -168.58
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-1-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              251.5,
+              -167.0
+            ],
+            [
+              246.97,
+              -164.23
+            ],
+            [
+              237.49,
+              -161.91
+            ],
+            [
+              228.78,
+              -159.47
+            ],
+            [
+              212.55,
+              -158.4
+            ],
+            [
+              196.68,
+              -157.34
+            ],
+            [
+              179.32,
+              -157.34
+            ],
+            [
+              163.45,
+              -158.4
+            ],
+            [
+              147.22,
+              -159.47
+            ],
+            [
+              138.51,
+              -161.91
+            ],
+            [
+              129.03,
+              -164.23
+            ],
+            [
+              124.5,
+              -167.0
+            ],
+            [
+              132.22,
+              -172.46
+            ],
+            [
+              133.7,
+              -178.63
+            ],
+            [
+              154.61,
+              -179.85
+            ],
+            [
+              160.97,
+              -186.73
+            ],
+            [
+              179.3,
+              -187.18
+            ],
+            [
+              196.7,
+              -187.18
+            ],
+            [
+              215.03,
+              -186.73
+            ],
+            [
+              221.39,
+              -179.85
+            ],
+            [
+              242.3,
+              -178.63
+            ],
+            [
+              243.78,
+              -172.46
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-2-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              387.72,
+              -159.0
+            ],
+            [
+              382.56,
+              -155.08
+            ],
+            [
+              371.23,
+              -151.76
+            ],
+            [
+              363.27,
+              -148.09
+            ],
+            [
+              345.73,
+              -145.88
+            ],
+            [
+              327.21,
+              -144.2
+            ],
+            [
+              307.71,
+              -142.62
+            ],
+            [
+              286.88,
+              -143.51
+            ],
+            [
+              265.93,
+              -143.78
+            ],
+            [
+              247.57,
+              -145.7
+            ],
+            [
+              233.93,
+              -148.62
+            ],
+            [
+              218.22,
+              -151.32
+            ],
+            [
+              214.78,
+              -155.24
+            ],
+            [
+              206.28,
+              -159.0
+            ],
+            [
+              206.49,
+              -167.63
+            ],
+            [
+              232.56,
+              -172.09
+            ],
+            [
+              227.62,
+              -182.79
+            ],
+            [
+              247.04,
+              -187.01
+            ],
+            [
+              267.06,
+              -189.56
+            ],
+            [
+              285.9,
+              -194.37
+            ],
+            [
+              305.95,
+              -187.54
+            ],
+            [
+              330.07,
+              -192.75
+            ],
+            [
+              349.55,
+              -188.46
+            ],
+            [
+              354.67,
+              -178.77
+            ],
+            [
+              378.14,
+              -175.48
+            ],
+            [
+              375.28,
+              -166.47
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-2-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              388.5,
+              -166.0
+            ],
+            [
+              384.32,
+              -162.11
+            ],
+            [
+              374.08,
+              -158.77
+            ],
+            [
+              366.81,
+              -155.28
+            ],
+            [
+              355.79,
+              -152.09
+            ],
+            [
+              337.83,
+              -150.61
+            ],
+            [
+              321.81,
+              -148.65
+            ],
+            [
+              303.65,
+              -147.39
+            ],
+            [
+              284.84,
+              -148.33
+            ],
+            [
+              266.19,
+              -148.65
+            ],
+            [
+              247.83,
+              -149.79
+            ],
+            [
+              235.34,
+              -152.8
+            ],
+            [
+              221.19,
+              -155.28
+            ],
+            [
+              209.64,
+              -158.39
+            ],
+            [
+              208.25,
+              -162.31
+            ],
+            [
+              199.5,
+              -166.0
+            ],
+            [
+              199.78,
+              -174.46
+            ],
+            [
+              221.67,
+              -179.6
+            ],
+            [
+              217.55,
+              -189.45
+            ],
+            [
+              229.55,
+              -196.22
+            ],
+            [
+              254.41,
+              -194.95
+            ],
+            [
+              264.8,
+              -203.95
+            ],
+            [
+              283.93,
+              -206.45
+            ],
+            [
+              302.28,
+              -199.25
+            ],
+            [
+              323.2,
+              -203.95
+            ],
+            [
+              342.16,
+              -201.22
+            ],
+            [
+              346.98,
+              -190.84
+            ],
+            [
+              370.45,
+              -189.45
+            ],
+            [
+              382.0,
+              -182.54
+            ],
+            [
+              371.45,
+              -172.95
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-2-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              366.04,
+              -171.0
+            ],
+            [
+              361.18,
+              -168.08
+            ],
+            [
+              351.03,
+              -165.63
+            ],
+            [
+              341.7,
+              -163.05
+            ],
+            [
+              324.31,
+              -161.92
+            ],
+            [
+              307.3,
+              -160.8
+            ],
+            [
+              288.7,
+              -160.8
+            ],
+            [
+              271.69,
+              -161.92
+            ],
+            [
+              254.3,
+              -163.05
+            ],
+            [
+              244.97,
+              -165.63
+            ],
+            [
+              234.82,
+              -168.08
+            ],
+            [
+              229.96,
+              -171.0
+            ],
+            [
+              238.23,
+              -176.76
+            ],
+            [
+              239.82,
+              -183.28
+            ],
+            [
+              262.22,
+              -184.56
+            ],
+            [
+              269.03,
+              -191.83
+            ],
+            [
+              288.68,
+              -192.3
+            ],
+            [
+              307.32,
+              -192.3
+            ],
+            [
+              326.97,
+              -191.83
+            ],
+            [
+              333.78,
+              -184.56
+            ],
+            [
+              356.18,
+              -183.28
+            ],
+            [
+              357.77,
+              -176.76
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-tip-shadow",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              429.5,
+              -151.0
+            ],
+            [
+              426.41,
+              -148.09
+            ],
+            [
+              418.65,
+              -145.61
+            ],
+            [
+              410.93,
+              -143.27
+            ],
+            [
+              401.82,
+              -140.98
+            ],
+            [
+              387.95,
+              -140.02
+            ],
+            [
+              374.0,
+              -139.55
+            ],
+            [
+              359.65,
+              -138.97
+            ],
+            [
+              345.74,
+              -139.86
+            ],
+            [
+              334.2,
+              -141.56
+            ],
+            [
+              321.83,
+              -143.05
+            ],
+            [
+              313.25,
+              -145.39
+            ],
+            [
+              310.83,
+              -148.25
+            ],
+            [
+              304.5,
+              -151.0
+            ],
+            [
+              305.43,
+              -157.28
+            ],
+            [
+              317.82,
+              -161.68
+            ],
+            [
+              323.46,
+              -166.97
+            ],
+            [
+              331.14,
+              -172.51
+            ],
+            [
+              345.52,
+              -174.45
+            ],
+            [
+              360.6,
+              -172.81
+            ],
+            [
+              374.7,
+              -177.24
+            ],
+            [
+              389.6,
+              -175.67
+            ],
+            [
+              395.48,
+              -168.08
+            ],
+            [
+              415.09,
+              -168.64
+            ],
+            [
+              423.86,
+              -163.36
+            ],
+            [
+              416.68,
+              -156.07
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#1D3829",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.34,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#1D3829",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#1D3829",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#1D3829",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-tip-main",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              429.1,
+              -158.0
+            ],
+            [
+              426.45,
+              -155.12
+            ],
+            [
+              420.29,
+              -152.57
+            ],
+            [
+              412.73,
+              -150.33
+            ],
+            [
+              405.99,
+              -147.89
+            ],
+            [
+              395.81,
+              -146.06
+            ],
+            [
+              382.82,
+              -145.44
+            ],
+            [
+              370.34,
+              -144.93
+            ],
+            [
+              357.37,
+              -144.34
+            ],
+            [
+              344.5,
+              -144.99
+            ],
+            [
+              333.81,
+              -146.66
+            ],
+            [
+              323.02,
+              -148.13
+            ],
+            [
+              312.41,
+              -149.87
+            ],
+            [
+              307.01,
+              -152.5
+            ],
+            [
+              305.16,
+              -155.29
+            ],
+            [
+              298.9,
+              -158.0
+            ],
+            [
+              299.69,
+              -164.17
+            ],
+            [
+              306.07,
+              -169.65
+            ],
+            [
+              321.12,
+              -172.07
+            ],
+            [
+              319.27,
+              -180.44
+            ],
+            [
+              330.82,
+              -183.95
+            ],
+            [
+              345.78,
+              -183.32
+            ],
+            [
+              358.08,
+              -183.42
+            ],
+            [
+              370.98,
+              -187.98
+            ],
+            [
+              384.69,
+              -186.76
+            ],
+            [
+              391.27,
+              -179.33
+            ],
+            [
+              405.02,
+              -178.57
+            ],
+            [
+              417.38,
+              -175.51
+            ],
+            [
+              424.52,
+              -170.17
+            ],
+            [
+              415.04,
+              -162.9
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2E533E",
+          "stroke": "#1B3526",
+          "strokeWidth": 1.0,
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#2E533E",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#2E533E",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#2E533E",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "can-arm-tip-hi",
+        "parentId": "pine-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              414.87,
+              -163.0
+            ],
+            [
+              412.0,
+              -160.82
+            ],
+            [
+              404.7,
+              -159.02
+            ],
+            [
+              396.99,
+              -157.36
+            ],
+            [
+              387.09,
+              -155.95
+            ],
+            [
+              374.25,
+              -155.67
+            ],
+            [
+              361.75,
+              -155.67
+            ],
+            [
+              348.91,
+              -155.95
+            ],
+            [
+              339.01,
+              -157.36
+            ],
+            [
+              331.3,
+              -159.02
+            ],
+            [
+              324.0,
+              -160.82
+            ],
+            [
+              321.13,
+              -163.0
+            ],
+            [
+              330.86,
+              -166.83
+            ],
+            [
+              327.59,
+              -172.12
+            ],
+            [
+              336.63,
+              -175.72
+            ],
+            [
+              352.36,
+              -175.03
+            ],
+            [
+              361.14,
+              -179.77
+            ],
+            [
+              374.86,
+              -179.77
+            ],
+            [
+              383.64,
+              -175.03
+            ],
+            [
+              399.37,
+              -175.72
+            ],
+            [
+              408.41,
+              -172.12
+            ],
+            [
+              405.14,
+              -166.83
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#558066",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#558066",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#558066",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#558066",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-cliff-main",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              574.0
+            ],
+            [
+              24.62,
+              505.38
+            ],
+            [
+              28.0,
+              434.0
+            ],
+            [
+              49.62,
+              413.75
+            ],
+            [
+              82.0,
+              412.0
+            ],
+            [
+              123.75,
+              413.12
+            ],
+            [
+              168.0,
+              420.0
+            ],
+            [
+              207.12,
+              428.75
+            ],
+            [
+              242.0,
+              444.0
+            ],
+            [
+              270.75,
+              471.12
+            ],
+            [
+              294.0,
+              504.0
+            ],
+            [
+              312.25,
+              542.75
+            ],
+            [
+              324.0,
+              574.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#5C6567",
+          "stroke": "#383F41",
+          "strokeWidth": 1.3,
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#5C6567",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#5C6567",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#5C6567",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-cliff-light",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              36.0,
+              442.0
+            ],
+            [
+              56.0,
+              429.5
+            ],
+            [
+              86.0,
+              418.0
+            ],
+            [
+              125.62,
+              419.12
+            ],
+            [
+              166.0,
+              426.0
+            ],
+            [
+              201.75,
+              435.0
+            ],
+            [
+              222.0,
+              448.0
+            ],
+            [
+              208.75,
+              468.88
+            ],
+            [
+              178.0,
+              488.0
+            ],
+            [
+              133.25,
+              494.5
+            ],
+            [
+              94.0,
+              496.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#889293",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.58,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#889293",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#889293",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#889293",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "pine-cliff-dark",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              178.0,
+              488.0
+            ],
+            [
+              196.25,
+              464.38
+            ],
+            [
+              222.0,
+              448.0
+            ],
+            [
+              252.75,
+              470.5
+            ],
+            [
+              282.0,
+              506.0
+            ],
+            [
+              311.62,
+              541.62
+            ],
+            [
+              314.0,
+              570.0
+            ],
+            [
+              237.0,
+              574.0
+            ],
+            [
+              156.0,
+              570.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3D4548",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.62,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#3D4548",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#3D4548",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#3D4548",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
+        }
+      },
+      {
+        "id": "seal",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 56.0,
+          "y": 52.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "seal-bg",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0
+            ],
+            [
+              30.0,
+              44.0
+            ],
+            [
+              0.0,
+              44.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B5382B",
+          "stroke": "#822219",
+          "strokeWidth": 1.1,
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "seal-inner",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              27.0,
+              3.0
+            ],
+            [
+              27.0,
+              41.0
+            ],
+            [
+              3.0,
+              41.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F7F0E4",
+          "strokeWidth": 0.9,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "seal-text",
+        "parentId": "seal",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 15.0,
+          "y": 6.5,
+          "text": "浩然",
+          "fontSize": 13.5,
+          "writingMode": "vertical",
+          "fontFamily": "seal",
+          "letterSpacing": 3.0
+        },
+        "style": {
+          "fill": "#F8F2E6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.96
+        }
+      },
+      {
+        "id": "calligraphy",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "poem-col-0",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 134.0,
+          "y": 52.0,
+          "text": "大雪压青松",
+          "fontSize": 20.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 5.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "poem-col-1",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 106.0,
+          "y": 84.0,
+          "text": "青松挺且直",
+          "fontSize": 18.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 5.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.74
+        }
+      }
+    ],
+    "animations": [
+      {
+        "nodeId": "cloud-drift",
+        "property": "x",
+        "from": -14,
+        "to": 14,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "cranes-group",
+        "property": "x",
+        "from": -16,
+        "to": 18,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "cranes-group",
+        "property": "y",
+        "from": 6,
+        "to": -8,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "pine-sway",
+        "property": "rotation",
+        "from": -0.8,
+        "to": 0.8,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      }
+    ],
+    "narrative": [
+      {
+        "timeMs": 0,
+        "caption": "千仞立崖：云海奔涌间青松扎根危岩，巍然不移。",
+        "entityIds": [
+          "knowledge-integrity"
+        ]
+      },
+      {
+        "timeMs": 2000,
+        "caption": "丹霞映松：苍劲松盖沐朝阳而不改其青，守正浩然。",
+        "entityIds": [
+          "knowledge-integrity"
+        ]
+      },
+      {
+        "timeMs": 3800,
+        "caption": "鹤鸣清远：云舒鹤翔，寄托清朗致远的浩然正气。",
+        "entityIds": [
+          "knowledge-integrity"
+        ]
+      }
+    ]
+  },
+  "parameterSchema": [
+    {
+      "name": "needleColor",
+      "label": "松针主色",
+      "description": "苍松针冠主色调（苍松绿 / 墨松黛 / 石青松）",
+      "type": "color",
+      "default": "#2E533E"
+    },
+    {
+      "name": "sunColor",
+      "label": "朝阳色调",
+      "description": "丹霞旭日主色",
+      "type": "color",
+      "default": "#DF764F"
+    },
+    {
+      "name": "cliffColor",
+      "label": "崖石黛色",
+      "description": "前景峭壁山崖主体颜色",
+      "type": "color",
+      "default": "#5C6567"
+    },
+    {
+      "name": "pineScale",
+      "label": "青松雄姿",
+      "description": "整体缩放崖松冠幅",
+      "type": "number",
+      "default": 1.0,
+      "min": 0.84,
+      "max": 1.04,
+      "step": 0.02
+    },
+    {
+      "name": "pineTilt",
+      "label": "松枝迎风角",
+      "description": "微调迎客松俯仰角度（度）",
+      "type": "integer",
+      "default": 0,
+      "min": -4,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "cloudOpacity",
+      "label": "云海明度",
+      "description": "调节山间流云透明度（0.15～1.0）",
+      "type": "number",
+      "default": 0.88,
+      "min": 0.15,
+      "max": 1.0,
+      "step": 0.05
+    }
+  ],
+  "bindings": [
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-left-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-mid-l-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-top-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-top-r-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-arm-1-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-arm-2-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "needleColor",
+      "nodeId": "can-arm-tip-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "sunColor",
+      "nodeId": "pine-sun",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "cliffColor",
+      "nodeId": "pine-cliff-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "pineScale",
+      "nodeId": "pine-user",
+      "property": "transform.scaleX"
+    },
+    {
+      "parameter": "pineScale",
+      "nodeId": "pine-user",
+      "property": "transform.scaleY"
+    },
+    {
+      "parameter": "pineTilt",
+      "nodeId": "pine-user",
+      "property": "transform.rotation"
+    },
+    {
+      "parameter": "cloudOpacity",
+      "nodeId": "cloud-user",
+      "property": "style.opacity"
+    }
+  ],
+  "constraints": [],
+  "supportedBackends": [
+    "canvas2d",
+    "css",
+    "webgl"
+  ],
+  "changeNote": "高画质终版：古宣底纹、丹霞朝阳径向柔光、水墨崖松针冠渐变与《青松》竖排题跋篆印"
+}
