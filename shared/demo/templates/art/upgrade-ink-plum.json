@@ -1,0 +1,4885 @@
+{
+  "slug": "upgrade-ink-plum",
+  "targetTemplateId": "tpl-1c48c20b38e742e8b9b6762d0c049ac8",
+  "metadata": {
+    "name": "墨梅·清风",
+    "description": "王冕《墨梅》意境水墨画卷：老干自右上倒垂横斜，七朵素墨五瓣梅花配水墨晕染、淡月寒山与左下朱文闲章，“不要人夸好颜色，只留清气满乾坤”。",
+    "entityIds": [
+      "knowledge-plum",
+      "knowledge-integrity"
+    ],
+    "tagIds": [
+      "tag-pure",
+      "tag-symbol",
+      "tag-integrity"
+    ],
+    "symbols": [
+      "narrative"
+    ],
+    "timeTheme": "冬雪"
+  },
+  "irTemplate": {
+    "schemaVersion": "1.0",
+    "seed": 707,
+    "canvas": {
+      "width": 800,
+      "height": 600,
+      "background": "#F4F2EC"
+    },
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 600
+    },
+    "durationMs": 4000,
+    "nodes": [
+      {
+        "id": "painting",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "scroll-frame-outer",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              14.0
+            ],
+            [
+              786.0,
+              14.0
+            ],
+            [
+              786.0,
+              586.0
+            ],
+            [
+              14.0,
+              586.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#C9BEA8",
+          "strokeWidth": 1.2,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "scroll-frame-inner",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              22.0,
+              22.0
+            ],
+            [
+              778.0,
+              22.0
+            ],
+            [
+              778.0,
+              578.0
+            ],
+            [
+              22.0,
+              578.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D9D0BE",
+          "strokeWidth": 0.8,
+          "opacity": 0.58
+        }
+      },
+      {
+        "id": "im-moon-halo",
+        "parentId": "painting",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 216.0,
+          "cy": 178.0,
+          "r": 84.0
+        },
+        "style": {
+          "fill": "#E7E2D6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.38
+        }
+      },
+      {
+        "id": "im-moon",
+        "parentId": "painting",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": 216.0,
+          "cy": 178.0,
+          "r": 52.0
+        },
+        "style": {
+          "fill": "#FAF8F2",
+          "stroke": "#D6CFC0",
+          "strokeWidth": 0.9,
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "im-mtn",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              574.0
+            ],
+            [
+              59.0,
+              565.23
+            ],
+            [
+              90.0,
+              554.39
+            ],
+            [
+              121.0,
+              540.15
+            ],
+            [
+              152.0,
+              524.52
+            ],
+            [
+              183.0,
+              510.93
+            ],
+            [
+              214.0,
+              502.97
+            ],
+            [
+              245.0,
+              502.81
+            ],
+            [
+              276.0,
+              510.18
+            ],
+            [
+              307.0,
+              522.44
+            ],
+            [
+              338.0,
+              535.73
+            ],
+            [
+              369.0,
+              546.34
+            ],
+            [
+              400.0,
+              551.63
+            ],
+            [
+              431.0,
+              550.42
+            ],
+            [
+              462.0,
+              543.16
+            ],
+            [
+              493.0,
+              532.02
+            ],
+            [
+              524.0,
+              520.64
+            ],
+            [
+              555.0,
+              513.23
+            ],
+            [
+              586.0,
+              512.85
+            ],
+            [
+              617.0,
+              520.04
+            ],
+            [
+              648.0,
+              532.58
+            ],
+            [
+              679.0,
+              546.69
+            ],
+            [
+              710.0,
+              558.99
+            ],
+            [
+              741.0,
+              567.73
+            ],
+            [
+              772.0,
+              574.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#D4D3CE",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.32
+        }
+      },
+      {
+        "id": "im-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 664.0,
+          "y": 166.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "im-sway",
+        "parentId": "im-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "im-trunk",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -5.87,
+              -11.04
+            ],
+            [
+              -24.35,
+              -0.48
+            ],
+            [
+              -50.92,
+              14.23
+            ],
+            [
+              -78.3,
+              28.37
+            ],
+            [
+              -104.45,
+              39.58
+            ],
+            [
+              -132.37,
+              50.61
+            ],
+            [
+              -161.82,
+              64.29
+            ],
+            [
+              -192.56,
+              81.85
+            ],
+            [
+              -224.14,
+              101.72
+            ],
+            [
+              -255.59,
+              122.41
+            ],
+            [
+              -286.81,
+              143.52
+            ],
+            [
+              -318.02,
+              165.53
+            ],
+            [
+              -348.78,
+              188.21
+            ],
+            [
+              -382.11,
+              214.28
+            ],
+            [
+              -414.92,
+              240.96
+            ],
+            [
+              -437.71,
+              259.84
+            ],
+            [
+              -434.29,
+              264.16
+            ],
+            [
+              -410.71,
+              246.3
+            ],
+            [
+              -377.15,
+              220.69
+            ],
+            [
+              -343.22,
+              195.79
+            ],
+            [
+              -311.91,
+              174.32
+            ],
+            [
+              -280.16,
+              153.51
+            ],
+            [
+              -248.41,
+              133.59
+            ],
+            [
+              -216.45,
+              114.13
+            ],
+            [
+              -184.62,
+              95.63
+            ],
+            [
+              -154.18,
+              79.71
+            ],
+            [
+              -125.41,
+              67.76
+            ],
+            [
+              -97.32,
+              58.05
+            ],
+            [
+              -69.7,
+              47.63
+            ],
+            [
+              -40.78,
+              34.21
+            ],
+            [
+              -13.28,
+              20.48
+            ],
+            [
+              5.87,
+              11.04
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#333332",
+          "stroke": "#1C1C1B",
+          "strokeWidth": 0.9,
+          "opacity": 0.96
+        }
+      },
+      {
+        "id": "im-branch-up",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -163.26,
+              73.35
+            ],
+            [
+              -184.57,
+              61.36
+            ],
+            [
+              -215.13,
+              44.41
+            ],
+            [
+              -246.55,
+              30.28
+            ],
+            [
+              -276.23,
+              21.55
+            ],
+            [
+              -306.43,
+              15.79
+            ],
+            [
+              -335.97,
+              13.41
+            ],
+            [
+              -367.08,
+              16.12
+            ],
+            [
+              -397.27,
+              22.15
+            ],
+            [
+              -418.23,
+              26.84
+            ],
+            [
+              -417.77,
+              29.16
+            ],
+            [
+              -396.65,
+              25.4
+            ],
+            [
+              -366.55,
+              20.33
+            ],
+            [
+              -336.03,
+              18.59
+            ],
+            [
+              -307.35,
+              21.84
+            ],
+            [
+              -277.99,
+              28.38
+            ],
+            [
+              -249.45,
+              37.72
+            ],
+            [
+              -219.24,
+              52.33
+            ],
+            [
+              -189.51,
+              69.9
+            ],
+            [
+              -168.74,
+              82.65
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E3E3C",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "im-branch-down",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -268.35,
+              139.5
+            ],
+            [
+              -261.24,
+              158.86
+            ],
+            [
+              -251.23,
+              186.46
+            ],
+            [
+              -241.22,
+              213.19
+            ],
+            [
+              -232.1,
+              235.99
+            ],
+            [
+              -222.99,
+              257.88
+            ],
+            [
+              -214.1,
+              278.85
+            ],
+            [
+              -204.7,
+              300.79
+            ],
+            [
+              -195.53,
+              321.83
+            ],
+            [
+              -189.02,
+              336.42
+            ],
+            [
+              -186.98,
+              335.58
+            ],
+            [
+              -192.77,
+              320.69
+            ],
+            [
+              -201.22,
+              299.36
+            ],
+            [
+              -209.9,
+              277.15
+            ],
+            [
+              -218.05,
+              255.9
+            ],
+            [
+              -226.42,
+              233.78
+            ],
+            [
+              -234.78,
+              210.81
+            ],
+            [
+              -244.02,
+              183.91
+            ],
+            [
+              -253.28,
+              156.1
+            ],
+            [
+              -259.65,
+              136.5
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#444442",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "im-twig-0",
+        "parentId": "im-sway",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -340.0,
+              188.0
+            ],
+            [
+              -384.0,
+              152.0
+            ],
+            [
+              -424.0,
+              126.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#383836",
+          "strokeWidth": 1.6,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "im-twig-1",
+        "parentId": "im-sway",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -282.0,
+              22.0
+            ],
+            [
+              -314.0,
+              -14.0
+            ],
+            [
+              -352.0,
+              -32.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#383836",
+          "strokeWidth": 1.6,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "im-twig-2",
+        "parentId": "im-sway",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -226.0,
+              242.0
+            ],
+            [
+              -268.0,
+              268.0
+            ],
+            [
+              -308.0,
+              284.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#383836",
+          "strokeWidth": 1.6,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "imf-1-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -196.0,
+          "cy": 94.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-1-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -191.49,
+              72.76
+            ],
+            [
+              -186.7,
+              75.43
+            ],
+            [
+              -184.11,
+              80.4
+            ],
+            [
+              -186.95,
+              85.52
+            ],
+            [
+              -189.63,
+              90.08
+            ],
+            [
+              -193.57,
+              92.29
+            ],
+            [
+              -197.52,
+              91.45
+            ],
+            [
+              -200.22,
+              87.83
+            ],
+            [
+              -200.82,
+              82.58
+            ],
+            [
+              -201.33,
+              76.74
+            ],
+            [
+              -196.94,
+              73.25
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-1-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -174.41,
+              91.73
+            ],
+            [
+              -175.46,
+              97.1
+            ],
+            [
+              -179.39,
+              101.1
+            ],
+            [
+              -185.14,
+              99.99
+            ],
+            [
+              -190.3,
+              98.84
+            ],
+            [
+              -193.62,
+              95.78
+            ],
+            [
+              -194.04,
+              91.77
+            ],
+            [
+              -191.43,
+              88.08
+            ],
+            [
+              -186.62,
+              85.89
+            ],
+            [
+              -181.23,
+              83.6
+            ],
+            [
+              -176.56,
+              86.7
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-1-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -187.17,
+              113.83
+            ],
+            [
+              -192.6,
+              114.49
+            ],
+            [
+              -197.62,
+              112.0
+            ],
+            [
+              -198.34,
+              106.18
+            ],
+            [
+              -198.84,
+              100.92
+            ],
+            [
+              -196.96,
+              96.81
+            ],
+            [
+              -193.27,
+              95.17
+            ],
+            [
+              -188.96,
+              96.51
+            ],
+            [
+              -185.39,
+              100.41
+            ],
+            [
+              -181.54,
+              104.84
+            ],
+            [
+              -183.05,
+              110.24
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-1-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -212.14,
+              108.53
+            ],
+            [
+              -214.44,
+              103.56
+            ],
+            [
+              -213.62,
+              98.02
+            ],
+            [
+              -208.3,
+              95.54
+            ],
+            [
+              -203.46,
+              93.43
+            ],
+            [
+              -198.97,
+              93.96
+            ],
+            [
+              -196.27,
+              96.96
+            ],
+            [
+              -196.21,
+              101.47
+            ],
+            [
+              -198.82,
+              106.07
+            ],
+            [
+              -201.84,
+              111.1
+            ],
+            [
+              -207.44,
+              111.34
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-1-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -214.8,
+              83.14
+            ],
+            [
+              -210.79,
+              79.42
+            ],
+            [
+              -205.26,
+              78.49
+            ],
+            [
+              -201.27,
+              82.78
+            ],
+            [
+              -197.76,
+              86.73
+            ],
+            [
+              -196.88,
+              91.16
+            ],
+            [
+              -198.9,
+              94.66
+            ],
+            [
+              -203.17,
+              96.11
+            ],
+            [
+              -208.35,
+              95.05
+            ],
+            [
+              -214.07,
+              93.73
+            ],
+            [
+              -216.02,
+              88.48
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-1-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -196.0,
+          "cy": 94.0,
+          "r": 3.78
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-1-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -190.91,
+          "cy": 89.42,
+          "r": 1.53
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-1-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -190.07,
+          "cy": 97.42,
+          "r": 1.53
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-1-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -197.42,
+          "cy": 100.69,
+          "r": 1.53
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-1-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -202.81,
+          "cy": 94.72,
+          "r": 1.53
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-1-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -198.78,
+          "cy": 87.75,
+          "r": 1.53
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-2-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -312.0,
+          "cy": 172.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-2-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -299.24,
+              153.08
+            ],
+            [
+              -295.63,
+              157.56
+            ],
+            [
+              -295.06,
+              163.42
+            ],
+            [
+              -299.85,
+              167.3
+            ],
+            [
+              -304.25,
+              170.68
+            ],
+            [
+              -308.96,
+              171.28
+            ],
+            [
+              -312.48,
+              168.91
+            ],
+            [
+              -313.68,
+              164.32
+            ],
+            [
+              -312.2,
+              158.97
+            ],
+            [
+              -310.4,
+              153.08
+            ],
+            [
+              -304.75,
+              151.41
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-2-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -290.07,
+              178.29
+            ],
+            [
+              -293.21,
+              183.11
+            ],
+            [
+              -298.61,
+              185.46
+            ],
+            [
+              -303.78,
+              182.11
+            ],
+            [
+              -308.35,
+              178.96
+            ],
+            [
+              -310.38,
+              174.67
+            ],
+            [
+              -309.21,
+              170.59
+            ],
+            [
+              -305.22,
+              168.03
+            ],
+            [
+              -299.67,
+              167.79
+            ],
+            [
+              -293.51,
+              167.68
+            ],
+            [
+              -290.18,
+              172.54
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-2-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -311.2,
+              194.8
+            ],
+            [
+              -316.76,
+              193.3
+            ],
+            [
+              -320.66,
+              188.89
+            ],
+            [
+              -319.07,
+              182.94
+            ],
+            [
+              -317.49,
+              177.62
+            ],
+            [
+              -314.04,
+              174.36
+            ],
+            [
+              -309.8,
+              174.22
+            ],
+            [
+              -306.13,
+              177.22
+            ],
+            [
+              -304.18,
+              182.42
+            ],
+            [
+              -302.18,
+              188.25
+            ],
+            [
+              -305.77,
+              192.92
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-2-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -333.44,
+              179.8
+            ],
+            [
+              -333.73,
+              174.06
+            ],
+            [
+              -330.75,
+              168.98
+            ],
+            [
+              -324.59,
+              168.66
+            ],
+            [
+              -319.04,
+              168.51
+            ],
+            [
+              -314.88,
+              170.79
+            ],
+            [
+              -313.43,
+              174.78
+            ],
+            [
+              -315.15,
+              179.2
+            ],
+            [
+              -319.5,
+              182.65
+            ],
+            [
+              -324.42,
+              186.36
+            ],
+            [
+              -329.97,
+              184.39
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-2-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -326.05,
+              154.02
+            ],
+            [
+              -320.67,
+              151.97
+            ],
+            [
+              -314.92,
+              153.24
+            ],
+            [
+              -312.71,
+              158.99
+            ],
+            [
+              -310.86,
+              164.23
+            ],
+            [
+              -311.74,
+              168.89
+            ],
+            [
+              -315.08,
+              171.5
+            ],
+            [
+              -319.82,
+              171.23
+            ],
+            [
+              -324.45,
+              168.16
+            ],
+            [
+              -329.5,
+              164.63
+            ],
+            [
+              -329.34,
+              158.74
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-2-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -312.0,
+          "cy": 172.0,
+          "r": 3.97
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-2-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -305.24,
+          "cy": 169.54,
+          "r": 1.61
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-2-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -307.57,
+          "cy": 177.67,
+          "r": 1.61
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-2-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -316.02,
+          "cy": 177.96,
+          "r": 1.61
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-2-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -318.91,
+          "cy": 170.02,
+          "r": 1.61
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-2-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -312.25,
+          "cy": 164.81,
+          "r": 1.61
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-3-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -428.0,
+          "cy": 256.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-3-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -422.2,
+              238.15
+            ],
+            [
+              -418.33,
+              240.87
+            ],
+            [
+              -416.55,
+              245.38
+            ],
+            [
+              -419.46,
+              249.53
+            ],
+            [
+              -422.17,
+              253.2
+            ],
+            [
+              -425.76,
+              254.75
+            ],
+            [
+              -429.08,
+              253.67
+            ],
+            [
+              -431.07,
+              250.31
+            ],
+            [
+              -431.11,
+              245.74
+            ],
+            [
+              -431.02,
+              240.68
+            ],
+            [
+              -426.93,
+              238.08
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-3-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -409.23,
+              256.0
+            ],
+            [
+              -410.62,
+              260.52
+            ],
+            [
+              -414.36,
+              263.61
+            ],
+            [
+              -419.21,
+              262.13
+            ],
+            [
+              -423.54,
+              260.68
+            ],
+            [
+              -426.11,
+              257.74
+            ],
+            [
+              -426.11,
+              254.26
+            ],
+            [
+              -423.54,
+              251.32
+            ],
+            [
+              -419.21,
+              249.87
+            ],
+            [
+              -414.36,
+              248.39
+            ],
+            [
+              -410.62,
+              251.48
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-3-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -422.2,
+              273.85
+            ],
+            [
+              -426.93,
+              273.92
+            ],
+            [
+              -431.02,
+              271.32
+            ],
+            [
+              -431.11,
+              266.26
+            ],
+            [
+              -431.07,
+              261.69
+            ],
+            [
+              -429.08,
+              258.33
+            ],
+            [
+              -425.76,
+              257.25
+            ],
+            [
+              -422.17,
+              258.8
+            ],
+            [
+              -419.46,
+              262.47
+            ],
+            [
+              -416.55,
+              266.62
+            ],
+            [
+              -418.33,
+              271.13
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-3-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -443.18,
+              267.03
+            ],
+            [
+              -444.71,
+              262.55
+            ],
+            [
+              -443.51,
+              257.86
+            ],
+            [
+              -438.71,
+              256.21
+            ],
+            [
+              -434.36,
+              254.84
+            ],
+            [
+              -430.55,
+              255.7
+            ],
+            [
+              -428.5,
+              258.52
+            ],
+            [
+              -428.86,
+              262.41
+            ],
+            [
+              -431.51,
+              266.12
+            ],
+            [
+              -434.56,
+              270.17
+            ],
+            [
+              -439.4,
+              269.87
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-3-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -443.18,
+              244.97
+            ],
+            [
+              -439.4,
+              242.13
+            ],
+            [
+              -434.56,
+              241.83
+            ],
+            [
+              -431.51,
+              245.88
+            ],
+            [
+              -428.86,
+              249.59
+            ],
+            [
+              -428.5,
+              253.48
+            ],
+            [
+              -430.55,
+              256.3
+            ],
+            [
+              -434.36,
+              257.16
+            ],
+            [
+              -438.71,
+              255.79
+            ],
+            [
+              -443.51,
+              254.14
+            ],
+            [
+              -444.71,
+              249.45
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-3-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -428.0,
+          "cy": 256.0,
+          "r": 3.26
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-3-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -423.21,
+          "cy": 252.52,
+          "r": 1.33
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-3-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -423.21,
+          "cy": 259.48,
+          "r": 1.33
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-3-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -429.83,
+          "cy": 261.63,
+          "r": 1.33
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-3-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -433.92,
+          "cy": 256.0,
+          "r": 1.33
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-3-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -429.83,
+          "cy": 250.37,
+          "r": 1.33
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-4-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -294.0,
+          "cy": 24.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-4-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -280.21,
+              8.69
+            ],
+            [
+              -277.54,
+              13.14
+            ],
+            [
+              -277.77,
+              18.46
+            ],
+            [
+              -282.54,
+              21.33
+            ],
+            [
+              -286.91,
+              23.8
+            ],
+            [
+              -291.19,
+              23.74
+            ],
+            [
+              -294.04,
+              21.18
+            ],
+            [
+              -294.54,
+              16.92
+            ],
+            [
+              -292.54,
+              12.32
+            ],
+            [
+              -290.19,
+              7.28
+            ],
+            [
+              -284.92,
+              6.5
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-4-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -275.17,
+              32.38
+            ],
+            [
+              -278.59,
+              36.3
+            ],
+            [
+              -283.72,
+              37.72
+            ],
+            [
+              -287.92,
+              34.07
+            ],
+            [
+              -291.61,
+              30.68
+            ],
+            [
+              -292.89,
+              26.59
+            ],
+            [
+              -291.33,
+              23.09
+            ],
+            [
+              -287.44,
+              21.3
+            ],
+            [
+              -282.44,
+              21.78
+            ],
+            [
+              -276.92,
+              22.46
+            ],
+            [
+              -274.55,
+              27.22
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-4-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -296.15,
+              44.5
+            ],
+            [
+              -300.93,
+              42.46
+            ],
+            [
+              -303.87,
+              38.02
+            ],
+            [
+              -301.7,
+              32.9
+            ],
+            [
+              -299.62,
+              28.33
+            ],
+            [
+              -296.12,
+              25.86
+            ],
+            [
+              -292.31,
+              26.26
+            ],
+            [
+              -289.4,
+              29.41
+            ],
+            [
+              -288.32,
+              34.31
+            ],
+            [
+              -287.26,
+              39.77
+            ],
+            [
+              -291.06,
+              43.49
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-4-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -314.16,
+              28.28
+            ],
+            [
+              -313.69,
+              23.11
+            ],
+            [
+              -310.39,
+              18.94
+            ],
+            [
+              -304.84,
+              19.43
+            ],
+            [
+              -299.86,
+              19.99
+            ],
+            [
+              -296.42,
+              22.56
+            ],
+            [
+              -295.63,
+              26.3
+            ],
+            [
+              -297.72,
+              30.04
+            ],
+            [
+              -302.05,
+              32.59
+            ],
+            [
+              -306.91,
+              35.29
+            ],
+            [
+              -311.63,
+              32.82
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-4-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -304.3,
+              6.15
+            ],
+            [
+              -299.24,
+              4.99
+            ],
+            [
+              -294.25,
+              6.85
+            ],
+            [
+              -293.0,
+              12.27
+            ],
+            [
+              -292.0,
+              17.19
+            ],
+            [
+              -293.38,
+              21.25
+            ],
+            [
+              -296.69,
+              23.16
+            ],
+            [
+              -300.9,
+              22.33
+            ],
+            [
+              -304.65,
+              19.0
+            ],
+            [
+              -308.72,
+              15.21
+            ],
+            [
+              -307.84,
+              9.96
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-4-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -294.0,
+          "cy": 24.0,
+          "r": 3.58
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-4-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -287.65,
+          "cy": 22.65,
+          "r": 1.46
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-4-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -290.75,
+          "cy": 29.63,
+          "r": 1.46
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-4-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -298.35,
+          "cy": 28.83,
+          "r": 1.46
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-4-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -299.93,
+          "cy": 21.36,
+          "r": 1.46
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-4-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -293.32,
+          "cy": 17.54,
+          "r": 1.46
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-5-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -396.0,
+          "cy": 26.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-5-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -393.59,
+              8.87
+            ],
+            [
+              -389.64,
+              10.72
+            ],
+            [
+              -387.31,
+              14.53
+            ],
+            [
+              -389.28,
+              18.76
+            ],
+            [
+              -391.16,
+              22.53
+            ],
+            [
+              -394.17,
+              24.5
+            ],
+            [
+              -397.35,
+              24.06
+            ],
+            [
+              -399.7,
+              21.33
+            ],
+            [
+              -400.46,
+              17.19
+            ],
+            [
+              -401.19,
+              12.58
+            ],
+            [
+              -397.9,
+              9.56
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-5-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -378.97,
+              23.0
+            ],
+            [
+              -379.51,
+              27.32
+            ],
+            [
+              -382.4,
+              30.72
+            ],
+            [
+              -387.04,
+              30.15
+            ],
+            [
+              -391.2,
+              29.53
+            ],
+            [
+              -394.01,
+              27.28
+            ],
+            [
+              -394.57,
+              24.12
+            ],
+            [
+              -392.7,
+              21.04
+            ],
+            [
+              -389.0,
+              19.03
+            ],
+            [
+              -384.84,
+              16.91
+            ],
+            [
+              -380.95,
+              19.12
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-5-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -387.88,
+              41.27
+            ],
+            [
+              -392.16,
+              42.09
+            ],
+            [
+              -396.29,
+              40.39
+            ],
+            [
+              -397.18,
+              35.81
+            ],
+            [
+              -397.88,
+              31.65
+            ],
+            [
+              -396.6,
+              28.29
+            ],
+            [
+              -393.77,
+              26.78
+            ],
+            [
+              -390.26,
+              27.61
+            ],
+            [
+              -387.21,
+              30.5
+            ],
+            [
+              -383.91,
+              33.81
+            ],
+            [
+              -384.8,
+              38.18
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-5-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -408.01,
+              38.44
+            ],
+            [
+              -410.12,
+              34.62
+            ],
+            [
+              -409.78,
+              30.17
+            ],
+            [
+              -405.69,
+              27.91
+            ],
+            [
+              -401.96,
+              25.96
+            ],
+            [
+              -398.36,
+              26.13
+            ],
+            [
+              -396.05,
+              28.37
+            ],
+            [
+              -395.75,
+              31.95
+            ],
+            [
+              -397.57,
+              35.75
+            ],
+            [
+              -399.69,
+              39.91
+            ],
+            [
+              -404.13,
+              40.41
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-5-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -411.55,
+              18.42
+            ],
+            [
+              -408.57,
+              15.23
+            ],
+            [
+              -404.22,
+              14.19
+            ],
+            [
+              -400.81,
+              17.37
+            ],
+            [
+              -397.81,
+              20.32
+            ],
+            [
+              -396.86,
+              23.79
+            ],
+            [
+              -398.27,
+              26.68
+            ],
+            [
+              -401.58,
+              28.07
+            ],
+            [
+              -405.76,
+              27.52
+            ],
+            [
+              -410.37,
+              26.79
+            ],
+            [
+              -412.22,
+              22.73
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-5-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -396.0,
+          "cy": 26.0,
+          "r": 3.01
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-5-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -392.21,
+          "cy": 22.08,
+          "r": 1.22
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-5-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -391.1,
+          "cy": 28.39,
+          "r": 1.22
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-5-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -396.76,
+          "cy": 31.4,
+          "r": 1.22
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-5-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -401.37,
+          "cy": 26.95,
+          "r": 1.22
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-5-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -398.56,
+          "cy": 21.19,
+          "r": 1.22
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-6-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -222.0,
+          "cy": 246.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-6-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -212.84,
+              228.78
+            ],
+            [
+              -209.37,
+              232.26
+            ],
+            [
+              -208.36,
+              237.2
+            ],
+            [
+              -212.09,
+              240.92
+            ],
+            [
+              -215.53,
+              244.19
+            ],
+            [
+              -219.48,
+              245.12
+            ],
+            [
+              -222.68,
+              243.42
+            ],
+            [
+              -224.12,
+              239.62
+            ],
+            [
+              -223.33,
+              234.94
+            ],
+            [
+              -222.33,
+              229.77
+            ],
+            [
+              -217.67,
+              227.85
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-6-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -202.79,
+              249.39
+            ],
+            [
+              -205.03,
+              253.76
+            ],
+            [
+              -209.41,
+              256.25
+            ],
+            [
+              -214.11,
+              253.86
+            ],
+            [
+              -218.28,
+              251.59
+            ],
+            [
+              -220.38,
+              248.12
+            ],
+            [
+              -219.76,
+              244.56
+            ],
+            [
+              -216.59,
+              242.02
+            ],
+            [
+              -211.9,
+              241.32
+            ],
+            [
+              -206.67,
+              240.68
+            ],
+            [
+              -203.4,
+              244.51
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-6-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -219.29,
+              265.31
+            ],
+            [
+              -224.14,
+              264.54
+            ],
+            [
+              -227.86,
+              261.14
+            ],
+            [
+              -227.03,
+              255.94
+            ],
+            [
+              -226.17,
+              251.27
+            ],
+            [
+              -223.52,
+              248.19
+            ],
+            [
+              -219.93,
+              247.69
+            ],
+            [
+              -216.54,
+              249.91
+            ],
+            [
+              -214.42,
+              254.16
+            ],
+            [
+              -212.2,
+              258.94
+            ],
+            [
+              -214.83,
+              263.23
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-6-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -239.53,
+              254.55
+            ],
+            [
+              -240.29,
+              249.69
+            ],
+            [
+              -238.21,
+              245.11
+            ],
+            [
+              -233.0,
+              244.28
+            ],
+            [
+              -228.3,
+              243.66
+            ],
+            [
+              -224.56,
+              245.23
+            ],
+            [
+              -222.97,
+              248.49
+            ],
+            [
+              -224.04,
+              252.4
+            ],
+            [
+              -227.42,
+              255.73
+            ],
+            [
+              -231.27,
+              259.32
+            ],
+            [
+              -236.17,
+              258.14
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-6-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -235.55,
+              231.97
+            ],
+            [
+              -231.16,
+              229.75
+            ],
+            [
+              -226.16,
+              230.31
+            ],
+            [
+              -223.77,
+              235.0
+            ],
+            [
+              -221.72,
+              239.29
+            ],
+            [
+              -222.06,
+              243.33
+            ],
+            [
+              -224.66,
+              245.85
+            ],
+            [
+              -228.72,
+              246.04
+            ],
+            [
+              -232.93,
+              243.85
+            ],
+            [
+              -237.53,
+              241.3
+            ],
+            [
+              -237.92,
+              236.28
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-6-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -222.0,
+          "cy": 246.0,
+          "r": 3.39
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-6-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -216.47,
+          "cy": 243.3,
+          "r": 1.38
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-6-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -217.73,
+          "cy": 250.42,
+          "r": 1.38
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-6-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -224.89,
+          "cy": 251.43,
+          "r": 1.38
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-6-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -228.05,
+          "cy": 244.93,
+          "r": 1.38
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-6-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -222.86,
+          "cy": 239.91,
+          "r": 1.38
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-7-halo",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -392.0,
+          "cy": 146.0,
+          "r": 24.0
+        },
+        "style": {
+          "fill": "#CFCBC2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.28
+        }
+      },
+      {
+        "id": "imf-7-p0",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -378.3,
+              136.05
+            ],
+            [
+              -376.92,
+              140.09
+            ],
+            [
+              -378.01,
+              144.32
+            ],
+            [
+              -382.34,
+              145.81
+            ],
+            [
+              -386.27,
+              147.05
+            ],
+            [
+              -389.7,
+              146.27
+            ],
+            [
+              -391.55,
+              143.73
+            ],
+            [
+              -391.22,
+              140.22
+            ],
+            [
+              -388.83,
+              136.87
+            ],
+            [
+              -386.08,
+              133.22
+            ],
+            [
+              -381.72,
+              133.49
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-7-p1",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -378.3,
+              155.95
+            ],
+            [
+              -381.72,
+              158.51
+            ],
+            [
+              -386.08,
+              158.78
+            ],
+            [
+              -388.83,
+              155.13
+            ],
+            [
+              -391.22,
+              151.78
+            ],
+            [
+              -391.55,
+              148.27
+            ],
+            [
+              -389.7,
+              145.73
+            ],
+            [
+              -386.27,
+              144.95
+            ],
+            [
+              -382.34,
+              146.19
+            ],
+            [
+              -378.01,
+              147.68
+            ],
+            [
+              -376.92,
+              151.91
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-7-p2",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -397.23,
+              162.1
+            ],
+            [
+              -400.72,
+              159.64
+            ],
+            [
+              -402.33,
+              155.58
+            ],
+            [
+              -399.71,
+              151.84
+            ],
+            [
+              -397.26,
+              148.52
+            ],
+            [
+              -394.02,
+              147.13
+            ],
+            [
+              -391.03,
+              148.1
+            ],
+            [
+              -389.23,
+              151.13
+            ],
+            [
+              -389.2,
+              155.25
+            ],
+            [
+              -389.28,
+              159.82
+            ],
+            [
+              -392.96,
+              162.17
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-7-p3",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -408.93,
+              146.0
+            ],
+            [
+              -407.67,
+              141.92
+            ],
+            [
+              -404.3,
+              139.14
+            ],
+            [
+              -399.93,
+              140.47
+            ],
+            [
+              -396.02,
+              141.78
+            ],
+            [
+              -393.7,
+              144.43
+            ],
+            [
+              -393.7,
+              147.57
+            ],
+            [
+              -396.02,
+              150.22
+            ],
+            [
+              -399.93,
+              151.53
+            ],
+            [
+              -404.3,
+              152.86
+            ],
+            [
+              -407.67,
+              150.08
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-7-p4",
+        "parentId": "im-sway",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -397.23,
+              129.9
+            ],
+            [
+              -392.96,
+              129.83
+            ],
+            [
+              -389.28,
+              132.18
+            ],
+            [
+              -389.2,
+              136.75
+            ],
+            [
+              -389.23,
+              140.87
+            ],
+            [
+              -391.03,
+              143.9
+            ],
+            [
+              -394.02,
+              144.87
+            ],
+            [
+              -397.26,
+              143.48
+            ],
+            [
+              -399.71,
+              140.16
+            ],
+            [
+              -402.33,
+              136.42
+            ],
+            [
+              -400.72,
+              132.36
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#E9E7E1",
+          "stroke": "#6E6D68",
+          "strokeWidth": 0.85,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "imf-7-core",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -392.0,
+          "cy": 146.0,
+          "r": 2.94
+        },
+        "style": {
+          "fill": "#2F2F2D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "imf-7-st0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -386.66,
+          "cy": 146.0,
+          "r": 1.2
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-7-st1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -390.35,
+          "cy": 151.07,
+          "r": 1.2
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-7-st2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -396.32,
+          "cy": 149.14,
+          "r": 1.2
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-7-st3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -396.32,
+          "cy": 142.86,
+          "r": 1.2
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "imf-7-st4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -390.35,
+          "cy": 140.93,
+          "r": 1.2
+        },
+        "style": {
+          "fill": "#4C4B47",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "im-bud-0",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -432.0,
+          "cy": 260.0,
+          "r": 4.4
+        },
+        "style": {
+          "fill": "#55544F",
+          "stroke": "#2C2C2A",
+          "strokeWidth": 0.8,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "im-bud-1",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -418.0,
+          "cy": 126.0,
+          "r": 4.4
+        },
+        "style": {
+          "fill": "#55544F",
+          "stroke": "#2C2C2A",
+          "strokeWidth": 0.8,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "im-bud-2",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -350.0,
+          "cy": -30.0,
+          "r": 4.4
+        },
+        "style": {
+          "fill": "#55544F",
+          "stroke": "#2C2C2A",
+          "strokeWidth": 0.8,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "im-bud-3",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -304.0,
+          "cy": 282.0,
+          "r": 4.4
+        },
+        "style": {
+          "fill": "#55544F",
+          "stroke": "#2C2C2A",
+          "strokeWidth": 0.8,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "im-bud-4",
+        "parentId": "im-sway",
+        "type": "circle",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "cx": -192.0,
+          "cy": 326.0,
+          "r": 4.4
+        },
+        "style": {
+          "fill": "#55544F",
+          "stroke": "#2C2C2A",
+          "strokeWidth": 0.8,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "im-edge-mist",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              760.0,
+              158.0
+            ],
+            [
+              755.66,
+              173.94
+            ],
+            [
+              743.16,
+              185.16
+            ],
+            [
+              724.0,
+              193.37
+            ],
+            [
+              700.5,
+              196.3
+            ],
+            [
+              675.5,
+              194.88
+            ],
+            [
+              652.0,
+              195.37
+            ],
+            [
+              632.84,
+              189.76
+            ],
+            [
+              620.34,
+              173.41
+            ],
+            [
+              616.0,
+              158.0
+            ],
+            [
+              620.34,
+              145.21
+            ],
+            [
+              632.84,
+              131.17
+            ],
+            [
+              652.0,
+              120.63
+            ],
+            [
+              675.5,
+              113.58
+            ],
+            [
+              700.5,
+              112.15
+            ],
+            [
+              724.0,
+              122.63
+            ],
+            [
+              743.16,
+              135.76
+            ],
+            [
+              755.66,
+              144.68
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F4F2EC",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.82
+        }
+      },
+      {
+        "id": "seal",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 56.0,
+          "y": 514.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "seal-bg",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              28.0,
+              0.0
+            ],
+            [
+              28.0,
+              28.0
+            ],
+            [
+              0.0,
+              28.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B53A2E",
+          "stroke": "#87261D",
+          "strokeWidth": 1.0,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "seal-inner",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              25.0,
+              3.0
+            ],
+            [
+              25.0,
+              25.0
+            ],
+            [
+              3.0,
+              25.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F6EFE2",
+          "strokeWidth": 1.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "seal-diamond",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              5.5
+            ],
+            [
+              22.5,
+              14.0
+            ],
+            [
+              14.0,
+              22.5
+            ],
+            [
+              5.5,
+              14.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F6EFE2",
+          "strokeWidth": 1.2,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "seal-core",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              9.7
+            ],
+            [
+              18.3,
+              14.0
+            ],
+            [
+              14.0,
+              18.3
+            ],
+            [
+              9.7,
+              14.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F6EFE2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      }
+    ],
+    "animations": [
+      {
+        "nodeId": "im-sway",
+        "property": "rotation",
+        "from": -1.0,
+        "to": 1.2,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      }
+    ],
+    "narrative": [
+      {
+        "timeMs": 0,
+        "caption": "洗砚淡墨：冷宣素月之下，老梅自右上倒垂横斜。",
+        "entityIds": [
+          "knowledge-plum"
+        ]
+      },
+      {
+        "timeMs": 2000,
+        "caption": "不要人夸：五瓣墨梅淡雅脱俗，以少胜多、以淡见真。",
+        "entityIds": [
+          "knowledge-plum",
+          "knowledge-integrity"
+        ]
+      },
+      {
+        "timeMs": 3800,
+        "caption": "清气满乾坤：微风轻拂墨梅清影，唯留清气长存。",
+        "entityIds": [
+          "knowledge-integrity"
+        ]
+      }
+    ]
+  },
+  "parameterSchema": [
+    {
+      "name": "blossomRadius",
+      "label": "梅花墨晕半径",
+      "description": "主枝梅花水墨晕染外圈半径（14～36）",
+      "type": "integer",
+      "default": 24,
+      "min": 14,
+      "max": 36,
+      "step": 1
+    },
+    {
+      "name": "inkTone",
+      "label": "墨梅花瓣色",
+      "description": "梅花花瓣水墨深浅（素白淡墨 / 霜灰 / 轻绯）",
+      "type": "color",
+      "default": "#E9E7E1"
+    },
+    {
+      "name": "windTilt",
+      "label": "清风倾角",
+      "description": "微调倒垂梅枝摆动倾角（度）",
+      "type": "integer",
+      "default": 0,
+      "min": -3,
+      "max": 3,
+      "step": 1
+    }
+  ],
+  "bindings": [
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-1-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-2-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-3-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-4-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-5-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-6-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "blossomRadius",
+      "nodeId": "imf-7-halo",
+      "property": "geometry.r"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-1-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-1-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-1-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-1-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-1-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-2-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-2-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-2-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-2-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-2-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-3-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-3-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-3-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-3-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-3-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-4-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-4-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-4-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-4-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-4-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-5-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-5-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-5-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-5-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-5-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-6-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-6-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-6-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-6-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-6-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-7-p0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-7-p1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-7-p2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-7-p3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "inkTone",
+      "nodeId": "imf-7-p4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "windTilt",
+      "nodeId": "im-user",
+      "property": "transform.rotation"
+    }
+  ],
+  "constraints": [],
+  "supportedBackends": [
+    "canvas2d",
+    "css",
+    "webgl"
+  ],
+  "changeNote": "视觉精修版：升级为王冕淡墨倒垂梅花卷，保留原 blossomRadius 并新增墨色与倾角参数"
+}

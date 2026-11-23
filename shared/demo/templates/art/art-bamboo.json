@@ -1,0 +1,6887 @@
+{
+  "slug": "art-bamboo",
+  "metadata": {
+    "name": "劲节清风·墨竹听泉",
+    "description": "高精度新中式墨竹山石图：刻画收腰分节竹竿、竹节环与侧光高光、42 片“个”字分组柳叶竹叶、多层次太湖青石与点苔、远山淡竹及朱砂闲章。",
+    "entityIds": [
+      "knowledge-bamboo",
+      "knowledge-integrity"
+    ],
+    "tagIds": [
+      "tag-steadfast",
+      "tag-pure",
+      "tag-integrity"
+    ],
+    "symbols": [
+      "bamboo"
+    ],
+    "timeTheme": "四季"
+  },
+  "irTemplate": {
+    "schemaVersion": "1.0",
+    "seed": 202,
+    "canvas": {
+      "width": 800,
+      "height": 600,
+      "background": "#F4F1E8"
+    },
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 600
+    },
+    "durationMs": 4000,
+    "nodes": [
+      {
+        "id": "painting",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "scroll-frame-outer",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              14.0
+            ],
+            [
+              786.0,
+              14.0
+            ],
+            [
+              786.0,
+              586.0
+            ],
+            [
+              14.0,
+              586.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#C9BEA8",
+          "strokeWidth": 1.2,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "scroll-frame-inner",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              22.0,
+              22.0
+            ],
+            [
+              778.0,
+              22.0
+            ],
+            [
+              778.0,
+              578.0
+            ],
+            [
+              22.0,
+              578.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#D9D0BE",
+          "strokeWidth": 0.8,
+          "opacity": 0.58
+        }
+      },
+      {
+        "id": "mist-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.86
+        }
+      },
+      {
+        "id": "mist-group",
+        "parentId": "mist-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "mtn-distant",
+        "parentId": "mist-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              492.0
+            ],
+            [
+              52.8,
+              473.05
+            ],
+            [
+              77.6,
+              451.69
+            ],
+            [
+              102.4,
+              424.92
+            ],
+            [
+              127.2,
+              395.96
+            ],
+            [
+              152.0,
+              369.72
+            ],
+            [
+              176.8,
+              350.79
+            ],
+            [
+              201.6,
+              341.32
+            ],
+            [
+              226.4,
+              340.06
+            ],
+            [
+              251.2,
+              343.09
+            ],
+            [
+              276.0,
+              346.01
+            ],
+            [
+              300.8,
+              346.16
+            ],
+            [
+              325.6,
+              343.71
+            ],
+            [
+              350.4,
+              340.97
+            ],
+            [
+              375.2,
+              340.67
+            ],
+            [
+              400.0,
+              344.1
+            ],
+            [
+              424.8,
+              350.38
+            ],
+            [
+              449.6,
+              356.97
+            ],
+            [
+              474.4,
+              361.16
+            ],
+            [
+              499.2,
+              361.63
+            ],
+            [
+              524.0,
+              359.26
+            ],
+            [
+              548.8,
+              356.86
+            ],
+            [
+              573.6,
+              357.95
+            ],
+            [
+              598.4,
+              365.25
+            ],
+            [
+              623.2,
+              379.57
+            ],
+            [
+              648.0,
+              399.56
+            ],
+            [
+              672.8,
+              422.35
+            ],
+            [
+              697.6,
+              444.63
+            ],
+            [
+              722.4,
+              463.8
+            ],
+            [
+              747.2,
+              478.62
+            ],
+            [
+              772.0,
+              492.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#BDC9C2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.3
+        }
+      },
+      {
+        "id": "mtn-near",
+        "parentId": "mist-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              28.0,
+              526.0
+            ],
+            [
+              54.57,
+              504.39
+            ],
+            [
+              81.14,
+              484.38
+            ],
+            [
+              107.71,
+              467.62
+            ],
+            [
+              134.29,
+              460.5
+            ],
+            [
+              160.86,
+              465.45
+            ],
+            [
+              187.43,
+              479.15
+            ],
+            [
+              214.0,
+              495.05
+            ],
+            [
+              240.57,
+              507.4
+            ],
+            [
+              267.14,
+              513.37
+            ],
+            [
+              293.71,
+              512.47
+            ],
+            [
+              320.29,
+              505.21
+            ],
+            [
+              346.86,
+              492.43
+            ],
+            [
+              373.43,
+              475.73
+            ],
+            [
+              400.0,
+              458.06
+            ],
+            [
+              426.57,
+              443.5
+            ],
+            [
+              453.14,
+              436.02
+            ],
+            [
+              479.71,
+              437.61
+            ],
+            [
+              506.29,
+              447.09
+            ],
+            [
+              532.86,
+              460.13
+            ],
+            [
+              559.43,
+              470.88
+            ],
+            [
+              586.0,
+              474.62
+            ],
+            [
+              612.57,
+              470.47
+            ],
+            [
+              639.14,
+              462.61
+            ],
+            [
+              665.71,
+              458.44
+            ],
+            [
+              692.29,
+              463.93
+            ],
+            [
+              718.86,
+              479.59
+            ],
+            [
+              745.43,
+              500.56
+            ],
+            [
+              772.0,
+              526.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#95ABA0",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.24
+        }
+      },
+      {
+        "id": "mist-cloud-1",
+        "parentId": "mist-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              440.0,
+              488.0
+            ],
+            [
+              430.21,
+              499.76
+            ],
+            [
+              401.8,
+              508.43
+            ],
+            [
+              357.56,
+              514.9
+            ],
+            [
+              301.8,
+              518.77
+            ],
+            [
+              240.0,
+              518.42
+            ],
+            [
+              178.2,
+              517.9
+            ],
+            [
+              122.44,
+              517.91
+            ],
+            [
+              78.2,
+              511.54
+            ],
+            [
+              49.79,
+              499.05
+            ],
+            [
+              40.0,
+              488.0
+            ],
+            [
+              49.79,
+              478.74
+            ],
+            [
+              78.2,
+              468.46
+            ],
+            [
+              122.44,
+              459.88
+            ],
+            [
+              178.2,
+              454.1
+            ],
+            [
+              240.0,
+              450.42
+            ],
+            [
+              301.8,
+              453.23
+            ],
+            [
+              357.56,
+              462.89
+            ],
+            [
+              401.8,
+              471.57
+            ],
+            [
+              430.21,
+              478.03
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F4F1E8",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.65
+        }
+      },
+      {
+        "id": "mist-cloud-2",
+        "parentId": "mist-group",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              755.0,
+              494.0
+            ],
+            [
+              745.46,
+              505.07
+            ],
+            [
+              717.76,
+              513.23
+            ],
+            [
+              674.62,
+              519.31
+            ],
+            [
+              620.26,
+              522.96
+            ],
+            [
+              560.0,
+              522.63
+            ],
+            [
+              499.74,
+              522.14
+            ],
+            [
+              445.38,
+              522.15
+            ],
+            [
+              402.24,
+              516.16
+            ],
+            [
+              374.54,
+              504.4
+            ],
+            [
+              365.0,
+              494.0
+            ],
+            [
+              374.54,
+              485.29
+            ],
+            [
+              402.24,
+              475.61
+            ],
+            [
+              445.38,
+              467.54
+            ],
+            [
+              499.74,
+              462.09
+            ],
+            [
+              560.0,
+              458.63
+            ],
+            [
+              620.26,
+              461.27
+            ],
+            [
+              674.62,
+              470.37
+            ],
+            [
+              717.76,
+              478.54
+            ],
+            [
+              745.46,
+              484.62
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F4F1E8",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.62
+        }
+      },
+      {
+        "id": "far-bamboo",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.36
+        }
+      },
+      {
+        "id": "culm-far-seg-0",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              220.09,
+              538.8
+            ],
+            [
+              220.4,
+              524.87
+            ],
+            [
+              222.21,
+              495.35
+            ],
+            [
+              224.33,
+              465.84
+            ],
+            [
+              225.88,
+              452.0
+            ],
+            [
+              213.91,
+              451.2
+            ],
+            [
+              213.6,
+              465.13
+            ],
+            [
+              211.79,
+              494.65
+            ],
+            [
+              209.67,
+              524.16
+            ],
+            [
+              208.12,
+              538.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#647B6F",
+          "stroke": "#475D52",
+          "strokeWidth": 0.8,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "culm-far-ring-0",
+        "parentId": "far-bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              212.94,
+              449.53
+            ],
+            [
+              227.06,
+              450.47
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#475D52",
+          "strokeWidth": 2.3,
+          "opacity": 0.77
+        }
+      },
+      {
+        "id": "culm-far-seg-1",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              225.78,
+              448.91
+            ],
+            [
+              226.43,
+              434.97
+            ],
+            [
+              228.91,
+              405.44
+            ],
+            [
+              231.68,
+              375.93
+            ],
+            [
+              233.5,
+              362.1
+            ],
+            [
+              222.22,
+              361.09
+            ],
+            [
+              221.57,
+              375.03
+            ],
+            [
+              219.09,
+              404.56
+            ],
+            [
+              216.32,
+              434.07
+            ],
+            [
+              214.5,
+              447.9
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#647B6F",
+          "stroke": "#475D52",
+          "strokeWidth": 0.8,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "culm-far-ring-1",
+        "parentId": "far-bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              221.34,
+              359.41
+            ],
+            [
+              234.66,
+              360.59
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#475D52",
+          "strokeWidth": 2.3,
+          "opacity": 0.77
+        }
+      },
+      {
+        "id": "culm-far-seg-2",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              233.47,
+              359.0
+            ],
+            [
+              234.47,
+              345.05
+            ],
+            [
+              237.61,
+              315.51
+            ],
+            [
+              241.03,
+              286.01
+            ],
+            [
+              243.12,
+              272.18
+            ],
+            [
+              232.53,
+              271.0
+            ],
+            [
+              231.53,
+              284.95
+            ],
+            [
+              228.39,
+              314.49
+            ],
+            [
+              224.97,
+              343.99
+            ],
+            [
+              222.88,
+              357.82
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#647B6F",
+          "stroke": "#475D52",
+          "strokeWidth": 0.8,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "culm-far-ring-2",
+        "parentId": "far-bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              231.75,
+              269.31
+            ],
+            [
+              244.25,
+              270.69
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#475D52",
+          "strokeWidth": 2.3,
+          "opacity": 0.77
+        }
+      },
+      {
+        "id": "culm-far-seg-3",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              243.16,
+              269.09
+            ],
+            [
+              244.5,
+              255.45
+            ],
+            [
+              248.3,
+              226.59
+            ],
+            [
+              252.37,
+              197.76
+            ],
+            [
+              254.73,
+              184.26
+            ],
+            [
+              244.84,
+              182.91
+            ],
+            [
+              243.5,
+              196.55
+            ],
+            [
+              239.7,
+              225.41
+            ],
+            [
+              235.63,
+              254.24
+            ],
+            [
+              233.27,
+              267.74
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#647B6F",
+          "stroke": "#475D52",
+          "strokeWidth": 0.8,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "culm-far-ring-3",
+        "parentId": "far-bamboo",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              244.16,
+              181.2
+            ],
+            [
+              255.84,
+              182.8
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#475D52",
+          "strokeWidth": 2.3,
+          "opacity": 0.77
+        }
+      },
+      {
+        "id": "culm-far-seg-4",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              254.86,
+              181.23
+            ],
+            [
+              256.54,
+              168.85
+            ],
+            [
+              260.99,
+              142.7
+            ],
+            [
+              265.68,
+              116.59
+            ],
+            [
+              268.31,
+              104.38
+            ],
+            [
+              259.14,
+              102.77
+            ],
+            [
+              257.46,
+              115.15
+            ],
+            [
+              253.01,
+              141.3
+            ],
+            [
+              248.32,
+              167.41
+            ],
+            [
+              245.69,
+              179.62
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#647B6F",
+          "stroke": "#475D52",
+          "strokeWidth": 0.8,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "far-leaf-0",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              234.0,
+              280.0
+            ],
+            [
+              224.61,
+              276.27
+            ],
+            [
+              215.03,
+              269.7
+            ],
+            [
+              205.57,
+              261.25
+            ],
+            [
+              196.53,
+              251.87
+            ],
+            [
+              188.23,
+              242.53
+            ],
+            [
+              198.03,
+              249.05
+            ],
+            [
+              208.19,
+              256.32
+            ],
+            [
+              218.02,
+              264.07
+            ],
+            [
+              226.86,
+              272.05
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C8477",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "far-leaf-1",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              234.0,
+              280.0
+            ],
+            [
+              222.89,
+              279.73
+            ],
+            [
+              210.41,
+              276.54
+            ],
+            [
+              197.29,
+              271.28
+            ],
+            [
+              184.24,
+              264.83
+            ],
+            [
+              171.96,
+              258.03
+            ],
+            [
+              184.61,
+              261.3
+            ],
+            [
+              197.93,
+              265.18
+            ],
+            [
+              211.14,
+              269.62
+            ],
+            [
+              223.43,
+              274.58
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C8477",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "far-leaf-2",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              234.0,
+              280.0
+            ],
+            [
+              226.3,
+              284.83
+            ],
+            [
+              216.51,
+              288.3
+            ],
+            [
+              205.49,
+              290.71
+            ],
+            [
+              194.08,
+              292.36
+            ],
+            [
+              183.11,
+              293.55
+            ],
+            [
+              192.91,
+              289.74
+            ],
+            [
+              203.43,
+              286.09
+            ],
+            [
+              214.14,
+              282.98
+            ],
+            [
+              224.51,
+              280.81
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C8477",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "far-leaf-3",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              254.0,
+              168.0
+            ],
+            [
+              262.43,
+              163.1
+            ],
+            [
+              273.19,
+              159.86
+            ],
+            [
+              285.35,
+              157.92
+            ],
+            [
+              297.99,
+              156.91
+            ],
+            [
+              310.17,
+              156.48
+            ],
+            [
+              299.3,
+              159.87
+            ],
+            [
+              287.64,
+              163.07
+            ],
+            [
+              275.8,
+              165.73
+            ],
+            [
+              264.39,
+              167.49
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C8477",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "far-leaf-4",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              254.0,
+              168.0
+            ],
+            [
+              264.76,
+              168.04
+            ],
+            [
+              276.93,
+              170.92
+            ],
+            [
+              289.79,
+              175.82
+            ],
+            [
+              302.63,
+              181.92
+            ],
+            [
+              314.72,
+              188.41
+            ],
+            [
+              302.39,
+              185.37
+            ],
+            [
+              289.37,
+              181.75
+            ],
+            [
+              276.46,
+              177.6
+            ],
+            [
+              264.41,
+              173.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C8477",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "far-leaf-5",
+        "parentId": "far-bamboo",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              254.0,
+              168.0
+            ],
+            [
+              258.72,
+              161.07
+            ],
+            [
+              265.77,
+              154.56
+            ],
+            [
+              274.32,
+              148.53
+            ],
+            [
+              283.52,
+              143.04
+            ],
+            [
+              292.54,
+              138.11
+            ],
+            [
+              285.56,
+              144.87
+            ],
+            [
+              277.91,
+              151.77
+            ],
+            [
+              269.89,
+              158.27
+            ],
+            [
+              261.82,
+              163.86
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#6C8477",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.75
+        }
+      },
+      {
+        "id": "ground-slope",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              46.0,
+              566.0
+            ],
+            [
+              146.0,
+              536.0
+            ],
+            [
+              310.0,
+              526.0
+            ],
+            [
+              480.0,
+              518.0
+            ],
+            [
+              656.0,
+              528.0
+            ],
+            [
+              754.0,
+              566.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#DFD9C9",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.66
+        }
+      },
+      {
+        "id": "bamboo-user",
+        "parentId": "painting",
+        "type": "group",
+        "transform": {
+          "x": 366.0,
+          "y": 544.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "bamboo-main",
+        "parentId": "bamboo-user",
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "culm-1-seg-0",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -16.71,
+              -0.96
+            ],
+            [
+              -16.74,
+              -14.27
+            ],
+            [
+              -15.02,
+              -42.44
+            ],
+            [
+              -12.81,
+              -70.58
+            ],
+            [
+              -10.93,
+              -83.76
+            ],
+            [
+              -29.29,
+              -85.04
+            ],
+            [
+              -29.26,
+              -71.73
+            ],
+            [
+              -30.98,
+              -43.56
+            ],
+            [
+              -33.19,
+              -15.42
+            ],
+            [
+              -35.07,
+              -2.24
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6748",
+          "stroke": "#23412B",
+          "strokeWidth": 0.8,
+          "opacity": 0.98
+        }
+      },
+      {
+        "id": "culm-1-hi-0",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -23.17,
+              -1.41
+            ],
+            [
+              -17.4,
+              -84.21
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#84B08D",
+          "strokeWidth": 2.24,
+          "opacity": 0.41
+        }
+      },
+      {
+        "id": "culm-1-ring-0",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -30.83,
+              -86.76
+            ],
+            [
+              -9.17,
+              -85.24
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#23412B",
+          "strokeWidth": 2.3,
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "culm-1-seg-1",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -11.15,
+              -86.78
+            ],
+            [
+              -10.82,
+              -100.12
+            ],
+            [
+              -8.43,
+              -128.3
+            ],
+            [
+              -5.58,
+              -156.43
+            ],
+            [
+              -3.45,
+              -169.6
+            ],
+            [
+              -20.85,
+              -171.22
+            ],
+            [
+              -21.18,
+              -157.88
+            ],
+            [
+              -23.57,
+              -129.7
+            ],
+            [
+              -26.42,
+              -101.57
+            ],
+            [
+              -28.55,
+              -88.4
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6748",
+          "stroke": "#23412B",
+          "strokeWidth": 0.8,
+          "opacity": 0.98
+        }
+      },
+      {
+        "id": "culm-1-hi-1",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -17.28,
+              -87.35
+            ],
+            [
+              -9.57,
+              -170.17
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#84B08D",
+          "strokeWidth": 2.13,
+          "opacity": 0.41
+        }
+      },
+      {
+        "id": "culm-1-ring-1",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -22.27,
+              -172.96
+            ],
+            [
+              -1.73,
+              -171.04
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#23412B",
+          "strokeWidth": 2.3,
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "culm-1-seg-2",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -3.59,
+              -172.63
+            ],
+            [
+              -2.9,
+              -185.98
+            ],
+            [
+              0.16,
+              -214.17
+            ],
+            [
+              3.64,
+              -242.3
+            ],
+            [
+              6.04,
+              -255.45
+            ],
+            [
+              -10.41,
+              -257.37
+            ],
+            [
+              -11.1,
+              -244.02
+            ],
+            [
+              -14.16,
+              -215.83
+            ],
+            [
+              -17.64,
+              -187.7
+            ],
+            [
+              -20.04,
+              -174.55
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6748",
+          "stroke": "#23412B",
+          "strokeWidth": 0.8,
+          "opacity": 0.98
+        }
+      },
+      {
+        "id": "culm-1-hi-2",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -9.38,
+              -173.31
+            ],
+            [
+              0.25,
+              -256.13
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#84B08D",
+          "strokeWidth": 2.02,
+          "opacity": 0.41
+        }
+      },
+      {
+        "id": "culm-1-ring-2",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -11.71,
+              -259.13
+            ],
+            [
+              7.71,
+              -256.87
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#23412B",
+          "strokeWidth": 2.3,
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "culm-1-seg-3",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              5.97,
+              -258.48
+            ],
+            [
+              7.01,
+              -271.53
+            ],
+            [
+              10.74,
+              -299.04
+            ],
+            [
+              14.86,
+              -326.49
+            ],
+            [
+              17.52,
+              -339.31
+            ],
+            [
+              2.03,
+              -341.52
+            ],
+            [
+              0.99,
+              -328.47
+            ],
+            [
+              -2.74,
+              -300.96
+            ],
+            [
+              -6.86,
+              -273.51
+            ],
+            [
+              -9.52,
+              -260.69
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6748",
+          "stroke": "#23412B",
+          "strokeWidth": 0.8,
+          "opacity": 0.98
+        }
+      },
+      {
+        "id": "culm-1-hi-3",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              0.52,
+              -259.26
+            ],
+            [
+              12.06,
+              -340.09
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#84B08D",
+          "strokeWidth": 1.9,
+          "opacity": 0.41
+        }
+      },
+      {
+        "id": "culm-1-ring-3",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              0.87,
+              -343.3
+            ],
+            [
+              19.13,
+              -340.7
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#23412B",
+          "strokeWidth": 2.3,
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "culm-1-seg-4",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              17.53,
+              -342.31
+            ],
+            [
+              18.92,
+              -354.73
+            ],
+            [
+              23.31,
+              -380.9
+            ],
+            [
+              28.07,
+              -406.99
+            ],
+            [
+              30.97,
+              -419.16
+            ],
+            [
+              16.47,
+              -421.69
+            ],
+            [
+              15.08,
+              -409.27
+            ],
+            [
+              10.69,
+              -383.1
+            ],
+            [
+              5.93,
+              -357.01
+            ],
+            [
+              3.03,
+              -344.84
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6748",
+          "stroke": "#23412B",
+          "strokeWidth": 0.8,
+          "opacity": 0.98
+        }
+      },
+      {
+        "id": "culm-1-hi-4",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              12.42,
+              -343.2
+            ],
+            [
+              25.87,
+              -420.05
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#84B08D",
+          "strokeWidth": 1.79,
+          "opacity": 0.41
+        }
+      },
+      {
+        "id": "culm-1-ring-4",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              15.45,
+              -423.5
+            ],
+            [
+              32.55,
+              -420.5
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#23412B",
+          "strokeWidth": 2.3,
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "culm-1-seg-5",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              31.08,
+              -422.22
+            ],
+            [
+              32.52,
+              -433.05
+            ],
+            [
+              36.89,
+              -455.82
+            ],
+            [
+              41.61,
+              -478.52
+            ],
+            [
+              44.45,
+              -489.08
+            ],
+            [
+              30.92,
+              -491.78
+            ],
+            [
+              29.48,
+              -480.95
+            ],
+            [
+              25.11,
+              -458.18
+            ],
+            [
+              20.39,
+              -435.48
+            ],
+            [
+              17.55,
+              -424.92
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6748",
+          "stroke": "#23412B",
+          "strokeWidth": 0.8,
+          "opacity": 0.98
+        }
+      },
+      {
+        "id": "culm-1-hi-5",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              26.32,
+              -423.17
+            ],
+            [
+              39.69,
+              -490.03
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#84B08D",
+          "strokeWidth": 1.68,
+          "opacity": 0.41
+        }
+      },
+      {
+        "id": "culm-2-seg-0",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              51.12,
+              -8.9
+            ],
+            [
+              51.63,
+              -21.26
+            ],
+            [
+              54.06,
+              -47.39
+            ],
+            [
+              56.85,
+              -73.49
+            ],
+            [
+              58.81,
+              -85.71
+            ],
+            [
+              44.88,
+              -87.1
+            ],
+            [
+              44.37,
+              -74.74
+            ],
+            [
+              41.94,
+              -48.61
+            ],
+            [
+              39.15,
+              -22.51
+            ],
+            [
+              37.19,
+              -10.29
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4D7857",
+          "stroke": "#2B4B33",
+          "strokeWidth": 0.8,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "culm-2-hi-0",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              46.22,
+              -9.39
+            ],
+            [
+              53.9,
+              -86.2
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#91BC9A",
+          "strokeWidth": 1.71,
+          "opacity": 0.39
+        }
+      },
+      {
+        "id": "culm-2-ring-0",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              43.78,
+              -88.82
+            ],
+            [
+              60.22,
+              -87.18
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4B33",
+          "strokeWidth": 2.3,
+          "opacity": 0.99
+        }
+      },
+      {
+        "id": "culm-2-seg-1",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              58.76,
+              -88.77
+            ],
+            [
+              59.61,
+              -101.15
+            ],
+            [
+              62.7,
+              -127.29
+            ],
+            [
+              66.14,
+              -153.39
+            ],
+            [
+              68.36,
+              -165.59
+            ],
+            [
+              55.24,
+              -167.23
+            ],
+            [
+              54.39,
+              -154.85
+            ],
+            [
+              51.3,
+              -128.71
+            ],
+            [
+              47.86,
+              -102.61
+            ],
+            [
+              45.64,
+              -90.41
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4D7857",
+          "stroke": "#2B4B33",
+          "strokeWidth": 0.8,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "culm-2-hi-1",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              54.14,
+              -89.35
+            ],
+            [
+              63.74,
+              -166.17
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#91BC9A",
+          "strokeWidth": 1.61,
+          "opacity": 0.39
+        }
+      },
+      {
+        "id": "culm-2-ring-1",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              54.26,
+              -168.97
+            ],
+            [
+              69.74,
+              -167.03
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4B33",
+          "strokeWidth": 2.3,
+          "opacity": 0.99
+        }
+      },
+      {
+        "id": "culm-2-seg-2",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              68.39,
+              -168.64
+            ],
+            [
+              69.59,
+              -180.71
+            ],
+            [
+              73.35,
+              -206.18
+            ],
+            [
+              77.42,
+              -231.6
+            ],
+            [
+              79.9,
+              -243.47
+            ],
+            [
+              67.61,
+              -245.36
+            ],
+            [
+              66.41,
+              -233.29
+            ],
+            [
+              62.65,
+              -207.82
+            ],
+            [
+              58.58,
+              -182.4
+            ],
+            [
+              56.1,
+              -170.53
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4D7857",
+          "stroke": "#2B4B33",
+          "strokeWidth": 0.8,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "culm-2-hi-2",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              64.06,
+              -169.3
+            ],
+            [
+              75.57,
+              -244.14
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#91BC9A",
+          "strokeWidth": 1.51,
+          "opacity": 0.39
+        }
+      },
+      {
+        "id": "culm-2-ring-2",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              66.75,
+              -247.12
+            ],
+            [
+              81.25,
+              -244.88
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4B33",
+          "strokeWidth": 2.3,
+          "opacity": 0.99
+        }
+      },
+      {
+        "id": "culm-2-seg-3",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              80.02,
+              -246.52
+            ],
+            [
+              81.57,
+              -258.28
+            ],
+            [
+              85.98,
+              -283.08
+            ],
+            [
+              90.7,
+              -307.82
+            ],
+            [
+              93.44,
+              -319.37
+            ],
+            [
+              81.98,
+              -321.48
+            ],
+            [
+              80.43,
+              -309.72
+            ],
+            [
+              76.02,
+              -284.92
+            ],
+            [
+              71.3,
+              -260.18
+            ],
+            [
+              68.56,
+              -248.63
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4D7857",
+          "stroke": "#2B4B33",
+          "strokeWidth": 0.8,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "culm-2-hi-3",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              75.98,
+              -247.26
+            ],
+            [
+              89.4,
+              -320.11
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#91BC9A",
+          "strokeWidth": 1.42,
+          "opacity": 0.39
+        }
+      },
+      {
+        "id": "culm-2-ring-3",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              81.24,
+              -323.25
+            ],
+            [
+              94.76,
+              -320.75
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4B33",
+          "strokeWidth": 2.3,
+          "opacity": 0.99
+        }
+      },
+      {
+        "id": "culm-2-seg-4",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              93.65,
+              -322.35
+            ],
+            [
+              95.55,
+              -333.18
+            ],
+            [
+              100.61,
+              -355.95
+            ],
+            [
+              105.94,
+              -378.65
+            ],
+            [
+              108.94,
+              -389.23
+            ],
+            [
+              98.35,
+              -391.65
+            ],
+            [
+              96.45,
+              -380.82
+            ],
+            [
+              91.39,
+              -358.05
+            ],
+            [
+              86.06,
+              -335.35
+            ],
+            [
+              83.06,
+              -324.77
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4D7857",
+          "stroke": "#2B4B33",
+          "strokeWidth": 0.8,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "culm-2-hi-4",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              89.92,
+              -323.2
+            ],
+            [
+              105.21,
+              -390.08
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#91BC9A",
+          "strokeWidth": 1.32,
+          "opacity": 0.39
+        }
+      },
+      {
+        "id": "twig-1",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -12.0,
+              -172.0
+            ],
+            [
+              -68.0,
+              -206.0
+            ],
+            [
+              -124.0,
+              -228.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-2",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              -2.0,
+              -258.0
+            ],
+            [
+              -60.0,
+              -296.0
+            ],
+            [
+              -122.0,
+              -324.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-3",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              10.0,
+              -342.0
+            ],
+            [
+              72.0,
+              -378.0
+            ],
+            [
+              132.0,
+              -398.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-4",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              24.0,
+              -422.0
+            ],
+            [
+              -36.0,
+              -456.0
+            ],
+            [
+              -82.0,
+              -474.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-5",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              62.0,
+              -168.0
+            ],
+            [
+              120.0,
+              -198.0
+            ],
+            [
+              172.0,
+              -214.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-6",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              74.0,
+              -246.0
+            ],
+            [
+              136.0,
+              -278.0
+            ],
+            [
+              192.0,
+              -294.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-7",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              88.0,
+              -322.0
+            ],
+            [
+              146.0,
+              -352.0
+            ],
+            [
+              194.0,
+              -366.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "twig-8",
+        "parentId": "bamboo-main",
+        "type": "polyline",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "points": [
+            [
+              10.0,
+              -342.0
+            ],
+            [
+              -42.0,
+              -376.0
+            ],
+            [
+              -86.0,
+              -392.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#2B4C34",
+          "strokeWidth": 1.7,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "bleaf-0",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -96.0,
+              -218.0
+            ],
+            [
+              -108.44,
+              -212.58
+            ],
+            [
+              -123.89,
+              -209.9
+            ],
+            [
+              -141.12,
+              -209.3
+            ],
+            [
+              -158.89,
+              -210.12
+            ],
+            [
+              -175.97,
+              -211.7
+            ],
+            [
+              -160.31,
+              -214.48
+            ],
+            [
+              -143.58,
+              -216.87
+            ],
+            [
+              -126.68,
+              -218.5
+            ],
+            [
+              -110.52,
+              -219.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-1",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -96.0,
+              -218.0
+            ],
+            [
+              -110.61,
+              -218.08
+            ],
+            [
+              -127.02,
+              -221.97
+            ],
+            [
+              -144.27,
+              -228.54
+            ],
+            [
+              -161.45,
+              -236.65
+            ],
+            [
+              -177.61,
+              -245.16
+            ],
+            [
+              -160.96,
+              -241.33
+            ],
+            [
+              -143.42,
+              -236.69
+            ],
+            [
+              -126.04,
+              -231.25
+            ],
+            [
+              -109.88,
+              -225.01
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-2",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -96.0,
+              -218.0
+            ],
+            [
+              -104.04,
+              -209.26
+            ],
+            [
+              -115.23,
+              -201.54
+            ],
+            [
+              -128.4,
+              -194.76
+            ],
+            [
+              -142.37,
+              -188.83
+            ],
+            [
+              -155.96,
+              -183.67
+            ],
+            [
+              -144.81,
+              -191.74
+            ],
+            [
+              -132.69,
+              -199.87
+            ],
+            [
+              -120.15,
+              -207.41
+            ],
+            [
+              -107.74,
+              -213.67
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-3",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -122.0,
+              -228.0
+            ],
+            [
+              -134.27,
+              -225.5
+            ],
+            [
+              -148.74,
+              -226.05
+            ],
+            [
+              -164.41,
+              -228.81
+            ],
+            [
+              -180.3,
+              -232.96
+            ],
+            [
+              -195.41,
+              -237.66
+            ],
+            [
+              -180.74,
+              -237.16
+            ],
+            [
+              -165.18,
+              -236.1
+            ],
+            [
+              -149.61,
+              -234.33
+            ],
+            [
+              -134.92,
+              -231.68
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-4",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -122.0,
+              -228.0
+            ],
+            [
+              -132.21,
+              -230.32
+            ],
+            [
+              -142.99,
+              -235.63
+            ],
+            [
+              -153.88,
+              -242.96
+            ],
+            [
+              -164.46,
+              -251.34
+            ],
+            [
+              -174.28,
+              -259.8
+            ],
+            [
+              -163.27,
+              -254.63
+            ],
+            [
+              -151.79,
+              -248.72
+            ],
+            [
+              -140.58,
+              -242.23
+            ],
+            [
+              -130.41,
+              -235.27
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-5",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -54.0,
+              -198.0
+            ],
+            [
+              -63.68,
+              -191.13
+            ],
+            [
+              -76.32,
+              -186.07
+            ],
+            [
+              -90.76,
+              -182.45
+            ],
+            [
+              -105.85,
+              -179.92
+            ],
+            [
+              -120.43,
+              -178.08
+            ],
+            [
+              -107.73,
+              -183.46
+            ],
+            [
+              -94.06,
+              -188.67
+            ],
+            [
+              -80.1,
+              -193.18
+            ],
+            [
+              -66.52,
+              -196.47
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-6",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -90.0,
+              -310.0
+            ],
+            [
+              -104.4,
+              -305.91
+            ],
+            [
+              -121.63,
+              -305.1
+            ],
+            [
+              -140.47,
+              -306.7
+            ],
+            [
+              -159.67,
+              -309.86
+            ],
+            [
+              -177.98,
+              -313.7
+            ],
+            [
+              -160.52,
+              -314.66
+            ],
+            [
+              -141.95,
+              -315.07
+            ],
+            [
+              -123.31,
+              -314.62
+            ],
+            [
+              -105.65,
+              -313.03
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-7",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -90.0,
+              -310.0
+            ],
+            [
+              -103.06,
+              -312.18
+            ],
+            [
+              -117.14,
+              -317.98
+            ],
+            [
+              -131.57,
+              -326.24
+            ],
+            [
+              -145.7,
+              -335.82
+            ],
+            [
+              -158.87,
+              -345.56
+            ],
+            [
+              -144.53,
+              -339.9
+            ],
+            [
+              -129.52,
+              -333.38
+            ],
+            [
+              -114.8,
+              -326.13
+            ],
+            [
+              -101.31,
+              -318.29
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-8",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -90.0,
+              -310.0
+            ],
+            [
+              -98.91,
+              -302.15
+            ],
+            [
+              -110.95,
+              -295.8
+            ],
+            [
+              -124.93,
+              -290.7
+            ],
+            [
+              -139.68,
+              -286.6
+            ],
+            [
+              -153.98,
+              -283.25
+            ],
+            [
+              -141.92,
+              -289.92
+            ],
+            [
+              -128.87,
+              -296.53
+            ],
+            [
+              -115.45,
+              -302.48
+            ],
+            [
+              -102.29,
+              -307.17
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-9",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -120.0,
+              -322.0
+            ],
+            [
+              -132.85,
+              -321.22
+            ],
+            [
+              -147.49,
+              -323.84
+            ],
+            [
+              -163.05,
+              -328.9
+            ],
+            [
+              -178.63,
+              -335.39
+            ],
+            [
+              -193.34,
+              -342.33
+            ],
+            [
+              -178.48,
+              -339.72
+            ],
+            [
+              -162.79,
+              -336.41
+            ],
+            [
+              -147.19,
+              -332.38
+            ],
+            [
+              -132.62,
+              -327.59
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-10",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -120.0,
+              -322.0
+            ],
+            [
+              -129.22,
+              -316.32
+            ],
+            [
+              -140.97,
+              -312.36
+            ],
+            [
+              -154.22,
+              -309.74
+            ],
+            [
+              -167.96,
+              -308.07
+            ],
+            [
+              -181.18,
+              -306.98
+            ],
+            [
+              -169.39,
+              -311.27
+            ],
+            [
+              -156.73,
+              -315.37
+            ],
+            [
+              -143.85,
+              -318.83
+            ],
+            [
+              -131.39,
+              -321.19
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-11",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -46.0,
+              -288.0
+            ],
+            [
+              -57.22,
+              -282.38
+            ],
+            [
+              -71.3,
+              -279.16
+            ],
+            [
+              -87.08,
+              -277.78
+            ],
+            [
+              -103.39,
+              -277.67
+            ],
+            [
+              -119.08,
+              -278.26
+            ],
+            [
+              -104.86,
+              -281.7
+            ],
+            [
+              -89.63,
+              -284.81
+            ],
+            [
+              -74.22,
+              -287.18
+            ],
+            [
+              -59.4,
+              -288.38
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-12",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -46.0,
+              -288.0
+            ],
+            [
+              -52.29,
+              -279.16
+            ],
+            [
+              -61.54,
+              -270.93
+            ],
+            [
+              -72.67,
+              -263.36
+            ],
+            [
+              -84.58,
+              -256.47
+            ],
+            [
+              -96.2,
+              -250.29
+            ],
+            [
+              -87.11,
+              -258.92
+            ],
+            [
+              -77.15,
+              -267.69
+            ],
+            [
+              -66.71,
+              -275.92
+            ],
+            [
+              -56.19,
+              -282.92
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-13",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -62.0,
+              -384.0
+            ],
+            [
+              -73.77,
+              -379.7
+            ],
+            [
+              -88.12,
+              -378.0
+            ],
+            [
+              -103.95,
+              -378.25
+            ],
+            [
+              -120.17,
+              -379.79
+            ],
+            [
+              -135.69,
+              -381.95
+            ],
+            [
+              -121.17,
+              -383.81
+            ],
+            [
+              -105.7,
+              -385.25
+            ],
+            [
+              -90.11,
+              -385.98
+            ],
+            [
+              -75.26,
+              -385.66
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-14",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -62.0,
+              -384.0
+            ],
+            [
+              -73.48,
+              -384.96
+            ],
+            [
+              -86.03,
+              -389.1
+            ],
+            [
+              -99.02,
+              -395.41
+            ],
+            [
+              -111.83,
+              -402.92
+            ],
+            [
+              -123.81,
+              -410.63
+            ],
+            [
+              -111.03,
+              -406.69
+            ],
+            [
+              -97.62,
+              -402.01
+            ],
+            [
+              -84.42,
+              -396.65
+            ],
+            [
+              -72.27,
+              -390.63
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-15",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -84.0,
+              -392.0
+            ],
+            [
+              -92.06,
+              -385.29
+            ],
+            [
+              -102.77,
+              -379.91
+            ],
+            [
+              -115.12,
+              -375.61
+            ],
+            [
+              -128.08,
+              -372.18
+            ],
+            [
+              -140.61,
+              -369.36
+            ],
+            [
+              -129.89,
+              -375.08
+            ],
+            [
+              -118.32,
+              -380.73
+            ],
+            [
+              -106.45,
+              -385.79
+            ],
+            [
+              -94.82,
+              -389.72
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-16",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              82.0,
+              -382.0
+            ],
+            [
+              95.83,
+              -386.64
+            ],
+            [
+              112.71,
+              -388.07
+            ],
+            [
+              131.34,
+              -387.1
+            ],
+            [
+              150.46,
+              -384.52
+            ],
+            [
+              168.79,
+              -381.13
+            ],
+            [
+              151.65,
+              -379.76
+            ],
+            [
+              133.39,
+              -378.88
+            ],
+            [
+              115.02,
+              -378.78
+            ],
+            [
+              97.55,
+              -379.73
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-17",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              82.0,
+              -382.0
+            ],
+            [
+              97.51,
+              -380.25
+            ],
+            [
+              114.6,
+              -373.99
+            ],
+            [
+              132.35,
+              -364.56
+            ],
+            [
+              149.88,
+              -353.3
+            ],
+            [
+              166.26,
+              -341.55
+            ],
+            [
+              148.96,
+              -348.14
+            ],
+            [
+              130.79,
+              -355.7
+            ],
+            [
+              112.84,
+              -364.02
+            ],
+            [
+              96.21,
+              -372.86
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-18",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              82.0,
+              -382.0
+            ],
+            [
+              90.63,
+              -390.64
+            ],
+            [
+              102.55,
+              -398.01
+            ],
+            [
+              116.54,
+              -404.27
+            ],
+            [
+              131.36,
+              -409.57
+            ],
+            [
+              145.78,
+              -414.06
+            ],
+            [
+              133.84,
+              -406.39
+            ],
+            [
+              120.89,
+              -398.69
+            ],
+            [
+              107.53,
+              -391.63
+            ],
+            [
+              94.37,
+              -385.85
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-19",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              118.0,
+              -394.0
+            ],
+            [
+              131.55,
+              -394.18
+            ],
+            [
+              146.87,
+              -390.72
+            ],
+            [
+              163.06,
+              -384.69
+            ],
+            [
+              179.22,
+              -377.13
+            ],
+            [
+              194.45,
+              -369.11
+            ],
+            [
+              178.91,
+              -372.65
+            ],
+            [
+              162.52,
+              -376.94
+            ],
+            [
+              146.26,
+              -381.95
+            ],
+            [
+              131.09,
+              -387.65
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-20",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              118.0,
+              -394.0
+            ],
+            [
+              128.66,
+              -389.7
+            ],
+            [
+              139.47,
+              -382.06
+            ],
+            [
+              150.1,
+              -372.18
+            ],
+            [
+              160.21,
+              -361.18
+            ],
+            [
+              169.46,
+              -350.19
+            ],
+            [
+              158.43,
+              -357.84
+            ],
+            [
+              147.0,
+              -366.36
+            ],
+            [
+              135.94,
+              -375.42
+            ],
+            [
+              126.02,
+              -384.74
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-21",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              118.0,
+              -394.0
+            ],
+            [
+              127.41,
+              -399.35
+            ],
+            [
+              139.29,
+              -402.9
+            ],
+            [
+              152.63,
+              -405.06
+            ],
+            [
+              166.42,
+              -406.25
+            ],
+            [
+              179.67,
+              -406.88
+            ],
+            [
+              167.73,
+              -403.0
+            ],
+            [
+              154.94,
+              -399.34
+            ],
+            [
+              141.94,
+              -396.33
+            ],
+            [
+              129.41,
+              -394.41
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-22",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -44.0,
+              -460.0
+            ],
+            [
+              -56.26,
+              -456.08
+            ],
+            [
+              -71.06,
+              -454.87
+            ],
+            [
+              -87.31,
+              -455.68
+            ],
+            [
+              -103.91,
+              -457.8
+            ],
+            [
+              -119.77,
+              -460.54
+            ],
+            [
+              -104.78,
+              -461.88
+            ],
+            [
+              -88.82,
+              -462.77
+            ],
+            [
+              -72.78,
+              -462.94
+            ],
+            [
+              -57.55,
+              -462.11
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-23",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -44.0,
+              -460.0
+            ],
+            [
+              -55.79,
+              -461.36
+            ],
+            [
+              -68.62,
+              -465.88
+            ],
+            [
+              -81.84,
+              -472.55
+            ],
+            [
+              -94.85,
+              -480.37
+            ],
+            [
+              -107.02,
+              -488.33
+            ],
+            [
+              -93.94,
+              -484.05
+            ],
+            [
+              -80.23,
+              -479.02
+            ],
+            [
+              -66.76,
+              -473.31
+            ],
+            [
+              -54.4,
+              -466.95
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-24",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -44.0,
+              -460.0
+            ],
+            [
+              -51.02,
+              -452.68
+            ],
+            [
+              -60.77,
+              -446.4
+            ],
+            [
+              -72.22,
+              -441.04
+            ],
+            [
+              -84.35,
+              -436.46
+            ],
+            [
+              -96.13,
+              -432.52
+            ],
+            [
+              -86.45,
+              -439.14
+            ],
+            [
+              -75.92,
+              -445.77
+            ],
+            [
+              -65.02,
+              -451.84
+            ],
+            [
+              -54.22,
+              -456.78
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-25",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              -76.0,
+              -472.0
+            ],
+            [
+              -87.03,
+              -470.37
+            ],
+            [
+              -99.82,
+              -471.53
+            ],
+            [
+              -113.53,
+              -474.69
+            ],
+            [
+              -127.35,
+              -479.06
+            ],
+            [
+              -140.45,
+              -483.84
+            ],
+            [
+              -127.49,
+              -482.81
+            ],
+            [
+              -113.76,
+              -481.24
+            ],
+            [
+              -100.08,
+              -479.0
+            ],
+            [
+              -87.22,
+              -475.96
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-26",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              32.0,
+              -456.0
+            ],
+            [
+              42.85,
+              -462.28
+            ],
+            [
+              56.68,
+              -466.44
+            ],
+            [
+              72.31,
+              -468.95
+            ],
+            [
+              88.56,
+              -470.25
+            ],
+            [
+              104.22,
+              -470.81
+            ],
+            [
+              90.24,
+              -466.46
+            ],
+            [
+              75.25,
+              -462.35
+            ],
+            [
+              60.02,
+              -458.94
+            ],
+            [
+              45.35,
+              -456.67
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-27",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              32.0,
+              -456.0
+            ],
+            [
+              43.11,
+              -456.75
+            ],
+            [
+              55.78,
+              -454.49
+            ],
+            [
+              69.23,
+              -450.11
+            ],
+            [
+              82.71,
+              -444.46
+            ],
+            [
+              95.42,
+              -438.42
+            ],
+            [
+              82.57,
+              -440.63
+            ],
+            [
+              69.0,
+              -443.45
+            ],
+            [
+              55.52,
+              -446.93
+            ],
+            [
+              42.92,
+              -451.1
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-28",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              32.0,
+              -456.0
+            ],
+            [
+              37.63,
+              -464.04
+            ],
+            [
+              45.97,
+              -471.48
+            ],
+            [
+              56.03,
+              -478.31
+            ],
+            [
+              66.82,
+              -484.5
+            ],
+            [
+              77.35,
+              -490.06
+            ],
+            [
+              69.17,
+              -482.23
+            ],
+            [
+              60.2,
+              -474.29
+            ],
+            [
+              50.78,
+              -466.84
+            ],
+            [
+              41.26,
+              -460.54
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-29",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              124.0,
+              -200.0
+            ],
+            [
+              137.54,
+              -203.18
+            ],
+            [
+              153.63,
+              -203.12
+            ],
+            [
+              171.14,
+              -200.68
+            ],
+            [
+              188.93,
+              -196.72
+            ],
+            [
+              205.89,
+              -192.12
+            ],
+            [
+              189.58,
+              -192.15
+            ],
+            [
+              172.25,
+              -192.76
+            ],
+            [
+              154.89,
+              -194.13
+            ],
+            [
+              138.48,
+              -196.48
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-30",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              124.0,
+              -200.0
+            ],
+            [
+              136.58,
+              -197.27
+            ],
+            [
+              150.0,
+              -190.91
+            ],
+            [
+              163.67,
+              -182.09
+            ],
+            [
+              176.98,
+              -171.95
+            ],
+            [
+              189.35,
+              -161.65
+            ],
+            [
+              175.7,
+              -167.99
+            ],
+            [
+              161.43,
+              -175.19
+            ],
+            [
+              147.45,
+              -183.07
+            ],
+            [
+              134.68,
+              -191.4
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-31",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              162.0,
+              -212.0
+            ],
+            [
+              174.16,
+              -211.73
+            ],
+            [
+              187.78,
+              -208.05
+            ],
+            [
+              202.1,
+              -201.97
+            ],
+            [
+              216.33,
+              -194.48
+            ],
+            [
+              229.71,
+              -186.58
+            ],
+            [
+              215.9,
+              -190.36
+            ],
+            [
+              201.35,
+              -194.86
+            ],
+            [
+              186.93,
+              -200.01
+            ],
+            [
+              173.53,
+              -205.75
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-32",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              162.0,
+              -212.0
+            ],
+            [
+              171.31,
+              -216.79
+            ],
+            [
+              182.98,
+              -219.64
+            ],
+            [
+              196.04,
+              -221.04
+            ],
+            [
+              209.53,
+              -221.42
+            ],
+            [
+              222.49,
+              -221.24
+            ],
+            [
+              210.73,
+              -218.13
+            ],
+            [
+              198.14,
+              -215.27
+            ],
+            [
+              185.38,
+              -213.05
+            ],
+            [
+              173.11,
+              -211.83
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-33",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              140.0,
+              -280.0
+            ],
+            [
+              153.96,
+              -285.31
+            ],
+            [
+              171.11,
+              -287.63
+            ],
+            [
+              190.1,
+              -287.67
+            ],
+            [
+              209.63,
+              -286.18
+            ],
+            [
+              228.36,
+              -283.86
+            ],
+            [
+              210.96,
+              -281.52
+            ],
+            [
+              192.41,
+              -279.62
+            ],
+            [
+              173.72,
+              -278.51
+            ],
+            [
+              155.91,
+              -278.52
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-34",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              140.0,
+              -280.0
+            ],
+            [
+              153.83,
+              -278.7
+            ],
+            [
+              169.07,
+              -273.42
+            ],
+            [
+              184.91,
+              -265.35
+            ],
+            [
+              200.54,
+              -255.68
+            ],
+            [
+              215.17,
+              -245.62
+            ],
+            [
+              199.73,
+              -251.05
+            ],
+            [
+              183.5,
+              -257.35
+            ],
+            [
+              167.48,
+              -264.37
+            ],
+            [
+              152.65,
+              -271.97
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-35",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              140.0,
+              -280.0
+            ],
+            [
+              150.28,
+              -274.81
+            ],
+            [
+              160.37,
+              -266.27
+            ],
+            [
+              170.05,
+              -255.55
+            ],
+            [
+              179.11,
+              -243.79
+            ],
+            [
+              187.34,
+              -232.15
+            ],
+            [
+              176.96,
+              -240.6
+            ],
+            [
+              166.28,
+              -249.95
+            ],
+            [
+              156.05,
+              -259.87
+            ],
+            [
+              147.04,
+              -270.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-36",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              182.0,
+              -292.0
+            ],
+            [
+              194.7,
+              -294.05
+            ],
+            [
+              209.54,
+              -292.95
+            ],
+            [
+              225.54,
+              -289.57
+            ],
+            [
+              241.71,
+              -284.78
+            ],
+            [
+              257.06,
+              -279.45
+            ],
+            [
+              242.0,
+              -280.54
+            ],
+            [
+              226.05,
+              -282.22
+            ],
+            [
+              210.12,
+              -284.61
+            ],
+            [
+              195.13,
+              -287.83
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-37",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              182.0,
+              -292.0
+            ],
+            [
+              192.74,
+              -289.01
+            ],
+            [
+              203.95,
+              -282.74
+            ],
+            [
+              215.2,
+              -274.28
+            ],
+            [
+              226.05,
+              -264.67
+            ],
+            [
+              236.07,
+              -254.97
+            ],
+            [
+              224.64,
+              -261.18
+            ],
+            [
+              212.74,
+              -268.2
+            ],
+            [
+              201.15,
+              -275.81
+            ],
+            [
+              190.64,
+              -283.82
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-38",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              148.0,
+              -352.0
+            ],
+            [
+              158.95,
+              -358.77
+            ],
+            [
+              173.02,
+              -363.53
+            ],
+            [
+              188.98,
+              -366.67
+            ],
+            [
+              205.6,
+              -368.63
+            ],
+            [
+              221.65,
+              -369.81
+            ],
+            [
+              207.42,
+              -364.88
+            ],
+            [
+              192.16,
+              -360.16
+            ],
+            [
+              176.64,
+              -356.11
+            ],
+            [
+              161.65,
+              -353.23
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-39",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              148.0,
+              -352.0
+            ],
+            [
+              160.12,
+              -353.06
+            ],
+            [
+              174.05,
+              -350.94
+            ],
+            [
+              188.92,
+              -346.54
+            ],
+            [
+              203.87,
+              -340.76
+            ],
+            [
+              218.0,
+              -334.5
+            ],
+            [
+              203.87,
+              -336.66
+            ],
+            [
+              188.92,
+              -339.45
+            ],
+            [
+              174.05,
+              -342.91
+            ],
+            [
+              160.12,
+              -347.08
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "bleaf-40",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              148.0,
+              -352.0
+            ],
+            [
+              158.02,
+              -348.97
+            ],
+            [
+              168.4,
+              -342.93
+            ],
+            [
+              178.76,
+              -334.85
+            ],
+            [
+              188.73,
+              -325.76
+            ],
+            [
+              197.93,
+              -316.63
+            ],
+            [
+              187.31,
+              -322.56
+            ],
+            [
+              176.27,
+              -329.25
+            ],
+            [
+              165.55,
+              -336.51
+            ],
+            [
+              155.88,
+              -344.16
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4E7E5B",
+          "stroke": "#345C40",
+          "strokeWidth": 0.55,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "bleaf-41",
+        "parentId": "bamboo-main",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              186.0,
+              -364.0
+            ],
+            [
+              196.38,
+              -366.95
+            ],
+            [
+              208.84,
+              -367.37
+            ],
+            [
+              222.47,
+              -365.92
+            ],
+            [
+              236.37,
+              -363.28
+            ],
+            [
+              249.64,
+              -360.11
+            ],
+            [
+              237.02,
+              -359.62
+            ],
+            [
+              223.59,
+              -359.55
+            ],
+            [
+              210.11,
+              -360.13
+            ],
+            [
+              197.33,
+              -361.55
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#2C5538",
+          "stroke": "#1D3B26",
+          "strokeWidth": 0.55,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "rock-main",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              430.0,
+              560.0
+            ],
+            [
+              434.38,
+              539.38
+            ],
+            [
+              442.0,
+              514.0
+            ],
+            [
+              453.25,
+              493.62
+            ],
+            [
+              468.0,
+              476.0
+            ],
+            [
+              486.5,
+              462.12
+            ],
+            [
+              508.0,
+              452.0
+            ],
+            [
+              532.38,
+              445.62
+            ],
+            [
+              558.0,
+              444.0
+            ],
+            [
+              583.62,
+              448.62
+            ],
+            [
+              608.0,
+              458.0
+            ],
+            [
+              628.88,
+              471.5
+            ],
+            [
+              648.0,
+              488.0
+            ],
+            [
+              667.75,
+              506.75
+            ],
+            [
+              684.0,
+              526.0
+            ],
+            [
+              692.25,
+              545.38
+            ],
+            [
+              696.0,
+              560.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#89948C",
+          "stroke": "#4E5A53",
+          "strokeWidth": 1.3,
+          "opacity": 0.97
+        }
+      },
+      {
+        "id": "rock-light",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              448.0,
+              518.0
+            ],
+            [
+              457.5,
+              500.38
+            ],
+            [
+              472.0,
+              480.0
+            ],
+            [
+              490.62,
+              467.12
+            ],
+            [
+              512.0,
+              458.0
+            ],
+            [
+              535.5,
+              451.25
+            ],
+            [
+              558.0,
+              450.0
+            ],
+            [
+              579.0,
+              458.62
+            ],
+            [
+              590.0,
+              472.0
+            ],
+            [
+              578.75,
+              487.5
+            ],
+            [
+              556.0,
+              502.0
+            ],
+            [
+              523.88,
+              510.88
+            ],
+            [
+              496.0,
+              516.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B6BFB6",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.66
+        }
+      },
+      {
+        "id": "rock-dark-facet",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              556.0,
+              502.0
+            ],
+            [
+              569.88,
+              485.75
+            ],
+            [
+              590.0,
+              472.0
+            ],
+            [
+              614.88,
+              477.88
+            ],
+            [
+              640.0,
+              492.0
+            ],
+            [
+              660.38,
+              509.5
+            ],
+            [
+              676.0,
+              528.0
+            ],
+            [
+              691.88,
+              544.25
+            ],
+            [
+              688.0,
+              556.0
+            ],
+            [
+              627.75,
+              557.75
+            ],
+            [
+              566.0,
+              556.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#606D66",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.62
+        }
+      },
+      {
+        "id": "rock-left-small",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              280.0,
+              562.0
+            ],
+            [
+              286.62,
+              549.5
+            ],
+            [
+              298.0,
+              536.0
+            ],
+            [
+              315.62,
+              530.0
+            ],
+            [
+              336.0,
+              528.0
+            ],
+            [
+              356.25,
+              529.62
+            ],
+            [
+              376.0,
+              534.0
+            ],
+            [
+              394.62,
+              540.5
+            ],
+            [
+              410.0,
+              548.0
+            ],
+            [
+              419.12,
+              555.88
+            ],
+            [
+              424.0,
+              562.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#9BA59D",
+          "stroke": "#5A665E",
+          "strokeWidth": 1.0,
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "moss-0",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              327.84,
+              539.77
+            ],
+            [
+              326.14,
+              543.04
+            ],
+            [
+              320.65,
+              546.03
+            ],
+            [
+              312.84,
+              547.94
+            ],
+            [
+              304.8,
+              548.26
+            ],
+            [
+              298.7,
+              546.9
+            ],
+            [
+              296.16,
+              544.23
+            ],
+            [
+              297.86,
+              540.96
+            ],
+            [
+              303.35,
+              537.97
+            ],
+            [
+              311.16,
+              536.06
+            ],
+            [
+              319.2,
+              535.74
+            ],
+            [
+              325.3,
+              537.1
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4B6E53",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "moss-1",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              373.93,
+              547.57
+            ],
+            [
+              371.22,
+              550.85
+            ],
+            [
+              364.44,
+              552.82
+            ],
+            [
+              355.39,
+              552.97
+            ],
+            [
+              346.51,
+              551.25
+            ],
+            [
+              340.17,
+              548.13
+            ],
+            [
+              338.07,
+              544.43
+            ],
+            [
+              340.78,
+              541.15
+            ],
+            [
+              347.56,
+              539.18
+            ],
+            [
+              356.61,
+              539.03
+            ],
+            [
+              365.49,
+              540.75
+            ],
+            [
+              371.83,
+              543.87
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3E6147",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "moss-2",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              453.89,
+              547.91
+            ],
+            [
+              451.62,
+              551.92
+            ],
+            [
+              444.62,
+              555.41
+            ],
+            [
+              434.78,
+              557.46
+            ],
+            [
+              424.73,
+              557.5
+            ],
+            [
+              417.17,
+              555.54
+            ],
+            [
+              414.11,
+              552.09
+            ],
+            [
+              416.38,
+              548.08
+            ],
+            [
+              423.38,
+              544.59
+            ],
+            [
+              433.22,
+              542.54
+            ],
+            [
+              443.27,
+              542.5
+            ],
+            [
+              450.83,
+              544.46
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#3C5E45",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "moss-3",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              478.05,
+              477.53
+            ],
+            [
+              477.62,
+              480.18
+            ],
+            [
+              474.61,
+              483.32
+            ],
+            [
+              469.83,
+              486.11
+            ],
+            [
+              464.56,
+              487.8
+            ],
+            [
+              460.21,
+              487.93
+            ],
+            [
+              457.95,
+              486.47
+            ],
+            [
+              458.38,
+              483.82
+            ],
+            [
+              461.39,
+              480.68
+            ],
+            [
+              466.17,
+              477.89
+            ],
+            [
+              471.44,
+              476.2
+            ],
+            [
+              475.79,
+              476.07
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#4C6B54",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "moss-4",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              529.88,
+              456.33
+            ],
+            [
+              528.63,
+              458.93
+            ],
+            [
+              524.52,
+              461.28
+            ],
+            [
+              518.67,
+              462.75
+            ],
+            [
+              512.64,
+              462.95
+            ],
+            [
+              508.04,
+              461.82
+            ],
+            [
+              506.12,
+              459.67
+            ],
+            [
+              507.37,
+              457.07
+            ],
+            [
+              511.48,
+              454.72
+            ],
+            [
+              517.33,
+              453.25
+            ],
+            [
+              523.36,
+              453.05
+            ],
+            [
+              527.96,
+              454.18
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#45634D",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "moss-5",
+        "parentId": "painting",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              622.2,
+              476.12
+            ],
+            [
+              619.99,
+              477.65
+            ],
+            [
+              615.64,
+              477.67
+            ],
+            [
+              610.31,
+              476.17
+            ],
+            [
+              605.44,
+              473.55
+            ],
+            [
+              602.32,
+              470.52
+            ],
+            [
+              601.8,
+              467.88
+            ],
+            [
+              604.01,
+              466.35
+            ],
+            [
+              608.36,
+              466.33
+            ],
+            [
+              613.69,
+              467.83
+            ],
+            [
+              618.56,
+              470.45
+            ],
+            [
+              621.68,
+              473.48
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#455E4B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.72
+        }
+      },
+      {
+        "id": "seal",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 714.0,
+          "y": 52.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 0.92
+        }
+      },
+      {
+        "id": "seal-bg",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              28.0,
+              0.0
+            ],
+            [
+              28.0,
+              28.0
+            ],
+            [
+              0.0,
+              28.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#B53A2E",
+          "stroke": "#87261D",
+          "strokeWidth": 1.0,
+          "opacity": 0.94
+        }
+      },
+      {
+        "id": "seal-inner",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              25.0,
+              3.0
+            ],
+            [
+              25.0,
+              25.0
+            ],
+            [
+              3.0,
+              25.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F6EFE2",
+          "strokeWidth": 1.0,
+          "opacity": 0.88
+        }
+      },
+      {
+        "id": "seal-diamond",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              5.5
+            ],
+            [
+              22.5,
+              14.0
+            ],
+            [
+              14.0,
+              22.5
+            ],
+            [
+              5.5,
+              14.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": null,
+          "stroke": "#F6EFE2",
+          "strokeWidth": 1.2,
+          "opacity": 0.9
+        }
+      },
+      {
+        "id": "seal-core",
+        "parentId": "seal",
+        "type": "polygon",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "geometry": {
+          "points": [
+            [
+              14.0,
+              9.7
+            ],
+            [
+              18.3,
+              14.0
+            ],
+            [
+              14.0,
+              18.3
+            ],
+            [
+              9.7,
+              14.0
+            ]
+          ]
+        },
+        "style": {
+          "fill": "#F6EFE2",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.88
+        }
+      }
+    ],
+    "animations": [
+      {
+        "nodeId": "bamboo-main",
+        "property": "rotation",
+        "from": -1.5,
+        "to": 1.5,
+        "startMs": 0,
+        "endMs": 4000,
+        "easing": "linear"
+      },
+      {
+        "nodeId": "mist-group",
+        "property": "opacity",
+        "from": 0.68,
+        "to": 1.0,
+        "startMs": 0,
+        "endMs": 3200,
+        "easing": "linear"
+      }
+    ],
+    "narrative": [
+      {
+        "timeMs": 0,
+        "caption": "破岩立根：青石坡岸厚重沉稳，为修竹筑牢根基。",
+        "entityIds": [
+          "knowledge-bamboo"
+        ]
+      },
+      {
+        "timeMs": 2000,
+        "caption": "劲节凌风：竹竿分节挺拔、清风拂叶而不折。",
+        "entityIds": [
+          "knowledge-bamboo",
+          "knowledge-integrity"
+        ]
+      },
+      {
+        "timeMs": 3800,
+        "caption": "守正清气：烟岚流转、朱印落款，彰显守正自持风骨。",
+        "entityIds": [
+          "knowledge-integrity"
+        ]
+      }
+    ]
+  },
+  "parameterSchema": [
+    {
+      "name": "bambooColor",
+      "label": "主竹竿色",
+      "description": "修竹竹节主色调（翠绿、墨竹或石青）",
+      "type": "color",
+      "default": "#3E6748"
+    },
+    {
+      "name": "leafColor",
+      "label": "竹叶深色",
+      "description": "前景主竹叶颜色",
+      "type": "color",
+      "default": "#2C5538"
+    },
+    {
+      "name": "rockColor",
+      "label": "青石主色",
+      "description": "坡岸太湖石主体色调",
+      "type": "color",
+      "default": "#89948C"
+    },
+    {
+      "name": "windAngle",
+      "label": "清风倾角",
+      "description": "控制竹林迎风微倾角度（度）",
+      "type": "integer",
+      "default": 0,
+      "min": -5,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "bambooScale",
+      "label": "竹影比例",
+      "description": "整体调整修竹缩放比例",
+      "type": "number",
+      "default": 1.0,
+      "min": 0.84,
+      "max": 1.03,
+      "step": 0.02
+    },
+    {
+      "name": "mistOpacity",
+      "label": "远山烟岚",
+      "description": "远景青山与烟岚透明度（0.1～1.0）",
+      "type": "number",
+      "default": 0.86,
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.05
+    }
+  ],
+  "bindings": [
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-1-seg-0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-1-seg-1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-1-seg-2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-1-seg-3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-1-seg-4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-1-seg-5",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-2-seg-0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-2-seg-1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-2-seg-2",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-2-seg-3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "bambooColor",
+      "nodeId": "culm-2-seg-4",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-0",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-1",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-3",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-6",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-7",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-9",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-11",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-13",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-15",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-16",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-17",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-19",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-22",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-24",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-26",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-28",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-29",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-31",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-33",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-34",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-37",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-38",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-39",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "leafColor",
+      "nodeId": "bleaf-41",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "rockColor",
+      "nodeId": "rock-main",
+      "property": "style.fill"
+    },
+    {
+      "parameter": "windAngle",
+      "nodeId": "bamboo-user",
+      "property": "transform.rotation"
+    },
+    {
+      "parameter": "bambooScale",
+      "nodeId": "bamboo-user",
+      "property": "transform.scaleX"
+    },
+    {
+      "parameter": "bambooScale",
+      "nodeId": "bamboo-user",
+      "property": "transform.scaleY"
+    },
+    {
+      "parameter": "mistOpacity",
+      "nodeId": "mist-user",
+      "property": "style.opacity"
+    }
+  ],
+  "constraints": [],
+  "supportedBackends": [
+    "canvas2d",
+    "css",
+    "webgl"
+  ],
+  "changeNote": "高精度新中式墨竹山石模板（真实竹节轮廓、丰茂柳叶竹叶簇与太湖石点苔）"
+}
