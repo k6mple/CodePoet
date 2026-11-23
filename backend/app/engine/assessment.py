@@ -64,13 +64,13 @@ def _bits(mask):
     return int.from_bytes(mask.tobytes(), 'big')
 
 
-def _foreground(image, background):
+def _foreground(image, background, threshold: int = 8):
     base = Image.new('RGBA', image.size, (*_rgb(background), 255))
     rendered = Image.alpha_composite(base, image.convert('RGBA')).convert('RGB')
     difference = ImageChops.difference(rendered, base.convert('RGB'))
     r, g, b = difference.split()
     peak = ImageChops.lighter(ImageChops.lighter(r, g), b)
-    return rendered, peak.point(lambda value: 255 if value > 8 else 0).convert('1')
+    return rendered, peak.point(lambda value: 255 if value > threshold else 0).convert('1')
 
 
 def assess(ir: DrawingIR, images: dict[int, Image.Image], source: dict, validation: dict) -> Assessment:
@@ -125,8 +125,12 @@ def assess(ir: DrawingIR, images: dict[int, Image.Image], source: dict, validati
                 if ratio > THRESHOLDS['overlapRatio'] and len(overlap_evidence) < 25:
                     overlap_evidence.append(Evidence(message='独立顶层主体交叠，请检查是否符合构图意图。',
                         nodeIds=[first, second], timeMs=time, value=round(ratio, 6)))
-        rendered, foreground = _foreground(image, ir.canvas.background)
-        tolerance = total.convert('L').filter(ImageFilter.MaxFilter(3)).convert('1').resize(image.size, Image.Resampling.NEAREST)
+        # 启用宣纸/素绢底纹时放宽背景微纹阈值（无底纹时严格维持原阈值 8）
+        has_paper = getattr(ir.canvas, 'paper', None) not in (None, 'none')
+        has_feather = any(float(n.style.get('feather') or 0) > 0 for n in scene.nodes)
+        rendered, foreground = _foreground(image, ir.canvas.background, threshold=22 if has_paper else 8)
+        dilate_size = 5 if has_feather else 3
+        tolerance = total.convert('L').filter(ImageFilter.MaxFilter(dilate_size)).convert('1').resize(image.size, Image.Resampling.NEAREST)
         observed = _bits(foreground)
         expected = _bits(tolerance)
         signal, noise = (observed & expected).bit_count(), (observed & ~expected).bit_count()

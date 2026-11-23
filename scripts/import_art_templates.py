@@ -108,17 +108,13 @@ def main() -> int:
             target_id = spec.get("targetTemplateId")
             existing = by_id.get(target_id) if target_id else by_name.get(name)
 
-            # 对升级模板：默认始终检查目标容器；若最新版本 changeNote 与本次一致且未 --force-new-version 则跳过
+            # 若已有已发布版本且 changeNote 与当前一致（且未传 --force-new-version），则幂等跳过；
+            # 若 changeNote 变化（例如模板画质升级），自动追加发布新版本
             if existing is not None and existing.get("publishedVersionId") and not args.force_new_version:
-                if target_id:
-                    pub_ver = api_json(admin_client, "GET", f"/api/v1/template-versions/{existing['publishedVersionId']}")
-                    if pub_ver.get("changeNote") == spec.get("changeNote"):
-                        print(f"[SKIP] {name} ({target_id}) 已是最新美化版 ({existing['publishedVersionId']})")
-                        skipped_count += 1
-                        continue
-                else:
+                pub_ver = api_json(admin_client, "GET", f"/api/v1/template-versions/{existing['publishedVersionId']}")
+                if pub_ver.get("changeNote") == spec.get("changeNote"):
                     print(
-                        f"[SKIP] {name} 已发布（templateId={existing['id']}, "
+                        f"[SKIP] {name} 已是最新已发布版（templateId={existing['id']}, "
                         f"versionId={existing['publishedVersionId']}）"
                     )
                     skipped_count += 1

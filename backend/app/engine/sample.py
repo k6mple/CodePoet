@@ -50,17 +50,22 @@ class IrSampleError(ValueError):
     """IR 不满足采样前提。服务端据此拒绝，而不是画一张错图。"""
 
 
+SUPPORTED_SHADERS = frozenset({"flat", "ink_wash", "gongbi"})
+
+
 @dataclass(frozen=True)
 class SampledNode:
     """一个叶节点在某一时刻的**世界坐标**。"""
 
     id: str
     type: str
-    #: 世界坐标下的顶点序列（圆已展开成 64 边形）
+    #: 世界坐标下的顶点序列（圆已展开成 64 边形；text 为其 4 角包围盒）
     points: tuple[tuple[float, float], ...]
     #: 已包含祖先透明度
     opacity: float
     style: dict[str, Any] = field(default_factory=dict)
+    shader_ref: str = "flat"
+    text: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +74,7 @@ class SampledScene:
     viewport: dict[str, Any]
     background: str | None
     nodes: tuple[SampledNode, ...]
+    paper: str | None = None
 
 
 def _multiply(a: Matrix, b: Matrix) -> Matrix:
@@ -159,9 +165,11 @@ def sample_scene(ir: DrawingIR, time_ms: float = 0) -> SampledScene:
         matrix, opacity = state(node.id)
         if node.type == "group":
             continue
-        if node.material is not None and node.material.shaderRef != "flat":
-            raise IrSampleError("仅支持 flat 材质")
+        shader_ref = node.material.shaderRef if node.material is not None else "flat"
+        if shader_ref not in SUPPORTED_SHADERS:
+            raise IrSampleError(f"不支持的材质着色器：{shader_ref}")
         points = _local_points(node)
+        text_payload = node.geometry.model_dump() if node.type == "text" else None
         sampled.append(
             SampledNode(
                 id=node.id,
@@ -169,6 +177,8 @@ def sample_scene(ir: DrawingIR, time_ms: float = 0) -> SampledScene:
                 points=tuple(_apply(matrix, point) for point in points),
                 opacity=opacity,
                 style=node.style.model_dump() if node.style is not None else {},
+                shader_ref=shader_ref,
+                text=text_payload,
             )
         )
 
@@ -182,6 +192,7 @@ def sample_scene(ir: DrawingIR, time_ms: float = 0) -> SampledScene:
         },
         background=getattr(ir.canvas, "background", None),
         nodes=tuple(sampled),
+        paper=getattr(ir.canvas, "paper", None),
     )
 
 
@@ -229,6 +240,28 @@ def _local_points(node: IRNode) -> list[tuple[float, float]]:
                 cy + float(radius) * math.sin(index * math.pi * 2 / CIRCLE_SEGMENTS),
             )
             for index in range(CIRCLE_SEGMENTS)
+        ]
+    if node.type == "text":
+        x = float(getattr(geometry, "x", 0.0) or 0.0)
+        y = float(getattr(geometry, "y", 0.0) or 0.0)
+        text = str(getattr(geometry, "text", "") or "")
+        font_size = float(getattr(geometry, "fontSize", 20.0) or 20.0)
+        letter_spacing = float(getattr(geometry, "letterSpacing", 4.0) or 0.0)
+        writing_mode = getattr(geometry, "writingMode", "vertical") or "vertical"
+        count = max(1, len(text))
+        span = count * font_size + (count - 1) * letter_spacing
+        if writing_mode == "vertical":
+            return [
+                (x - font_size / 2, y),
+                (x + font_size / 2, y),
+                (x + font_size / 2, y + span),
+                (x - font_size / 2, y + span),
+            ]
+        return [
+            (x, y),
+            (x + span, y),
+            (x + span, y + font_size),
+            (x, y + font_size),
         ]
     raw = getattr(geometry, "points", None) or []
     points = [(float(item[0]), float(item[1])) for item in raw]

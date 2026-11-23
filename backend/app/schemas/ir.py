@@ -48,17 +48,44 @@ class Viewport(BaseModel):
 
 
 class Canvas(BaseModel):
-    """逻辑画布尺寸固定 800×600，只允许换背景色。"""
+    """逻辑画布尺寸固定 800×600，支持背景色与可选纸绢底纹。"""
 
     model_config = ConfigDict(extra="forbid")
 
     width: Literal[800]
     height: Literal[600]
     background: Color
+    # 可选宣纸/素绢/古宣底纹；缺省或 none 时与旧 1.0 纯色底完全一致
+    paper: Literal["none", "xuan", "silk", "aged"] | None = None
+
+
+class GradientStop(BaseModel):
+    """多色标渐变的一个色标节点。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    offset: float = Field(ge=0.0, le=1.0)
+    color: Color
+    opacity: float = Field(default=1.0, ge=0.0, le=1.0)
+
+
+class GradientFill(BaseModel):
+    """基于节点世界包围盒归一化坐标的线性/径向渐变填充。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    type: Literal["linear", "radial"]
+    stops: list[GradientStop] = Field(min_length=2, max_length=6)
+    angle: float = Field(default=90.0, ge=-360.0, le=360.0)
+    cx: float = Field(default=0.5, ge=-0.5, le=1.5)
+    cy: float = Field(default=0.5, ge=-0.5, le=1.5)
+    r: float = Field(default=0.6, gt=0.0, le=2.0)
+    # 开启后以 style.fill 为基准色动态派生工笔深浅渐变，使调色参数对渐变同步生效
+    tintFromFill: bool = False
 
 
 class LeafStyle(BaseModel):
-    """叶子节点样式。四个字段全部必填，没有填充/描边时显式传 null。"""
+    """叶子节点样式。基础四字段必填，高级画质字段均可选以保持 100% 向后兼容。"""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -66,6 +93,10 @@ class LeafStyle(BaseModel):
     stroke: Color | None
     strokeWidth: float = Field(ge=0, le=20)
     opacity: float = Field(ge=0, le=1)
+    gradient: GradientFill | None = None
+    lineCap: Literal["butt", "round", "square"] | None = None
+    lineJoin: Literal["miter", "round", "bevel"] | None = None
+    feather: float | None = Field(default=None, ge=0.0, le=24.0)
 
 
 class GroupStyle(BaseModel):
@@ -77,11 +108,11 @@ class GroupStyle(BaseModel):
 
 
 class Material(BaseModel):
-    """材质只支持 flat；WebGL 等其他后端属于选做，不在此表示。"""
+    """材质着色器：flat 保持旧像素基线，ink_wash/gongbi 启用水墨与工笔质感。"""
 
     model_config = ConfigDict(extra="forbid")
 
-    shaderRef: Literal["flat"]
+    shaderRef: Literal["flat", "ink_wash", "gongbi"]
 
 
 class CircleGeometry(BaseModel):
@@ -106,8 +137,22 @@ class PolylineGeometry(BaseModel):
     points: list[Point] = Field(min_length=2, max_length=512)
 
 
+class TextGeometry(BaseModel):
+    """书法题跋与朱文篆印文字几何。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    x: Coordinate = 0
+    y: Coordinate = 0
+    text: str = Field(min_length=1, max_length=64)
+    fontSize: float = Field(default=20.0, ge=8.0, le=96.0)
+    writingMode: Literal["vertical", "horizontal"] = "vertical"
+    fontFamily: Literal["kai", "song", "seal"] = "kai"
+    letterSpacing: float = Field(default=4.0, ge=0.0, le=32.0)
+
+
 class _NodeBase(BaseModel):
-    """四种节点共有的字段。parentId 必填但可为 null。"""
+    """所有节点共有的字段。parentId 必填但可为 null。"""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -143,9 +188,16 @@ class PolylineNode(_NodeBase):
     material: Material | None = None
 
 
+class TextNode(_NodeBase):
+    type: Literal["text"]
+    geometry: TextGeometry
+    style: LeafStyle
+    material: Material | None = None
+
+
 # 按 type 字段自动分派到具体节点模型
 IRNode = Annotated[
-    GroupNode | CircleNode | PolygonNode | PolylineNode,
+    GroupNode | CircleNode | PolygonNode | PolylineNode | TextNode,
     Field(discriminator="type"),
 ]
 

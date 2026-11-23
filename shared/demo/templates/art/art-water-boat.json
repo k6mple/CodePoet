@@ -24,7 +24,8 @@
     "canvas": {
       "width": 800,
       "height": 600,
-      "background": "#F2F4F0"
+      "background": "#F2F4F0",
+      "paper": "silk"
     },
     "viewport": {
       "x": 0,
@@ -284,7 +285,34 @@
           "fill": "#A6BDB8",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.4
+          "opacity": 0.4,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#A6BDB8",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#A6BDB8",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F2F4F0",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -446,7 +474,37 @@
           "fill": "#6B8E89",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.56
+          "opacity": 0.56,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#6B8E89",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#6B8E89",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#6B8E89",
+                "opacity": 0.14
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -576,7 +634,34 @@
           "fill": "#83A997",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.44
+          "opacity": 0.44,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#83A997",
+                "opacity": 0.92
+              },
+              {
+                "offset": 0.62,
+                "color": "#83A997",
+                "opacity": 0.48
+              },
+              {
+                "offset": 1.0,
+                "color": "#F2F4F0",
+                "opacity": 0.02
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -708,7 +793,33 @@
           "fill": "#F2F4F0",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.72
+          "opacity": 0.72,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F2F4F0",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F2F4F0",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F2F4F0",
+                "opacity": 0.0
+              }
+            ]
+          }
         }
       },
       {
@@ -810,7 +921,33 @@
           "fill": "#F2F4F0",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.68
+          "opacity": 0.68,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F2F4F0",
+                "opacity": 0.72
+              },
+              {
+                "offset": 0.55,
+                "color": "#F2F4F0",
+                "opacity": 0.35
+              },
+              {
+                "offset": 1.0,
+                "color": "#F2F4F0",
+                "opacity": 0.0
+              }
+            ]
+          }
         }
       },
       {
@@ -848,7 +985,34 @@
           "fill": "#A9C0BA",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.28
+          "opacity": 0.28,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 90.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#A9C0BA",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#A9C0BA",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#A9C0BA",
+                "opacity": 0.88
+              }
+            ]
+          }
         }
       },
       {
@@ -886,7 +1050,9 @@
           "fill": "#6B8E89",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.14
+          "opacity": 0.14,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -991,7 +1157,9 @@
           "fill": null,
           "stroke": "#63827C",
           "strokeWidth": 1.3,
-          "opacity": 0.45
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1081,7 +1249,9 @@
           "fill": null,
           "stroke": "#63827C",
           "strokeWidth": 1.3,
-          "opacity": 0.45
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1171,7 +1341,9 @@
           "fill": null,
           "stroke": "#63827C",
           "strokeWidth": 1.3,
-          "opacity": 0.45
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1261,7 +1433,9 @@
           "fill": null,
           "stroke": "#63827C",
           "strokeWidth": 1.3,
-          "opacity": 0.45
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1351,7 +1525,9 @@
           "fill": null,
           "stroke": "#63827C",
           "strokeWidth": 1.3,
-          "opacity": 0.45
+          "opacity": 0.45,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1475,7 +1651,9 @@
           "fill": "#3E4C49",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.18
+          "opacity": 0.18,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1509,7 +1687,9 @@
           "fill": null,
           "stroke": "#63827C",
           "strokeWidth": 1.3,
-          "opacity": 0.52
+          "opacity": 0.52,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1543,7 +1723,9 @@
           "fill": null,
           "stroke": "#7D9B95",
           "strokeWidth": 1.0,
-          "opacity": 0.42
+          "opacity": 0.42,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1601,7 +1783,37 @@
           "fill": "#695A4C",
           "stroke": "#383029",
           "strokeWidth": 1.1,
-          "opacity": 0.96
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#695A4C",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#695A4C",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#695A4C",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -1631,7 +1843,9 @@
           "fill": null,
           "stroke": "#42372F",
           "strokeWidth": 1.0,
-          "opacity": 0.7
+          "opacity": 0.7,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1661,7 +1875,9 @@
           "fill": null,
           "stroke": "#42372F",
           "strokeWidth": 1.0,
-          "opacity": 0.7
+          "opacity": 0.7,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1684,7 +1900,33 @@
           "fill": "#F3C978",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.38
+          "opacity": 0.55,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "radial",
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.52,
+            "tintFromFill": false,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#F3C978",
+                "opacity": 0.88
+              },
+              {
+                "offset": 0.55,
+                "color": "#F3C978",
+                "opacity": 0.4
+              },
+              {
+                "offset": 1.0,
+                "color": "#F3C978",
+                "opacity": 0.0
+              }
+            ]
+          }
         }
       },
       {
@@ -1707,7 +1949,9 @@
           "fill": "#F7D57E",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.96
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1745,7 +1989,9 @@
           "fill": "#3E3A36",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.92
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1779,7 +2025,9 @@
           "fill": "#8C7452",
           "stroke": "#52412A",
           "strokeWidth": 0.9,
-          "opacity": 0.96
+          "opacity": 0.96,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1809,7 +2057,9 @@
           "fill": null,
           "stroke": "#5A4A3A",
           "strokeWidth": 1.5,
-          "opacity": 0.88
+          "opacity": 0.88,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -1891,7 +2141,37 @@
           "fill": "#3E3A36",
           "stroke": "#23201E",
           "strokeWidth": 1.1,
-          "opacity": 0.98
+          "opacity": 0.98,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#3E3A36",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#3E3A36",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#3E3A36",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -1929,7 +2209,9 @@
           "fill": "#5B5449",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.82
+          "opacity": 0.82,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -2045,7 +2327,37 @@
           "fill": "#4B443B",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.92
+          "opacity": 0.92,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#4B443B",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#4B443B",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#4B443B",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2095,7 +2407,9 @@
           "fill": null,
           "stroke": "#5B7E5C",
           "strokeWidth": 1.2,
-          "opacity": 0.78
+          "opacity": 0.78,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -2149,7 +2463,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2203,7 +2547,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2257,7 +2631,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2311,7 +2715,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2361,7 +2795,9 @@
           "fill": null,
           "stroke": "#5B7E5C",
           "strokeWidth": 1.2,
-          "opacity": 0.78
+          "opacity": 0.78,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -2415,7 +2851,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2469,7 +2935,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2523,7 +3019,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2577,7 +3103,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2627,7 +3183,9 @@
           "fill": null,
           "stroke": "#5B7E5C",
           "strokeWidth": 1.2,
-          "opacity": 0.78
+          "opacity": 0.78,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -2681,7 +3239,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2735,7 +3323,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2789,7 +3407,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2843,7 +3491,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -2893,7 +3571,9 @@
           "fill": null,
           "stroke": "#5B7E5C",
           "strokeWidth": 1.2,
-          "opacity": 0.78
+          "opacity": 0.78,
+          "lineCap": "round",
+          "lineJoin": "round"
         }
       },
       {
@@ -2947,7 +3627,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -3001,7 +3711,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -3055,7 +3795,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -3109,7 +3879,37 @@
           "fill": "#678D66",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.84
+          "opacity": 0.84,
+          "lineCap": "round",
+          "lineJoin": "round",
+          "gradient": {
+            "type": "linear",
+            "angle": 125.0,
+            "cx": 0.48,
+            "cy": 0.45,
+            "r": 0.62,
+            "tintFromFill": true,
+            "stops": [
+              {
+                "offset": 0.0,
+                "color": "#678D66",
+                "opacity": 1.0
+              },
+              {
+                "offset": 0.52,
+                "color": "#678D66",
+                "opacity": 0.96
+              },
+              {
+                "offset": 1.0,
+                "color": "#678D66",
+                "opacity": 0.95
+              }
+            ]
+          }
+        },
+        "material": {
+          "shaderRef": "ink_wash"
         }
       },
       {
@@ -3124,7 +3924,7 @@
           "scaleY": 1.0
         },
         "style": {
-          "opacity": 0.92
+          "opacity": 0.94
         }
       },
       {
@@ -3145,24 +3945,24 @@
               0.0
             ],
             [
-              28.0,
+              30.0,
               0.0
             ],
             [
-              28.0,
-              28.0
+              30.0,
+              44.0
             ],
             [
               0.0,
-              28.0
+              44.0
             ]
           ]
         },
         "style": {
-          "fill": "#B53A2E",
-          "stroke": "#87261D",
-          "strokeWidth": 1.0,
-          "opacity": 0.94
+          "fill": "#B5382B",
+          "stroke": "#822219",
+          "strokeWidth": 1.1,
+          "opacity": 0.95
         }
       },
       {
@@ -3183,100 +3983,120 @@
               3.0
             ],
             [
-              25.0,
+              27.0,
               3.0
             ],
             [
-              25.0,
-              25.0
+              27.0,
+              41.0
             ],
             [
               3.0,
-              25.0
+              41.0
             ]
           ]
         },
         "style": {
           "fill": null,
-          "stroke": "#F6EFE2",
-          "strokeWidth": 1.0,
+          "stroke": "#F7F0E4",
+          "strokeWidth": 0.9,
           "opacity": 0.88
         }
       },
       {
-        "id": "seal-diamond",
+        "id": "seal-text",
         "parentId": "seal",
-        "type": "polygon",
+        "type": "text",
         "transform": {
-          "x": 0.0,
-          "y": 0.0,
-          "rotation": 0.0,
-          "scaleX": 1.0,
-          "scaleY": 1.0
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
         },
         "geometry": {
-          "points": [
-            [
-              14.0,
-              5.5
-            ],
-            [
-              22.5,
-              14.0
-            ],
-            [
-              14.0,
-              22.5
-            ],
-            [
-              5.5,
-              14.0
-            ]
-          ]
+          "x": 15.0,
+          "y": 6.5,
+          "text": "若水",
+          "fontSize": 13.5,
+          "writingMode": "vertical",
+          "fontFamily": "seal",
+          "letterSpacing": 3.0
         },
         "style": {
-          "fill": null,
-          "stroke": "#F6EFE2",
-          "strokeWidth": 1.2,
-          "opacity": 0.9
-        }
-      },
-      {
-        "id": "seal-core",
-        "parentId": "seal",
-        "type": "polygon",
-        "transform": {
-          "x": 0.0,
-          "y": 0.0,
-          "rotation": 0.0,
-          "scaleX": 1.0,
-          "scaleY": 1.0
-        },
-        "geometry": {
-          "points": [
-            [
-              14.0,
-              9.7
-            ],
-            [
-              18.3,
-              14.0
-            ],
-            [
-              14.0,
-              18.3
-            ],
-            [
-              9.7,
-              14.0
-            ]
-          ]
-        },
-        "style": {
-          "fill": "#F6EFE2",
+          "fill": "#F8F2E6",
           "stroke": null,
           "strokeWidth": 0.0,
-          "opacity": 0.88
+          "opacity": 0.96
+        }
+      },
+      {
+        "id": "calligraphy",
+        "parentId": null,
+        "type": "group",
+        "transform": {
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "scaleX": 1.0,
+          "scaleY": 1.0
+        },
+        "style": {
+          "opacity": 1.0
+        }
+      },
+      {
+        "id": "poem-col-0",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 664.0,
+          "y": 54.0,
+          "text": "上善若水",
+          "fontSize": 21.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 6.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.84
+        }
+      },
+      {
+        "id": "poem-col-1",
+        "parentId": "calligraphy",
+        "type": "text",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "scaleX": 1,
+          "scaleY": 1
+        },
+        "geometry": {
+          "x": 634.0,
+          "y": 96.0,
+          "text": "利万物而不争",
+          "fontSize": 18.0,
+          "writingMode": "vertical",
+          "fontFamily": "kai",
+          "letterSpacing": 4.0
+        },
+        "style": {
+          "fill": "#3D332B",
+          "stroke": null,
+          "strokeWidth": 0.0,
+          "opacity": 0.74
         }
       }
     ],
@@ -3434,5 +4254,5 @@
     "css",
     "webgl"
   ],
-  "changeNote": "高精度新中式青绿山水孤舟模板（青绿远峰、乌篷孤舟、垂柳与烟波动态）"
+  "changeNote": "高画质终版：宋绢底纹、青绿山水渐隐远峰、湖光倒影与《道德经》竖排题跋篆印"
 }
